@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Work Tracker — Quick Capture</title>
+<style>
+  :root{color-scheme:light;
+    --bg:#faf9f6; --card:#ffffff; --border:#e6e2d8; --border-soft:#efece4;
+    --text:#2b2a27; --muted:#8a8579; --faint:#b3aea2;
+    --mauve:rgb(168,118,142); --sage:rgb(120,148,104); --taupe:rgb(150,134,118); --olive:rgb(150,148,96);
+    --terracotta:rgb(176,122,100); --teal:rgb(94,158,149); --gold:rgb(181,144,66); --rose:rgb(196,120,110); --rfi:rgb(134,128,116);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; line-height:1.55;}
+  .wrap{max-width:900px; margin:0 auto; padding:32px 28px 64px;}
+  .masthead{margin-bottom:22px;}
+  .masthead .eyebrow{font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin:0 0 6px;}
+  .masthead h1{font-size:26px; font-weight:650; margin:0 0 6px;}
+  .masthead .lede{font-size:15px; color:var(--muted); margin:0; max-width:640px;}
+  .voice{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px 20px; margin:18px 0 26px;}
+  .voice p{margin:0 0 10px; font-size:14.5px;}
+  .voice p:last-child{margin-bottom:0;}
+  .voice .tag{display:inline-block; font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--teal); margin-bottom:8px;}
+  .voice h4{font-size:13.5px; font-weight:650; margin:16px 0 4px;}
+  .voice h4:first-of-type{margin-top:0;}
+  .stats{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:30px;}
+  .stat{flex:1; min-width:110px; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px 14px;}
+  .stat .n{font-size:22px; font-weight:650; line-height:1.1;}
+  .stat .l{font-size:12px; color:var(--muted); margin-top:2px;}
+  h2.section{font-size:13px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin:34px 0 4px; display:flex; align-items:center; gap:8px;}
+  h2.section .pill{font-size:10px; letter-spacing:.04em; text-transform:none; background:var(--border-soft); color:var(--muted); padding:2px 8px; border-radius:20px; font-weight:600;}
+  .section-note{font-size:13.5px; color:var(--muted); margin:0 0 16px; max-width:640px;}
+  .empty{font-size:13.5px; color:var(--muted); font-style:italic; background:var(--card); border:1px dashed var(--border); border-radius:12px; padding:14px 16px;}
+  .program{margin-bottom:20px;}
+  .program-head{display:flex; align-items:baseline; gap:10px; margin-bottom:8px; padding-left:10px; border-left:4px solid var(--accent,var(--border)); }
+  .program-head .name{font-weight:650; font-size:15.5px;}
+  .program-head .counts{font-size:12px; color:var(--muted);}
+  .pkg{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:4px 0; margin-bottom:10px; overflow:hidden;}
+  .pkg summary{list-style:none; cursor:pointer; padding:10px 16px; font-size:13.5px; font-weight:600; display:flex; align-items:center; justify-content:space-between;}
+  .pkg summary::-webkit-details-marker{display:none;}
+  .pkg summary .chev{color:var(--muted); font-size:11px; transition:transform .15s;}
+  .pkg[open] summary .chev{transform:rotate(90deg);}
+  .pkg summary .pcounts{font-size:11.5px; color:var(--muted); font-weight:500;}
+  .item{position:relative; padding:9px 36px 9px 13px; margin:0 12px 6px; border-left:3px solid var(--teal); font-size:13.5px;}
+  .item.blocking{border-left-color:var(--terracotta);}
+  .item.unverified{border-left-color:var(--gold); font-style:italic;}
+  .item.watch{border-left-color:var(--border); border-left-style:dashed; color:var(--muted);}
+  .item.completed{border-left-color:rgb(154,116,178);}
+  .badge.w{color:var(--muted); border:1px solid var(--muted);}
+  .badge.c{color:rgb(154,116,178); border:1px solid rgb(154,116,178);}
+  .badge.n{color:var(--rose); border:1px solid var(--rose);}
+  .item .badge{display:inline-block; font-weight:700; font-size:10.5px; border-radius:3px; padding:1px 5px; margin-right:6px; vertical-align:1px;}
+  .badge.p{color:var(--terracotta); border:1px solid var(--terracotta);}
+  .badge.u{color:var(--gold); border:1px solid var(--gold);}
+  .badge.n{color:var(--teal); border:1px solid var(--teal);}
+  .item .meta{font-size:11.5px; color:var(--muted); margin-top:4px;}
+  .item .why{font-size:12px; color:var(--muted); margin-top:4px; border-top:1px dashed var(--border-soft); padding-top:5px;}
+  .talk-group{margin-bottom:18px;}
+  .talk-group h3{font-size:14px; font-weight:650; margin:0 0 8px; padding-left:10px; border-left:4px solid var(--accent,var(--border));}
+  .talk-group h4{font-size:12.5px; font-weight:650; margin:10px 0 3px; padding-left:10px;}
+  .talk-group h4:first-of-type{margin-top:0;}
+  .talk-group p{font-size:13.5px; margin:0 0 8px; padding-left:10px; max-width:660px;}
+  .talk-group p:last-child{margin-bottom:0;}
+  .todo-list{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:6px 0;}
+  .todo-row{display:flex; align-items:flex-start; gap:10px; padding:9px 16px; border-bottom:1px solid var(--border-soft); font-size:13.5px;}
+  .todo-row:last-child{border-bottom:none;}
+  .todo-row input{margin-top:3px;}
+  .todo-row .when{color:var(--muted); font-size:12px;}
+  .copybar{display:flex; justify-content:flex-end; margin-top:10px;}
+  .copybtn{background:var(--text); color:#fff; border:none; border-radius:8px; padding:8px 14px; font-size:13px; font-weight:600; cursor:pointer;}
+  .copybtn:active{opacity:.8;}
+  .copybtn.copied{background:var(--teal);}
+  footer{margin-top:42px; padding-top:16px; border-top:1px solid var(--border); font-size:12.5px; color:var(--muted);}
+
+  /* ---- Quick capture additions ---- */
+  .capture{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px 20px; margin:18px 0 26px;}
+  .capture .tag{display:inline-block; font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--gold); margin-bottom:10px;}
+  .capture-row{display:flex; gap:8px; flex-wrap:wrap;}
+  .capture-row select, .capture-row input[type=text]{font-family:inherit; font-size:13.5px; padding:8px 10px; border:1px solid var(--border); border-radius:8px; background:#fff; color:var(--text);}
+  .capture-row input[type=text]{flex:1; min-width:180px;}
+  .capture-row button{background:var(--text); color:#fff; border:none; border-radius:8px; padding:8px 16px; font-size:13px; font-weight:600; cursor:pointer;}
+  .capture-row button:active{opacity:.8;}
+  .capture-status{font-size:11.5px; color:var(--muted); margin-top:8px;}
+  .pending-list{margin-top:10px;}
+  .pending-row{display:flex; align-items:flex-start; gap:8px; padding:8px 0; border-top:1px dashed var(--border-soft); font-size:13px; flex-wrap:wrap;}
+  .pending-row:first-child{border-top:none;}
+  .pending-row .ptype{color:var(--gold); font-weight:700; font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; border:1px solid var(--gold); border-radius:3px; padding:1px 5px; flex-shrink:0; margin-top:1px;}
+  .pending-row .ptype.ptype-blocker{color:var(--terracotta); border-color:var(--terracotta);}
+  .pending-row .ptype.ptype-watch{color:var(--muted); border-color:var(--muted);}
+  .pending-row .ptype.ptype-complete{color:rgb(154,116,178); border-color:rgb(154,116,178);}
+  .pending-row .ptype.ptype-item{color:var(--teal); border-color:var(--teal);}
+  .pending-row .pbody{flex:1 1 auto; min-width:160px;}
+  .pending-row .pwhen{color:var(--faint); font-size:11px; flex-shrink:0; margin-top:2px; white-space:nowrap;}
+  .pending-row .pedit{background:none; border:1px solid var(--border); color:var(--muted); border-radius:6px; padding:2px 8px; font-size:11px; cursor:pointer; flex-shrink:0; font-family:inherit;}
+  .pending-row .pedit:hover{border-color:var(--muted); color:var(--text);}
+  .pending-row.pending-row-editing{flex-direction:column; align-items:stretch; gap:6px;}
+  .pedit-row{display:flex; gap:6px; flex-wrap:wrap;}
+  .pedit-row select, .pedit-row input[type=text]{font-family:inherit; font-size:12.5px; padding:6px 8px; border:1px solid var(--border); border-radius:6px; background:#fff; color:var(--text);}
+  .pedit-row input[type=text]{flex:1; min-width:140px;}
+  .pedit-row button{font-family:inherit; font-size:12px; font-weight:600; border-radius:6px; padding:6px 12px; cursor:pointer; border:none; background:var(--text); color:#fff;}
+  .pedit-row button.pcancel{background:none; border:1px solid var(--border); color:var(--muted);}
+  .pending-empty{font-size:12.5px; color:var(--faint); font-style:italic;}
+  .done-toggle{position:absolute; top:9px; right:13px; width:15px; height:15px; cursor:pointer; accent-color:var(--sage);}
+  .item.done-pending{opacity:.55; text-decoration:line-through;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="masthead">
+    <p class="eyebrow">Work tracker · briefing</p>
+    <h1>Evening check-in — Monday, June 29, 2026</h1>
+    <p class="lede">Pulled fresh from your vault right now, not from this morning's check-in note — so anything that's moved since then is already reflected below.</p>
+  </div>
+
+  <div class="capture">
+    <span class="tag">Quick capture — while you're at work</span>
+    <div class="capture-row">
+      <select id="capType" onchange="onCapTypeChange()">
+        <option value="item">New item</option>
+        <option value="note">Note — follow-up on an existing item</option>
+        <option value="blocker">Blocker — flag an item as blocking</option>
+        <option value="watch">Watch — add an item to the watch list</option>
+      </select>
+      <select id="capProgram" onchange="onCapProgramChange()">
+        <option>Concourse B</option>
+        <option>Centralized / PBS</option>
+        <option>Cross-program</option>
+        <option>Upcoming</option>
+        <option>RFIs</option>
+        <option>General</option>
+      </select>
+      <select id="capPkg" onchange="onCapPkgChange()"></select>
+      <input type="text" id="capText" placeholder="What happened / what's new…">
+      <button onclick="addCapture()">Add</button>
+    </div>
+    <div class="capture-row" id="capItemRow" style="display:none;">
+      <select id="capItem" style="flex:1 1 100%;"></select>
+    </div>
+    <div class="capture-status" id="capStatus">Saved straight to your tracker sheet — not in the vault yet. Tell me to sync next time we're in a session.</div>
+    <div class="pending-list" id="pendingList"><span class="pending-empty">Nothing pending yet.</span></div>
+  </div>
+
+  <div class="voice">
+    <span class="tag">What I got done today</span>
+
+    <h4>Folded in everything you'd captured at work</h4>
+    <p>Pulled all 22 pending entries from the Quick Capture sheet and worked them into the vault — Tasks.md, RFIs.md, and Milestones.md, each at the right package level. One needed a fix first: an entry logged as a washroom-ceiling note turned out to be a broader Package 5 update — evacuation zoning, the Senez code consultant, the electrical sequence of operations — so it's filed under that instead.</p>
+
+    <h4>Quick Capture can edit, flag, and watch</h4>
+    <p>Every pending item now has an Edit button, backed by a new endpoint on the Apps Script side, so you can fix a capture instead of deleting and redoing it. The type dropdown also gained Blocker and Watch alongside Item and Note. Caught a bug along the way where marking something complete was gluing a stray "C" onto the logged text — fixed.</p>
+
+    <h4>Watch status now lives in the vault too</h4>
+    <p>Tasks.md, the Dashboard, and the callout styling all grew a Watch status — slate, badge <span class="badge w">W</span> — for things that are settled but worth keeping an eye on, separate from Blocking's <span class="badge p">P</span>. Found and fixed a Dashboard parsing bug while wiring it in: a callout box with no header of its own was silently inheriting the previous box's stale one.</p>
+
+    <h4>Every note now carries a date</h4>
+    <p>Captures and notes show a timestamp both here and once they're folded into the vault, so nothing loses its "when" along the way.</p>
+
+    <h4>Deploys to this page are hands-off now</h4>
+    <p>Connected Netlify directly, so updates to this page go out from here without you dragging a file into Netlify Drop.</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="n">39</div><div class="l">outstanding items</div></div>
+    <div class="stat"><div class="n" style="color:var(--terracotta)">4</div><div class="l">blocking</div></div>
+    <div class="stat"><div class="n" style="color:var(--muted)">4</div><div class="l">watch only</div></div>
+    <div class="stat"><div class="n">0</div><div class="l">overdue (yours)</div></div>
+    <div class="stat"><div class="n" style="color:var(--teal)">6</div><div class="l">due by Friday</div></div>
+  </div>
+
+  <h2 class="section">Open items, by program</h2>
+
+  <div class="program">
+    <div class="program-head" style="--accent:var(--mauve)">
+      <span class="name" style="color:var(--mauve)">Concourse B</span>
+      <span class="counts">27 open · 2 blocking · 1 watch</span>
+    </div>
+
+    <details class="pkg">
+      <summary><span>Package 4.2 — Arrivals + Penthouse <span class="chev">▸</span></span><span class="pcounts">1 open</span></summary>
+      <div class="item" data-date="2026-06-29"><span class="badge n">N</span>Chad Gray's Package 4.2 Addendum 04 cover-page request — unresolved
+        <div class="meta">Raised Jun 29 via email. See RFI 000085.2 below — same package, separate issue.</div>
+      </div>
+    </details>
+
+    <details class="pkg" open>
+      <summary><span>Package 4.3 — Building Envelope <span class="chev">▸</span></span><span class="pcounts">1 open · 1 blocking</span></summary>
+      <div class="item blocking" data-date="2026-06-23">
+        <span class="badge p">P</span>Communicate precast-removal recommendation to YYC, await decision
+        <div class="why">Blocked by: waiting on YYC's call. Removing the precast touches the roof of the roofing project and its warranty — that's why this isn't just a detailing question. Same issue as RFI 000099.0 below. <strong>Escalate if no response by Jul 5.</strong></div>
+        <div class="meta">via DTR Con B meeting · raised 2026-06-23</div>
+      </div>
+      <div class="item unverified" data-date="2026-06-29">
+        <span class="badge n">N</span><span class="badge u">U</span>Confirm Trade Log bid-submission deadline for Package 4.3
+        <div class="meta">Believed to be early July, possibly the week of the 23rd — exact date unclear from current notes. Raised Jun 29.</div>
+      </div>
+    </details>
+
+    <details class="pkg" open>
+      <summary><span>Package 5 — Departures Level <span class="chev">▸</span></span><span class="pcounts">21 open · 1 blocking · 1 watch</span></summary>
+      <div class="item blocking" data-date="2026-06-25">
+        <span class="badge p">P</span>Schedule a fuller coordination meeting on door actuator control strategy — architecture vs. electrical vs. security split
+        <div class="why">Blocked by: nothing external — this one's on you to get on the calendar. Greg Pink (SMP) / Chris Heinaranta thread, 2026-06-25. <strong>Target: booked by Fri Jul 3.</strong></div>
+      </div>
+      <div class="item" data-date="2026-06-29">Confirm millwork pricing package timing with Percy Yeung
+        <div class="meta">Raised Jun 25 (Percy Yeung thread). Clarified Jun 29: the package itself goes to YYC July 3; Haptic's review comments are due back June 30.</div>
+      </div>
+      <div class="item" data-date="2026-06-29"><span class="badge n">N</span>Washroom Ceiling Coordination — confirm ceiling build-up and code/evacuation alignment
+        <div class="meta">Raised Jun 29. Structural directed gypsum board below the offset wall with a stud box above, and a suspended gypsum system (CGC) in the open areas, reviewed with Elisa. The light cove is being dropped — structure won't allow it. Elisa is emailing Mechanical and Electrical to coordinate a YYC-standard-matching alternate (a deviation from standard).</div>
+      </div>
+      <div class="item" data-date="2026-06-29"><span class="badge n">N</span>Resolve Revit type-parameter visibility for the toilet transfer clearance element
+        <div class="meta">Raised Jun 29.</div>
+      </div>
+      <div class="item" data-date="2026-06-29"><span class="badge n">N</span>Evacuation zoning — Parks following up with the Senez code consultant on whether Concourse B can be a single evacuation zone, matching Concourse A and C
+        <div class="meta">Raised Jun 29. May have a minor effect on the electrical sequence of operations.</div>
+      </div>
+      <div class="item">Confirm sprinkler grid/event-zone finding was formally documented<div class="meta">Neil Dobie/S+A — low priority. No raised date on record (long-standing item).</div></div>
+      <div class="item" data-date="2026-06-29">Notify VW Mason + AV consultant if new beam location causes screen area loss
+        <div class="meta">Updated Jun 29. Two areas affected. Mid-area — structural will add a beam to accommodate. End area (near Starbucks) — structural raised the beam to the correct location; YYC will be asked this week to choose between keeping it low, raising it for maximum height, or raising it to maintain the 2750mm datum across the concourse.</div>
+      </div>
+      <div class="item" data-date="2026-06-29"><span class="badge n">N</span>Evaluate Kevin Vogt's "Beam Demo" email with Anthony — additional mezzanine framing/columns may affect ceilings, bulkheads, and stone cladding
+        <div class="meta">Raised Jun 29, attachment included. Possibly related to the beam-location item above, but scoped separately.</div>
+      </div>
+      <div class="item" data-date="2026-06-29"><span class="badge n">N</span>Faisal Mohsin's portal frame/storage cabinetry design sketch — confirm the Jul 3 80% package represents approved design intent
+        <div class="meta">Raised Jun 29. <strong>Needs a yes/no before the 80% issuance, Jul 3.</strong></div>
+      </div>
+      <div class="item" data-date="2026-06-29">Confirm/accept new workshop time — Cindy Luk (Entro) flagged a conflict re: Wayfinding &amp; Signage 80% CD set
+        <div class="meta">Flagged Jun 22. Updated Jun 29: Erica Loh/Cindy Luk also asked for the stakeholder workshop slide deck and a model-link ahead of the rescheduled session.</div>
+      </div>
+      <div class="item" data-date="2026-06-29"><span class="badge n">N</span>Hide VW Mason from Revizto ahead of tomorrow's review; flag clash conflicts to Mike (VW Mason)
+        <div class="meta">Raised Jun 29, flagged as priority. <strong>Due Jun 30.</strong></div>
+      </div>
+      <div class="item" data-date="2026-06-26">Confirm what's issued vs. still missing for TP5 coordination<div class="meta">Elisa Leung/Kevin Vogt thread, Jun 26</div></div>
+      <div class="item">Go through Chris Heinaranta's Bluebeam session notes, identify action items
+        <div class="meta">No raised date on record (pre-existing item).</div>
+      </div>
+      <div class="item" data-date="2026-06-29"><span class="badge n">N</span>Decide on wall construction option (lift shaft area) — Anthony presented 3 options, Kevin favors option 3
+        <div class="meta">Raised Jun 29, SME Workshop session. The 240 block wall direction itself is structurally cleared per Kevin — this is about which of the 3 construction options gets used.</div>
+      </div>
+      <div class="item" data-date="2026-06-29"><span class="badge n">N</span>Lift Shaft Structural Detailing — follow up on detailing now that the block wall direction is structurally cleared
+        <div class="meta">Raised Jun 29, SME Workshop session.</div>
+      </div>
+      <div class="item" data-date="2026-06-29"><span class="badge n">N</span>Knuckle Ceiling Drop Coordination — knuckle area needs a dropped ceiling for mechanical (exhaust ducts run above the baffle ceiling)
+        <div class="meta">Raised Jun 29, SME Workshop session. Shadi to coordinate.</div>
+      </div>
+      <div class="item" data-date="2026-06-29"><span class="badge n">N</span>Exhaust Fan Weights — confirm/document weights for the exhaust fans above the baffle ceiling
+        <div class="meta">Raised Jun 29, SME Workshop session.</div>
+      </div>
+      <div class="item" data-date="2026-06-29"><span class="badge n">N</span>Bulkhead/AV Screen stakeholder diagrams — prepare height-option diagrams (knuckle screen bulkhead) ahead of the stakeholder presentation
+        <div class="meta">Raised Jun 29, SME Workshop session. Structural beam review feeds this.</div>
+      </div>
+      <div class="item" data-date="2026-06-29"><span class="badge n">N</span>Fire Cabinet Model Coordination — update the model to reflect the confirmed fire cabinet/portal placement (off stone surfaces)
+        <div class="meta">Raised Jun 29, SME Workshop session. Placement principle is settled (Neil Dobie/Vittorio/Anthony/Shadi) — only the model update is outstanding.</div>
+      </div>
+      <div class="item" data-date="2026-06-29"><span class="badge n">N</span>Terminal Operations RFI check — confirm status
+        <div class="meta">Raised Jun 29, SME Workshop session.</div>
+      </div>
+      <div class="item" data-date="2026-06-29"><span class="badge n">N</span>Movement Joint Modeling
+        <div class="meta">Raised Jun 29, SME Workshop session.</div>
+      </div>
+      <div class="item" data-date="2026-06-29"><span class="badge n">N</span>Summit House Structural Model Update
+        <div class="meta">Raised Jun 29, SME Workshop session. Scope is actually Package 6 (Summit House) — logged here per Shadi's note that this session ties to Package 5; flag if it should move.</div>
+      </div>
+      <div class="item watch" data-date="2026-06-29">
+        <span class="badge w">W</span>Confirm final structural detail for portal sides, communicate thickness to stakeholders
+        <div class="why">Structural is modeling the current strategy and will continue with it until told otherwise — complete for now unless something changes.</div>
+        <div class="meta">Updated Jun 29.</div>
+      </div>
+    </details>
+
+    <details class="pkg">
+      <summary><span>Package 6 — Retail Fitout <span class="chev">▸</span></span><span class="pcounts">2 open</span></summary>
+      <div class="item" data-date="2026-06-28">Retail/banner lighting: cut sheets issued, no feedback loop on record
+        <div class="meta">Confirmed Jun 28 — no longer flagged as unverified.</div>
+      </div>
+      <div class="item" data-date="2026-06-29"><span class="badge n">N</span>Caleb Jacobs' wall-wash lighting cut sheet — review
+        <div class="meta">Raised Jun 29.</div>
+      </div>
+    </details>
+
+    <details class="pkg">
+      <summary><span>Signage (Entro) <span class="chev">▸</span></span><span class="pcounts">1 open</span></summary>
+      <div class="item" data-date="2026-06-28">Waiting on Entro's answer on washroom signage placement — align to the door? Room ID centered on the panel next to the door, or set 2" from the door frame?
+        <div class="meta">Question sent Jun 28, response pending.</div>
+      </div>
+    </details>
+
+    <details class="pkg">
+      <summary><span>Material keynotes <span class="chev">▸</span></span><span class="pcounts">1 open</span></summary>
+      <div class="item" data-date="2026-06-29">Set up material keynotes mapped to Specification sections, publish to ACC for Haptic/K-Studio
+        <div class="meta">Finish schedule mapped in Jun 28; sent to Rick Adams with a specs question. Sent Elisa (Interiors) a question about millwork metal Jun 29. Next: Haptic adds the keynotes to their model.</div>
+      </div>
+    </details>
+  </div>
+
+  <div class="program">
+    <div class="program-head" style="--accent:var(--sage)">
+      <span class="name" style="color:var(--sage)">Centralized / PBS</span>
+      <span class="counts">2 open · 1 blocking · 2 watch</span>
+    </div>
+
+    <details class="pkg" open>
+      <summary><span>NPSC <span class="chev">▸</span></span><span class="pcounts">1 blocking</span></summary>
+      <div class="item blocking" data-date="2026-06-29">
+        <span class="badge p">P</span>NPSC security-door hardware — waiting on the YYC letter confirming security-door direction
+        <div class="why">Blocked by: YYC's letter. Josh Garcia (Dialog contract administrator) is the one chasing it. Once YYC responds, the next step is updating the door schedule with the hardware consultant.</div>
+        <div class="meta">Updated Jun 29 — the security counter itself has been relocated to the required position; still waiting on YYC's letter for the door hardware.</div>
+      </div>
+    </details>
+
+    <details class="pkg">
+      <summary><span>Lighting <span class="chev">▸</span></span><span class="pcounts">1 open</span></summary>
+      <div class="item" data-date="2026-06-23">L17 Light Fixture Alternate — revised concept, team feedback/effort estimates requested
+        <div class="meta">Erica Loh, Jun 23 — grid type + plexiglass specs sit with Erica's design team, not you directly.</div>
+      </div>
+    </details>
+
+    <details class="pkg">
+      <summary><span>Signage (Entro) <span class="chev">▸</span></span><span class="pcounts">1 watch</span></summary>
+      <div class="item watch" data-date="2026-06-23">
+        <span class="badge w">W</span>Confirm regulatory signage approach from the YYC PBS Wayfinding Kick-Off
+        <div class="why">Valerie Moss, Jun 23 — moved to watch at your request, no walkthrough scheduled yet, nothing to action until one is.</div>
+      </div>
+    </details>
+
+    <details class="pkg" open>
+      <summary><span>General <span class="chev">▸</span></span><span class="pcounts">1 open · 1 watch</span></summary>
+      <div class="item" data-date="2026-06-28">NPS/electrical scope dispute — YYC raised design gaps and fee pushback, team debating continuing vs. withdrawing scope
+        <div class="meta">Confirmed Jun 28 — no longer flagged as unverified.</div>
+      </div>
+      <div class="item watch" data-date="2026-05-28"><span class="badge w">W</span>Operations and Staging Lighting — 1/2 sub-items, overdue since May 28
+        <div class="why">Not your task — Planner board item, flagged here only because it could affect your coordination timeline.</div>
+      </div>
+    </details>
+  </div>
+
+  <div class="program">
+    <div class="program-head" style="--accent:var(--taupe)">
+      <span class="name" style="color:var(--taupe)">Cross-program</span>
+      <span class="counts">2 open · 1 watch</span>
+    </div>
+    <div class="pkg" style="padding:6px 0;">
+      <div class="item watch" data-date="2026-06-26">
+        <span class="badge w">W</span>YYC Masterplan Model — scope gaps, needs direction
+        <div class="why">Erica Loh flagged this Jun 23, recapped again Jun 26 — TP5 noted as the priority. Moved to watch at your request. Separate from Concourse B's similarly-named "Master Thematic Plan."</div>
+      </div>
+      <div class="item" data-date="2026-07-02">BIM Transition Plan — next-steps lunch with John Souleles (Studio Chair) and Matt Parks
+        <div class="meta">Thursday, Jul 2 — firm-level, separate from any single project.</div>
+      </div>
+      <div class="item" data-date="2026-07-09"><span class="badge n">N</span>IT Systems / VDGS review — Shane Zbrodoff
+        <div class="meta">Thursday, Jul 9 — moved from an earlier date.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="program">
+    <div class="program-head" style="--accent:var(--olive)">
+      <span class="name" style="color:var(--olive)">Upcoming</span>
+      <span class="counts">1 open</span>
+    </div>
+    <div class="pkg" style="padding:6px 0;">
+      <div class="item" data-date="2026-06-30">YYC Security meeting on PSL doors + exit core door hardware
+        <div class="meta">Tuesday AM, Jun 30</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="program">
+    <div class="program-head" style="--accent:var(--rfi)">
+      <span class="name" style="color:var(--rfi)">RFIs</span>
+      <span class="counts">3 open · 1 blocking</span>
+    </div>
+
+    <details class="pkg" open>
+      <summary><span>Concourse B — Onware <span class="chev">▸</span></span><span class="pcounts">2 open · 1 blocking</span></summary>
+      <div class="item" data-date="2026-06-29"><span class="badge n">N</span>RFI 000085.2 — Penthouse Paint Abatement — waiting response
+        <div class="meta">Raised Jun 29. Package 4.2 — separate from Chad Gray's Addendum 04 cover-page question above.</div>
+      </div>
+      <div class="item" data-date="2026-06-25">RFI 000104.0 — NAVCAN Fiber Cable — waiting on Mikaelyn Sych<div class="meta">Raised Jun 25, your action required</div></div>
+      <div class="item blocking" data-date="2026-06-28">
+        <span class="badge p">P</span>RFI 000099.0 — Precast Parapet Tie-in Detail — waiting on Mikaelyn Sych
+        <div class="why">Same underlying issue as the Package 4.3 task above — removing the precast affects the roof warranty, which is why YYC's direction matters. PCL has found a way to test it: they'll try removing the existing parapet cap to access the bolt — if it comes out, the detail stays as-is, if not, the detail gets revised. Josh will follow up at the construction meeting. <strong>Escalate if no response by Jul 5.</strong></div>
+        <div class="meta">Raised Jun 23, found in Monday's batch Jun 28</div>
+      </div>
+    </details>
+
+    <details class="pkg">
+      <summary><span>Centralized / PBS — Planner board <span class="chev">▸</span></span><span class="pcounts">1 open</span></summary>
+      <div class="item">RFI 247 — Access &amp; Support Above CM3 Ceiling Q2 — 1/4 sub-items done (ME+ST+EL)</div>
+    </details>
+  </div>
+
+  <h2 class="section">Completed today <span class="pill">resolved since this morning</span></h2>
+
+  <div class="talk-group" style="--accent:var(--mauve)">
+    <h3 style="color:var(--mauve)">Concourse B</h3>
+    <h4>Package 5 — Haptic metal-panel question resolved</h4>
+    <p>Not needed — the WC doors in question aren't exit doors, so no metal panel is required above them.</p>
+    <h4>Package 5 — diffuser placement &amp; fan sizing confirmed</h4>
+    <p>Fan sizing is confirmed (small unit) and modeled for one of the diffusers from SME Workshop #20.</p>
+    <h4>Package 5 — storage-unit card readers &amp; signage adjusted</h4>
+    <p>Done, now that the extra space is available.</p>
+  </div>
+
+  <h2 class="section">Worth putting on your Microsoft To Do</h2>
+  <p class="section-note">No auto-sync into To Do, so these are the ones I'd actually carry over to your phone — the rest is fine living in the vault only.</p>
+  <div class="todo-list" id="todoList">
+    <div class="todo-row"><input type="checkbox"><span>Hide VW Mason from Revizto ahead of tomorrow's review, flag clash conflicts to Mike <span class="when">— by Jun 30</span></span></div>
+    <div class="todo-row"><input type="checkbox"><span>Millwork pricing — Haptic's comments due back, package goes to YYC <span class="when">— Jun 30 / Jul 3</span></span></div>
+    <div class="todo-row"><input type="checkbox"><span>YYC Security meeting, PSL + exit-core doors <span class="when">— Tue AM, Jun 30</span></span></div>
+    <div class="todo-row"><input type="checkbox"><span>Schedule the door-actuator coordination meeting (Package 5) <span class="when">— by Fri, Jul 3</span></span></div>
+    <div class="todo-row"><input type="checkbox"><span>Faisal Mohsin's portal frame/storage cabinetry sketch — confirm it's approved design intent before the 80% issuance <span class="when">— by Fri, Jul 3</span></span></div>
+    <div class="todo-row"><input type="checkbox"><span>Knuckle Transition boundary decision — DLG presenting to OAC/YYC <span class="when">— Jul 2</span></span></div>
+    <div class="todo-row"><input type="checkbox"><span>BIM Transition Plan lunch with John + Matt Parks <span class="when">— Thu, Jul 2</span></span></div>
+    <div class="todo-row"><input type="checkbox"><span>Chase precast/RFI 000099.0 if YYC hasn't responded — PCL is testing removability now <span class="when">— by Jul 5</span></span></div>
+    <div class="todo-row"><input type="checkbox"><span>Confirm Trade Log bid-submission deadline for Package 4.3 <span class="when">— this week</span></span></div>
+    <div class="todo-row"><input type="checkbox"><span>Resolve Revit type-parameter visibility — toilet transfer clearance element <span class="when">— this week</span></span></div>
+    <div class="todo-row"><input type="checkbox"><span>Coordinate with Haptic to add the keynotes to their model <span class="when">— this week</span></span></div>
+  </div>
+  <div class="copybar"><button class="copybtn" id="copyBtn" onclick="copyTodo()">Copy list</button></div>
+
+  <footer>
+    This reads straight from Tasks.md and RFIs.md each time we sit down to check in — Obsidian stays the system of record, this is just a friendlier way to look at it. Items you add or check off here land in a tracker sheet, not the vault, until you tell me to sync.<br>
+    Badges: <span class="badge p">P</span> blocking · <span class="badge u">U</span> unverified · <span class="badge w">W</span> watch-only · <span class="badge n">N</span> new since last check-in · <span class="badge c">C</span> completed today.
+  </footer>
+
+</div>
+<script>
+// ===== Paste your deployed Apps Script Web App URL below =====
+var API_URL = 'https://script.google.com/macros/s/AKfycbxyXNwkwuVce17hEA-fKff-sdHt1mXYOpf7ZSgoUZX9vWvJVlrp3BDLKIpki2F8uRFt/exec';
+
+function copyTodo(){
+  var rows = document.querySelectorAll('#todoList .todo-row span:not(.when)');
+  var lines = [];
+  document.querySelectorAll('#todoList .todo-row').forEach(function(r){
+    var text = r.textContent.trim().replace(/\s+/g,' ');
+    lines.push('- ' + text);
+  });
+  var out = lines.join('\n');
+  function done(){
+    var btn = document.getElementById('copyBtn');
+    btn.textContent = 'Copied';
+    btn.classList.add('copied');
+    setTimeout(function(){ btn.textContent='Copy list'; btn.classList.remove('copied'); }, 1600);
+  }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(out).then(done, fallback);
+  } else { fallback(); }
+  function fallback(){
+    var ta = document.createElement('textarea');
+    ta.value = out; document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); }catch(e){}
+    document.body.removeChild(ta); done();
+  }
+}
+
+// ===== Quick capture / mark-complete, backed by a Google Sheet =====
+
+function setStatus(msg){
+  document.getElementById('capStatus').textContent = msg;
+}
+
+function localQueueKey(){ return 'wt-capture-queue'; }
+
+function queueLocally(payload){
+  var q = JSON.parse(localStorage.getItem(localQueueKey()) || '[]');
+  q.push(payload);
+  localStorage.setItem(localQueueKey(), JSON.stringify(q));
+}
+
+function flushLocalQueue(){
+  if(!API_URL || API_URL.indexOf('PASTE_') === 0) return;
+  var q = JSON.parse(localStorage.getItem(localQueueKey()) || '[]');
+  if(!q.length) return;
+  var remaining = [];
+  q.forEach(function(payload){
+    sendToSheet(payload, function(ok){
+      if(!ok) remaining.push(payload);
+      localStorage.setItem(localQueueKey(), JSON.stringify(remaining));
+    });
+  });
+}
+
+function sendToSheet(payload, cb){
+  fetch(API_URL, {
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'}, // avoids a CORS preflight against Apps Script
+    body: JSON.stringify(payload)
+  }).then(function(r){ return r.json(); })
+    .then(function(){ if(cb) cb(true); })
+    .catch(function(){ if(cb) cb(false); });
+}
+
+// ===== Program → package map (mirrors the static sections below) =====
+// Empty array = a flat program with no named packages (Cross-program, Upcoming,
+// and any new program created on the fly) — capture falls back to a generic bucket.
+var PROGRAM_PACKAGES = {
+  'Concourse B': ['Package 4.2 — Arrivals + Penthouse','Package 4.3 — Building Envelope','Package 5 — Departures Level','Package 6 — Retail Fitout','Signage (Entro)','Material keynotes'],
+  'Centralized / PBS': ['NPSC','Lighting','Signage (Entro)','General'],
+  'Cross-program': [],
+  'Upcoming': [],
+  'RFIs': ['Concourse B — Onware','Centralized / PBS — Planner board'],
+  'General': []
+};
+
+function pkgDisplayName(pkgEl){
+  var span = pkgEl.querySelector('summary > span:first-child');
+  if(!span) return '';
+  return span.textContent.replace(/▸/g,'').trim();
+}
+
+function findPkgBlock(programEl, pkgName){
+  if(!programEl || !pkgName) return null;
+  var blocks = programEl.querySelectorAll('.pkg');
+  for(var i=0;i<blocks.length;i++){
+    if(pkgDisplayName(blocks[i]) === pkgName) return blocks[i];
+  }
+  return null;
+}
+
+function getItemMainText(item){
+  var clone = item.cloneNode(true);
+  Array.prototype.slice.call(clone.querySelectorAll('.meta, .why, .badge, .done-toggle')).forEach(function(n){ n.remove(); });
+  return clone.textContent.trim().replace(/\s+/g,' ');
+}
+
+function refreshCapPkg(){
+  var program = document.getElementById('capProgram').value;
+  var pkgSel = document.getElementById('capPkg');
+  var pkgs = PROGRAM_PACKAGES[program] || [];
+  pkgSel.innerHTML = '';
+  var generalOpt = document.createElement('option');
+  generalOpt.value = '';
+  generalOpt.textContent = pkgs.length ? 'No specific package' : 'No packages in this program';
+  pkgSel.appendChild(generalOpt);
+  pkgs.forEach(function(p){
+    var opt = document.createElement('option');
+    opt.value = p; opt.textContent = p;
+    pkgSel.appendChild(opt);
+  });
+  refreshCapItem();
+}
+
+function refreshCapItem(){
+  var program = document.getElementById('capProgram').value;
+  var pkgName = document.getElementById('capPkg').value;
+  var sel = document.getElementById('capItem');
+  sel.innerHTML = '';
+  var generalOpt = document.createElement('option');
+  generalOpt.value = '';
+  generalOpt.textContent = pkgName ? 'General note for this package (not one specific item)' : 'General note for this program (not one specific item)';
+  sel.appendChild(generalOpt);
+
+  var prog = findProgramBlock(program);
+  var items = [];
+  if(prog){
+    if(pkgName){
+      var pkgBlock = findPkgBlock(prog, pkgName);
+      if(pkgBlock) items = Array.prototype.slice.call(pkgBlock.querySelectorAll('.item'));
+    } else {
+      items = Array.prototype.slice.call(prog.querySelectorAll('.item'));
+    }
+  }
+  items.forEach(function(it){
+    var full = getItemMainText(it).slice(0,200);
+    var snippet = full.length > 90 ? full.slice(0,90) + '…' : full;
+    var opt = document.createElement('option');
+    opt.value = full;
+    opt.textContent = snippet;
+    sel.appendChild(opt);
+  });
+}
+
+function onCapTypeChange(){
+  var type = document.getElementById('capType').value;
+  var needsItemRef = (type === 'note' || type === 'blocker' || type === 'watch');
+  document.getElementById('capItemRow').style.display = needsItemRef ? '' : 'none';
+  if(needsItemRef) refreshCapItem();
+  var textEl = document.getElementById('capText');
+  textEl.placeholder = type === 'blocker' ? "Why it's blocking (optional context)…"
+    : type === 'watch' ? 'Why to watch it (optional context)…'
+    : type === 'note' ? 'What happened / what\'s new…'
+    : "What happened / what's new…";
+}
+
+function onCapProgramChange(){ refreshCapPkg(); }
+function onCapPkgChange(){ refreshCapItem(); }
+
+function addCapture(){
+  var type = document.getElementById('capType').value;
+  var program = document.getElementById('capProgram').value;
+  var pkg = document.getElementById('capPkg').value;
+  var needsItemRef = (type === 'note' || type === 'blocker' || type === 'watch');
+  var itemRef = needsItemRef ? document.getElementById('capItem').value : '';
+  var textEl = document.getElementById('capText');
+  var text = textEl.value.trim();
+  if(!text) return;
+  var payload = {type:type, program:program, pkg:pkg, itemRef:itemRef, text:text, ts:new Date().toISOString()};
+  renderPendingRow(payload);
+  if(type === 'item'){ insertCapturedItem(program, pkg, text); }
+  textEl.value = '';
+  if(!API_URL || API_URL.indexOf('PASTE_') === 0){
+    queueLocally(payload);
+    setStatus('Saved locally — Apps Script URL not configured yet, so nothing has synced to the sheet.');
+    return;
+  }
+  sendToSheet(payload, function(ok){
+    if(ok){ setStatus('Saved to your tracker sheet — not in the vault yet. Tell me to sync next time we\'re in a session.'); }
+    else { queueLocally(payload); setStatus('Could not reach the sheet right now — saved locally, will retry.'); }
+  });
+}
+
+// ===== Live counts: stat tiles, program headers, package headers =====
+// Convention (verified against the original snapshot): "open" = items that
+// are neither blocking nor watch-only; blocking/watch are reported alongside,
+// not subtracted from a separate total. Outstanding (top stat) = open + blocking,
+// i.e. everything actionable — watch-only items are shown but not counted, since
+// they aren't actually yours to chase.
+
+function isDone(item){ return item.classList.contains('done-pending'); }
+
+function formatCounts(open, blocking, watch){
+  var parts = [];
+  if(open > 0) parts.push(open + ' open');
+  if(blocking > 0) parts.push(blocking + ' blocking');
+  if(watch > 0) parts.push(watch + ' watch');
+  return parts.length ? parts.join(' · ') : '0 open';
+}
+
+function tally(items){
+  var open=0, blocking=0, watch=0;
+  items.forEach(function(it){
+    if(isDone(it)) return;
+    if(it.classList.contains('blocking')) blocking++;
+    else if(it.classList.contains('watch')) watch++;
+    else open++;
+  });
+  return {open:open, blocking:blocking, watch:watch};
+}
+
+// ===== Sort: status group first (Blocking > New > Open > Watch; done items always
+// last), then newest-first by data-date within each group. Runs on every .pkg
+// container (covers both <details class="pkg"> and the flat <div class="pkg">
+// wrappers used by Cross-program/Upcoming/RFI sections). A sub-group label that
+// isn't itself an .item (e.g. a workshop-session heading) can't be sorted along
+// with items, so don't rely on positional labels — fold that context into each
+// item's own .meta text instead, as done for the SME Workshop items above.
+
+function itemPriority(item){
+  if(isDone(item)) return 4;
+  if(item.classList.contains('blocking')) return 0;
+  if(item.querySelector(':scope > .badge.n')) return 1;
+  if(item.classList.contains('watch')) return 3;
+  return 2;
+}
+
+function itemDateValue(item){
+  var d = item.getAttribute('data-date');
+  if(!d) return -Infinity; // no recorded date — sorts last within its group
+  var t = new Date(d + 'T00:00:00').getTime();
+  return isNaN(t) ? -Infinity : t;
+}
+
+function sortItemsInContainer(container){
+  var items = Array.prototype.slice.call(container.children).filter(function(el){
+    return el.classList && el.classList.contains('item');
+  });
+  if(items.length < 2) return;
+  items.sort(function(a,b){
+    var pa = itemPriority(a), pb = itemPriority(b);
+    if(pa !== pb) return pa - pb;
+    return itemDateValue(b) - itemDateValue(a); // newest first within the group
+  });
+  items.forEach(function(it){ container.appendChild(it); });
+}
+
+function sortAllItems(){
+  document.querySelectorAll('.pkg').forEach(sortItemsInContainer);
+}
+
+function recalcCounts(){
+  sortAllItems();
+  var grandOpen=0, grandBlocking=0, grandWatch=0;
+
+  document.querySelectorAll('.program').forEach(function(prog){
+    var t = tally(Array.prototype.slice.call(prog.querySelectorAll('.item')));
+    var countsEl = prog.querySelector('.program-head .counts');
+    if(countsEl) countsEl.textContent = formatCounts(t.open, t.blocking, t.watch);
+    grandOpen += t.open; grandBlocking += t.blocking; grandWatch += t.watch;
+
+    prog.querySelectorAll('details.pkg').forEach(function(pkg){
+      var pcountsEl = pkg.querySelector('.pcounts');
+      if(!pcountsEl) return;
+      var pt = tally(Array.prototype.slice.call(pkg.querySelectorAll('.item')));
+      pcountsEl.textContent = formatCounts(pt.open, pt.blocking, pt.watch);
+    });
+  });
+
+  var statEls = document.querySelectorAll('.stats .stat .n');
+  if(statEls[0]) statEls[0].textContent = grandOpen + grandBlocking; // outstanding = actionable (excludes watch-only)
+  if(statEls[1]) statEls[1].textContent = grandBlocking;
+  if(statEls[2]) statEls[2].textContent = grandWatch;
+  // statEls[3] (overdue) and statEls[4] (due by Friday) are date-driven and
+  // aren't derivable from item classes — left as last set by Claude.
+}
+
+function setBadgeComplete(item){
+  var existing = item.querySelector(':scope > .badge');
+  if(item.dataset.origBadge === undefined){
+    item.dataset.origBadge = existing ? existing.outerHTML : '';
+  }
+  if(existing){
+    existing.outerHTML = '<span class="badge c">C</span>';
+  } else {
+    var b = document.createElement('span');
+    b.className = 'badge c';
+    b.textContent = 'C';
+    item.insertBefore(b, item.firstChild);
+  }
+}
+
+function restoreBadge(item){
+  if(item.dataset.origBadge === undefined) return;
+  var current = item.querySelector(':scope > .badge.c');
+  if(!current) return;
+  if(item.dataset.origBadge){ current.outerHTML = item.dataset.origBadge; }
+  else { current.remove(); }
+}
+
+function programColor(name){
+  var map = {
+    'Concourse B': 'var(--mauve)',
+    'Centralized / PBS': 'var(--sage)',
+    'Cross-program': 'var(--taupe)',
+    'Upcoming': 'var(--olive)',
+    'RFIs': 'var(--rfi)',
+    'General': 'var(--gold)'
+  };
+  return map[name] || 'var(--gold)';
+}
+
+function findProgramBlock(name){
+  var heads = document.querySelectorAll('.program-head .name');
+  for(var i=0;i<heads.length;i++){
+    if(heads[i].textContent.trim() === name) return heads[i].closest('.program');
+  }
+  return null;
+}
+
+function ensureProgramBlock(name){
+  var existing = findProgramBlock(name);
+  if(existing) return existing;
+  var prog = document.createElement('div');
+  prog.className = 'program';
+  var color = programColor(name);
+  prog.innerHTML =
+    '<div class="program-head" style="--accent:' + color + '">' +
+      '<span class="name" style="color:' + color + '">' + escapeHtml(name) + '</span>' +
+      '<span class="counts"></span>' +
+    '</div>';
+  var heading = Array.prototype.filter.call(document.querySelectorAll('h2.section'), function(h){
+    return h.textContent.indexOf('Completed today') !== -1;
+  })[0];
+  if(heading){ heading.parentNode.insertBefore(prog, heading); }
+  else { document.querySelector('.wrap').appendChild(prog); }
+  return prog;
+}
+
+function ensureCapturePkg(programEl){
+  var pkg = programEl.querySelector('.pkg[data-capture="1"]');
+  if(pkg) return pkg;
+  pkg = document.createElement('details');
+  pkg.className = 'pkg';
+  pkg.setAttribute('data-capture', '1');
+  pkg.open = true;
+  pkg.innerHTML = '<summary><span>Captured at work <span class="chev">▸</span></span><span class="pcounts"></span></summary>';
+  programEl.querySelector('.program-head').insertAdjacentElement('afterend', pkg);
+  return pkg;
+}
+
+function ensureNamedCapturePkg(programEl, pkgName){
+  var existing = findPkgBlock(programEl, pkgName);
+  if(existing) return existing;
+  var pkg = document.createElement('details');
+  pkg.className = 'pkg';
+  pkg.open = true;
+  pkg.innerHTML = '<summary><span>' + escapeHtml(pkgName) + ' <span class="chev">▸</span></span><span class="pcounts"></span></summary>';
+  programEl.querySelector('.program-head').insertAdjacentElement('afterend', pkg);
+  return pkg;
+}
+
+function insertCapturedItem(programName, pkgName, text){
+  var prog = ensureProgramBlock(programName || 'General');
+  var pkg = pkgName ? ensureNamedCapturePkg(prog, pkgName) : ensureCapturePkg(prog);
+  var item = document.createElement('div');
+  item.className = 'item';
+  item.setAttribute('data-date', new Date().toISOString().slice(0,10));
+  item.innerHTML = '<span class="badge n">N</span>' + escapeHtml(text) +
+    '<div class="meta">Added today — pending sync</div>';
+  pkg.appendChild(item);
+  wireDoneToggles();
+  recalcCounts();
+}
+
+function getItemLocation(item){
+  var progEl = item.closest('.program');
+  var nameEl = progEl ? progEl.querySelector('.program-head .name') : null;
+  var program = nameEl ? nameEl.textContent.trim() : '';
+  var pkgEl = item.closest('.pkg');
+  var pkg = pkgEl ? pkgDisplayName(pkgEl) : '';
+  return {program:program, pkg:pkg};
+}
+
+function logComplete(payload){
+  if(!API_URL || API_URL.indexOf('PASTE_') === 0){ queueLocally(payload); return; }
+  sendToSheet(payload, function(ok){ if(!ok) queueLocally(payload); });
+}
+
+function typeLabel(type){
+  return type === 'note' ? 'Note'
+    : type === 'complete' ? 'Done'
+    : type === 'blocker' ? 'Blocker'
+    : type === 'watch' ? 'Watch'
+    : 'New';
+}
+
+function formatTs(ts){
+  if(!ts) return '';
+  var d = new Date(ts);
+  if(isNaN(d.getTime())) return '';
+  return d.toLocaleDateString(undefined, {month:'short', day:'numeric'}) + ' · ' +
+    d.toLocaleTimeString(undefined, {hour:'numeric', minute:'2-digit'});
+}
+
+function sendEdit(payload, cb){
+  var body = Object.assign({}, payload, {action:'edit'});
+  fetch(API_URL, {
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(body)
+  }).then(function(r){ return r.json(); })
+    .then(function(res){ cb(!!(res && res.ok)); })
+    .catch(function(){ cb(false); });
+}
+
+function renderPendingRow(payload){
+  var list = document.getElementById('pendingList');
+  var empty = list.querySelector('.pending-empty');
+  if(empty) empty.remove();
+  var row = document.createElement('div');
+  row.className = 'pending-row';
+  renderPendingRowView(row, payload);
+  list.appendChild(row);
+}
+
+function renderPendingRowView(row, payload){
+  row.className = 'pending-row';
+  row.innerHTML = '';
+
+  var typeEl = document.createElement('span');
+  typeEl.className = 'ptype ptype-' + payload.type;
+  typeEl.textContent = typeLabel(payload.type);
+  row.appendChild(typeEl);
+
+  var body = document.createElement('span');
+  body.className = 'pbody';
+  var locationParts = [];
+  if(payload.program) locationParts.push(payload.program);
+  if(payload.pkg) locationParts.push(payload.pkg);
+  var prefix = locationParts.length ? '<strong>' + escapeHtml(locationParts.join(' › ')) + ':</strong> ' : '';
+  var text;
+  if((payload.type === 'note' || payload.type === 'blocker' || payload.type === 'watch') && payload.itemRef){
+    var ref = payload.itemRef.length > 60 ? payload.itemRef.slice(0,60) + '…' : payload.itemRef;
+    text = '<em>Re: ' + escapeHtml(ref) + '</em> — ' + escapeHtml(payload.text);
+  } else {
+    text = escapeHtml(payload.text);
+  }
+  body.innerHTML = prefix + text;
+  row.appendChild(body);
+
+  var when = document.createElement('span');
+  when.className = 'pwhen';
+  when.textContent = formatTs(payload.ts);
+  row.appendChild(when);
+
+  // Edit only applies to rows the sheet has already assigned a row number to
+  // (i.e. loaded via loadPending()) — a just-added row doesn't have one yet
+  // until the next refresh, same as the pre-existing sync behavior.
+  if(payload.row){
+    var editBtn = document.createElement('button');
+    editBtn.type = 'button';
+    editBtn.className = 'pedit';
+    editBtn.textContent = 'Edit';
+    editBtn.onclick = function(){ renderPendingRowEdit(row, payload); };
+    row.appendChild(editBtn);
+  }
+}
+
+function renderPendingRowEdit(row, payload){
+  row.className = 'pending-row pending-row-editing';
+  row.innerHTML = '';
+
+  var typeSel = document.createElement('select');
+  ['item','note','blocker','watch','complete'].forEach(function(t){
+    var opt = document.createElement('option');
+    opt.value = t; opt.textContent = typeLabel(t);
+    if(t === payload.type) opt.selected = true;
+    typeSel.appendChild(opt);
+  });
+
+  var programSel = document.createElement('select');
+  Object.keys(PROGRAM_PACKAGES).forEach(function(p){
+    var opt = document.createElement('option');
+    opt.value = p; opt.textContent = p;
+    if(p === payload.program) opt.selected = true;
+    programSel.appendChild(opt);
+  });
+
+  var pkgSel = document.createElement('select');
+  function refreshPkgOptions(){
+    var pkgs = PROGRAM_PACKAGES[programSel.value] || [];
+    var keepPkg = programSel.value === payload.program ? payload.pkg : '';
+    pkgSel.innerHTML = '';
+    var noneOpt = document.createElement('option');
+    noneOpt.value = ''; noneOpt.textContent = pkgs.length ? 'No specific package' : 'No packages in this program';
+    pkgSel.appendChild(noneOpt);
+    pkgs.forEach(function(p){
+      var opt = document.createElement('option');
+      opt.value = p; opt.textContent = p;
+      if(p === keepPkg) opt.selected = true;
+      pkgSel.appendChild(opt);
+    });
+  }
+  refreshPkgOptions();
+  programSel.addEventListener('change', refreshPkgOptions);
+
+  var itemRefInput = document.createElement('input');
+  itemRefInput.type = 'text';
+  itemRefInput.placeholder = 'Item this refers to (optional)';
+  itemRefInput.value = payload.itemRef || '';
+
+  var textInput = document.createElement('input');
+  textInput.type = 'text';
+  textInput.value = payload.text || '';
+
+  var saveBtn = document.createElement('button');
+  saveBtn.type = 'button';
+  saveBtn.textContent = 'Save';
+  saveBtn.onclick = function(){
+    var text = textInput.value.trim();
+    if(!text) return;
+    var updated = {
+      row: payload.row, ts: payload.ts,
+      type: typeSel.value, program: programSel.value, pkg: pkgSel.value,
+      itemRef: itemRefInput.value.trim(), text: text
+    };
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving…';
+    sendEdit(updated, function(ok){
+      if(ok){
+        renderPendingRowView(row, updated);
+      } else {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save';
+        setStatus('Could not save the edit — check your connection and try again.');
+      }
+    });
+  };
+
+  var cancelBtn = document.createElement('button');
+  cancelBtn.type = 'button';
+  cancelBtn.className = 'pcancel';
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.onclick = function(){ renderPendingRowView(row, payload); };
+
+  var editRow1 = document.createElement('div');
+  editRow1.className = 'pedit-row';
+  editRow1.appendChild(typeSel);
+  editRow1.appendChild(programSel);
+  editRow1.appendChild(pkgSel);
+
+  var editRow2 = document.createElement('div');
+  editRow2.className = 'pedit-row';
+  editRow2.appendChild(itemRefInput);
+
+  var editRow3 = document.createElement('div');
+  editRow3.className = 'pedit-row';
+  editRow3.appendChild(textInput);
+  editRow3.appendChild(saveBtn);
+  editRow3.appendChild(cancelBtn);
+
+  row.appendChild(editRow1);
+  row.appendChild(editRow2);
+  row.appendChild(editRow3);
+}
+
+function escapeHtml(s){
+  var d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function wireDoneToggles(){
+  document.querySelectorAll('.item').forEach(function(el){
+    if(el.querySelector('.done-toggle')) return;
+    var cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.className = 'done-toggle';
+    cb.title = 'Mark complete — syncs to the vault next check-in';
+    cb.addEventListener('change', function(){
+      if(cb.checked){
+        // Read the text BEFORE mutating the DOM — setBadgeComplete() inserts a "C" badge
+        // into el, and reading textContent after that point glues the letter "C" onto the
+        // front of the captured text.
+        var snippet = el.textContent.trim().replace(/\s+/g,' ').slice(0,200);
+        el.classList.add('done-pending');
+        setBadgeComplete(el);
+        var loc = getItemLocation(el);
+        var payload = {type:'complete', program:loc.program||'', pkg:loc.pkg||'', itemRef:'', text:snippet, ts:new Date().toISOString()};
+        logComplete(payload);
+        renderPendingRow(payload);
+      } else {
+        el.classList.remove('done-pending');
+        restoreBadge(el);
+      }
+      recalcCounts();
+    });
+    el.appendChild(cb);
+  });
+}
+
+function loadPending(){
+  if(!API_URL || API_URL.indexOf('PASTE_') === 0) return;
+  fetch(API_URL + '?action=pending')
+    .then(function(r){ return r.json(); })
+    .then(function(rows){
+      if(!rows || !rows.length) return;
+      var list = document.getElementById('pendingList');
+      list.innerHTML = '';
+      rows.forEach(function(row){ renderPendingRow(row); });
+    })
+    .catch(function(){ /* sheet unreachable right now — local queue still covers new entries */ });
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  wireDoneToggles();
+  refreshCapPkg();
+  flushLocalQueue();
+  loadPending();
+  recalcCounts();
+});
+</script>
+</body>
+</html>
