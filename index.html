@@ -111,6 +111,7 @@
   .pending-row .ptype.ptype-watch{color:var(--muted);border-color:var(--muted);}
   .pending-row .ptype.ptype-complete{color:rgb(154,116,178);border-color:rgb(154,116,178);}
   .pending-row .ptype.ptype-item{color:var(--teal);border-color:var(--teal);}
+  .pending-row .ptype.ptype-subtask{color:var(--sage);border-color:var(--sage);}
   .pending-row .pbody{flex:1 1 auto;min-width:160px;}
   .pending-row .pwhen{color:var(--faint);font-size:11px;flex-shrink:0;margin-top:2px;white-space:nowrap;}
   .pending-row .pedit{background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:2px 8px;font-size:11px;cursor:pointer;flex-shrink:0;font-family:inherit;}
@@ -211,6 +212,7 @@
         <option value="note">Note — follow-up on an existing item</option>
         <option value="blocker">Blocker — flag an item as blocking</option>
         <option value="watch">Watch — add an item to the watch list</option>
+        <option value="subtask">Subtask — add a step under an existing item</option>
       </select>
       <select id="capProgram" onchange="onCapProgramChange()"></select>
       <select id="capPkg" onchange="onCapPkgChange()"></select>
@@ -660,20 +662,20 @@ function refreshCapItem(){
   var g=document.createElement('option');g.value='';g.textContent=pkgName?'General note for this package':'General note for this program';sel.appendChild(g);
   var items=findItemsForPkg(program,pkgName);items.forEach(function(it){var o=document.createElement('option');o.value=it.title;o.textContent=it.title.length>90?it.title.slice(0,90)+'…':it.title;sel.appendChild(o);});
 }
-function onCapTypeChange(){var type=document.getElementById('capType').value;var needsRef=type==='note'||type==='blocker'||type==='watch';document.getElementById('capItemRow').style.display=needsRef?'':'none';if(needsRef)refreshCapItem();document.getElementById('capText').placeholder=type==='blocker'?"Why it's blocking (optional)…":type==='watch'?'Why to watch it (optional)…':"What happened / what's new…";}
+function onCapTypeChange(){var type=document.getElementById('capType').value;var needsRef=type==='note'||type==='blocker'||type==='watch'||type==='subtask';document.getElementById('capItemRow').style.display=needsRef?'':'none';if(needsRef)refreshCapItem();document.getElementById('capText').placeholder=type==='blocker'?"Why it's blocking (optional)…":type==='watch'?'Why to watch it (optional)…':type==='subtask'?'The sub-step itself…':"What happened / what's new…";}
 function onCapProgramChange(){refreshCapPkg();}
 function onCapPkgChange(){refreshCapItem();}
 
 function addCapture(){
   var type=document.getElementById('capType').value;var program=document.getElementById('capProgram').value;var pkg=document.getElementById('capPkg').value;
-  var needsRef=type==='note'||type==='blocker'||type==='watch';var itemRef=needsRef?document.getElementById('capItem').value:'';
+  var needsRef=type==='note'||type==='blocker'||type==='watch'||type==='subtask';var itemRef=needsRef?document.getElementById('capItem').value:'';
   var textEl=document.getElementById('capText');var text=textEl.value.trim();if(!text)return;
   var payload={type:type,program:program,pkg:pkg,itemRef:itemRef,text:text,ts:new Date().toISOString()};
   renderPendingRow(payload);textEl.value='';
   if(!API_URL||API_URL.indexOf('PASTE_')===0){queueLocally(payload);setStatus('Saved locally — Apps Script URL not configured yet.');return;}
   sendToSheet(payload,function(ok){if(ok)setStatus('Saved to your tracker sheet — tell Claude to sync next session.');else{queueLocally(payload);setStatus('Could not reach the sheet — saved locally, will retry.');}});
 }
-function typeLabel(type){return type==='note'?'Note':type==='complete'?'Done':type==='blocker'?'Blocker':type==='watch'?'Watch':'New';}
+function typeLabel(type){return type==='note'?'Note':type==='complete'?'Done':type==='blocker'?'Blocker':type==='watch'?'Watch':type==='subtask'?'Subtask':'New';}
 function formatTs(ts){if(!ts)return'';var d=new Date(ts);if(isNaN(d.getTime()))return'';return d.toLocaleDateString(undefined,{month:'short',day:'numeric'})+' · '+d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});}
 
 function renderPendingRow(payload){var list=document.getElementById('pendingList');var empty=list.querySelector('.pending-empty');if(empty)empty.remove();var row=document.createElement('div');row.className='pending-row';renderPendingRowView(row,payload);list.appendChild(row);}
@@ -682,7 +684,7 @@ function renderPendingRowView(row,payload){
   var typeEl=document.createElement('span');typeEl.className='ptype ptype-'+payload.type;typeEl.textContent=typeLabel(payload.type);row.appendChild(typeEl);
   var body=document.createElement('span');body.className='pbody';var lp=[];if(payload.program)lp.push(payload.program);if(payload.pkg)lp.push(payload.pkg);
   var prefix=lp.length?'<strong>'+escapeHtml(lp.join(' › '))+':</strong> ':'';var txt;
-  if((payload.type==='note'||payload.type==='blocker'||payload.type==='watch')&&payload.itemRef){var ref=payload.itemRef.length>60?payload.itemRef.slice(0,60)+'…':payload.itemRef;txt='<em>Re: '+escapeHtml(ref)+'</em> — '+escapeHtml(payload.text);}else{txt=escapeHtml(payload.text);}
+  if((payload.type==='note'||payload.type==='blocker'||payload.type==='watch'||payload.type==='subtask')&&payload.itemRef){var ref=payload.itemRef.length>60?payload.itemRef.slice(0,60)+'…':payload.itemRef;txt='<em>Re: '+escapeHtml(ref)+'</em> — '+escapeHtml(payload.text);}else{txt=escapeHtml(payload.text);}
   body.innerHTML=prefix+txt;row.appendChild(body);
   var when=document.createElement('span');when.className='pwhen';when.textContent=formatTs(payload.ts);row.appendChild(when);
   if(payload.row){var editBtn=document.createElement('button');editBtn.type='button';editBtn.className='pedit';editBtn.textContent='Edit';editBtn.onclick=function(){renderPendingRowEdit(row,payload);};row.appendChild(editBtn);}
