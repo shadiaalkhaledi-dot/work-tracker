@@ -17,7 +17,8 @@
     {"h4": "Concourse B construction meeting today (July 1)", "p": "Meeting underway today. Key watch item: YYC decision on precast-removal recommendation (Pkg 4.3, RFI 000099.0). Check in with Kirk before Thursday so the team can prep answers for Josh Garcia's questions at the OAC."},
     {"h4": "Thursday July 3 — Josh Garcia check-in (post-OAC)", "p": "Not the OAC meeting — a check-in with Josh right after it. Agenda: (1) precast-removal YYC decision update, (2) Kirk's RFI list — what help does he need from Shadi + Chris H, (3) NPSC PSL-door PCN still needs to be issued by Josh to Steve Isaac. Also: confirm Add04 change list reached Chad Gray (PCL) via Chris H."},
     {"h4": "Today's priorities (Jul 1)", "p": "Wall structure update (CMU → stud, add CMU at elevator) — priority AM. Reply to Faisal confirming portal sketch = approved design intent for 80%. Haptic TP5 review with team. BIM Transition lunch Thursday with John Souleles + Parks."},
-    {"h4": "Friend's work tracker built this session", "p": "Starter kit written to Introducing a Friend to AI folder: work-tracker-guide.html (setup guide with Cowork folder, Obsidian, GitHub Pages, Apps Script setup), index.html (generic tracker shell, apiUrl from data.json), data.json (blank template). work-tracker-guide.html replaces work-tracker.html."}
+    {"h4": "Friend's work tracker built this session", "p": "Starter kit written to Introducing a Friend to AI folder: work-tracker-guide.html (setup guide with Cowork folder, Obsidian, GitHub Pages, Apps Script setup), index.html (generic tracker shell, apiUrl from data.json), data.json (blank template). work-tracker-guide.html replaces work-tracker.html."},
+    {"h4": "3 email threads folded in (Jul 1)", "p": "Knuckle bulkhead: structural model confirmed ready; Erica clarified the decision is stakeholder-level only, leadership sign-off still pending. New: Mike Torjan (mechanical) asking whether washroom-group curtain wall sections can go spandrel instead of glazed — heat gain/condensation risk if left glazed, needs a reply today. New watch: interior finishes material confirmations with Haptic/K-Studio — floor tile trim resolved, but 3Form Chroma flagged as a real risk for the washroom entry wall."}
   ],
   "completedThisWeek": [
     {
@@ -67,7 +68,9 @@
     {"id":"i5","title":"Millwork + Faisal portal detail — confirm 80% design intent and incorporate into model","status":"open","isNew":true,"program":"Concourse B","pkg":"Package 5 — Departures Level","cat":"decisions","disc":["AR"],"court":"You","horizon":"today","action":"model","date":"2026-06-30","due":"2026-07-03","meta":"Faisal sent portal sketch + vending machine enclosure sketch Jun 30. Haptic removed vending machines from model. Caleb (SMP Electrical) emailed Anthony about vending machines — watch that thread. Millwork package goes to YYC Jul 3; Haptic comments due Jun 30."},
     {"id":"i6","title":"Washroom ceiling coordination — follow up with Elisa on make-up counter / bench question","status":"open","program":"Concourse B","pkg":"Package 5 — Departures Level","cat":"coordination","disc":["AR","ST","ME","EL","safety"],"court":"You","horizon":"week","action":"coordinate","date":"2026-06-30","meta":"Ceiling resolved Jun 30: stay under joists, 75mm mechanical clearance on perimeter (faux cove), suspended grid + drywall + t-bar at vanity. Outstanding: 2 benches added to washroom — YYC standards also show a make-up counter; confirm intent with Elisa."},
     {"id":"i8","title":"Evacuation zoning — Parks following up with Senez code consultant on single-zone option","status":"watch","program":"Concourse B","pkg":"Package 5 — Departures Level","cat":"coordination","disc":["safety","EL"],"court":"Parks","horizon":"watch","date":"2026-06-29","meta":"Raised Jun 29. May have minor effect on electrical sequence of operations. Watching — nothing to action until Parks comes back."},
-    {"id":"i10","title":"Knuckle bulkhead + AV screen — 3 height options going to SteerCo; beam impact on screen area","status":"open","program":"Concourse B","pkg":"Package 5 — Departures Level","cat":"coordination","disc":["ST","AR"],"court":"YYC","horizon":"watch","action":"coordinate","date":"2026-06-30","meta":"Jun 30: Anthony emailed Erica with 3 bulkhead options for smaller screen size — going to SteerCo. If no decision by 80% (Jul 3), no room for the larger screen. Kevin Vogt Beam Demo: additional mezzanine framing may affect ceilings, bulkheads, stone cladding."},
+    {"id":"i10","title":"Knuckle bulkhead + AV screen — 3 height options going to SteerCo; beam impact on screen area","status":"open","isNew":true,"program":"Concourse B","pkg":"Package 5 — Departures Level","cat":"coordination","disc":["ST","AR"],"court":"YYC","horizon":"watch","action":"coordinate","date":"2026-07-01","meta":"Jul 1: structural model confirmed ready (Chris Lenzin — end beam updated, centre beam removed, demolished with old bridge). Erica: decision so far is stakeholder-level only — still need to show options for leadership with stakeholder support noted, not final yet. 80%: leaning toward clouding/highlighting change areas rather than actioning now."},
+    {"id":"i48","title":"Bring Mike Torjan's (mechanical) spandrel request to Erica / architecture design team for a decision","status":"open","isNew":true,"program":"Concourse B","pkg":"Package 5 — Departures Level","cat":"decisions","disc":["ME","AR"],"court":"Erica Loh","horizon":"today","action":"coordinate","date":"2026-07-01","why":"Glazed vs. spandrel on the washroom-group vertical sections is a design-team call, not Shadi's to make unilaterally. Mechanical flags glazing adjoining the concealed washroom ceiling space as a real risk — solar heat gain and condensation with stagnant air.","meta":"Mike Torjan (Dialog mechanical) raised directly to Shadi + Chris H + Erica, Jul 1. Most vertical sections already spandrel, a few remain glazed. All sloped sections currently glazed per earlier direction from Shadi (spandrel hard to locate on the slope) — lower priority, mechanical can accept glazing there if needed. Shadi's role is to route this to Erica/design team."},
+    {"id":"i49","title":"Interior finishes coordination — material/finish confirmations (stone wall signage backing, water station, door signage, commercial units, washroom entry wall)","status":"watch","isNew":true,"program":"Concourse B","pkg":"Package 5 — Departures Level","cat":"coordination","disc":["AR"],"court":"Haptic","horizon":"watch","date":"2026-07-01","meta":"Elisa (Interior Design) sent finish/material questions to Anthony (Haptic) + Christos (K-Studio), Jul 1. Floor tile transitions resolved — Schluter brushed-stainless trim approved for all transitions (incl. TL1/TL2). Flagged risk: washroom entry wall was to be 3Form Chroma, but Anthony reports the manufacturer's own technical team confirmed Chroma won't achieve the intended visual effect — may force a design-option change (currently resin blocks, Option A, per Core Team/ELT decks). Not Shadi's court — watching Anthony/Christos's answers back to Elisa."},
     {"id":"i15","title":"TP5 outstanding items — 6 items, mostly YYC and SMP courts","status":"watch","program":"Concourse B","pkg":"Package 5 — Departures Level","cat":"documentation","disc":["AR","ST"],"court":"YYC","horizon":"watch","pri":"low","date":"2026-06-26","meta":"Copilot search Jun 30 found 6 outstanding items. Courts: mostly YYC, some SMP. Watching — flag when an item shifts to your court. Elisa Leung / Kevin Vogt thread, Jun 26."},
     {"id":"i16","title":"Go through Chris H's Bluebeam session notes — identify action items","status":"open","program":"Concourse B","pkg":"Package 5 — Departures Level","cat":"documentation","disc":["AR"],"court":"You","horizon":"week","action":"review","pri":"low","meta":"Pre-existing item. Low priority — no raised date on record."},
     {"id":"i17","title":"Wall construction update — CMU → stud wall behind Elbow River + Summit House; add CMU at elevator","status":"open","isNew":true,"program":"Concourse B","pkg":"Package 5 — Departures Level","cat":"drawings","disc":["ST","AR"],"court":"You","horizon":"today","action":"model","date":"2026-06-30","meta":"Priority AM Wednesday. SME Workshop: 3 options, Kevin Vogt favors option 3; block wall direction structurally cleared. Summit House in scope: HSS structural — model around it. Lift shaft detailing merged here."},
@@ -97,6 +100,39 @@
     {"id":"i43","title":"RFI 247 — Access & Support Above CM3 Ceiling Q2 — 1/4 sub-items done (ME+ST+EL)","status":"watch","program":"RFIs","pkg":"Centralized / PBS — Planner board","cat":"rfi","disc":["ME","ST","EL"],"court":"N/A","horizon":"watch","pri":"low"}
   ],
   "details": {
+    "i10": {
+      "next": "Provide views + dimensions (ceiling height and screen) for each option so Anthony/Erica can prepare leadership/steering-committee material — stakeholder support alone isn't final sign-off",
+      "subtasks": [
+        "Follow up with Anthony/Erica: SteerCo decision on Section B-B options needed before Jul 3 80% cutoff",
+        "Section A-A (larger bulkhead): raise it, adjust to 16:9 ratio — model now that structural beam locations are confirmed",
+        "Loop in Justin Sangster (YYC security) on camera mounting once screen direction confirmed"
+      ],
+      "updates": [
+        "2026-07-01|Chris Lenzin confirmed structural model ready (end beam updated, centre beam removed). Erica: decision so far is stakeholder-level only, not final leadership sign-off yet. 80%: leaning toward clouding/highlighting change areas rather than actioning now.",
+        "2026-06-30|Anthony email to Erica — larger bulkhead direction clear (raise, 4K 16:9). Smaller bulkhead: 3 options going to SteerCo. Balazs to get heads-up that screen may go.",
+        "2026-06-29|Structural model update requested after demolition confirmed centre beam removed"
+      ]
+    },
+    "i48": {
+      "next": "Route Mike's question to Erica — glazed vs. spandrel on washroom-group vertical sections is a design-team call, not Shadi's to make unilaterally",
+      "subtasks": [
+        "Present to Erica: can vertical sections adjoining washroom group be revised to spandrel — critical for mechanical, heat gain + condensation risk if left glazed",
+        "Present to Erica: can sloped sections also go spandrel — lower priority, mechanical can accept glazing there if needed"
+      ],
+      "updates": [
+        "2026-07-01|Mike Torjan (Dialog mechanical) raised directly to Shadi + Chris H + Erica — most vertical sections already spandrel, a few remain glazed; sloped sections all glazed per earlier direction from Shadi. Design decision belongs to Erica/architecture design team, not mechanical coordination alone."
+      ]
+    },
+    "i49": {
+      "next": "Once Haptic/K-Studio's finish decision comes back (esp. 3Form Chroma), update the keynote files/specs and let Rick Adams know",
+      "subtasks": [
+        "Once finish decision is confirmed: update keynote files and specs accordingly",
+        "Notify Rick Adams once keynotes/specs are updated"
+      ],
+      "updates": [
+        "2026-07-01|Elisa sent finish/material questions to Anthony (Haptic) + Christos (K-Studio); floor tile trim resolved; 3Form Chroma flagged as a risk for the washroom entry wall — decision not yet back"
+      ]
+    },
     "i1": {
       "next": "Check in with Chris H Thursday — confirm Add04 change list has been sent to Chad Gray (PCL)",
       "subtasks": ["Chris H sends Add04 change list to Chad Gray (PCL) — not just a screenshot"],
