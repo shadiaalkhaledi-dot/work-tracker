@@ -1,0 +1,133 @@
+{
+  "meta": {
+    "title": "End-of-day triage — Tuesday, June 30, 2026",
+    "lede": "Full task review. Items are now data-driven — updating them doesn't touch the rendering code. Three grouping modes: Program, Status (P/U/W), Discipline.",
+    "sessionDate": "Tuesday, June 30",
+    "sprintEnd": "2026-07-03",
+    "sprintEndLabel": "Jul 3"
+  },
+  "programs": [
+    {"name": "Concourse B", "color": "var(--mauve)", "packages": ["Package 4.2 — Arrivals + Penthouse", "Package 4.3 — Building Envelope", "Package 5 — Departures Level", "Package 6 — Retail Fitout", "Signage (Entro)", "Material keynotes"]},
+    {"name": "Centralized / PBS", "color": "var(--sage)", "packages": ["NPSC", "Lighting", "Signage (Entro)", "General"]},
+    {"name": "Cross-program", "color": "var(--taupe)", "packages": []},
+    {"name": "RFIs", "color": "var(--rfi)", "packages": ["Concourse B — Onware", "Centralized / PBS — Planner board"]}
+  ],
+  "voice": [
+    {"h4": "Architecture change: items are now data-driven", "p": "All 35 open items are defined in data.json. Future updates only touch the data — not the rendering code. Adding an item = one new object in the array. Checking it off = done toggle. Nothing breaks."},
+    {"h4": "Three grouping modes", "p": "Program (Concourse B → packages, Centralized / PBS, etc.), Status (groups all Blocking P items together, then Unverified U, Watch W, and Open), and Discipline (groups by Architectural, Structural, Mechanical, Electrical, Signage, etc.). Metadata — status badge, discipline pills, court, action type — shows on every item in every view."},
+    {"h4": "Filter chips + Today's Focus", "p": "Horizon chips (Today / Before Jul 3 / This Week) and action chips (Model / Review / Coordinate / Chase / Admin) work in all three views. Today's Focus is computed — it pulls items tagged horizon=today in your court, so it's always accurate."},
+    {"h4": "Full triage from Jun 30", "p": "Done: Revit type-parameter fix, VW Mason hidden in Revizto, Jun 30 YYC Security meeting (Centralized NPSC exit/core doors). New: Haptic TP5 review, retail/banner detail, Kirk RFI check-in, Entro 100% DD wayfinding review. Sub-tasks and timeline history on 11 key items."}
+  ],
+  "completedThisWeek": [
+    {
+      "accent": "var(--sage)",
+      "h3color": "var(--sage)",
+      "h3": "Centralized / PBS — June 30",
+      "items": [
+        {"h4": "YYC Security meeting — NPSC exit/core door hardware (Jun 30 AM)", "p": "Meeting for Centralized NPSC. Exit/core door hardware (functionally equivalent to a PSL / Primary Secure Line) now being chased via Josh Garcia — PCN to Steve Isaac (hardware procurement)."}
+      ]
+    },
+    {
+      "accent": "var(--mauve)",
+      "h3color": "var(--mauve)",
+      "h3": "Concourse B — June 30",
+      "items": [
+        {"h4": "Package 5 — VW Mason hidden in Revizto", "p": "Done ahead of the Jun 30 review. Clash conflicts flagged to Mike (VW Mason)."},
+        {"h4": "Package 5 — Revit type-parameter visibility fixed", "p": "Toilet transfer clearance element type-parameter visibility resolved."},
+        {"h4": "Package 5 — Washroom ceiling decision reached", "p": "Stay under joists; 75mm mechanical clearance on perimeter; suspended grid + drywall + t-bar at vanity. Elisa coordinating with Mechanical and Electrical."}
+      ]
+    },
+    {
+      "accent": "var(--mauve)",
+      "h3color": "var(--mauve)",
+      "h3": "Concourse B — earlier this week",
+      "items": [
+        {"h4": "Package 5 — Haptic metal-panel question resolved", "p": "Not needed — the WC doors in question aren't exit doors, so no metal panel is required above them."},
+        {"h4": "Package 5 — diffuser placement & fan sizing confirmed", "p": "Fan sizing confirmed (small unit) and modeled for one of the diffusers from SME Workshop #20."},
+        {"h4": "Package 5 — storage-unit card readers & signage adjusted", "p": "Done now that the extra space is available."}
+      ]
+    }
+  ],
+  "completedLastWeek": [],
+  "items": [
+    {"id":"i1","title":"Chad Gray — Add04 change list not yet delivered to PCL","status":"open","isNew":true,"program":"Concourse B","pkg":"Package 4.2 — Arrivals + Penthouse","cat":"documentation","disc":["AR"],"court":"You","horizon":"today","action":"chase","date":"2026-06-29","meta":"Chad Gray (PCL) raised Jun 29. Chris H asked Chad for a screenshot; Chad re-clarified he wants the full change list. Thursday check-in needed."},
+    {"id":"i2","title":"Communicate precast-removal recommendation to YYC, await decision","status":"blocking","program":"Concourse B","pkg":"Package 4.3 — Building Envelope","cat":"decisions","disc":["AR","ST"],"court":"YYC","horizon":"watch","date":"2026-06-23","due":"2026-07-05","why":"Blocked by: waiting on YYC's call. Removing the precast touches the roof warranty — that's why this isn't just a detailing question. Same issue as RFI 000099.0. Escalate if no response by Jul 5.","meta":"via DTR Con B meeting · raised 2026-06-23"},
+    {"id":"i3","title":"Confirm Trade Log bid-submission deadline for Package 4.3","status":"unverified","isNew":true,"program":"Concourse B","pkg":"Package 4.3 — Building Envelope","cat":"documentation","disc":["owner"],"court":"You","horizon":"week","action":"chase","date":"2026-06-29","meta":"Believed to be early July, possibly the week of the 23rd — exact date unclear. Raised Jun 29."},
+    {"id":"i4","title":"Schedule door actuator control strategy meeting — architecture vs. electrical vs. security","status":"blocking","program":"Concourse B","pkg":"Package 5 — Departures Level","cat":"meetings","disc":["AR","EL","security"],"court":"You","horizon":"week","action":"coordinate","date":"2026-06-25","due":"2026-07-03","why":"Nothing external blocking — this is on you to get on the calendar. Greg Pink (SMP) / Chris H thread, 2026-06-25. Check in with Chris H Thursday. Target: booked by Fri Jul 3."},
+    {"id":"i5","title":"Millwork + Faisal portal detail — confirm 80% design intent and incorporate into model","status":"open","isNew":true,"program":"Concourse B","pkg":"Package 5 — Departures Level","cat":"decisions","disc":["AR"],"court":"You","horizon":"today","action":"model","date":"2026-06-30","due":"2026-07-03","meta":"Faisal sent portal sketch + vending machine enclosure sketch Jun 30. Haptic removed vending machines from model. Caleb (SMP Electrical) emailed Anthony about vending machines — watch that thread. Millwork package goes to YYC Jul 3; Haptic comments due Jun 30."},
+    {"id":"i6","title":"Washroom ceiling coordination — follow up with Elisa on make-up counter / bench question","status":"open","program":"Concourse B","pkg":"Package 5 — Departures Level","cat":"coordination","disc":["AR","ST","ME","EL","safety"],"court":"You","horizon":"week","action":"coordinate","date":"2026-06-30","meta":"Ceiling resolved Jun 30: stay under joists, 75mm mechanical clearance on perimeter (faux cove), suspended grid + drywall + t-bar at vanity. Outstanding: 2 benches added to washroom — YYC standards also show a make-up counter; confirm intent with Elisa."},
+    {"id":"i8","title":"Evacuation zoning — Parks following up with Senez code consultant on single-zone option","status":"watch","program":"Concourse B","pkg":"Package 5 — Departures Level","cat":"coordination","disc":["safety","EL"],"court":"Parks","horizon":"watch","date":"2026-06-29","meta":"Raised Jun 29. May have minor effect on electrical sequence of operations. Watching — nothing to action until Parks comes back."},
+    {"id":"i10","title":"Knuckle bulkhead + AV screen — 3 height options going to SteerCo; beam impact on screen area","status":"open","program":"Concourse B","pkg":"Package 5 — Departures Level","cat":"coordination","disc":["ST","AR"],"court":"YYC","horizon":"watch","action":"coordinate","date":"2026-06-30","meta":"Jun 30: Anthony emailed Erica with 3 bulkhead options for smaller screen size — going to SteerCo. If no decision by 80% (Jul 3), no room for the larger screen. Kevin Vogt Beam Demo: additional mezzanine framing may affect ceilings, bulkheads, stone cladding."},
+    {"id":"i15","title":"TP5 outstanding items — 6 items, mostly YYC and SMP courts","status":"watch","program":"Concourse B","pkg":"Package 5 — Departures Level","cat":"documentation","disc":["AR","ST"],"court":"YYC","horizon":"watch","pri":"low","date":"2026-06-26","meta":"Copilot search Jun 30 found 6 outstanding items. Courts: mostly YYC, some SMP. Watching — flag when an item shifts to your court. Elisa Leung / Kevin Vogt thread, Jun 26."},
+    {"id":"i16","title":"Go through Chris H's Bluebeam session notes — identify action items","status":"open","program":"Concourse B","pkg":"Package 5 — Departures Level","cat":"documentation","disc":["AR"],"court":"You","horizon":"week","action":"review","pri":"low","meta":"Pre-existing item. Low priority — no raised date on record."},
+    {"id":"i17","title":"Wall construction update — CMU → stud wall behind Elbow River + Summit House; add CMU at elevator","status":"open","isNew":true,"program":"Concourse B","pkg":"Package 5 — Departures Level","cat":"drawings","disc":["ST","AR"],"court":"You","horizon":"today","action":"model","date":"2026-06-30","meta":"Priority AM Wednesday. SME Workshop: 3 options, Kevin Vogt favors option 3; block wall direction structurally cleared. Summit House in scope: HSS structural — model around it. Lift shaft detailing merged here."},
+    {"id":"i19","title":"Knuckle ceiling drop — coordinate with Clive (DIALOG Mechanical) for duct clearance height","status":"open","isNew":true,"program":"Concourse B","pkg":"Package 5 — Departures Level","cat":"coordination","disc":["ME","AR"],"court":"You","horizon":"week","action":"coordinate","date":"2026-06-29","meta":"Knuckle area needs a dropped ceiling for mechanical exhaust ducts running above the baffle ceiling. Shadi to confirm required drop height with Clive, then update model."},
+    {"id":"i20","title":"Exhaust fan weights — confirm/document weights above baffle ceiling","status":"watch","program":"Concourse B","pkg":"Package 5 — Departures Level","cat":"documentation","disc":["ME","ST"],"court":"You","horizon":"watch","pri":"low","date":"2026-06-29","meta":"SME Workshop Jun 29. Watch — waiting on structural to confirm if this is needed."},
+    {"id":"i22","title":"Fire cabinet model update — confirm placement (off stone surfaces) in model","status":"open","isNew":true,"program":"Concourse B","pkg":"Package 5 — Departures Level","cat":"drawings","disc":["AR","safety"],"court":"You","horizon":"week","action":"model","pri":"low","date":"2026-06-29","meta":"Placement principle is settled (Neil Dobie/Vittorio/Anthony/Shadi) — only the model update is outstanding. Low priority."},
+    {"id":"i23","title":"Terminal Operations RFI — second core option; waiting on Parks","status":"watch","program":"Concourse B","pkg":"Package 5 — Departures Level","cat":"rfi","disc":["owner"],"court":"Parks","horizon":"watch","pri":"low","date":"2026-06-29","meta":"SME Workshop Jun 29. Parks to follow up with Terminal Operations re: second core. Watching — nothing to action until Parks responds."},
+    {"id":"i24","title":"Movement joint modeling","status":"open","isNew":true,"program":"Concourse B","pkg":"Package 5 — Departures Level","cat":"drawings","disc":["ST","AR"],"court":"You","horizon":"week","action":"model","pri":"low","date":"2026-06-29","meta":"SME Workshop Jun 29. Low priority."},
+    {"id":"i26","title":"Portal sides structural detail — thickness confirmed, watching only if something changes","status":"watch","program":"Concourse B","pkg":"Package 5 — Departures Level","cat":"drawings","disc":["ST","AR"],"court":"You","horizon":"watch","pri":"low","date":"2026-06-29","meta":"Structural is modeling the current strategy and will continue until told otherwise. Watch only."},
+    {"id":"i44","title":"Haptic TP5 progress set — go through in detail with the team","status":"open","isNew":true,"program":"Concourse B","pkg":"Package 5 — Departures Level","cat":"drawings","disc":["AR"],"court":"You","horizon":"today","action":"review","date":"2026-06-30","meta":"Chris H shared the TP5 progress set with the full production team (Shadi, Kirk, Luke, Michelle) Jun 30. Quick look taken — detailed review with team outstanding."},
+    {"id":"i46","title":"Kirk RFI check-in — sync before Thursday's construction meeting","status":"open","isNew":true,"program":"Concourse B","pkg":"Package 5 — Departures Level","cat":"coordination","disc":["AR"],"court":"You","horizon":"today","action":"coordinate","date":"2026-06-30","meta":"Josh gave Kirk (technologist, Pkg 4.3 + 5, CA work) a list of RFIs to own. Check in with Kirk Thursday morning so the team can answer Josh's questions together at the OAC."},
+    {"id":"i45","title":"Retail / banner detail — start modeling current detail while waiting on YYC and commercial team","status":"open","isNew":true,"program":"Concourse B","pkg":"Package 6 — Retail Fitout","cat":"drawings","disc":["AR"],"court":"You","horizon":"week","action":"model","date":"2026-06-30","meta":"Discussion ongoing with YYC and commercial team on retail banner. Modeling the current detail is in Shadi's court — mid-priority. Erica + Anthony court for decisions/updates."},
+    {"id":"i28","title":"Wall-wash lighting — assign 2D detail to Michelle or Luke","status":"open","program":"Concourse B","pkg":"Package 6 — Retail Fitout","cat":"coordination","disc":["EL","AR"],"court":"You","horizon":"week","action":"coordinate","date":"2026-06-30","meta":"Caleb Jacobs (SMP) sent cut sheet. Shadi to assign the 2D detail (not 3D) to Michelle or Luke. Jun 30."},
+    {"id":"i29","title":"Washroom + door-adjacent signage placement — interim: center them; wait for Entro's final answer","status":"open","program":"Concourse B","pkg":"Signage (Entro)","cat":"decisions","disc":["signage"],"court":"Entro","horizon":"week","action":"coordinate","date":"2026-06-30","meta":"Washroom signs: align to door or center on panel — question sent Jun 28, response pending. Door-adjacent room-ID signs: interim decision is to center signs until Entro responds."},
+    {"id":"i30","title":"Set up material keynotes mapped to Specification sections, publish to ACC for Haptic/K-Studio","status":"open","program":"Concourse B","pkg":"Material keynotes","cat":"coordination","disc":["AR"],"court":"Haptic","horizon":"week","action":"coordinate","date":"2026-06-29","meta":"Finish schedule mapped Jun 28; sent to Rick Adams. Jun 29: sent Elisa (Interiors) question about millwork metal. Next: Haptic adds keynotes to their model."},
+    {"id":"i31","title":"NPSC exit/core door hardware — chase Josh Garcia to issue PCN; send to Steve Isaac (procurement)","status":"blocking","program":"Centralized / PBS","pkg":"NPSC","cat":"decisions","disc":["security","AR"],"court":"You","delegate":"Josh Garcia","horizon":"today","action":"chase","date":"2026-06-30","due":"2026-07-03","why":"PCN required for 6 exit/core doors (D54F01, D55F02, D56E01, D59G01, D60G00 + one more) — these are NPSC's primary access-control doors, functionally equivalent to a PSL (Primary Secure Line) in other programs. Steve Isaac is the hardware consultant. Flag urgency for procurement. Cloud relocated NPSC reception desk; confirm biometric mount is by-others.","meta":"YYC Security meeting held Jun 30 AM. Daniela Vasquez confirmed 6 doors Jun 11. Josh Garcia is the contract administrator chasing this."},
+    {"id":"i32","title":"L17 light fixture alternate — waiting on Chris Lenzin's response","status":"watch","program":"Centralized / PBS","pkg":"Lighting","cat":"documentation","disc":["EL"],"court":"Erica Loh","horizon":"watch","pri":"low","date":"2026-06-30","meta":"Patrick (DIALOG) got the Geba weights from Elisdon (contractor) Jun 30 — submitted to consultant. Waiting on Chris Lenzin. Watch — Erica Loh's design team owns this."},
+    {"id":"i33","title":"Confirm regulatory signage approach from YYC PBS Wayfinding Kick-Off","status":"watch","program":"Centralized / PBS","pkg":"Signage (Entro)","cat":"decisions","disc":["signage"],"court":"You","horizon":"watch","pri":"low","date":"2026-06-23","meta":"Valerie Moss, Jun 23 — no walkthrough scheduled yet, nothing to action until one is. Watch."},
+    {"id":"i34","title":"NPS / electrical scope dispute — YYC raised design gaps and fee pushback","status":"open","program":"Centralized / PBS","pkg":"General","cat":"decisions","disc":["EL","owner"],"court":"You","horizon":"week","action":"coordinate","date":"2026-06-28","meta":"Confirmed Jun 28."},
+    {"id":"i47","title":"Entro 100% DD wayfinding review — Shadi + Erica to review together","status":"open","isNew":true,"program":"Centralized / PBS","pkg":"General","cat":"documentation","disc":["signage"],"court":"You","horizon":"week","action":"review","date":"2026-06-30","meta":"Entro's 100% DD set needs review. Possibly a task for both Shadi and Erica to review. Jun 30."},
+    {"id":"i36","title":"YYC Masterplan Model — scope gaps, needs direction","status":"watch","program":"Cross-program","pkg":"","cat":"decisions","disc":["AR","owner"],"court":"Erica Loh","horizon":"watch","pri":"low","date":"2026-06-26","meta":"Erica Loh flagged Jun 23, recapped Jun 26. TP5 is the priority. Watch — Erica's court."},
+    {"id":"i37","title":"BIM Transition Plan — lunch with John Souleles (Studio Chair) and Matt Parks","status":"open","program":"Cross-program","pkg":"","cat":"meetings","disc":["owner"],"court":"You","horizon":"jul3","action":"admin","date":"2026-07-02","due":"2026-07-02","meta":"Thursday, Jul 2 — confirmed. John Souleles and Parks attending. Firm-level, separate from any single project."},
+    {"id":"i38","title":"IT Systems / VDGS review — Shane Zbrodoff","status":"open","isNew":true,"program":"Cross-program","pkg":"","cat":"meetings","disc":["security"],"court":"You","horizon":"week","action":"admin","date":"2026-07-09","due":"2026-07-09","meta":"Thursday, Jul 9."},
+    {"id":"i40","title":"RFI 000085.2 — Penthouse Paint Abatement — waiting response","status":"open","isNew":true,"program":"RFIs","pkg":"Concourse B — Onware","cat":"rfi","disc":["AR"],"court":"You","horizon":"week","action":"chase","date":"2026-06-29","meta":"Raised Jun 29. Package 4.2."},
+    {"id":"i41","title":"RFI 000104.0 — NAVCAN Fiber Cable — waiting on Mikaelyn Sych","status":"open","program":"RFIs","pkg":"Concourse B — Onware","cat":"rfi","disc":["security"],"court":"Mikaelyn Sych","horizon":"week","action":"chase","date":"2026-06-25","meta":"Raised Jun 25."},
+    {"id":"i42","title":"RFI 000099.0 — Precast Parapet Tie-in Detail — waiting on Mikaelyn Sych","status":"blocking","program":"RFIs","pkg":"Concourse B — Onware","cat":"rfi","disc":["AR","ST"],"court":"Mikaelyn Sych","delegate":"Josh","horizon":"jul3","action":"chase","date":"2026-06-28","due":"2026-07-05","why":"Same underlying issue as Package 4.3 task — precast removal affects roof warranty. PCL testing removability of existing parapet cap. Josh following up at construction meeting. Escalate if no response by Jul 5.","meta":"Raised Jun 23, found Jun 28."},
+    {"id":"i43","title":"RFI 247 — Access & Support Above CM3 Ceiling Q2 — 1/4 sub-items done (ME+ST+EL)","status":"watch","program":"RFIs","pkg":"Centralized / PBS — Planner board","cat":"rfi","disc":["ME","ST","EL"],"court":"N/A","horizon":"watch","pri":"low"}
+  ],
+  "details": {
+    "i1": {
+      "next": "Check in with Chris H Thursday — confirm Add04 change list has been sent to Chad Gray (PCL)",
+      "subtasks": ["Chris H sends Add04 change list to Chad Gray (PCL) — not just a screenshot"],
+      "updates": [
+        "2026-06-30|Chris H asked Chad for a screenshot; Chad re-clarified he wants the full change list",
+        "2026-06-29|Chad Gray (PCL) raised request; Shadi prepared list and gave it to Chris H"
+      ]
+    },
+    "i4": {
+      "next": "Check in with Chris H Thursday — confirm door actuator coordination meeting is booked (Greg Pink / SMP)",
+      "subtasks": ["Book meeting: AR + EL + security + Greg Pink (SMP) — target booked by Jul 3"],
+      "updates": ["2026-06-25|Greg Pink (SMP) / Chris H raised the door actuator control strategy gap; coordination meeting flagged as needed"]
+    },
+    "i5": {
+      "next": "Reply to Faisal confirming portal sketch = approved design intent for 80%; incorporate detail into model",
+      "subtasks": [
+        "Reply to Faisal Mohsin — confirm portal sketch = approved design intent for the 80% package (Jul 3)",
+        "Incorporate Faisal's portal frame + storage cabinetry detail into the Revit model",
+        "Document why Percy's facade placement (Parks-approved) doesn't work — prepare to show Parks"
+      ],
+      "updates": [
+        "2026-06-30|Faisal sent portal sketch + vending machine enclosure sketch; Haptic removed vending machines from model; Caleb (SMP Electrical) emailed Anthony re: vending machines — watch that thread",
+        "2026-06-29|Faisal Mohsin portal frame / storage cabinetry sketch received; 80% package to YYC Jul 3; Haptic comments due Jun 30",
+        "2026-06-25|Percy Yeung millwork pricing package thread started"
+      ]
+    },
+    "i6": {
+      "next": "Ask Elisa: YYC standards show a make-up counter — is the intent bench + make-up counter, or just benches?",
+      "subtasks": ["Check with Elisa on make-up counter: 2 benches added, YYC standards also show a make-up counter — confirm if one of each is the intent"],
+      "updates": [
+        "2026-06-30|Ceiling resolved: stay under joists, 75mm mechanical perimeter clearance (faux cove), suspended grid + drywall + t-bar at vanity. Elisa coordinating with ME + EL.",
+        "2026-06-30|Elisa confirmed 2 benches added to washroom; YYC standards also show a make-up counter",
+        "2026-06-29|Structural: gypsum below offset wall, stud box above; suspended gypsum (CGC) in open areas. Light cove dropped — structure won't allow it."
+      ]
+    },
+    "i10": {
+      "next": "Wait for SteerCo decision on bulkhead option; if no answer by 80% (Jul 3), proceed with compact option",
+      "subtasks": [
+        "Confirm structural beam impact on screen area — coordinate with Kevin Vogt",
+        "Prepare height-option diagrams for stakeholder package if needed"
+      ],
+      "updates": [
+        "2026-06-30|Anthony emailed Erica with 3 bulkhead options for smaller screen; going to SteerCo. No answer by 80% = go with compact option.",
+        "2026-06-29|Kevin Vogt Beam Demo: additional mezzanine framing may a
