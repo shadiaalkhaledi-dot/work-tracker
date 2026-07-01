@@ -23,7 +23,7 @@
   .voice .tag{display:inline-block; font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--teal); margin-bottom:8px;}
   .voice h4{font-size:13.5px; font-weight:650; margin:16px 0 4px;}
   .voice h4:first-of-type{margin-top:0;}
-  .stats{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:30px;}
+  .stats{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:26px;}
   .stat{flex:1; min-width:110px; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px 14px;}
   .stat .n{font-size:22px; font-weight:650; line-height:1.1;}
   .stat .l{font-size:12px; color:var(--muted); margin-top:2px;}
@@ -52,7 +52,6 @@
   .item .badge{display:inline-block; font-weight:700; font-size:10.5px; border-radius:3px; padding:1px 5px; margin-right:6px; vertical-align:1px;}
   .badge.p{color:var(--terracotta); border:1px solid var(--terracotta);}
   .badge.u{color:var(--gold); border:1px solid var(--gold);}
-  .badge.n{color:var(--teal); border:1px solid var(--teal);}
   .item .meta{font-size:11.5px; color:var(--muted); margin-top:4px;}
   .item .why{font-size:12px; color:var(--muted); margin-top:4px; border-top:1px dashed var(--border-soft); padding-top:5px;}
   .talk-group{margin-bottom:18px;}
@@ -61,11 +60,6 @@
   .talk-group h4:first-of-type{margin-top:0;}
   .talk-group p{font-size:13.5px; margin:0 0 8px; padding-left:10px; max-width:660px;}
   .talk-group p:last-child{margin-bottom:0;}
-  .todo-list{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:6px 0;}
-  .todo-row{display:flex; align-items:flex-start; gap:10px; padding:9px 16px; border-bottom:1px solid var(--border-soft); font-size:13.5px;}
-  .todo-row:last-child{border-bottom:none;}
-  .todo-row input{margin-top:3px;}
-  .todo-row .when{color:var(--muted); font-size:12px;}
   .copybar{display:flex; justify-content:flex-end; margin-top:10px;}
   .copybtn{background:var(--text); color:#fff; border:none; border-radius:8px; padding:8px 14px; font-size:13px; font-weight:600; cursor:pointer;}
   .copybtn:active{opacity:.8;}
@@ -104,7 +98,7 @@
   .item.done-pending{opacity:.55; text-decoration:line-through;}
 
   /* ---- Controls: view toggle, color mode, search ---- */
-  .controls{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin:0 0 22px; background:var(--card); border:1px solid var(--border); border-radius:14px; padding:12px 16px;}
+  .controls{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin:0 0 8px; background:var(--card); border:1px solid var(--border); border-radius:14px; padding:12px 16px;}
   .control-group{display:flex; gap:4px; align-items:center; background:var(--border-soft); border-radius:9px; padding:3px;}
   .control-group button{font-family:inherit; font-size:12.5px; font-weight:600; border:none; background:none; color:var(--muted); padding:6px 11px; border-radius:7px; cursor:pointer;}
   .control-group button.active{background:#fff; color:var(--text); box-shadow:0 1px 2px rgba(0,0,0,.08);}
@@ -136,7 +130,7 @@
   .ctag b{font-weight:650; color:var(--text);}
   .ctag.ctag-you b{color:var(--sage);}
 
-  /* ---- Priority color mode (recolors item borders only; badges unaffected) ---- */
+  /* ---- Priority color mode ---- */
   body.priority-mode .item{border-left-color:var(--taupe);}
   body.priority-mode .item[data-pri-computed="high"]{border-left-color:var(--rose);}
   body.priority-mode .item[data-pri-computed="med"]{border-left-color:var(--olive);}
@@ -146,33 +140,92 @@
   .pri-key span{display:flex; align-items:center; gap:5px;}
   .pri-key .sw{width:10px; height:10px; border-radius:2px; display:inline-block;}
 
-  /* ---- Category / discipline pills on each item ---- */
+  /* ---- Category / discipline pills ---- */
   .taglist{margin-top:5px;}
   .taglist .pill2{display:inline-block; font-size:10px; font-weight:600; color:var(--muted); background:var(--border-soft); border-radius:10px; padding:2px 8px; margin:0 4px 4px 0;}
 
-  /* ---- Alt views (Category / Coordination) ---- */
+  /* ---- Alt views ---- */
   .altgroup{margin-bottom:20px;}
   .altgroup-head{display:flex; align-items:baseline; gap:10px; margin-bottom:8px; padding-left:10px; border-left:4px solid var(--gold);}
   .altgroup-head .name{font-weight:650; font-size:15.5px;}
   .altgroup-head .counts{font-size:12px; color:var(--muted);}
   .altgroup .pkg{margin-bottom:10px;}
 
-  /* ---- My Court filter button ---- */
+  /* ---- My Court filter ---- */
   .btn-mycourt{font-family:inherit; font-size:12.5px; font-weight:600; border:1px solid var(--border); background:none; color:var(--muted); padding:6px 11px; border-radius:7px; cursor:pointer; white-space:nowrap;}
   .btn-mycourt.active{background:var(--sage); color:#fff; border-color:transparent;}
-  /* ---- Inline priority select on items ---- */
+
+  /* ---- Inline priority select ---- */
   .pri-sel{font-family:inherit; font-size:10px; color:var(--muted); background:var(--border-soft); border:1px solid var(--border); border-radius:4px; padding:1px 4px; cursor:pointer; margin-top:5px; display:block; max-width:110px;}
   .pri-sel:focus{outline:none;}
-  /* ---- Inline court edit input ---- */
+
+  /* ---- Court edit input ---- */
   .court-edit-inp{font-family:inherit; font-size:11px; padding:2px 6px; border:1px solid var(--muted); border-radius:4px; width:130px;}
   .ctag b{cursor:pointer; text-underline-offset:2px;}
   .ctag b:hover{text-decoration:underline dotted;}
 
-  /* ---- Collapsible program sections ---- */
+  /* ---- Collapsible programs ---- */
   .program-head{cursor:pointer;}
   .program-head .pchev{color:var(--muted); font-size:11px; margin-right:2px; transition:transform .15s; display:inline-block;}
   .program.collapsed .pchev{transform:rotate(-90deg);}
   .program.collapsed > .pkg, .program.collapsed > details.pkg{display:none;}
+
+  /* ---- Filter bar chips ---- */
+  .filter-bar{display:flex; gap:5px; flex-wrap:wrap; align-items:center; margin:0 0 18px; padding:10px 14px; background:var(--card); border:1px solid var(--border); border-radius:12px;}
+  .filter-label{font-size:11.5px; font-weight:600; color:var(--muted); margin-right:2px; white-space:nowrap;}
+  .filter-sep{width:1px; height:18px; background:var(--border); margin:0 6px; flex-shrink:0;}
+  .fchip{font-family:inherit; font-size:11.5px; font-weight:600; border:1px solid var(--border); background:none; color:var(--muted); padding:4px 11px; border-radius:20px; cursor:pointer; transition:all .12s; white-space:nowrap;}
+  .fchip:hover{border-color:var(--faint); color:var(--text);}
+  .fchip.active{color:#fff; border-color:transparent;}
+  .fchip.fh-today.active{background:var(--terracotta);}
+  .fchip.fh-jul3.active{background:var(--mauve);}
+  .fchip.fh-week.active{background:var(--teal);}
+  .fchip.fa-model.active{background:var(--teal);}
+  .fchip.fa-review.active{background:var(--mauve);}
+  .fchip.fa-coordinate.active{background:var(--taupe);}
+  .fchip.fa-chase.active{background:var(--terracotta);}
+  .fchip.fa-admin.active{background:var(--olive);}
+
+  /* ---- Action pill on each item ---- */
+  .action-pill{display:inline-block; font-size:9.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; border-radius:3px; padding:1px 5px; margin-right:5px; vertical-align:1px;}
+  .action-pill.ap-model{background:rgba(94,158,149,.15); color:var(--teal);}
+  .action-pill.ap-review{background:rgba(168,118,142,.15); color:var(--mauve);}
+  .action-pill.ap-coordinate{background:rgba(150,134,118,.15); color:var(--taupe);}
+  .action-pill.ap-chase{background:rgba(176,122,100,.15); color:var(--terracotta);}
+  .action-pill.ap-admin{background:rgba(150,148,96,.15); color:var(--olive);}
+
+  /* ---- Next action line ---- */
+  .item-next{display:flex; align-items:baseline; gap:6px; margin-top:6px; font-size:12px; color:var(--sage); line-height:1.45;}
+  .item-next::before{content:'→'; flex-shrink:0; font-size:11px; color:var(--faint);}
+
+  /* ---- Sub-tasks ---- */
+  .subtask-list{margin:7px 0 2px 2px; display:flex; flex-direction:column; gap:4px;}
+  .st-item{display:flex; align-items:flex-start; gap:7px; font-size:12px; color:var(--muted); line-height:1.4;}
+  .st-item input[type=checkbox]{margin-top:2px; accent-color:var(--sage); flex-shrink:0; cursor:pointer;}
+  .st-label{flex:1;}
+  .st-item.st-done .st-label{text-decoration:line-through; opacity:.45;}
+
+  /* ---- Timeline ---- */
+  .tl-toggle{background:none; border:none; font-family:inherit; font-size:10.5px; color:var(--faint); cursor:pointer; padding:4px 0 2px; display:inline-flex; align-items:center; gap:4px;}
+  .tl-toggle:hover{color:var(--muted);}
+  .timeline-wrap{margin:3px 0 2px 3px; padding-left:10px; border-left:2px solid var(--border-soft); display:none;}
+  .timeline-wrap.tl-open{display:block;}
+  .tl-entry{position:relative; font-size:11.5px; color:var(--muted); padding:3px 0; line-height:1.45;}
+  .tl-entry::before{content:''; position:absolute; left:-14px; top:7px; width:6px; height:6px; border-radius:50%; background:var(--border); border:2px solid var(--bg);}
+  .tl-entry:first-child::before{background:var(--sage);}
+  .tl-date{font-size:10.5px; color:var(--faint); margin-right:5px;}
+
+  /* ---- Today's Focus card ---- */
+  .today-focus{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px 20px; margin:0 0 20px;}
+  .today-focus .tag{display:inline-block; font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--terracotta); margin-bottom:10px;}
+  .tf-list{display:flex; flex-direction:column; gap:0;}
+  .tf-row{display:flex; align-items:flex-start; gap:9px; padding:7px 0; border-top:1px dashed var(--border-soft); font-size:13px; cursor:pointer; line-height:1.45;}
+  .tf-row:first-child{border-top:none;}
+  .tf-row:hover .tf-text{color:var(--text);}
+  .tf-action-wrap{flex-shrink:0; padding-top:1px;}
+  .tf-text{flex:1; color:var(--text);}
+  .tf-loc{color:var(--faint); font-size:11.5px; margin-top:2px;}
+  .tf-empty{font-size:13px; color:var(--muted); font-style:italic;}
 </style>
 </head>
 <body>
@@ -180,8 +233,8 @@
 
   <div class="masthead">
     <p class="eyebrow">Work tracker · briefing</p>
-    <h1>Evening check-in — Monday, June 29, 2026</h1>
-    <p class="lede">Pulled fresh from your vault right now, not from this morning's check-in note — so anything that's moved since then is already reflected below.</p>
+    <h1>End-of-day triage — Tuesday, June 30, 2026</h1>
+    <p class="lede">Full task review: every open item triaged, courts confirmed, sub-tasks added, and new features deployed. Items updated from Jun 30 Copilot searches and the SME Workshop session.</p>
   </div>
 
   <div class="capture">
@@ -213,34 +266,39 @@
   </div>
 
   <div class="voice">
-    <span class="tag">What I got done today</span>
+    <span class="tag">What we sorted out today</span>
 
-    <h4>Folded in everything you'd captured at work</h4>
-    <p>Pulled all 22 pending entries from the Quick Capture sheet and worked them into the vault — Tasks.md, RFIs.md, and Milestones.md, each at the right package level. One needed a fix first: an entry logged as a washroom-ceiling note turned out to be a broader Package 5 update — evacuation zoning, the Senez code consultant, the electrical sequence of operations — so it's filed under that instead.</p>
+    <h4>Full task triage — every open item reviewed</h4>
+    <p>Went through all 26+ open items one by one: confirmed courts, merged duplicates (Beam Demo + knuckle bulkhead; lift shaft + wall construction; bulkhead diagrams + knuckle AV), and dropped two items that aren't yours (sprinkler grid, old staging lighting watch).</p>
 
-    <h4>Quick Capture can edit, flag, and watch</h4>
-    <p>Every pending item now has an Edit button, backed by a new endpoint on the Apps Script side, so you can fix a capture instead of deleting and redoing it. The type dropdown also gained Blocker and Watch alongside Item and Note. Caught a bug along the way where marking something complete was gluing a stray "C" onto the logged text — fixed.</p>
+    <h4>Three tasks confirmed done, three new items added</h4>
+    <p>Done: Revit type-parameter fix, VW Mason hidden in Revizto before the Jun 30 review, and the Jun 30 AM YYC Security meeting. New: Haptic TP5 progress set review (team: Shadi, Kirk, Luke, Michelle, Chris H), Retail/banner detail modeling (start current detail while waiting on YYC/commercial), and Kirk RFI check-in before Thursday's OAC.</p>
 
-    <h4>Watch status now lives in the vault too</h4>
-    <p>Tasks.md, the Dashboard, and the callout styling all grew a Watch status — slate, badge <span class="badge w">W</span> — for things that are settled but worth keeping an eye on, separate from Blocking's <span class="badge p">P</span>. Found and fixed a Dashboard parsing bug while wiring it in: a callout box with no header of its own was silently inheriting the previous box's stale one.</p>
+    <h4>Sub-tasks and timeline history now on key items</h4>
+    <p>Items with ITEM_DATA entries show independently-checkable sub-tasks and a collapsible timeline. Example: the door-adjacent signage task has an interim sub-task (center signs now) separate from the main task (wait for Entro's answer) — so the partial win is trackable.</p>
 
-    <h4>Every note now carries a date</h4>
-    <p>Captures and notes show a timestamp both here and once they're folded into the vault, so nothing loses its "when" along the way.</p>
+    <h4>Horizon + action filters added</h4>
+    <p>New filter chips sit below the controls: filter by time horizon (Today / Before Jul 3 / This Week) and by action type (Model / Review / Coordinate / Chase / Admin). Combine with My Court and search for surgical triage at the start of each day.</p>
 
-    <h4>Deploys to this page are hands-off now</h4>
-    <p>Connected Netlify directly, so updates to this page go out from here without you dragging a file into Netlify Drop.</p>
+    <h4>Today's Focus is now computed, not static</h4>
+    <p>The old static To-Do list is gone. Today's Focus pulls directly from items tagged <em>today</em> in your court — so it's always accurate without manual updates.</p>
   </div>
 
   <div class="stats">
-    <div class="stat"><div class="n">39</div><div class="l">outstanding items</div></div>
-    <div class="stat"><div class="n" style="color:var(--terracotta)">4</div><div class="l">blocking</div></div>
-    <div class="stat"><div class="n" style="color:var(--muted)">4</div><div class="l">watch only</div></div>
+    <div class="stat"><div class="n" id="statOutstanding">—</div><div class="l">outstanding items</div></div>
+    <div class="stat"><div class="n" id="statBlocking" style="color:var(--terracotta)">—</div><div class="l">blocking</div></div>
+    <div class="stat"><div class="n" id="statWatch" style="color:var(--muted)">—</div><div class="l">watch only</div></div>
     <div class="stat"><div class="n">0</div><div class="l">overdue (yours)</div></div>
-    <div class="stat"><div class="n" style="color:var(--teal)">6</div><div class="l">due by Friday</div></div>
+    <div class="stat"><div class="n" style="color:var(--teal)">3</div><div class="l">due by Jul 3</div></div>
+  </div>
+
+  <div class="today-focus" id="todayFocus">
+    <span class="tag">Today — Tuesday, June 30</span>
+    <div class="tf-list" id="tfList"><span class="tf-empty">Computing…</span></div>
   </div>
 
   <div class="focus" id="focusPanel">
-    <span class="tag">Focus — what needs you</span>
+    <span class="tag">Blocking &amp; urgent</span>
     <div class="focus-list" id="focusList"><span class="focus-empty">Nothing urgent right now.</span></div>
   </div>
 
@@ -258,6 +316,21 @@
     </div>
     <button class="search-clear" id="searchClear" onclick="clearSearch()">Clear</button>
   </div>
+
+  <div class="filter-bar" id="filterBar">
+    <span class="filter-label">Horizon:</span>
+    <button class="fchip fh-today" data-horizon="today" onclick="toggleHorizonChip(this)">Today</button>
+    <button class="fchip fh-jul3" data-horizon="jul3" onclick="toggleHorizonChip(this)">Before Jul 3</button>
+    <button class="fchip fh-week" data-horizon="week" onclick="toggleHorizonChip(this)">This Week</button>
+    <div class="filter-sep"></div>
+    <span class="filter-label">Action:</span>
+    <button class="fchip fa-model" data-action="model" onclick="toggleActionChip(this)">Model</button>
+    <button class="fchip fa-review" data-action="review" onclick="toggleActionChip(this)">Review</button>
+    <button class="fchip fa-coordinate" data-action="coordinate" onclick="toggleActionChip(this)">Coordinate</button>
+    <button class="fchip fa-chase" data-action="chase" onclick="toggleActionChip(this)">Chase</button>
+    <button class="fchip fa-admin" data-action="admin" onclick="toggleActionChip(this)">Admin</button>
+  </div>
+
   <div class="pri-key">
     <span><i class="sw" style="background:var(--rose)"></i>High</span>
     <span><i class="sw" style="background:var(--olive)"></i>Med</span>
@@ -267,334 +340,406 @@
   <h2 class="section">Open items, by program</h2>
 
   <div id="programView">
+
+  <!-- ========== CONCOURSE B ========== -->
   <div class="program">
     <div class="program-head" style="--accent:var(--mauve)" onclick="onProgramHeadClick(event)">
       <span class="pchev">▾</span><span class="name" style="color:var(--mauve)">Concourse B</span>
-      <span class="counts">27 open · 2 blocking · 1 watch</span>
+      <span class="counts">— open</span>
     </div>
 
     <details class="pkg">
       <summary><span>Package 4.2 — Arrivals + Penthouse <span class="chev">▸</span></span><span class="pcounts">1 open</span></summary>
-      <div class="item" data-date="2026-06-29" data-id="i1" data-cat="documentation" data-disc="AR" data-court="You"><span class="badge n">N</span>Chad Gray's Package 4.2 Addendum 04 cover-page request — unresolved
-        <div class="meta">Raised Jun 29 via email. See RFI 000085.2 below — same package, separate issue.</div>
+      <div class="item" data-date="2026-06-29" data-id="i1" data-cat="documentation" data-disc="AR" data-court="You" data-horizon="today" data-action="chase">
+        <span class="badge n">N</span>Chad Gray's Package 4.2 Addendum 04 cover-page request — change list not yet delivered
+        <div class="meta">Chad Gray (PCL) raised Jun 29. Chris H asked Chad for a screenshot; Chad re-clarified he wants the full change list. Thursday check-in needed.</div>
       </div>
     </details>
 
     <details class="pkg" open>
       <summary><span>Package 4.3 — Building Envelope <span class="chev">▸</span></span><span class="pcounts">1 open · 1 blocking</span></summary>
-      <div class="item blocking" data-date="2026-06-23" data-id="i2" data-cat="decisions" data-disc="AR ST" data-court="YYC" data-due="2026-07-05">
+      <div class="item blocking" data-date="2026-06-23" data-id="i2" data-cat="decisions" data-disc="AR ST" data-court="YYC" data-due="2026-07-05" data-horizon="watch">
         <span class="badge p">P</span>Communicate precast-removal recommendation to YYC, await decision
-        <div class="why">Blocked by: waiting on YYC's call. Removing the precast touches the roof of the roofing project and its warranty — that's why this isn't just a detailing question. Same issue as RFI 000099.0 below. <strong>Escalate if no response by Jul 5.</strong></div>
+        <div class="why">Blocked by: waiting on YYC's call. Removing the precast touches the roof warranty — that's why this isn't just a detailing question. Same issue as RFI 000099.0. <strong>Escalate if no response by Jul 5.</strong></div>
         <div class="meta">via DTR Con B meeting · raised 2026-06-23</div>
       </div>
-      <div class="item unverified" data-date="2026-06-29" data-id="i3" data-cat="documentation" data-disc="owner" data-court="You">
+      <div class="item unverified" data-date="2026-06-29" data-id="i3" data-cat="documentation" data-disc="owner" data-court="You" data-horizon="week" data-action="chase">
         <span class="badge n">N</span><span class="badge u">U</span>Confirm Trade Log bid-submission deadline for Package 4.3
-        <div class="meta">Believed to be early July, possibly the week of the 23rd — exact date unclear from current notes. Raised Jun 29.</div>
+        <div class="meta">Believed to be early July, possibly the week of the 23rd — exact date unclear. Raised Jun 29.</div>
       </div>
     </details>
 
     <details class="pkg" open>
-      <summary><span>Package 5 — Departures Level <span class="chev">▸</span></span><span class="pcounts">21 open · 1 blocking · 1 watch</span></summary>
-      <div class="item blocking" data-date="2026-06-25" data-id="i4" data-cat="meetings" data-disc="AR EL security" data-court="You" data-due="2026-07-03">
-        <span class="badge p">P</span>Schedule a fuller coordination meeting on door actuator control strategy — architecture vs. electrical vs. security split
-        <div class="why">Blocked by: nothing external — this one's on you to get on the calendar. Greg Pink (SMP) / Chris Heinaranta thread, 2026-06-25. <strong>Target: booked by Fri Jul 3.</strong></div>
+      <summary><span>Package 5 — Departures Level <span class="chev">▸</span></span><span class="pcounts">— open</span></summary>
+
+      <div class="item blocking" data-date="2026-06-25" data-id="i4" data-cat="meetings" data-disc="AR EL security" data-court="You" data-due="2026-07-03" data-horizon="week" data-action="coordinate">
+        <span class="badge p">P</span>Schedule door actuator control strategy coordination meeting — architecture vs. electrical vs. security
+        <div class="why">Blocked by: nothing external — this is on you to get on the calendar. Greg Pink (SMP) / Chris H thread, 2026-06-25. Check in with Chris H Thursday re: booking. <strong>Target: booked by Fri Jul 3.</strong></div>
       </div>
-      <div class="item" data-date="2026-06-29" data-id="i5" data-cat="documentation" data-disc="AR" data-court="You" data-due="2026-06-30">Confirm millwork pricing package timing with Percy Yeung
-        <div class="meta">Raised Jun 25 (Percy Yeung thread). Clarified Jun 29: the package itself goes to YYC July 3; Haptic's review comments are due back June 30.</div>
+
+      <div class="item" data-date="2026-06-30" data-id="i5" data-cat="decisions" data-disc="AR" data-court="You" data-due="2026-07-03" data-horizon="today" data-action="model">
+        <span class="badge n">N</span>Millwork + Faisal portal detail — confirm 80% design intent and incorporate into model
+        <div class="meta">Faisal sent portal sketch + vending machine enclosure sketch Jun 30. Haptic removed vending machines from model. Caleb (SMP Electrical) emailed Anthony about vending machines — watch that thread. Millwork package goes to YYC Jul 3; Haptic comments due Jun 30.</div>
       </div>
-      <div class="item" data-date="2026-06-29" data-id="i6" data-cat="coordination" data-disc="AR ST ME EL safety" data-court="Elisa Leung"><span class="badge n">N</span>Washroom Ceiling Coordination — confirm ceiling build-up and code/evacuation alignment
-        <div class="meta">Raised Jun 29. Structural directed gypsum board below the offset wall with a stud box above, and a suspended gypsum system (CGC) in the open areas, reviewed with Elisa. The light cove is being dropped — structure won't allow it. Elisa is emailing Mechanical and Electrical to coordinate a YYC-standard-matching alternate (a deviation from standard).</div>
+
+      <div class="item" data-date="2026-06-30" data-id="i6" data-cat="coordination" data-disc="AR ST ME EL safety" data-court="You" data-horizon="week" data-action="coordinate">
+        Washroom ceiling coordination — follow up with Elisa on make-up counter / bench question
+        <div class="meta">Ceiling decision resolved Jun 30: stay under joists, 75mm mechanical clearance on perimeter (faux cove), suspended grid + drywall + t-bar grid at vanity. Elisa coordinating with Mechanical + Electrical. Outstanding: 2 benches added to washroom — YYC standards also show a make-up counter; confirm intent with Elisa.</div>
       </div>
-      <div class="item" data-date="2026-06-29" data-id="i7" data-cat="drawings" data-disc="AR" data-court="You"><span class="badge n">N</span>Resolve Revit type-parameter visibility for the toilet transfer clearance element
-        <div class="meta">Raised Jun 29.</div>
+
+      <div class="item watch" data-date="2026-06-29" data-id="i8" data-cat="coordination" data-disc="safety EL" data-court="Parks" data-horizon="watch">
+        <span class="badge w">W</span>Evacuation zoning — Parks following up with Senez code consultant on single-zone option for Concourse B
+        <div class="meta">Raised Jun 29. May have minor effect on electrical sequence of operations. Watching — nothing to action until Parks comes back.</div>
       </div>
-      <div class="item" data-date="2026-06-29" data-id="i8" data-cat="coordination" data-disc="safety EL" data-court="Parks"><span class="badge n">N</span>Evacuation zoning — Parks following up with the Senez code consultant on whether Concourse B can be a single evacuation zone, matching Concourse A and C
-        <div class="meta">Raised Jun 29. May have a minor effect on the electrical sequence of operations.</div>
+
+      <div class="item" data-date="2026-06-30" data-id="i10" data-cat="coordination" data-disc="ST AR" data-court="YYC" data-horizon="watch" data-action="coordinate">
+        Knuckle bulkhead + AV screen — 3 height options going to SteerCo; beam impact on screen area
+        <div class="meta">Jun 30: Anthony emailed Erica with 3 bulkhead options for smaller screen size — going to SteerCo. If no decision by 80% (Jul 3), no room for the larger screen. Kevin Vogt Beam Demo: additional mezzanine framing may affect ceilings, bulkheads, stone cladding. Two zones: mid-area (structural adding beam) and end area near Starbucks (YYC choosing height option this week).</div>
       </div>
-      <div class="item" data-id="i9" data-cat="documentation" data-disc="ME safety" data-court="You" data-pri="low">Confirm sprinkler grid/event-zone finding was formally documented<div class="meta">Neil Dobie/S+A — low priority. No raised date on record (long-standing item).</div></div>
-      <div class="item" data-date="2026-06-29" data-id="i10" data-cat="coordination" data-disc="ST AR" data-court="YYC">Notify VW Mason + AV consultant if new beam location causes screen area loss
-        <div class="meta">Updated Jun 29. Two areas affected. Mid-area — structural will add a beam to accommodate. End area (near Starbucks) — structural raised the beam to the correct location; YYC will be asked this week to choose between keeping it low, raising it for maximum height, or raising it to maintain the 2750mm datum across the concourse.</div>
+
+      <div class="item" data-date="2026-06-26" data-id="i15" data-cat="documentation" data-disc="AR ST" data-court="YYC" data-horizon="watch" data-pri="low">
+        <span class="badge w">W</span>TP5 outstanding items — 6 items, mostly YYC and SMP courts
+        <div class="meta">Copilot search Jun 30 found 6 outstanding items. Courts: mostly YYC, some SMP. Watching — flag when an item shifts to your court. Elisa Leung / Kevin Vogt thread, Jun 26.</div>
       </div>
-      <div class="item" data-date="2026-06-29" data-id="i11" data-cat="drawings" data-disc="ST AR" data-court="You"><span class="badge n">N</span>Evaluate Kevin Vogt's "Beam Demo" email with Anthony — additional mezzanine framing/columns may affect ceilings, bulkheads, and stone cladding
-        <div class="meta">Raised Jun 29, attachment included. Possibly related to the beam-location item above, but scoped separately.</div>
+
+      <div class="item" data-id="i16" data-cat="documentation" data-disc="AR" data-court="You" data-pri="low" data-horizon="week" data-action="review">
+        Go through Chris H's Bluebeam session notes — identify action items
+        <div class="meta">Pre-existing item. Low priority — no raised date on record.</div>
       </div>
-      <div class="item" data-date="2026-06-29" data-id="i12" data-cat="decisions" data-disc="AR" data-court="You" data-due="2026-07-03"><span class="badge n">N</span>Faisal Mohsin's portal frame/storage cabinetry design sketch — confirm the Jul 3 80% package represents approved design intent
-        <div class="meta">Raised Jun 29. <strong>Needs a yes/no before the 80% issuance, Jul 3.</strong></div>
+
+      <div class="item" data-date="2026-06-30" data-id="i17" data-cat="drawings" data-disc="ST AR" data-court="You" data-horizon="today" data-action="model">
+        <span class="badge n">N</span>Wall construction update — CMU → stud wall behind Elbow River + Summit House; add CMU at elevator
+        <div class="meta">Priority AM Wednesday. SME Workshop: 3 options presented, Kevin Vogt favors option 3; block wall direction structurally cleared. Summit House also in scope: HSS structural element there — model around it. Lift shaft detailing merged here.</div>
       </div>
-      <div class="item" data-date="2026-06-29" data-id="i13" data-cat="meetings" data-disc="signage" data-court="You">Confirm/accept new workshop time — Cindy Luk (Entro) flagged a conflict re: Wayfinding &amp; Signage 80% CD set
-        <div class="meta">Flagged Jun 22. Updated Jun 29: Erica Loh/Cindy Luk also asked for the stakeholder workshop slide deck and a model-link ahead of the rescheduled session.</div>
+
+      <div class="item" data-date="2026-06-29" data-id="i19" data-cat="coordination" data-disc="ME AR" data-court="You" data-horizon="week" data-action="coordinate">
+        <span class="badge n">N</span>Knuckle ceiling drop — coordinate with Clive (DIALOG Mechanical) for duct clearance height
+        <div class="meta">Knuckle area needs a dropped ceiling for mechanical exhaust ducts running above the baffle ceiling. Shadi to confirm required drop height with Clive, then update model.</div>
       </div>
-      <div class="item" data-date="2026-06-29" data-id="i14" data-cat="coordination" data-disc="AR" data-court="You" data-due="2026-06-30"><span class="badge n">N</span>Hide VW Mason from Revizto ahead of tomorrow's review; flag clash conflicts to Mike (VW Mason)
-        <div class="meta">Raised Jun 29, flagged as priority. <strong>Due Jun 30.</strong></div>
+
+      <div class="item watch" data-date="2026-06-29" data-id="i20" data-cat="documentation" data-disc="ME ST" data-court="You" data-horizon="watch" data-pri="low">
+        <span class="badge w">W</span>Exhaust fan weights — confirm/document weights above baffle ceiling
+        <div class="meta">SME Workshop Jun 29. Watch — waiting on structural to confirm if this is needed.</div>
       </div>
-      <div class="item" data-date="2026-06-26" data-id="i15" data-cat="documentation" data-disc="AR ST" data-court="You">Confirm what's issued vs. still missing for TP5 coordination<div class="meta">Elisa Leung/Kevin Vogt thread, Jun 26</div></div>
-      <div class="item" data-id="i16" data-cat="documentation" data-disc="AR" data-court="You" data-pri="low">Go through Chris Heinaranta's Bluebeam session notes, identify action items
-        <div class="meta">No raised date on record (pre-existing item).</div>
+
+      <div class="item" data-date="2026-06-29" data-id="i22" data-cat="drawings" data-disc="AR safety" data-court="You" data-pri="low" data-horizon="week" data-action="model">
+        <span class="badge n">N</span>Fire cabinet model update — confirm confirmed placement (off stone surfaces) in model
+        <div class="meta">Placement principle is settled (Neil Dobie/Vittorio/Anthony/Shadi) — only the model update is outstanding. Low priority.</div>
       </div>
-      <div class="item" data-date="2026-06-29" data-id="i17" data-cat="decisions" data-disc="ST AR" data-court="You"><span class="badge n">N</span>Decide on wall construction option (lift shaft area) — Anthony presented 3 options, Kevin favors option 3
-        <div class="meta">Raised Jun 29, SME Workshop session. The 240 block wall direction itself is structurally cleared per Kevin — this is about which of the 3 construction options gets used.</div>
+
+      <div class="item watch" data-date="2026-06-29" data-id="i23" data-cat="rfi" data-disc="owner" data-court="Parks" data-horizon="watch" data-pri="low">
+        <span class="badge w">W</span>Terminal Operations RFI — second core option; waiting on Parks
+        <div class="meta">SME Workshop Jun 29. Parks to follow up with Terminal Operations re: second core. Watching — nothing to action until Parks responds.</div>
       </div>
-      <div class="item" data-date="2026-06-29" data-id="i18" data-cat="drawings" data-disc="ST" data-court="You"><span class="badge n">N</span>Lift Shaft Structural Detailing — follow up on detailing now that the block wall direction is structurally cleared
-        <div class="meta">Raised Jun 29, SME Workshop session.</div>
+
+      <div class="item" data-date="2026-06-29" data-id="i24" data-cat="drawings" data-disc="ST AR" data-court="You" data-pri="low" data-horizon="week" data-action="model">
+        <span class="badge n">N</span>Movement joint modeling
+        <div class="meta">SME Workshop Jun 29. Low priority.</div>
       </div>
-      <div class="item" data-date="2026-06-29" data-id="i19" data-cat="coordination" data-disc="ME AR" data-court="You"><span class="badge n">N</span>Knuckle Ceiling Drop Coordination — knuckle area needs a dropped ceiling for mechanical (exhaust ducts run above the baffle ceiling)
-        <div class="meta">Raised Jun 29, SME Workshop session. Shadi to coordinate.</div>
+
+      <div class="item watch" data-date="2026-06-29" data-id="i26" data-cat="drawings" data-disc="ST AR" data-court="You" data-pri="low" data-horizon="watch">
+        <span class="badge w">W</span>Portal sides structural detail — thickness confirmed, waiting only if something changes
+        <div class="meta">Structural is modeling the current strategy and will continue until told otherwise. Watch only.</div>
       </div>
-      <div class="item" data-date="2026-06-29" data-id="i20" data-cat="documentation" data-disc="ME ST" data-court="You"><span class="badge n">N</span>Exhaust Fan Weights — confirm/document weights for the exhaust fans above the baffle ceiling
-        <div class="meta">Raised Jun 29, SME Workshop session.</div>
+
+      <div class="item" data-date="2026-06-30" data-id="i44" data-cat="drawings" data-disc="AR" data-court="You" data-horizon="today" data-action="review">
+        <span class="badge n">N</span>Haptic TP5 progress set — go through in detail with the team
+        <div class="meta">Chris H shared the TP5 progress set with the full production team (Shadi, Kirk, Luke, Michelle) Jun 30. Quick look taken — detailed review with team outstanding.</div>
       </div>
-      <div class="item" data-date="2026-06-29" data-id="i21" data-cat="drawings" data-disc="AR ST" data-court="You"><span class="badge n">N</span>Bulkhead/AV Screen stakeholder diagrams — prepare height-option diagrams (knuckle screen bulkhead) ahead of the stakeholder presentation
-        <div class="meta">Raised Jun 29, SME Workshop session. Structural beam review feeds this.</div>
+
+      <div class="item" data-date="2026-06-30" data-id="i46" data-cat="coordination" data-disc="AR" data-court="You" data-horizon="today" data-action="coordinate">
+        <span class="badge n">N</span>Kirk RFI check-in — sync before Thursday's construction meeting
+        <div class="meta">Josh gave Kirk (technologist, Pkg 4.3 + 5, CA work) a list of RFIs to own. Kirk will ask Shadi and Chris H for help on what he needs. Check in with Kirk Thursday morning so the team can answer Josh's questions together.</div>
       </div>
-      <div class="item" data-date="2026-06-29" data-id="i22" data-cat="drawings" data-disc="AR safety" data-court="You" data-pri="low"><span class="badge n">N</span>Fire Cabinet Model Coordination — update the model to reflect the confirmed fire cabinet/portal placement (off stone surfaces)
-        <div class="meta">Raised Jun 29, SME Workshop session. Placement principle is settled (Neil Dobie/Vittorio/Anthony/Shadi) — only the model update is outstanding.</div>
-      </div>
-      <div class="item" data-date="2026-06-29" data-id="i23" data-cat="rfi" data-disc="owner" data-court="You" data-pri="low"><span class="badge n">N</span>Terminal Operations RFI check — confirm status
-        <div class="meta">Raised Jun 29, SME Workshop session.</div>
-      </div>
-      <div class="item" data-date="2026-06-29" data-id="i24" data-cat="drawings" data-disc="ST AR" data-court="You" data-pri="low"><span class="badge n">N</span>Movement Joint Modeling
-        <div class="meta">Raised Jun 29, SME Workshop session.</div>
-      </div>
-      <div class="item" data-date="2026-06-29" data-id="i25" data-cat="drawings" data-disc="ST" data-court="You" data-pri="low"><span class="badge n">N</span>Summit House Structural Model Update
-        <div class="meta">Raised Jun 29, SME Workshop session. Scope is actually Package 6 (Summit House) — logged here per Shadi's note that this session ties to Package 5; flag if it should move.</div>
-      </div>
-      <div class="item watch" data-date="2026-06-29" data-id="i26" data-cat="drawings" data-disc="ST AR" data-court="You" data-pri="low">
-        <span class="badge w">W</span>Confirm final structural detail for portal sides, communicate thickness to stakeholders
-        <div class="why">Structural is modeling the current strategy and will continue with it until told otherwise — complete for now unless something changes.</div>
-        <div class="meta">Updated Jun 29.</div>
-      </div>
+
     </details>
 
     <details class="pkg">
       <summary><span>Package 6 — Retail Fitout <span class="chev">▸</span></span><span class="pcounts">2 open</span></summary>
-      <div class="item" data-date="2026-06-28" data-id="i27" data-cat="documentation" data-disc="EL" data-court="You" data-pri="low">Retail/banner lighting: cut sheets issued, no feedback loop on record
-        <div class="meta">Confirmed Jun 28 — no longer flagged as unverified.</div>
+      <div class="item" data-date="2026-06-30" data-id="i45" data-cat="drawings" data-disc="AR" data-court="You" data-horizon="week" data-action="model">
+        <span class="badge n">N</span>Retail / banner detail — start modeling current detail while waiting on YYC and commercial team
+        <div class="meta">Discussion ongoing with YYC and commercial team on retail banner. Modeling the current detail is in Shadi's court — mid-priority. If bandwidth, this is a blocker to getting ahead. Erica + Anthony court for decisions/updates.</div>
       </div>
-      <div class="item" data-date="2026-06-29" data-id="i28" data-cat="documentation" data-disc="EL" data-court="You"><span class="badge n">N</span>Caleb Jacobs' wall-wash lighting cut sheet — review
-        <div class="meta">Raised Jun 29.</div>
+      <div class="item" data-date="2026-06-30" data-id="i28" data-cat="coordination" data-disc="EL AR" data-court="You" data-horizon="week" data-action="coordinate">
+        Wall-wash lighting — assign 2D detail to Michelle or Luke
+        <div class="meta">Caleb Jacobs (SMP) sent cut sheet. Shadi to assign the 2D detail (not 3D) to Michelle or Luke. Jun 30.</div>
       </div>
     </details>
 
     <details class="pkg">
       <summary><span>Signage (Entro) <span class="chev">▸</span></span><span class="pcounts">1 open</span></summary>
-      <div class="item" data-date="2026-06-28" data-id="i29" data-cat="decisions" data-disc="signage" data-court="Entro">Waiting on Entro's answer on washroom signage placement — align to the door? Room ID centered on the panel next to the door, or set 2" from the door frame?
-        <div class="meta">Question sent Jun 28, response pending.</div>
+      <div class="item" data-date="2026-06-30" data-id="i29" data-cat="decisions" data-disc="signage" data-court="Entro" data-horizon="week" data-action="coordinate">
+        Washroom + door-adjacent signage placement — interim: center them; wait for Entro's final answer
+        <div class="meta">Washroom signs: align to door or center on panel — question sent Jun 28, response pending. Door-adjacent room-ID signs: gave Chris H a list; interim decision is to center signs until Entro responds. Move signs to center now as a partial task.</div>
       </div>
     </details>
 
     <details class="pkg">
       <summary><span>Material keynotes <span class="chev">▸</span></span><span class="pcounts">1 open</span></summary>
-      <div class="item" data-date="2026-06-29" data-id="i30" data-cat="coordination" data-disc="AR" data-court="Haptic">Set up material keynotes mapped to Specification sections, publish to ACC for Haptic/K-Studio
-        <div class="meta">Finish schedule mapped in Jun 28; sent to Rick Adams with a specs question. Sent Elisa (Interiors) a question about millwork metal Jun 29. Next: Haptic adds the keynotes to their model.</div>
+      <div class="item" data-date="2026-06-29" data-id="i30" data-cat="coordination" data-disc="AR" data-court="Haptic" data-horizon="week" data-action="coordinate">
+        Set up material keynotes mapped to Specification sections, publish to ACC for Haptic/K-Studio
+        <div class="meta">Finish schedule mapped Jun 28; sent to Rick Adams. Jun 29: sent Elisa (Interiors) question about millwork metal. Next: Haptic adds keynotes to their model.</div>
       </div>
     </details>
   </div>
 
+  <!-- ========== CENTRALIZED / PBS ========== -->
   <div class="program">
     <div class="program-head" style="--accent:var(--sage)" onclick="onProgramHeadClick(event)">
       <span class="pchev">▾</span><span class="name" style="color:var(--sage)">Centralized / PBS</span>
-      <span class="counts">2 open · 1 blocking · 2 watch</span>
+      <span class="counts">— open</span>
     </div>
 
     <details class="pkg" open>
       <summary><span>NPSC <span class="chev">▸</span></span><span class="pcounts">1 blocking</span></summary>
-      <div class="item blocking" data-date="2026-06-29" data-id="i31" data-cat="decisions" data-disc="security AR" data-court="YYC" data-delegate="Josh Garcia">
-        <span class="badge p">P</span>NPSC security-door hardware — waiting on the YYC letter confirming security-door direction
-        <div class="why">Blocked by: YYC's letter. Josh Garcia (Dialog contract administrator) is the one chasing it. Once YYC responds, the next step is updating the door schedule with the hardware consultant.</div>
-        <div class="meta">Updated Jun 29 — the security counter itself has been relocated to the required position; still waiting on YYC's letter for the door hardware.</div>
+      <div class="item blocking" data-date="2026-06-30" data-id="i31" data-cat="decisions" data-disc="security AR" data-court="You" data-delegate="Josh Garcia" data-due="2026-07-03" data-horizon="today" data-action="chase">
+        <span class="badge p">P</span>NPSC PSL door hardware — chase Josh Garcia to issue PCN; send to Steve Isaac (procurement)
+        <div class="why">PCN required for 6 PSL doors (D54F01, D55F02, D56E01, D59G01, D60G00 + one more). Steve Isaac is the hardware consultant — Chris H already sent him Concourse B Departures hardware today (same consultant). Flag urgency for procurement. Cloud relocated NPSC reception desk; confirm biometric mount is by-others.</div>
+        <div class="meta">YYC Security meeting held Jun 30 AM. Daniela Vasquez confirmed 6 doors Jun 11. Josh Garcia is the contract administrator chasing this.</div>
       </div>
     </details>
 
     <details class="pkg">
-      <summary><span>Lighting <span class="chev">▸</span></span><span class="pcounts">1 open</span></summary>
-      <div class="item" data-date="2026-06-23" data-id="i32" data-cat="documentation" data-disc="EL" data-court="Erica Loh" data-pri="low">L17 Light Fixture Alternate — revised concept, team feedback/effort estimates requested
-        <div class="meta">Erica Loh, Jun 23 — grid type + plexiglass specs sit with Erica's design team, not you directly.</div>
+      <summary><span>Lighting <span class="chev">▸</span></span><span class="pcounts">1 watch</span></summary>
+      <div class="item watch" data-date="2026-06-30" data-id="i32" data-cat="documentation" data-disc="EL" data-court="Erica Loh" data-pri="low" data-horizon="watch">
+        <span class="badge w">W</span>L17 light fixture alternate — waiting on Chris Lenzin's response
+        <div class="meta">Patrick (DIALOG) got the Geba weights from Elisdon (contractor) Jun 30 — submitted to consultant. Waiting on Chris Lenzin. Watch — Erica Loh's design team owns this, not Shadi directly.</div>
       </div>
     </details>
 
     <details class="pkg">
       <summary><span>Signage (Entro) <span class="chev">▸</span></span><span class="pcounts">1 watch</span></summary>
-      <div class="item watch" data-date="2026-06-23" data-id="i33" data-cat="decisions" data-disc="signage" data-court="You" data-pri="low">
-        <span class="badge w">W</span>Confirm regulatory signage approach from the YYC PBS Wayfinding Kick-Off
-        <div class="why">Valerie Moss, Jun 23 — moved to watch at your request, no walkthrough scheduled yet, nothing to action until one is.</div>
+      <div class="item watch" data-date="2026-06-23" data-id="i33" data-cat="decisions" data-disc="signage" data-court="You" data-pri="low" data-horizon="watch">
+        <span class="badge w">W</span>Confirm regulatory signage approach from YYC PBS Wayfinding Kick-Off
+        <div class="meta">Valerie Moss, Jun 23 — no walkthrough scheduled yet, nothing to action until one is. Watch.</div>
       </div>
     </details>
 
     <details class="pkg" open>
-      <summary><span>General <span class="chev">▸</span></span><span class="pcounts">1 open · 1 watch</span></summary>
-      <div class="item" data-date="2026-06-28" data-id="i34" data-cat="decisions" data-disc="EL owner" data-court="You">NPS/electrical scope dispute — YYC raised design gaps and fee pushback, team debating continuing vs. withdrawing scope
-        <div class="meta">Confirmed Jun 28 — no longer flagged as unverified.</div>
+      <summary><span>General <span class="chev">▸</span></span><span class="pcounts">2 open</span></summary>
+      <div class="item" data-date="2026-06-28" data-id="i34" data-cat="decisions" data-disc="EL owner" data-court="You" data-horizon="week" data-action="coordinate">
+        NPS / electrical scope dispute — YYC raised design gaps and fee pushback; team debating continuing vs. withdrawing
+        <div class="meta">Confirmed Jun 28.</div>
       </div>
-      <div class="item watch" data-date="2026-05-28" data-id="i35" data-cat="coordination" data-disc="EL" data-court="N/A" data-pri="low"><span class="badge w">W</span>Operations and Staging Lighting — 1/2 sub-items, overdue since May 28
-        <div class="why">Not your task — Planner board item, flagged here only because it could affect your coordination timeline.</div>
+      <div class="item" data-date="2026-06-30" data-id="i47" data-cat="documentation" data-disc="signage" data-court="You" data-horizon="week" data-action="review">
+        <span class="badge n">N</span>Entro 100% DD wayfinding review — Shadi + Erica to review together
+        <div class="meta">Entro's 100% DD set needs review. Shadi not sure what's on it — possibly a task for both Shadi and Erica to review. Jun 30.</div>
       </div>
     </details>
   </div>
 
+  <!-- ========== CROSS-PROGRAM ========== -->
   <div class="program">
     <div class="program-head" style="--accent:var(--taupe)" onclick="onProgramHeadClick(event)">
       <span class="pchev">▾</span><span class="name" style="color:var(--taupe)">Cross-program</span>
-      <span class="counts">2 open · 1 watch</span>
+      <span class="counts">— open</span>
     </div>
     <div class="pkg" style="padding:6px 0;">
-      <div class="item watch" data-date="2026-06-26" data-id="i36" data-cat="decisions" data-disc="AR owner" data-court="Erica Loh" data-pri="low">
+      <div class="item watch" data-date="2026-06-26" data-id="i36" data-cat="decisions" data-disc="AR owner" data-court="Erica Loh" data-pri="low" data-horizon="watch">
         <span class="badge w">W</span>YYC Masterplan Model — scope gaps, needs direction
-        <div class="why">Erica Loh flagged this Jun 23, recapped again Jun 26 — TP5 noted as the priority. Moved to watch at your request. Separate from Concourse B's similarly-named "Master Thematic Plan."</div>
+        <div class="meta">Erica Loh flagged Jun 23, recapped Jun 26. TP5 is the priority. Watch — Erica's court.</div>
       </div>
-      <div class="item" data-date="2026-07-02" data-id="i37" data-cat="meetings" data-disc="owner" data-court="You" data-due="2026-07-02">BIM Transition Plan — next-steps lunch with John Souleles (Studio Chair) and Matt Parks
-        <div class="meta">Thursday, Jul 2 — firm-level, separate from any single project.</div>
+      <div class="item" data-date="2026-07-02" data-id="i37" data-cat="meetings" data-disc="owner" data-court="You" data-due="2026-07-02" data-horizon="jul3" data-action="admin">
+        BIM Transition Plan — lunch with John Souleles (Studio Chair) and Matt Parks
+        <div class="meta">Thursday, Jul 2 — confirmed. John Souleles and Parks attending. Firm-level, separate from any single project.</div>
       </div>
-      <div class="item" data-date="2026-07-09" data-id="i38" data-cat="meetings" data-disc="security" data-court="You" data-due="2026-07-09"><span class="badge n">N</span>IT Systems / VDGS review — Shane Zbrodoff
-        <div class="meta">Thursday, Jul 9 — moved from an earlier date.</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="program">
-    <div class="program-head" style="--accent:var(--olive)" onclick="onProgramHeadClick(event)">
-      <span class="pchev">▾</span><span class="name" style="color:var(--olive)">Upcoming</span>
-      <span class="counts">1 open</span>
-    </div>
-    <div class="pkg" style="padding:6px 0;">
-      <div class="item" data-date="2026-06-30" data-id="i39" data-cat="meetings" data-disc="security AR" data-court="You" data-due="2026-06-30">YYC Security meeting on PSL doors + exit core door hardware
-        <div class="meta">Tuesday AM, Jun 30</div>
+      <div class="item" data-date="2026-07-09" data-id="i38" data-cat="meetings" data-disc="security" data-court="You" data-due="2026-07-09" data-horizon="week" data-action="admin">
+        <span class="badge n">N</span>IT Systems / VDGS review — Shane Zbrodoff
+        <div class="meta">Thursday, Jul 9.</div>
       </div>
     </div>
   </div>
 
+  <!-- ========== RFIs ========== -->
   <div class="program">
     <div class="program-head" style="--accent:var(--rfi)" onclick="onProgramHeadClick(event)">
       <span class="pchev">▾</span><span class="name" style="color:var(--rfi)">RFIs</span>
-      <span class="counts">3 open · 1 blocking</span>
+      <span class="counts">— open</span>
     </div>
 
     <details class="pkg" open>
       <summary><span>Concourse B — Onware <span class="chev">▸</span></span><span class="pcounts">2 open · 1 blocking</span></summary>
-      <div class="item" data-date="2026-06-29" data-id="i40" data-cat="rfi" data-disc="AR" data-court="You"><span class="badge n">N</span>RFI 000085.2 — Penthouse Paint Abatement — waiting response
-        <div class="meta">Raised Jun 29. Package 4.2 — separate from Chad Gray's Addendum 04 cover-page question above.</div>
+      <div class="item" data-date="2026-06-29" data-id="i40" data-cat="rfi" data-disc="AR" data-court="You" data-horizon="week" data-action="chase">
+        <span class="badge n">N</span>RFI 000085.2 — Penthouse Paint Abatement — waiting response
+        <div class="meta">Raised Jun 29. Package 4.2.</div>
       </div>
-      <div class="item" data-date="2026-06-25" data-id="i41" data-cat="rfi" data-disc="security" data-court="Mikaelyn Sych">RFI 000104.0 — NAVCAN Fiber Cable — waiting on Mikaelyn Sych<div class="meta">Raised Jun 25, your action required</div></div>
-      <div class="item blocking" data-date="2026-06-28" data-id="i42" data-cat="rfi" data-disc="AR ST" data-court="Mikaelyn Sych" data-delegate="Josh" data-due="2026-07-05">
+      <div class="item" data-date="2026-06-25" data-id="i41" data-cat="rfi" data-disc="security" data-court="Mikaelyn Sych" data-horizon="week" data-action="chase">
+        RFI 000104.0 — NAVCAN Fiber Cable — waiting on Mikaelyn Sych
+        <div class="meta">Raised Jun 25.</div>
+      </div>
+      <div class="item blocking" data-date="2026-06-28" data-id="i42" data-cat="rfi" data-disc="AR ST" data-court="Mikaelyn Sych" data-delegate="Josh" data-due="2026-07-05" data-horizon="jul3" data-action="chase">
         <span class="badge p">P</span>RFI 000099.0 — Precast Parapet Tie-in Detail — waiting on Mikaelyn Sych
-        <div class="why">Same underlying issue as the Package 4.3 task above — removing the precast affects the roof warranty, which is why YYC's direction matters. PCL has found a way to test it: they'll try removing the existing parapet cap to access the bolt — if it comes out, the detail stays as-is, if not, the detail gets revised. Josh will follow up at the construction meeting. <strong>Escalate if no response by Jul 5.</strong></div>
-        <div class="meta">Raised Jun 23, found in Monday's batch Jun 28</div>
+        <div class="why">Same underlying issue as Package 4.3 task — precast removal affects roof warranty. PCL testing removability of existing parapet cap. Josh following up at construction meeting. <strong>Escalate if no response by Jul 5.</strong></div>
+        <div class="meta">Raised Jun 23, found Jun 28.</div>
       </div>
     </details>
 
     <details class="pkg">
       <summary><span>Centralized / PBS — Planner board <span class="chev">▸</span></span><span class="pcounts">1 open</span></summary>
-      <div class="item" data-id="i43" data-cat="rfi" data-disc="ME ST EL" data-court="N/A" data-pri="low">RFI 247 — Access &amp; Support Above CM3 Ceiling Q2 — 1/4 sub-items done (ME+ST+EL)</div>
+      <div class="item" data-id="i43" data-cat="rfi" data-disc="ME ST EL" data-court="N/A" data-pri="low" data-horizon="watch">
+        RFI 247 — Access &amp; Support Above CM3 Ceiling Q2 — 1/4 sub-items done (ME+ST+EL)
+      </div>
     </details>
   </div>
+
   </div><!-- /programView -->
 
   <div id="categoryView" style="display:none"></div>
   <div id="disciplineView" style="display:none"></div>
 
-  <h2 class="section">Completed today <span class="pill">resolved since this morning</span></h2>
+  <h2 class="section">Completed <span class="pill">resolved this session or today</span></h2>
 
   <div class="talk-group" style="--accent:var(--mauve)">
-    <h3 style="color:var(--mauve)">Concourse B</h3>
+    <h3 style="color:var(--mauve)">Concourse B — June 30</h3>
+    <h4>YYC Security meeting — PSL doors + exit-core door hardware (Jun 30 AM)</h4>
+    <p>Meeting held Jun 30 AM as scheduled. PSL door hardware is now being chased via Josh Garcia (PCN to Steve Isaac).</p>
+    <h4>Package 5 — VW Mason hidden in Revizto</h4>
+    <p>Done ahead of the Jun 30 review. Clash conflicts flagged to Mike (VW Mason).</p>
+    <h4>Package 5 — Revit type-parameter visibility fixed</h4>
+    <p>Toilet transfer clearance element type-parameter visibility resolved.</p>
+    <h4>Package 5 — Washroom ceiling decision reached</h4>
+    <p>Stay under joists; 75mm mechanical clearance on perimeter; suspended grid + drywall + t-bar at vanity. Elisa coordinating with Mechanical and Electrical.</p>
+  </div>
+
+  <div class="talk-group" style="--accent:var(--mauve)">
+    <h3 style="color:var(--mauve)">Concourse B — earlier this week</h3>
     <h4>Package 5 — Haptic metal-panel question resolved</h4>
     <p>Not needed — the WC doors in question aren't exit doors, so no metal panel is required above them.</p>
     <h4>Package 5 — diffuser placement &amp; fan sizing confirmed</h4>
-    <p>Fan sizing is confirmed (small unit) and modeled for one of the diffusers from SME Workshop #20.</p>
+    <p>Fan sizing confirmed (small unit) and modeled for one of the diffusers from SME Workshop #20.</p>
     <h4>Package 5 — storage-unit card readers &amp; signage adjusted</h4>
-    <p>Done, now that the extra space is available.</p>
+    <p>Done now that the extra space is available.</p>
   </div>
-
-  <h2 class="section">Worth putting on your Microsoft To Do</h2>
-  <p class="section-note">No auto-sync into To Do, so these are the ones I'd actually carry over to your phone — the rest is fine living in the vault only.</p>
-  <div class="todo-list" id="todoList">
-    <div class="todo-row"><input type="checkbox"><span>Hide VW Mason from Revizto ahead of tomorrow's review, flag clash conflicts to Mike <span class="when">— by Jun 30</span></span></div>
-    <div class="todo-row"><input type="checkbox"><span>Millwork pricing — Haptic's comments due back, package goes to YYC <span class="when">— Jun 30 / Jul 3</span></span></div>
-    <div class="todo-row"><input type="checkbox"><span>YYC Security meeting, PSL + exit-core doors <span class="when">— Tue AM, Jun 30</span></span></div>
-    <div class="todo-row"><input type="checkbox"><span>Schedule the door-actuator coordination meeting (Package 5) <span class="when">— by Fri, Jul 3</span></span></div>
-    <div class="todo-row"><input type="checkbox"><span>Faisal Mohsin's portal frame/storage cabinetry sketch — confirm it's approved design intent before the 80% issuance <span class="when">— by Fri, Jul 3</span></span></div>
-    <div class="todo-row"><input type="checkbox"><span>Knuckle Transition boundary decision — DLG presenting to OAC/YYC <span class="when">— Jul 2</span></span></div>
-    <div class="todo-row"><input type="checkbox"><span>BIM Transition Plan lunch with John + Matt Parks <span class="when">— Thu, Jul 2</span></span></div>
-    <div class="todo-row"><input type="checkbox"><span>Chase precast/RFI 000099.0 if YYC hasn't responded — PCL is testing removability now <span class="when">— by Jul 5</span></span></div>
-    <div class="todo-row"><input type="checkbox"><span>Confirm Trade Log bid-submission deadline for Package 4.3 <span class="when">— this week</span></span></div>
-    <div class="todo-row"><input type="checkbox"><span>Resolve Revit type-parameter visibility — toilet transfer clearance element <span class="when">— this week</span></span></div>
-    <div class="todo-row"><input type="checkbox"><span>Coordinate with Haptic to add the keynotes to their model <span class="when">— this week</span></span></div>
-  </div>
-  <div class="copybar"><button class="copybtn" id="copyBtn" onclick="copyTodo()">Copy list</button></div>
 
   <footer>
-    This reads straight from Tasks.md and RFIs.md each time we sit down to check in — Obsidian stays the system of record, this is just a friendlier way to look at it. Items you add or check off here land in a tracker sheet, not the vault, until you tell me to sync.<br>
+    This reads straight from Tasks.md and RFIs.md each time we sit down — Obsidian stays the system of record, this is the interactive view. Items added or checked off here land in the tracker sheet, not the vault, until you tell me to sync.<br>
     Badges: <span class="badge p">P</span> blocking · <span class="badge u">U</span> unverified · <span class="badge w">W</span> watch-only · <span class="badge n">N</span> new since last check-in · <span class="badge c">C</span> completed today.
+    Horizon filters: Today = priority for today · Before Jul 3 = due at 80% milestone · This Week = this work week.
   </footer>
 
 </div>
 <script>
-// ===== Paste your deployed Apps Script Web App URL below =====
+// ===== Apps Script URL =====
 var API_URL = 'https://script.google.com/macros/s/AKfycbxyXNwkwuVce17hEA-fKff-sdHt1mXYOpf7ZSgoUZX9vWvJVlrp3BDLKIpki2F8uRFt/exec';
 
-function copyTodo(){
-  var rows = document.querySelectorAll('#todoList .todo-row span:not(.when)');
-  var lines = [];
-  document.querySelectorAll('#todoList .todo-row').forEach(function(r){
-    var text = r.textContent.trim().replace(/\s+/g,' ');
-    lines.push('- ' + text);
-  });
-  var out = lines.join('\n');
-  function done(){
-    var btn = document.getElementById('copyBtn');
-    btn.textContent = 'Copied';
-    btn.classList.add('copied');
-    setTimeout(function(){ btn.textContent='Copy list'; btn.classList.remove('copied'); }, 1600);
+// ===== Rich item metadata =====
+// Structure: { next: string, subtasks: string[], updates: 'YYYY-MM-DD|text'[] }
+var ITEM_DATA = {
+  'i1': {
+    next: 'Check in with Chris H Thursday — confirm Add04 change list has been sent to Chad Gray (PCL)',
+    subtasks: ['Chris H sends Add04 change list to Chad Gray (PCL) — not just a screenshot'],
+    updates: [
+      '2026-06-30|Chris H asked Chad for a screenshot; Chad re-clarified he wants the full change list',
+      '2026-06-29|Chad Gray (PCL) raised request; Shadi prepared list and gave it to Chris H'
+    ]
+  },
+  'i4': {
+    next: 'Check in with Chris H Thursday — confirm door actuator coordination meeting is booked (Greg Pink / SMP)',
+    subtasks: ['Book meeting: AR + EL + security + Greg Pink (SMP) — target booked by Jul 3'],
+    updates: ['2026-06-25|Greg Pink (SMP) / Chris H raised the door actuator control strategy gap; coordination meeting flagged as needed']
+  },
+  'i5': {
+    next: 'Reply to Faisal confirming portal sketch = approved design intent for 80%; incorporate detail into model',
+    subtasks: [
+      'Reply to Faisal Mohsin — confirm portal sketch = approved design intent for the 80% package (Jul 3)',
+      'Incorporate Faisal\'s portal frame + storage cabinetry detail into the Revit model',
+      'Document why Percy\'s facade placement (Parks-approved) doesn\'t work — prepare to show Parks'
+    ],
+    updates: [
+      '2026-06-30|Faisal sent portal sketch + vending machine enclosure sketch; Haptic removed vending machines from model; Caleb (SMP Electrical) emailed Anthony re: vending machines — watch that thread',
+      '2026-06-29|Faisal Mohsin portal frame / storage cabinetry sketch received; 80% package to YYC Jul 3; Haptic comments due Jun 30',
+      '2026-06-25|Percy Yeung millwork pricing package thread started'
+    ]
+  },
+  'i6': {
+    next: 'Ask Elisa: YYC standards show a make-up counter — is the intent bench + make-up counter, or just benches?',
+    subtasks: [
+      'Check with Elisa on make-up counter: 2 benches added, YYC standards also show a make-up counter — confirm if one of each is the intent'
+    ],
+    updates: [
+      '2026-06-30|Ceiling resolved: stay under joists, 75mm mechanical perimeter clearance (faux cove), suspended grid + drywall + t-bar at vanity. Elisa coordinating with ME + EL.',
+      '2026-06-30|Elisa confirmed 2 benches added to washroom; YYC standards also show a make-up counter',
+      '2026-06-29|Structural: gypsum below offset wall, stud box above; suspended gypsum (CGC) in open areas. Light cove dropped — structure won\'t allow it.'
+    ]
+  },
+  'i10': {
+    next: 'Wait for SteerCo decision on bulkhead option; if no answer by 80% (Jul 3), proceed with compact option',
+    subtasks: [
+      'Confirm structural beam impact on screen area — coordinate with Kevin Vogt',
+      'Prepare height-option diagrams for stakeholder package if needed'
+    ],
+    updates: [
+      '2026-06-30|Anthony emailed Erica with 3 bulkhead options for smaller screen; going to SteerCo. No answer by 80% = go with compact option.',
+      '2026-06-29|Kevin Vogt Beam Demo: additional mezzanine framing may affect ceilings, bulkheads, stone cladding',
+      '2026-06-29|Two zones affected: mid-area (structural adding beam); end area near Starbucks (YYC choosing height option this week)'
+    ]
+  },
+  'i17': {
+    next: 'Update Revit — CMU → stud wall (rated + non-rated) behind Elbow River + Summit House; add CMU at elevator — priority AM Wednesday',
+    subtasks: [
+      'Update: CMU → rated stud wall behind Elbow River area',
+      'Update: CMU → stud wall behind Summit House area (HSS structural — work around it)',
+      'Add CMU wall at elevator shaft',
+      'Determine and model the detail in front of the wall'
+    ],
+    updates: [
+      '2026-06-30|Summit House scope confirmed as part of this task; HSS structural at Summit House — model around it. Lift shaft detailing merged here.',
+      '2026-06-29|SME Workshop: 3 construction options by Anthony; Kevin Vogt favors option 3. Block wall direction structurally cleared per Kevin.'
+    ]
+  },
+  'i19': {
+    next: 'Ask Clive (DIALOG Mechanical) — how much drop does he need above the knuckle area for his ducts?',
+    subtasks: [
+      'Ask Clive (DIALOG Mechanical) for required duct clearance/drop height above knuckle baffle ceiling',
+      'Set lowered ceiling height and update model'
+    ],
+    updates: ['2026-06-29|Knuckle area needs dropped ceiling for mechanical exhaust ducts running above baffle ceiling. Shadi to coordinate ceiling height with Clive.']
+  },
+  'i29': {
+    next: 'Move door-adjacent signs to center (interim action now); wait for Entro\'s answer before finalizing',
+    subtasks: [
+      'Interim: update model — center door-adjacent room-ID signs on the panel next to the door (don\'t wait for Entro)',
+      'Wait for Entro\'s final answer on alignment; update once received'
+    ],
+    updates: [
+      '2026-06-30|Gave Chris H list of door-adjacent signs; interim decision is to center them until Entro responds',
+      '2026-06-28|Washroom sign placement question also open: align to door frame or center on panel? Question sent to Entro Jun 28.'
+    ]
+  },
+  'i31': {
+    next: 'Nudge Josh Garcia — issue PCN for 6 PSL doors and send to Steve Isaac with urgency flag',
+    subtasks: [
+      'Chase Josh Garcia: issue PCN for 6 PSL doors (D54F01, D55F02, D56E01, D59G01, D60G00 + one more)',
+      'Send PCN to Steve Isaac (hardware consultant) — flag procurement urgency',
+      'Confirm biometric mount is by-others (Cloud relocated NPSC reception desk)',
+      'Update door schedule once PCN issued and Steve Isaac responds'
+    ],
+    updates: [
+      '2026-06-30|Chris H already sent Concourse B Departures door hardware to Steve Isaac today — same consultant, useful context for the chase',
+      '2026-06-30|YYC Security meeting held AM Jun 30 — PSL doors + exit core hardware discussed',
+      '2026-06-11|Daniela Vasquez confirmed 6 doors need hardware upgrades; DIALOG to issue PCN'
+    ]
+  },
+  'i44': {
+    next: 'Go through Haptic\'s TP5 progress set in detail with the team — don\'t skim',
+    subtasks: [
+      'Review Haptic TP5 progress set comments in detail',
+      'Coordinate team response: assign comments to Kirk, Luke, Michelle, Chris H as appropriate'
+    ],
+    updates: ['2026-06-30|Chris H shared Haptic TP5 progress set with full production team (Shadi, Kirk, Luke, Michelle). Quick look taken — detailed review outstanding.']
+  },
+  'i46': {
+    next: 'Check in with Kirk before Thursday — go through Josh\'s RFI list and figure out where he needs help',
+    subtasks: [
+      'Sync with Kirk: review Josh\'s assigned RFI list',
+      'Identify which RFIs need Shadi or Chris H\'s input to answer',
+      'Prepare answers ahead of Josh\'s Thursday construction / OAC meeting'
+    ],
+    updates: ['2026-06-30|Josh gave Kirk a list of RFIs to own and find answers for. Kirk is technologist on Pkg 4.3 + Pkg 5, now doing CA work. Kirk will ask Shadi and Chris H for help.']
   }
-  if(navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(out).then(done, fallback);
-  } else { fallback(); }
-  function fallback(){
-    var ta = document.createElement('textarea');
-    ta.value = out; document.body.appendChild(ta); ta.select();
-    try{ document.execCommand('copy'); }catch(e){}
-    document.body.removeChild(ta); done();
-  }
-}
+};
 
-// ===== Quick capture / mark-complete, backed by a Google Sheet =====
-
-function setStatus(msg){
-  document.getElementById('capStatus').textContent = msg;
-}
-
-function localQueueKey(){ return 'wt-capture-queue'; }
-
-function queueLocally(payload){
-  var q = JSON.parse(localStorage.getItem(localQueueKey()) || '[]');
-  q.push(payload);
-  localStorage.setItem(localQueueKey(), JSON.stringify(q));
-}
-
-function flushLocalQueue(){
-  if(!API_URL || API_URL.indexOf('PASTE_') === 0) return;
-  var q = JSON.parse(localStorage.getItem(localQueueKey()) || '[]');
-  if(!q.length) return;
-  var remaining = [];
-  q.forEach(function(payload){
-    sendToSheet(payload, function(ok){
-      if(!ok) remaining.push(payload);
-      localStorage.setItem(localQueueKey(), JSON.stringify(remaining));
-    });
-  });
-}
-
-function sendToSheet(payload, cb){
-  fetch(API_URL, {
-    method:'POST',
-    headers:{'Content-Type':'text/plain;charset=utf-8'}, // avoids a CORS preflight against Apps Script
-    body: JSON.stringify(payload)
-  }).then(function(r){ return r.json(); })
-    .then(function(){ if(cb) cb(true); })
-    .catch(function(){ if(cb) cb(false); });
-}
-
-// ===== Program → package map (mirrors the static sections below) =====
-// Empty array = a flat program with no named packages (Cross-program, Upcoming,
-// and any new program created on the fly) — capture falls back to a generic bucket.
+// ===== Program → package map =====
 var PROGRAM_PACKAGES = {
   'Concourse B': ['Package 4.2 — Arrivals + Penthouse','Package 4.3 — Building Envelope','Package 5 — Departures Level','Package 6 — Retail Fitout','Signage (Entro)','Material keynotes'],
   'Centralized / PBS': ['NPSC','Lighting','Signage (Entro)','General'],
@@ -616,6 +761,34 @@ var DISCIPLINE_LABELS = {
 };
 var DISCIPLINE_ORDER = ['AR','ST','ME','EL','signage','safety','security','owner'];
 
+// ===== Active filter state =====
+var activeHorizons = {};
+var activeActions = {};
+
+function toggleHorizonChip(btn){
+  var h = btn.getAttribute('data-horizon');
+  if(activeHorizons[h]){ delete activeHorizons[h]; btn.classList.remove('active'); }
+  else { activeHorizons[h] = true; btn.classList.add('active'); }
+  applySearchFilter();
+}
+
+function toggleActionChip(btn){
+  var a = btn.getAttribute('data-action');
+  if(activeActions[a]){ delete activeActions[a]; btn.classList.remove('active'); }
+  else { activeActions[a] = true; btn.classList.add('active'); }
+  applySearchFilter();
+}
+
+function hasActiveHorizons(){ return Object.keys(activeHorizons).length > 0; }
+function hasActiveActions(){ return Object.keys(activeActions).length > 0; }
+
+// ===== Utility =====
+function escapeHtml(s){
+  var d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
 function pkgDisplayName(pkgEl){
   var span = pkgEl.querySelector('summary > span:first-child');
   if(!span) return '';
@@ -633,286 +806,8 @@ function findPkgBlock(programEl, pkgName){
 
 function getItemMainText(item){
   var clone = item.cloneNode(true);
-  Array.prototype.slice.call(clone.querySelectorAll('.meta, .why, .badge, .done-toggle, .ctaglist, .taglist')).forEach(function(n){ n.remove(); });
+  Array.prototype.slice.call(clone.querySelectorAll('.meta,.why,.badge,.done-toggle,.ctaglist,.taglist,.item-next,.subtask-list,.tl-toggle,.timeline-wrap,.action-pill')).forEach(function(n){ n.remove(); });
   return clone.textContent.trim().replace(/\s+/g,' ');
-}
-
-function refreshCapPkg(){
-  var program = document.getElementById('capProgram').value;
-  var pkgSel = document.getElementById('capPkg');
-  var pkgs = PROGRAM_PACKAGES[program] || [];
-  pkgSel.innerHTML = '';
-  var generalOpt = document.createElement('option');
-  generalOpt.value = '';
-  generalOpt.textContent = pkgs.length ? 'No specific package' : 'No packages in this program';
-  pkgSel.appendChild(generalOpt);
-  pkgs.forEach(function(p){
-    var opt = document.createElement('option');
-    opt.value = p; opt.textContent = p;
-    pkgSel.appendChild(opt);
-  });
-  refreshCapItem();
-}
-
-function refreshCapItem(){
-  var program = document.getElementById('capProgram').value;
-  var pkgName = document.getElementById('capPkg').value;
-  var sel = document.getElementById('capItem');
-  sel.innerHTML = '';
-  var generalOpt = document.createElement('option');
-  generalOpt.value = '';
-  generalOpt.textContent = pkgName ? 'General note for this package (not one specific item)' : 'General note for this program (not one specific item)';
-  sel.appendChild(generalOpt);
-
-  var prog = findProgramBlock(program);
-  var items = [];
-  if(prog){
-    if(pkgName){
-      var pkgBlock = findPkgBlock(prog, pkgName);
-      if(pkgBlock) items = Array.prototype.slice.call(pkgBlock.querySelectorAll('.item'));
-    } else {
-      items = Array.prototype.slice.call(prog.querySelectorAll('.item'));
-    }
-  }
-  items.forEach(function(it){
-    var full = getItemMainText(it).slice(0,200);
-    var snippet = full.length > 90 ? full.slice(0,90) + '…' : full;
-    var opt = document.createElement('option');
-    opt.value = full;
-    opt.textContent = snippet;
-    sel.appendChild(opt);
-  });
-}
-
-function onCapTypeChange(){
-  var type = document.getElementById('capType').value;
-  var needsItemRef = (type === 'note' || type === 'blocker' || type === 'watch');
-  document.getElementById('capItemRow').style.display = needsItemRef ? '' : 'none';
-  if(needsItemRef) refreshCapItem();
-  var textEl = document.getElementById('capText');
-  textEl.placeholder = type === 'blocker' ? "Why it's blocking (optional context)…"
-    : type === 'watch' ? 'Why to watch it (optional context)…'
-    : type === 'note' ? 'What happened / what\'s new…'
-    : "What happened / what's new…";
-}
-
-function onCapProgramChange(){ refreshCapPkg(); }
-function onCapPkgChange(){ refreshCapItem(); }
-
-function addCapture(){
-  var type = document.getElementById('capType').value;
-  var program = document.getElementById('capProgram').value;
-  var pkg = document.getElementById('capPkg').value;
-  var needsItemRef = (type === 'note' || type === 'blocker' || type === 'watch');
-  var itemRef = needsItemRef ? document.getElementById('capItem').value : '';
-  var textEl = document.getElementById('capText');
-  var text = textEl.value.trim();
-  if(!text) return;
-  var payload = {type:type, program:program, pkg:pkg, itemRef:itemRef, text:text, ts:new Date().toISOString()};
-  renderPendingRow(payload);
-  if(type === 'item'){ insertCapturedItem(program, pkg, text); }
-  textEl.value = '';
-  if(!API_URL || API_URL.indexOf('PASTE_') === 0){
-    queueLocally(payload);
-    setStatus('Saved locally — Apps Script URL not configured yet, so nothing has synced to the sheet.');
-    return;
-  }
-  sendToSheet(payload, function(ok){
-    if(ok){ setStatus('Saved to your tracker sheet — not in the vault yet. Tell me to sync next time we\'re in a session.'); }
-    else { queueLocally(payload); setStatus('Could not reach the sheet right now — saved locally, will retry.'); }
-  });
-}
-
-// ===== Live counts: stat tiles, program headers, package headers =====
-// Convention (verified against the original snapshot): "open" = items that
-// are neither blocking nor watch-only; blocking/watch are reported alongside,
-// not subtracted from a separate total. Outstanding (top stat) = open + blocking,
-// i.e. everything actionable — watch-only items are shown but not counted, since
-// they aren't actually yours to chase.
-
-function isDone(item){ return item.classList.contains('done-pending'); }
-
-function formatCounts(open, blocking, watch){
-  var parts = [];
-  if(open > 0) parts.push(open + ' open');
-  if(blocking > 0) parts.push(blocking + ' blocking');
-  if(watch > 0) parts.push(watch + ' watch');
-  return parts.length ? parts.join(' · ') : '0 open';
-}
-
-function tally(items){
-  var open=0, blocking=0, watch=0;
-  items.forEach(function(it){
-    if(isDone(it)) return;
-    if(it.classList.contains('blocking')) blocking++;
-    else if(it.classList.contains('watch')) watch++;
-    else open++;
-  });
-  return {open:open, blocking:blocking, watch:watch};
-}
-
-// ===== Sort: status group first (Blocking > New > Open > Watch; done items always
-// last), then newest-first by data-date within each group. Runs on every .pkg
-// container (covers both <details class="pkg"> and the flat <div class="pkg">
-// wrappers used by Cross-program/Upcoming/RFI sections). A sub-group label that
-// isn't itself an .item (e.g. a workshop-session heading) can't be sorted along
-// with items, so don't rely on positional labels — fold that context into each
-// item's own .meta text instead, as done for the SME Workshop items above.
-
-function itemPriority(item){
-  if(isDone(item)) return 4;
-  if(item.classList.contains('blocking')) return 0;
-  if(item.querySelector(':scope > .badge.n')) return 1;
-  if(item.classList.contains('watch')) return 3;
-  return 2;
-}
-
-function itemDateValue(item){
-  var d = item.getAttribute('data-date');
-  if(!d) return -Infinity; // no recorded date — sorts last within its group
-  var t = new Date(d + 'T00:00:00').getTime();
-  return isNaN(t) ? -Infinity : t;
-}
-
-function sortItemsInContainer(container){
-  var items = Array.prototype.slice.call(container.children).filter(function(el){
-    return el.classList && el.classList.contains('item');
-  });
-  if(items.length < 2) return;
-  items.sort(function(a,b){
-    var pa = itemPriority(a), pb = itemPriority(b);
-    if(pa !== pb) return pa - pb;
-    return itemDateValue(b) - itemDateValue(a); // newest first within the group
-  });
-  items.forEach(function(it){ container.appendChild(it); });
-}
-
-function sortAllItems(){
-  document.querySelectorAll('.pkg').forEach(sortItemsInContainer);
-}
-
-function recalcCounts(){
-  sortAllItems();
-  var grandOpen=0, grandBlocking=0, grandWatch=0;
-
-  document.querySelectorAll('.program').forEach(function(prog){
-    var t = tally(Array.prototype.slice.call(prog.querySelectorAll('.item')));
-    var countsEl = prog.querySelector('.program-head .counts');
-    if(countsEl) countsEl.textContent = formatCounts(t.open, t.blocking, t.watch);
-    grandOpen += t.open; grandBlocking += t.blocking; grandWatch += t.watch;
-
-    prog.querySelectorAll('details.pkg').forEach(function(pkg){
-      var pcountsEl = pkg.querySelector('.pcounts');
-      if(!pcountsEl) return;
-      var pt = tally(Array.prototype.slice.call(pkg.querySelectorAll('.item')));
-      pcountsEl.textContent = formatCounts(pt.open, pt.blocking, pt.watch);
-    });
-  });
-
-  var statEls = document.querySelectorAll('.stats .stat .n');
-  if(statEls[0]) statEls[0].textContent = grandOpen + grandBlocking; // outstanding = actionable (excludes watch-only)
-  if(statEls[1]) statEls[1].textContent = grandBlocking;
-  if(statEls[2]) statEls[2].textContent = grandWatch;
-  // statEls[3] (overdue) and statEls[4] (due by Friday) are date-driven and
-  // aren't derivable from item classes — left as last set by Claude.
-}
-
-function setBadgeComplete(item){
-  var existing = item.querySelector(':scope > .badge');
-  if(item.dataset.origBadge === undefined){
-    item.dataset.origBadge = existing ? existing.outerHTML : '';
-  }
-  if(existing){
-    existing.outerHTML = '<span class="badge c">C</span>';
-  } else {
-    var b = document.createElement('span');
-    b.className = 'badge c';
-    b.textContent = 'C';
-    item.insertBefore(b, item.firstChild);
-  }
-}
-
-function restoreBadge(item){
-  if(item.dataset.origBadge === undefined) return;
-  var current = item.querySelector(':scope > .badge.c');
-  if(!current) return;
-  if(item.dataset.origBadge){ current.outerHTML = item.dataset.origBadge; }
-  else { current.remove(); }
-}
-
-function programColor(name){
-  var map = {
-    'Concourse B': 'var(--mauve)',
-    'Centralized / PBS': 'var(--sage)',
-    'Cross-program': 'var(--taupe)',
-    'Upcoming': 'var(--olive)',
-    'RFIs': 'var(--rfi)',
-    'General': 'var(--gold)'
-  };
-  return map[name] || 'var(--gold)';
-}
-
-function findProgramBlock(name){
-  var heads = document.querySelectorAll('.program-head .name');
-  for(var i=0;i<heads.length;i++){
-    if(heads[i].textContent.trim() === name) return heads[i].closest('.program');
-  }
-  return null;
-}
-
-function ensureProgramBlock(name){
-  var existing = findProgramBlock(name);
-  if(existing) return existing;
-  var prog = document.createElement('div');
-  prog.className = 'program';
-  var color = programColor(name);
-  prog.innerHTML =
-    '<div class="program-head" style="--accent:' + color + '">' +
-      '<span class="name" style="color:' + color + '">' + escapeHtml(name) + '</span>' +
-      '<span class="counts"></span>' +
-    '</div>';
-  var heading = Array.prototype.filter.call(document.querySelectorAll('h2.section'), function(h){
-    return h.textContent.indexOf('Completed today') !== -1;
-  })[0];
-  if(heading){ heading.parentNode.insertBefore(prog, heading); }
-  else { document.querySelector('.wrap').appendChild(prog); }
-  return prog;
-}
-
-function ensureCapturePkg(programEl){
-  var pkg = programEl.querySelector('.pkg[data-capture="1"]');
-  if(pkg) return pkg;
-  pkg = document.createElement('details');
-  pkg.className = 'pkg';
-  pkg.setAttribute('data-capture', '1');
-  pkg.open = true;
-  pkg.innerHTML = '<summary><span>Captured at work <span class="chev">▸</span></span><span class="pcounts"></span></summary>';
-  programEl.querySelector('.program-head').insertAdjacentElement('afterend', pkg);
-  return pkg;
-}
-
-function ensureNamedCapturePkg(programEl, pkgName){
-  var existing = findPkgBlock(programEl, pkgName);
-  if(existing) return existing;
-  var pkg = document.createElement('details');
-  pkg.className = 'pkg';
-  pkg.open = true;
-  pkg.innerHTML = '<summary><span>' + escapeHtml(pkgName) + ' <span class="chev">▸</span></span><span class="pcounts"></span></summary>';
-  programEl.querySelector('.program-head').insertAdjacentElement('afterend', pkg);
-  return pkg;
-}
-
-function insertCapturedItem(programName, pkgName, text){
-  var prog = ensureProgramBlock(programName || 'General');
-  var pkg = pkgName ? ensureNamedCapturePkg(prog, pkgName) : ensureCapturePkg(prog);
-  var item = document.createElement('div');
-  item.className = 'item';
-  item.setAttribute('data-date', new Date().toISOString().slice(0,10));
-  item.innerHTML = '<span class="badge n">N</span>' + escapeHtml(text) +
-    '<div class="meta">Added today — pending sync</div>';
-  pkg.appendChild(item);
-  wireDoneToggles();
-  refreshAll();
 }
 
 function getItemLocation(item){
@@ -924,218 +819,423 @@ function getItemLocation(item){
   return {program:program, pkg:pkg};
 }
 
+function isDone(item){ return item.classList.contains('done-pending'); }
+
+// ===== Wire rich details (action pill, next action, sub-tasks, timeline) =====
+function wireItemDetails(){
+  document.querySelectorAll('#programView .item[data-cat]').forEach(function(item){
+    if(item.classList.contains('item-details-wired')) return;
+    item.classList.add('item-details-wired');
+
+    var id = item.getAttribute('data-id');
+    var action = item.getAttribute('data-action');
+    var data = id && ITEM_DATA[id] ? ITEM_DATA[id] : null;
+
+    // Action pill — prepend before first text node / badge
+    if(action){
+      var pill = document.createElement('span');
+      pill.className = 'action-pill ap-' + action;
+      pill.textContent = action;
+      item.insertBefore(pill, item.firstChild);
+    }
+
+    if(!data) return;
+
+    // Next action line
+    if(data.next){
+      var nextEl = document.createElement('div');
+      nextEl.className = 'item-next';
+      nextEl.textContent = data.next;
+      item.appendChild(nextEl);
+    }
+
+    // Sub-tasks
+    if(data.subtasks && data.subtasks.length){
+      var stList = document.createElement('div');
+      stList.className = 'subtask-list';
+      data.subtasks.forEach(function(st){
+        var stItem = document.createElement('div');
+        stItem.className = 'st-item';
+        var cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.addEventListener('change', function(){ stItem.classList.toggle('st-done', cb.checked); });
+        var lbl = document.createElement('span');
+        lbl.className = 'st-label';
+        lbl.textContent = st;
+        stItem.appendChild(cb);
+        stItem.appendChild(lbl);
+        stList.appendChild(stItem);
+      });
+      item.appendChild(stList);
+    }
+
+    // Timeline
+    if(data.updates && data.updates.length){
+      var tlBtn = document.createElement('button');
+      tlBtn.className = 'tl-toggle';
+      tlBtn.textContent = '⌕ ' + data.updates.length + ' update' + (data.updates.length !== 1 ? 's' : '');
+      var tlWrap = document.createElement('div');
+      tlWrap.className = 'timeline-wrap';
+      data.updates.forEach(function(upd){
+        var bar = upd.indexOf('|');
+        var dateStr = bar > -1 ? upd.slice(0, bar) : '';
+        var text = bar > -1 ? upd.slice(bar + 1) : upd;
+        var entry = document.createElement('div');
+        entry.className = 'tl-entry';
+        entry.innerHTML = (dateStr ? '<span class="tl-date">' + escapeHtml(dateStr) + '</span>' : '') + escapeHtml(text);
+        tlWrap.appendChild(entry);
+      });
+      tlBtn.addEventListener('click', function(){ tlWrap.classList.toggle('tl-open'); });
+      item.appendChild(tlBtn);
+      item.appendChild(tlWrap);
+    }
+  });
+}
+
+// ===== Today's Focus — computed from data-horizon="today" items in your court =====
+function buildTodayFocus(){
+  var list = document.getElementById('tfList');
+  if(!list) return;
+  list.innerHTML = '';
+
+  var items = Array.prototype.slice.call(document.querySelectorAll('#programView .item[data-horizon="today"]'));
+  items = items.filter(function(it){
+    return !isDone(it) && it.getAttribute('data-court') === 'You';
+  });
+
+  if(!items.length){
+    list.innerHTML = '<span class="tf-empty">Nothing tagged for today in your court.</span>';
+    return;
+  }
+
+  items.forEach(function(item){
+    var row = document.createElement('div');
+    row.className = 'tf-row';
+    var action = item.getAttribute('data-action') || '';
+    var id = item.getAttribute('data-id');
+    var data = id && ITEM_DATA[id] ? ITEM_DATA[id] : null;
+    var nextText = (data && data.next) ? data.next : getItemMainText(item).slice(0, 130);
+    var loc = getItemLocation(item);
+    var locStr = loc.program + (loc.pkg ? ' · ' + loc.pkg.replace(/Package \d[\d.]*\s*—\s*/,'') : '');
+
+    var actionWrap = document.createElement('div');
+    actionWrap.className = 'tf-action-wrap';
+    if(action){
+      var apill = document.createElement('span');
+      apill.className = 'action-pill ap-' + action;
+      apill.textContent = action;
+      actionWrap.appendChild(apill);
+    }
+
+    var textWrap = document.createElement('div');
+    textWrap.className = 'tf-text';
+    textWrap.textContent = nextText;
+    var locEl = document.createElement('div');
+    locEl.className = 'tf-loc';
+    locEl.textContent = locStr;
+    textWrap.appendChild(locEl);
+
+    row.appendChild(actionWrap);
+    row.appendChild(textWrap);
+    row.addEventListener('click', function(){ focusJumpTo(item); });
+    list.appendChild(row);
+  });
+}
+
+// ===== Quick capture =====
+function setStatus(msg){ document.getElementById('capStatus').textContent = msg; }
+
+function localQueueKey(){ return 'wt-capture-queue'; }
+function queueLocally(payload){
+  var q = JSON.parse(localStorage.getItem(localQueueKey()) || '[]');
+  q.push(payload); localStorage.setItem(localQueueKey(), JSON.stringify(q));
+}
+function flushLocalQueue(){
+  if(!API_URL || API_URL.indexOf('PASTE_') === 0) return;
+  var q = JSON.parse(localStorage.getItem(localQueueKey()) || '[]');
+  if(!q.length) return;
+  var remaining = [];
+  q.forEach(function(payload){
+    sendToSheet(payload, function(ok){ if(!ok) remaining.push(payload); localStorage.setItem(localQueueKey(), JSON.stringify(remaining)); });
+  });
+}
+function sendToSheet(payload, cb){
+  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
+    .then(function(r){return r.json();}).then(function(){if(cb)cb(true);}).catch(function(){if(cb)cb(false);});
+}
+
+function refreshCapPkg(){
+  var program = document.getElementById('capProgram').value;
+  var pkgSel = document.getElementById('capPkg');
+  var pkgs = PROGRAM_PACKAGES[program] || [];
+  pkgSel.innerHTML = '';
+  var g = document.createElement('option'); g.value=''; g.textContent = pkgs.length?'No specific package':'No packages in this program';
+  pkgSel.appendChild(g);
+  pkgs.forEach(function(p){var o=document.createElement('option');o.value=p;o.textContent=p;pkgSel.appendChild(o);});
+  refreshCapItem();
+}
+
+function refreshCapItem(){
+  var program = document.getElementById('capProgram').value;
+  var pkgName = document.getElementById('capPkg').value;
+  var sel = document.getElementById('capItem');
+  sel.innerHTML = '';
+  var g=document.createElement('option');g.value='';g.textContent=pkgName?'General note for this package':'General note for this program';sel.appendChild(g);
+  var prog = findProgramBlock(program);
+  var items = [];
+  if(prog){
+    if(pkgName){var pkgBlock=findPkgBlock(prog,pkgName);if(pkgBlock)items=Array.prototype.slice.call(pkgBlock.querySelectorAll('.item'));}
+    else{items=Array.prototype.slice.call(prog.querySelectorAll('.item'));}
+  }
+  items.forEach(function(it){
+    var full=getItemMainText(it).slice(0,200);
+    var snippet=full.length>90?full.slice(0,90)+'…':full;
+    var o=document.createElement('option');o.value=full;o.textContent=snippet;sel.appendChild(o);
+  });
+}
+
+function onCapTypeChange(){
+  var type = document.getElementById('capType').value;
+  var needsItemRef = (type==='note'||type==='blocker'||type==='watch');
+  document.getElementById('capItemRow').style.display = needsItemRef?'':'none';
+  if(needsItemRef) refreshCapItem();
+  var textEl = document.getElementById('capText');
+  textEl.placeholder = type==='blocker'?"Why it's blocking (optional)…" : type==='watch'?'Why to watch it (optional)…' : "What happened / what's new…";
+}
+
+function onCapProgramChange(){ refreshCapPkg(); }
+function onCapPkgChange(){ refreshCapItem(); }
+
+function addCapture(){
+  var type=document.getElementById('capType').value;
+  var program=document.getElementById('capProgram').value;
+  var pkg=document.getElementById('capPkg').value;
+  var needsItemRef=(type==='note'||type==='blocker'||type==='watch');
+  var itemRef=needsItemRef?document.getElementById('capItem').value:'';
+  var textEl=document.getElementById('capText');
+  var text=textEl.value.trim();
+  if(!text) return;
+  var payload={type:type,program:program,pkg:pkg,itemRef:itemRef,text:text,ts:new Date().toISOString()};
+  renderPendingRow(payload);
+  if(type==='item'){insertCapturedItem(program,pkg,text);}
+  textEl.value='';
+  if(!API_URL||API_URL.indexOf('PASTE_')===0){queueLocally(payload);setStatus('Saved locally — Apps Script URL not configured.');return;}
+  sendToSheet(payload,function(ok){
+    if(ok){setStatus('Saved to your tracker sheet — not in the vault yet.');}
+    else{queueLocally(payload);setStatus('Could not reach the sheet — saved locally, will retry.');}
+  });
+}
+
+// ===== Live counts =====
+function formatCounts(open,blocking,watch){
+  var parts=[];if(open>0)parts.push(open+' open');if(blocking>0)parts.push(blocking+' blocking');if(watch>0)parts.push(watch+' watch');
+  return parts.length?parts.join(' · '):'0 open';
+}
+
+function tally(items){
+  var open=0,blocking=0,watch=0;
+  items.forEach(function(it){
+    if(isDone(it))return;
+    if(it.classList.contains('blocking'))blocking++;
+    else if(it.classList.contains('watch'))watch++;
+    else open++;
+  });
+  return{open:open,blocking:blocking,watch:watch};
+}
+
+function itemPriority(item){
+  if(isDone(item))return 4;
+  if(item.classList.contains('blocking'))return 0;
+  if(item.querySelector(':scope > .badge.n'))return 1;
+  if(item.classList.contains('watch'))return 3;
+  return 2;
+}
+
+function itemDateValue(item){
+  var d=item.getAttribute('data-date');
+  if(!d)return -Infinity;
+  var t=new Date(d+'T00:00:00').getTime();
+  return isNaN(t)?-Infinity:t;
+}
+
+function sortItemsInContainer(container){
+  var items=Array.prototype.slice.call(container.children).filter(function(el){return el.classList&&el.classList.contains('item');});
+  if(items.length<2)return;
+  items.sort(function(a,b){var pa=itemPriority(a),pb=itemPriority(b);if(pa!==pb)return pa-pb;return itemDateValue(b)-itemDateValue(a);});
+  items.forEach(function(it){container.appendChild(it);});
+}
+
+function sortAllItems(){ document.querySelectorAll('.pkg').forEach(sortItemsInContainer); }
+
+function recalcCounts(){
+  sortAllItems();
+  var grandOpen=0,grandBlocking=0,grandWatch=0;
+  document.querySelectorAll('.program').forEach(function(prog){
+    var t=tally(Array.prototype.slice.call(prog.querySelectorAll('.item')));
+    var countsEl=prog.querySelector('.program-head .counts');
+    if(countsEl)countsEl.textContent=formatCounts(t.open,t.blocking,t.watch);
+    grandOpen+=t.open;grandBlocking+=t.blocking;grandWatch+=t.watch;
+    prog.querySelectorAll('details.pkg').forEach(function(pkg){
+      var pcountsEl=pkg.querySelector('.pcounts');if(!pcountsEl)return;
+      var pt=tally(Array.prototype.slice.call(pkg.querySelectorAll('.item')));
+      pcountsEl.textContent=formatCounts(pt.open,pt.blocking,pt.watch);
+    });
+  });
+  var s0=document.getElementById('statOutstanding');
+  var s1=document.getElementById('statBlocking');
+  var s2=document.getElementById('statWatch');
+  if(s0)s0.textContent=grandOpen+grandBlocking;
+  if(s1)s1.textContent=grandBlocking;
+  if(s2)s2.textContent=grandWatch;
+}
+
+// ===== Badge complete / restore =====
+function setBadgeComplete(item){
+  var existing=item.querySelector(':scope > .badge');
+  if(item.dataset.origBadge===undefined){item.dataset.origBadge=existing?existing.outerHTML:'';}
+  if(existing){existing.outerHTML='<span class="badge c">C</span>';}
+  else{var b=document.createElement('span');b.className='badge c';b.textContent='C';item.insertBefore(b,item.firstChild);}
+}
+
+function restoreBadge(item){
+  if(item.dataset.origBadge===undefined)return;
+  var current=item.querySelector(':scope > .badge.c');if(!current)return;
+  if(item.dataset.origBadge){current.outerHTML=item.dataset.origBadge;}else{current.remove();}
+}
+
+// ===== Program block helpers =====
+function programColor(name){
+  var map={'Concourse B':'var(--mauve)','Centralized / PBS':'var(--sage)','Cross-program':'var(--taupe)','Upcoming':'var(--olive)','RFIs':'var(--rfi)','General':'var(--gold)'};
+  return map[name]||'var(--gold)';
+}
+
+function findProgramBlock(name){
+  var heads=document.querySelectorAll('.program-head .name');
+  for(var i=0;i<heads.length;i++){if(heads[i].textContent.trim()===name)return heads[i].closest('.program');}
+  return null;
+}
+
+function ensureProgramBlock(name){
+  var existing=findProgramBlock(name);if(existing)return existing;
+  var prog=document.createElement('div');prog.className='program';
+  var color=programColor(name);
+  prog.innerHTML='<div class="program-head" style="--accent:'+color+'"><span class="name" style="color:'+color+'">'+escapeHtml(name)+'</span><span class="counts"></span></div>';
+  var heading=Array.prototype.filter.call(document.querySelectorAll('h2.section'),function(h){return h.textContent.indexOf('Completed')!==-1;})[0];
+  if(heading){heading.parentNode.insertBefore(prog,heading);}else{document.querySelector('.wrap').appendChild(prog);}
+  return prog;
+}
+
+function ensureCapturePkg(programEl){
+  var pkg=programEl.querySelector('.pkg[data-capture="1"]');if(pkg)return pkg;
+  pkg=document.createElement('details');pkg.className='pkg';pkg.setAttribute('data-capture','1');pkg.open=true;
+  pkg.innerHTML='<summary><span>Captured at work <span class="chev">▸</span></span><span class="pcounts"></span></summary>';
+  programEl.querySelector('.program-head').insertAdjacentElement('afterend',pkg);return pkg;
+}
+
+function ensureNamedCapturePkg(programEl,pkgName){
+  var existing=findPkgBlock(programEl,pkgName);if(existing)return existing;
+  var pkg=document.createElement('details');pkg.className='pkg';pkg.open=true;
+  pkg.innerHTML='<summary><span>'+escapeHtml(pkgName)+' <span class="chev">▸</span></span><span class="pcounts"></span></summary>';
+  programEl.querySelector('.program-head').insertAdjacentElement('afterend',pkg);return pkg;
+}
+
+function insertCapturedItem(programName,pkgName,text){
+  var prog=ensureProgramBlock(programName||'General');
+  var pkg=pkgName?ensureNamedCapturePkg(prog,pkgName):ensureCapturePkg(prog);
+  var item=document.createElement('div');item.className='item';
+  item.setAttribute('data-date',new Date().toISOString().slice(0,10));
+  item.innerHTML='<span class="badge n">N</span>'+escapeHtml(text)+'<div class="meta">Added today — pending sync</div>';
+  pkg.appendChild(item);wireDoneToggles();refreshAll();
+}
+
 function logComplete(payload){
-  if(!API_URL || API_URL.indexOf('PASTE_') === 0){ queueLocally(payload); return; }
-  sendToSheet(payload, function(ok){ if(!ok) queueLocally(payload); });
+  if(!API_URL||API_URL.indexOf('PASTE_')===0){queueLocally(payload);return;}
+  sendToSheet(payload,function(ok){if(!ok)queueLocally(payload);});
 }
 
 function typeLabel(type){
-  return type === 'note' ? 'Note'
-    : type === 'complete' ? 'Done'
-    : type === 'blocker' ? 'Blocker'
-    : type === 'watch' ? 'Watch'
-    : 'New';
+  return type==='note'?'Note':type==='complete'?'Done':type==='blocker'?'Blocker':type==='watch'?'Watch':'New';
 }
 
 function formatTs(ts){
-  if(!ts) return '';
-  var d = new Date(ts);
-  if(isNaN(d.getTime())) return '';
-  return d.toLocaleDateString(undefined, {month:'short', day:'numeric'}) + ' · ' +
-    d.toLocaleTimeString(undefined, {hour:'numeric', minute:'2-digit'});
+  if(!ts)return'';var d=new Date(ts);if(isNaN(d.getTime()))return'';
+  return d.toLocaleDateString(undefined,{month:'short',day:'numeric'})+' · '+d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
 }
 
-function sendEdit(payload, cb){
-  var body = Object.assign({}, payload, {action:'edit'});
-  fetch(API_URL, {
-    method:'POST',
-    headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body: JSON.stringify(body)
-  }).then(function(r){ return r.json(); })
-    .then(function(res){ cb(!!(res && res.ok)); })
-    .catch(function(){ cb(false); });
+function sendEdit(payload,cb){
+  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({},payload,{action:'edit'}))})
+    .then(function(r){return r.json();}).then(function(res){cb(!!(res&&res.ok));}).catch(function(){cb(false);});
 }
 
 function renderPendingRow(payload){
-  var list = document.getElementById('pendingList');
-  var empty = list.querySelector('.pending-empty');
-  if(empty) empty.remove();
-  var row = document.createElement('div');
-  row.className = 'pending-row';
-  renderPendingRowView(row, payload);
-  list.appendChild(row);
+  var list=document.getElementById('pendingList');
+  var empty=list.querySelector('.pending-empty');if(empty)empty.remove();
+  var row=document.createElement('div');row.className='pending-row';
+  renderPendingRowView(row,payload);list.appendChild(row);
 }
 
-function renderPendingRowView(row, payload){
-  row.className = 'pending-row';
-  row.innerHTML = '';
-
-  var typeEl = document.createElement('span');
-  typeEl.className = 'ptype ptype-' + payload.type;
-  typeEl.textContent = typeLabel(payload.type);
-  row.appendChild(typeEl);
-
-  var body = document.createElement('span');
-  body.className = 'pbody';
-  var locationParts = [];
-  if(payload.program) locationParts.push(payload.program);
-  if(payload.pkg) locationParts.push(payload.pkg);
-  var prefix = locationParts.length ? '<strong>' + escapeHtml(locationParts.join(' › ')) + ':</strong> ' : '';
+function renderPendingRowView(row,payload){
+  row.className='pending-row';row.innerHTML='';
+  var typeEl=document.createElement('span');typeEl.className='ptype ptype-'+payload.type;typeEl.textContent=typeLabel(payload.type);row.appendChild(typeEl);
+  var body=document.createElement('span');body.className='pbody';
+  var lp=[];if(payload.program)lp.push(payload.program);if(payload.pkg)lp.push(payload.pkg);
+  var prefix=lp.length?'<strong>'+escapeHtml(lp.join(' › '))+':</strong> ':'';
   var text;
-  if((payload.type === 'note' || payload.type === 'blocker' || payload.type === 'watch') && payload.itemRef){
-    var ref = payload.itemRef.length > 60 ? payload.itemRef.slice(0,60) + '…' : payload.itemRef;
-    text = '<em>Re: ' + escapeHtml(ref) + '</em> — ' + escapeHtml(payload.text);
-  } else {
-    text = escapeHtml(payload.text);
-  }
-  body.innerHTML = prefix + text;
-  row.appendChild(body);
-
-  var when = document.createElement('span');
-  when.className = 'pwhen';
-  when.textContent = formatTs(payload.ts);
-  row.appendChild(when);
-
-  // Edit only applies to rows the sheet has already assigned a row number to
-  // (i.e. loaded via loadPending()) — a just-added row doesn't have one yet
-  // until the next refresh, same as the pre-existing sync behavior.
+  if((payload.type==='note'||payload.type==='blocker'||payload.type==='watch')&&payload.itemRef){
+    var ref=payload.itemRef.length>60?payload.itemRef.slice(0,60)+'…':payload.itemRef;
+    text='<em>Re: '+escapeHtml(ref)+'</em> — '+escapeHtml(payload.text);
+  }else{text=escapeHtml(payload.text);}
+  body.innerHTML=prefix+text;row.appendChild(body);
+  var when=document.createElement('span');when.className='pwhen';when.textContent=formatTs(payload.ts);row.appendChild(when);
   if(payload.row){
-    var editBtn = document.createElement('button');
-    editBtn.type = 'button';
-    editBtn.className = 'pedit';
-    editBtn.textContent = 'Edit';
-    editBtn.onclick = function(){ renderPendingRowEdit(row, payload); };
-    row.appendChild(editBtn);
+    var editBtn=document.createElement('button');editBtn.type='button';editBtn.className='pedit';editBtn.textContent='Edit';
+    editBtn.onclick=function(){renderPendingRowEdit(row,payload);};row.appendChild(editBtn);
   }
 }
 
-function renderPendingRowEdit(row, payload){
-  row.className = 'pending-row pending-row-editing';
-  row.innerHTML = '';
-
-  var typeSel = document.createElement('select');
-  ['item','note','blocker','watch','complete'].forEach(function(t){
-    var opt = document.createElement('option');
-    opt.value = t; opt.textContent = typeLabel(t);
-    if(t === payload.type) opt.selected = true;
-    typeSel.appendChild(opt);
-  });
-
-  var programSel = document.createElement('select');
-  Object.keys(PROGRAM_PACKAGES).forEach(function(p){
-    var opt = document.createElement('option');
-    opt.value = p; opt.textContent = p;
-    if(p === payload.program) opt.selected = true;
-    programSel.appendChild(opt);
-  });
-
-  var pkgSel = document.createElement('select');
+function renderPendingRowEdit(row,payload){
+  row.className='pending-row pending-row-editing';row.innerHTML='';
+  var typeSel=document.createElement('select');
+  ['item','note','blocker','watch','complete'].forEach(function(t){var o=document.createElement('option');o.value=t;o.textContent=typeLabel(t);if(t===payload.type)o.selected=true;typeSel.appendChild(o);});
+  var programSel=document.createElement('select');
+  Object.keys(PROGRAM_PACKAGES).forEach(function(p){var o=document.createElement('option');o.value=p;o.textContent=p;if(p===payload.program)o.selected=true;programSel.appendChild(o);});
+  var pkgSel=document.createElement('select');
   function refreshPkgOptions(){
-    var pkgs = PROGRAM_PACKAGES[programSel.value] || [];
-    var keepPkg = programSel.value === payload.program ? payload.pkg : '';
-    pkgSel.innerHTML = '';
-    var noneOpt = document.createElement('option');
-    noneOpt.value = ''; noneOpt.textContent = pkgs.length ? 'No specific package' : 'No packages in this program';
-    pkgSel.appendChild(noneOpt);
-    pkgs.forEach(function(p){
-      var opt = document.createElement('option');
-      opt.value = p; opt.textContent = p;
-      if(p === keepPkg) opt.selected = true;
-      pkgSel.appendChild(opt);
-    });
+    var pkgs=PROGRAM_PACKAGES[programSel.value]||[];var keepPkg=programSel.value===payload.program?payload.pkg:'';
+    pkgSel.innerHTML='';var none=document.createElement('option');none.value='';none.textContent=pkgs.length?'No specific package':'No packages';pkgSel.appendChild(none);
+    pkgs.forEach(function(p){var o=document.createElement('option');o.value=p;o.textContent=p;if(p===keepPkg)o.selected=true;pkgSel.appendChild(o);});
   }
-  refreshPkgOptions();
-  programSel.addEventListener('change', refreshPkgOptions);
-
-  var itemRefInput = document.createElement('input');
-  itemRefInput.type = 'text';
-  itemRefInput.placeholder = 'Item this refers to (optional)';
-  itemRefInput.value = payload.itemRef || '';
-
-  var textInput = document.createElement('input');
-  textInput.type = 'text';
-  textInput.value = payload.text || '';
-
-  var saveBtn = document.createElement('button');
-  saveBtn.type = 'button';
-  saveBtn.textContent = 'Save';
-  saveBtn.onclick = function(){
-    var text = textInput.value.trim();
-    if(!text) return;
-    var updated = {
-      row: payload.row, ts: payload.ts,
-      type: typeSel.value, program: programSel.value, pkg: pkgSel.value,
-      itemRef: itemRefInput.value.trim(), text: text
-    };
-    saveBtn.disabled = true;
-    saveBtn.textContent = 'Saving…';
-    sendEdit(updated, function(ok){
-      if(ok){
-        renderPendingRowView(row, updated);
-      } else {
-        saveBtn.disabled = false;
-        saveBtn.textContent = 'Save';
-        setStatus('Could not save the edit — check your connection and try again.');
-      }
-    });
+  refreshPkgOptions();programSel.addEventListener('change',refreshPkgOptions);
+  var itemRefInput=document.createElement('input');itemRefInput.type='text';itemRefInput.placeholder='Item this refers to (optional)';itemRefInput.value=payload.itemRef||'';
+  var textInput=document.createElement('input');textInput.type='text';textInput.value=payload.text||'';
+  var saveBtn=document.createElement('button');saveBtn.type='button';saveBtn.textContent='Save';
+  saveBtn.onclick=function(){
+    var text=textInput.value.trim();if(!text)return;
+    var updated={row:payload.row,ts:payload.ts,type:typeSel.value,program:programSel.value,pkg:pkgSel.value,itemRef:itemRefInput.value.trim(),text:text};
+    saveBtn.disabled=true;saveBtn.textContent='Saving…';
+    sendEdit(updated,function(ok){if(ok){renderPendingRowView(row,updated);}else{saveBtn.disabled=false;saveBtn.textContent='Save';setStatus('Could not save — check connection.');}});
   };
-
-  var cancelBtn = document.createElement('button');
-  cancelBtn.type = 'button';
-  cancelBtn.className = 'pcancel';
-  cancelBtn.textContent = 'Cancel';
-  cancelBtn.onclick = function(){ renderPendingRowView(row, payload); };
-
-  var editRow1 = document.createElement('div');
-  editRow1.className = 'pedit-row';
-  editRow1.appendChild(typeSel);
-  editRow1.appendChild(programSel);
-  editRow1.appendChild(pkgSel);
-
-  var editRow2 = document.createElement('div');
-  editRow2.className = 'pedit-row';
-  editRow2.appendChild(itemRefInput);
-
-  var editRow3 = document.createElement('div');
-  editRow3.className = 'pedit-row';
-  editRow3.appendChild(textInput);
-  editRow3.appendChild(saveBtn);
-  editRow3.appendChild(cancelBtn);
-
-  row.appendChild(editRow1);
-  row.appendChild(editRow2);
-  row.appendChild(editRow3);
+  var cancelBtn=document.createElement('button');cancelBtn.type='button';cancelBtn.className='pcancel';cancelBtn.textContent='Cancel';
+  cancelBtn.onclick=function(){renderPendingRowView(row,payload);};
+  var r1=document.createElement('div');r1.className='pedit-row';r1.appendChild(typeSel);r1.appendChild(programSel);r1.appendChild(pkgSel);
+  var r2=document.createElement('div');r2.className='pedit-row';r2.appendChild(itemRefInput);
+  var r3=document.createElement('div');r3.className='pedit-row';r3.appendChild(textInput);r3.appendChild(saveBtn);r3.appendChild(cancelBtn);
+  row.appendChild(r1);row.appendChild(r2);row.appendChild(r3);
 }
 
-function escapeHtml(s){
-  var d = document.createElement('div');
-  d.textContent = s;
-  return d.innerHTML;
-}
-
+// ===== Done toggles =====
 function wireDoneToggles(){
   document.querySelectorAll('.item').forEach(function(el){
-    if(el.querySelector('.done-toggle')) return;
-    var cb = document.createElement('input');
-    cb.type = 'checkbox';
-    cb.className = 'done-toggle';
-    cb.title = 'Mark complete — syncs to the vault next check-in';
-    cb.addEventListener('change', function(){
+    if(el.querySelector('.done-toggle'))return;
+    var cb=document.createElement('input');cb.type='checkbox';cb.className='done-toggle';cb.title='Mark complete — syncs to vault next check-in';
+    cb.addEventListener('change',function(){
       if(cb.checked){
-        // Read the text BEFORE mutating the DOM — setBadgeComplete() inserts a "C" badge
-        // into el, and reading textContent after that point glues the letter "C" onto the
-        // front of the captured text.
-        var snippet = getItemMainText(el).slice(0,200);
-        el.classList.add('done-pending');
-        setBadgeComplete(el);
-        var loc = getItemLocation(el);
-        var payload = {type:'complete', program:loc.program||'', pkg:loc.pkg||'', itemRef:'', text:snippet, ts:new Date().toISOString()};
-        logComplete(payload);
-        renderPendingRow(payload);
-      } else {
-        el.classList.remove('done-pending');
-        restoreBadge(el);
-      }
+        var snippet=getItemMainText(el).slice(0,200);
+        el.classList.add('done-pending');setBadgeComplete(el);
+        var loc=getItemLocation(el);
+        var payload={type:'complete',program:loc.program||'',pkg:loc.pkg||'',itemRef:'',text:snippet,ts:new Date().toISOString()};
+        logComplete(payload);renderPendingRow(payload);
+      }else{el.classList.remove('done-pending');restoreBadge(el);}
       refreshAll();
     });
     el.appendChild(cb);
@@ -1143,404 +1243,38 @@ function wireDoneToggles(){
 }
 
 function loadPending(){
-  if(!API_URL || API_URL.indexOf('PASTE_') === 0) return;
-  fetch(API_URL + '?action=pending')
-    .then(function(r){ return r.json(); })
-    .then(function(rows){
-      if(!rows || !rows.length) return;
-      var list = document.getElementById('pendingList');
-      list.innerHTML = '';
-      rows.forEach(function(row){ renderPendingRow(row); });
-    })
-    .catch(function(){ /* sheet unreachable right now — local queue still covers new entries */ });
+  if(!API_URL||API_URL.indexOf('PASTE_')===0)return;
+  fetch(API_URL+'?action=pending').then(function(r){return r.json();}).then(function(rows){
+    if(!rows||!rows.length)return;
+    var list=document.getElementById('pendingList');list.innerHTML='';
+    rows.forEach(function(row){renderPendingRow(row);});
+  }).catch(function(){});
 }
 
-// ===== Computed priority (High/Med/Low) =====
-// Manual data-pri="low" is an explicit override from the source vault text
-// (item explicitly called out as low-priority / not-your-court / long-standing)
-// and always wins. Otherwise: blocking items are always High; a due date inside
-// 3 days is High, inside 10 days is Med; an unverified ("U") badge bumps to Med;
-// a watch item defaults to Low; everything else defaults to Med (an open item
-// with no other signal is still something you haven't acted on yet).
+// ===== Computed priority =====
 function computePriority(item){
-  var explicit = item.getAttribute('data-pri');
-  if(explicit) return explicit;
-  if(item.classList.contains('blocking')) return 'high';
-  var due = item.getAttribute('data-due');
-  if(due){
-    var days = Math.ceil((new Date(due + 'T00:00:00').getTime() - Date.now()) / 86400000);
-    if(days <= 3) return 'high';
-    if(days <= 10) return 'med';
-  }
-  if(item.querySelector(':scope > .badge.u')) return 'med';
-  if(item.classList.contains('watch')) return 'low';
-  return 'med';
+  var explicit=item.getAttribute('data-pri');if(explicit)return explicit;
+  if(item.classList.contains('blocking'))return'high';
+  var due=item.getAttribute('data-due');
+  if(due){var days=Math.ceil((new Date(due+'T00:00:00').getTime()-Date.now())/86400000);if(days<=3)return'high';if(days<=10)return'med';}
+  if(item.querySelector(':scope > .badge.u'))return'med';
+  if(item.classList.contains('watch'))return'low';
+  return'med';
 }
 
 function applyComputedPriorities(){
   document.querySelectorAll('#programView .item[data-cat]').forEach(function(item){
-    item.setAttribute('data-pri-computed', computePriority(item));
+    item.setAttribute('data-pri-computed',computePriority(item));
   });
 }
 
-// ===== Court / Delegate tags + Category/Discipline pills =====
-// Runs once per item (guarded), on the canonical #programView originals only —
-// clones made for the Category/Coordination views pick these up automatically
-// via cloneNode since they're already in the DOM by the time a clone is taken.
+// ===== Court / delegate + tag pills =====
 function renderCourtDelegate(){
   document.querySelectorAll('#programView .item[data-court]').forEach(function(item){
-    if(item.querySelector(':scope > .ctaglist')) return;
-    var court = item.getAttribute('data-court');
-    var delegate = item.getAttribute('data-delegate');
-    var wrap = document.createElement('div');
-    wrap.className = 'ctaglist';
-    // Court span — <b> is click-to-edit
-    var courtSpan = document.createElement('span');
-    courtSpan.className = 'ctag' + (court === 'You' ? ' ctag-you' : '');
-    var bEl = document.createElement('b');
-    bEl.textContent = court;
-    bEl.title = 'Click to edit court';
-    bEl.addEventListener('click', function(e){
-      e.stopPropagation();
-      var inp = document.createElement('input');
-      inp.type = 'text';
-      inp.className = 'court-edit-inp';
-      inp.value = item.getAttribute('data-court') || '';
-      bEl.replaceWith(inp);
-      inp.focus(); inp.select();
-      function commit(){
-        var val = inp.value.trim();
-        if(val) item.setAttribute('data-court', val);
-        var cl = item.querySelector(':scope > .ctaglist');
-        if(cl) cl.remove();
-        renderCourtDelegate();
-        buildFocusPanel();
-        applySearchFilter();
-      }
-      inp.addEventListener('blur', commit);
-      inp.addEventListener('keydown', function(ke){
-        if(ke.key === 'Enter'){ inp.blur(); }
-        if(ke.key === 'Escape'){ item.setAttribute('data-court', court); inp.blur(); }
-      });
-    });
-    courtSpan.appendChild(document.createTextNode('Court: '));
-    courtSpan.appendChild(bEl);
-    wrap.appendChild(courtSpan);
-    if(delegate){
-      var delSpan = document.createElement('span');
-      delSpan.className = 'ctag';
-      delSpan.innerHTML = 'Delegated to: <b>' + escapeHtml(delegate) + '</b>';
-      wrap.appendChild(delSpan);
-    }
-    item.appendChild(wrap);
-  });
-}
-
-function renderTagPills(){
-  document.querySelectorAll('#programView .item[data-cat]').forEach(function(item){
-    if(item.querySelector(':scope > .taglist')) return;
-    var cat = item.getAttribute('data-cat');
-    var discRaw = item.getAttribute('data-disc') || '';
-    var wrap = document.createElement('div');
-    wrap.className = 'taglist';
-    var catPill = document.createElement('span');
-    catPill.className = 'pill2';
-    catPill.textContent = CATEGORY_LABELS[cat] || cat;
-    wrap.appendChild(catPill);
-    discRaw.split(/\s+/).filter(Boolean).forEach(function(d){
-      var p = document.createElement('span');
-      p.className = 'pill2';
-      p.textContent = DISCIPLINE_LABELS[d] || d;
-      wrap.appendChild(p);
-    });
-    item.appendChild(wrap);
-  });
-}
-
-// ===== Focus panel: blocking, due-soon, and decisions-needing-you, capped to
-// the top 8 so it stays a triage list rather than a second copy of everything =====
-function buildFocusPanel(){
-  var items = Array.prototype.slice.call(document.querySelectorAll('#programView .item[data-cat]'));
-  var rows = [];
-  items.forEach(function(item){
-    if(isDone(item)) return;
-    var due = item.getAttribute('data-due');
-    var cat = item.getAttribute('data-cat');
-    var court = item.getAttribute('data-court');
-    var reasons = [];
-    if(item.classList.contains('blocking')) reasons.push({code:'block', label:'Blocking'});
-    if(due){
-      var days = Math.ceil((new Date(due + 'T00:00:00').getTime() - Date.now()) / 86400000);
-      if(days <= 7) reasons.push({code:'due', label: days <= 0 ? 'Due today/overdue' : 'Due in ' + days + 'd'});
-    }
-    if(cat === 'decisions' && court === 'You' && !item.classList.contains('blocking')) reasons.push({code:'decide', label:'Decision needed'});
-    if(reasons.length) rows.push({item:item, pri:item.getAttribute('data-pri-computed'), due:due, reasons:reasons});
-  });
-  var priRank = {high:0, med:1, low:2};
-  var reasonRank = {block:0, due:1, decide:2};
-  rows.sort(function(a,b){
-    var pa = priRank[a.pri] !== undefined ? priRank[a.pri] : 1;
-    var pb = priRank[b.pri] !== undefined ? priRank[b.pri] : 1;
-    if(pa !== pb) return pa - pb;
-    var ra = reasonRank[a.reasons[0].code] !== undefined ? reasonRank[a.reasons[0].code] : 3;
-    var rb = reasonRank[b.reasons[0].code] !== undefined ? reasonRank[b.reasons[0].code] : 3;
-    if(ra !== rb) return ra - rb;
-    var da = a.due ? new Date(a.due).getTime() : Infinity;
-    var db = b.due ? new Date(b.due).getTime() : Infinity;
-    return da - db;
-  });
-  rows = rows.slice(0, 8);
-  var list = document.getElementById('focusList');
-  list.innerHTML = '';
-  if(!rows.length){
-    list.innerHTML = '<span class="focus-empty">Nothing urgent right now.</span>';
-    return;
-  }
-  rows.forEach(function(r){
-    var row = document.createElement('div');
-    row.className = 'focus-row';
-    var code = r.reasons[0].code;
-    var iconClass = code === 'block' ? 'fi-block' : code === 'due' ? 'fi-due' : 'fi-decide';
-    var iconLabel = code === 'block' ? 'P' : code === 'due' ? '!' : '?';
-    var loc = getItemLocation(r.item);
-    row.innerHTML = '<span class="why-icon ' + iconClass + '">' + iconLabel + '</span>' +
-      '<span class="ftext">' + escapeHtml(getItemMainText(r.item).slice(0,140)) + '</span>' +
-      '<span class="floc">' + escapeHtml(loc.program) + '</span>';
-    row.addEventListener('click', function(){ focusJumpTo(r.item); });
-    list.appendChild(row);
-  });
-}
-
-function focusJumpTo(item){
-  setView('program');
-  setTimeout(function(){
-    item.scrollIntoView({behavior:'smooth', block:'center'});
-    item.classList.add('flash');
-    setTimeout(function(){ item.classList.remove('flash'); }, 1500);
-  }, 60);
-}
-
-// ===== View toggle: Program (canonical DOM) vs. Category / Coordination
-// (built by cloning into #categoryView/#disciplineView, since a single item
-// can carry several disciplines and needs to appear in more than one group).
-function setView(view){
-  document.querySelectorAll('#viewToggle button').forEach(function(b){
-    b.classList.toggle('active', b.getAttribute('data-view') === view);
-  });
-  document.getElementById('programView').style.display = view === 'program' ? '' : 'none';
-  document.getElementById('categoryView').style.display = view === 'category' ? '' : 'none';
-  document.getElementById('disciplineView').style.display = view === 'discipline' ? '' : 'none';
-  if(view === 'category') buildAltView('category');
-  if(view === 'discipline') buildAltView('discipline');
-  applySearchFilter();
-}
-
-function makeAltClone(orig){
-  var clone = orig.cloneNode(true);
-  clone.removeAttribute('id');
-  // Strip priority selects — editing happens in Program view only
-  Array.prototype.slice.call(clone.querySelectorAll('.pri-sel')).forEach(function(s){ s.remove(); });
-  var origCb = orig.querySelector('.done-toggle');
-  var cb = clone.querySelector('.done-toggle');
-  if(cb){
-    cb.checked = origCb ? origCb.checked : false;
-    cb.addEventListener('change', function(){
-      if(origCb){ origCb.checked = cb.checked; origCb.dispatchEvent(new Event('change')); }
-    });
-  }
-  return clone;
-}
-
-function buildAltView(kind){
-  var container = document.getElementById(kind === 'category' ? 'categoryView' : 'disciplineView');
-  container.innerHTML = '';
-
-  if(kind === 'category'){
-    // Category view: group by category type
-    var order = CATEGORY_ORDER;
-    var labels = CATEGORY_LABELS;
-    var groups = {};
-    order.forEach(function(key){ groups[key] = []; });
-    Array.prototype.slice.call(document.querySelectorAll('#programView .item[data-cat]')).forEach(function(item){
-      var c = item.getAttribute('data-cat');
-      if(c && groups[c]) groups[c].push(item);
-    });
-    order.forEach(function(key){
-      var arr = groups[key];
-      if(!arr.length) return;
-      arr.sort(function(a,b){
-        var pa = itemPriority(a), pb = itemPriority(b);
-        if(pa !== pb) return pa - pb;
-        return itemDateValue(b) - itemDateValue(a);
-      });
-      var t = tally(arr);
-      var grp = document.createElement('div');
-      grp.className = 'altgroup';
-      grp.innerHTML = '<div class="altgroup-head"><span class="name">' + escapeHtml(labels[key] || key) +
-        '</span><span class="counts">' + formatCounts(t.open, t.blocking, t.watch) + '</span></div>';
-      var box = document.createElement('div');
-      box.className = 'pkg';
-      box.style.padding = '4px 0';
-      arr.forEach(function(orig){ box.appendChild(makeAltClone(orig)); });
-      grp.appendChild(box);
-      container.appendChild(grp);
-    });
-  } else {
-    // Coordination view: group by package (preserving document order)
-    var seen = [];
-    var pkgMap = {};
-    Array.prototype.slice.call(document.querySelectorAll('#programView .item[data-cat]')).forEach(function(item){
-      var loc = getItemLocation(item);
-      var key = loc.program + '|||' + loc.pkg;
-      if(!pkgMap[key]){
-        pkgMap[key] = {program: loc.program, pkg: loc.pkg, items: []};
-        seen.push(key);
-      }
-      pkgMap[key].items.push(item);
-    });
-    seen.forEach(function(key){
-      var g = pkgMap[key];
-      var arr = g.items;
-      arr.sort(function(a,b){
-        var pa = itemPriority(a), pb = itemPriority(b);
-        if(pa !== pb) return pa - pb;
-        return itemDateValue(b) - itemDateValue(a);
-      });
-      var t = tally(arr);
-      var label = g.program + (g.pkg ? ' — ' + g.pkg : '');
-      var grp = document.createElement('div');
-      grp.className = 'altgroup';
-      grp.innerHTML = '<div class="altgroup-head"><span class="name">' + escapeHtml(label) +
-        '</span><span class="counts">' + formatCounts(t.open, t.blocking, t.watch) + '</span></div>';
-      var box = document.createElement('div');
-      box.className = 'pkg';
-      box.style.padding = '4px 0';
-      arr.forEach(function(orig){ box.appendChild(makeAltClone(orig)); });
-      grp.appendChild(box);
-      container.appendChild(grp);
-    });
-  }
-
-  if(!container.children.length){
-    container.innerHTML = '<p class="empty">Nothing to show in this view yet.</p>';
-  }
-  applySearchFilter();
-}
-
-function togglePriorityMode(){
-  document.body.classList.toggle('priority-mode', document.getElementById('priModeToggle').checked);
-}
-
-function onProgramHeadClick(e){
-  var prog = e.currentTarget.closest('.program');
-  if(prog) prog.classList.toggle('collapsed');
-}
-
-function toggleCollapseAll(){
-  var collapse = document.getElementById('collapseAllToggle').checked;
-  document.querySelectorAll('#programView > .program').forEach(function(p){
-    p.classList.toggle('collapsed', collapse);
-  });
-  document.querySelectorAll('#programView details.pkg').forEach(function(d){ d.open = !collapse; });
-}
-
-// ===== Inline priority selector on each item =====
-function wireInlineEdits(){
-  document.querySelectorAll('#programView .item[data-cat]').forEach(function(item){
-    if(item.querySelector('.pri-sel')) return;
-    var sel = document.createElement('select');
-    sel.className = 'pri-sel';
-    sel.title = 'Override priority (Auto = computed from blocking/due/watch state)';
-    [['auto','Pri: Auto'],['high','Pri: High'],['med','Pri: Med'],['low','Pri: Low']].forEach(function(pair){
-      var o = document.createElement('option');
-      o.value = pair[0]; o.textContent = pair[1];
-      sel.appendChild(o);
-    });
-    sel.value = item.getAttribute('data-pri') || 'auto';
-    sel.addEventListener('change', function(){
-      if(sel.value === 'auto'){ item.removeAttribute('data-pri'); }
-      else { item.setAttribute('data-pri', sel.value); }
-      applyComputedPriorities();
-      buildFocusPanel();
-      var activeBtn = document.querySelector('#viewToggle button.active');
-      if(activeBtn && activeBtn.getAttribute('data-view') !== 'program'){
-        buildAltView(activeBtn.getAttribute('data-view'));
-      }
-    });
-    var toggle = item.querySelector('.done-toggle');
-    if(toggle){ item.insertBefore(sel, toggle); } else { item.appendChild(sel); }
-  });
-}
-
-// ===== My Court filter toggle =====
-function toggleMyCourtFilter(){
-  document.getElementById('myCourtBtn').classList.toggle('active');
-  applySearchFilter();
-}
-
-// ===== Search: filters whichever view is currently visible, hiding empty
-// packages/groups/programs along with the items that don't match. =====
-function applySearchFilter(){
-  var term = document.getElementById('searchBox').value.trim().toLowerCase();
-  var myCourtOnly = document.getElementById('myCourtBtn').classList.contains('active');
-  var hasFilter = term || myCourtOnly;
-  document.getElementById('searchClear').style.display = term ? '' : 'none';
-  var activeContainer = document.getElementById('programView').style.display !== 'none' ? document.getElementById('programView')
-    : document.getElementById('categoryView').style.display !== 'none' ? document.getElementById('categoryView')
-    : document.getElementById('disciplineView');
-  Array.prototype.slice.call(activeContainer.querySelectorAll('.item')).forEach(function(it){
-    var text = it.textContent.toLowerCase();
-    var matchTerm = !term || text.indexOf(term) !== -1;
-    var matchCourt = !myCourtOnly || it.getAttribute('data-court') === 'You';
-    it.style.display = (matchTerm && matchCourt) ? '' : 'none';
-  });
-  Array.prototype.slice.call(activeContainer.querySelectorAll('.pkg')).forEach(function(pkg){
-    var visible = Array.prototype.slice.call(pkg.querySelectorAll('.item')).some(function(it){ return it.style.display !== 'none'; });
-    pkg.style.display = (!hasFilter || visible) ? '' : 'none';
-  });
-  Array.prototype.slice.call(activeContainer.querySelectorAll('.altgroup')).forEach(function(grp){
-    var visible = Array.prototype.slice.call(grp.querySelectorAll('.item')).some(function(it){ return it.style.display !== 'none'; });
-    grp.style.display = (!hasFilter || visible) ? '' : 'none';
-  });
-  if(activeContainer.id === 'programView'){
-    Array.prototype.slice.call(activeContainer.querySelectorAll('.program')).forEach(function(prog){
-      var visible = Array.prototype.slice.call(prog.querySelectorAll('.item')).some(function(it){ return it.style.display !== 'none'; });
-      prog.style.display = (!hasFilter || visible) ? '' : 'none';
-    });
-  }
-}
-
-function onSearchInput(){ applySearchFilter(); }
-function clearSearch(){ document.getElementById('searchBox').value = ''; applySearchFilter(); }
-
-// ===== Single entry point that keeps counts, priority colors, tags, the
-// focus panel, and whichever alt view is open all in sync after any change
-// (done-toggle flip or a new capture landing in the DOM). =====
-function refreshAll(){
-  recalcCounts();
-  applyComputedPriorities();
-  renderCourtDelegate();
-  renderTagPills();
-  wireInlineEdits();
-  buildFocusPanel();
-  var activeBtn = document.querySelector('#viewToggle button.active');
-  if(activeBtn && activeBtn.getAttribute('data-view') !== 'program'){
-    buildAltView(activeBtn.getAttribute('data-view'));
-  }
-}
-
-document.addEventListener('DOMContentLoaded', function(){
-  wireDoneToggles();
-  refreshCapPkg();
-  flushLocalQueue();
-  loadPending();
-  recalcCounts();
-  applyComputedPriorities();
-  renderCourtDelegate();
-  renderTagPills();
-  wireInlineEdits();
-  buildFocusPanel();
-});
-</script>
-</body>
-</html>
+    if(item.querySelector(':scope > .ctaglist'))return;
+    var court=item.getAttribute('data-court');var delegate=item.getAttribute('data-delegate');
+    var wrap=document.createElement('div');wrap.className='ctaglist';
+    var courtSpan=document.createElement('span');courtSpan.className='ctag'+(court==='You'?' ctag-you':'');
+    var bEl=document.createElement('b');bEl.textContent=court;bEl.title='Click to edit court';
+    bEl.addEventListener('click',function(e){
+      e.s
