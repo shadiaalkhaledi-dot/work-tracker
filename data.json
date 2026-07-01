@@ -139,4 +139,41 @@
       ],
       "updates": [
         "2026-06-30|Anthony emailed Erica with 3 bulkhead options for smaller screen; going to SteerCo. No answer by 80% = go with compact option.",
-        "2026-06-29|Kevin Vogt Beam Demo: additional mezzanine framing may a
+        "2026-06-29|Kevin Vogt Beam Demo: additional mezzanine framing may affect ceilings, bulkheads, and stone cladding — coordinate with structural."
+      ]
+    },
+    "i17": {
+      "next": "Update wall construction in model: CMU → stud wall behind Elbow River + Summit House; add CMU at elevator. Priority AM Wednesday.",
+      "subtasks": [
+        "Switch Elbow River wall from CMU to stud in Revit model",
+        "Switch Summit House wall from CMU to stud (HSS structural — model around it)",
+        "Add CMU at elevator shaft / lift shaft detailing"
+      ],
+      "updates": [
+        "2026-06-30|SME Workshop: 3 options presented, Kevin Vogt favors option 3 (block wall strategy structurally cleared). Summit House in scope. Lift shaft detailing merged into this item."
+      ]
+    },
+    "i31": {
+      "next": "Raise with Josh Garcia at Thursday check-in — PCN for 6 PSL doors to Steve Isaac is still outstanding.",
+      "subtasks": [
+        "Nudge Josh at Thursday post-OAC check-in — issue PCN for doors D54F01, D55F02, D56E01, D59G01, D60G00 (+ one more)",
+        "Confirm with Josh: biometric mount is by-others (Cloud relocated NPSC reception desk)"
+      ],
+      "updates": [
+        "2026-06-30|YYC Security meeting held. Daniela Vasquez confirmed 6 doors Jun 11. Josh Garcia is CA chasing this — PCN to Steve Isaac (hardware consultant) still not issued.",
+        "2026-06-11|Daniela Vasquez confirmed 6 exit/core NPSC doors requiring PSL hardware"
+      ]
+    },
+    "i42": {
+      "next": "Josh following up at construction meeting (Jul 1). Check outcome Thursday. Escalate if no decision by Jul 5.",
+      "subtasks": [
+        "Get YYC's decision from Josh at Thursday check-in",
+        "Escalate to Mikaelyn Sych if no response by Jul 5"
+      ],
+      "updates": [
+        "2026-06-28|RFI found in Onware — same underlying issue as Pkg 4.3 precast item. PCL testing removability of parapet cap. Josh following up at construction meeting.",
+        "2026-06-23|RFI 000099.0 originally raised"
+      ]
+    }
+  }
+}
