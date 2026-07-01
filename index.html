@@ -11,172 +11,146 @@
     --terracotta:rgb(176,122,100); --teal:rgb(94,158,149); --gold:rgb(181,144,66); --rose:rgb(196,120,110); --rfi:rgb(134,128,116);
   }
   *{box-sizing:border-box;}
-  body{margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; line-height:1.55;}
-  .wrap{max-width:900px; margin:0 auto; padding:32px 28px 64px;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.55;}
+  .wrap{max-width:900px;margin:0 auto;padding:32px 28px 64px;}
   .masthead{margin-bottom:22px;}
-  .masthead .eyebrow{font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin:0 0 6px;}
-  .masthead h1{font-size:26px; font-weight:650; margin:0 0 6px;}
-  .masthead .lede{font-size:15px; color:var(--muted); margin:0; max-width:640px;}
-  .voice{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px 20px; margin:18px 0 26px;}
-  .voice p{margin:0 0 10px; font-size:14.5px;}
+  .masthead .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 6px;}
+  .masthead h1{font-size:26px;font-weight:650;margin:0 0 6px;}
+  .masthead .lede{font-size:15px;color:var(--muted);margin:0;max-width:640px;}
+  .voice{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin:18px 0 26px;}
+  .voice p{margin:0 0 10px;font-size:14.5px;}
   .voice p:last-child{margin-bottom:0;}
-  .voice .tag{display:inline-block; font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--teal); margin-bottom:8px;}
-  .voice h4{font-size:13.5px; font-weight:650; margin:16px 0 4px;}
+  .voice .tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--teal);margin-bottom:8px;}
+  .voice h4{font-size:13.5px;font-weight:650;margin:16px 0 4px;}
   .voice h4:first-of-type{margin-top:0;}
-  .stats{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:26px;}
-  .stat{flex:1; min-width:110px; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px 14px;}
-  .stat .n{font-size:22px; font-weight:650; line-height:1.1;}
-  .stat .l{font-size:12px; color:var(--muted); margin-top:2px;}
-  h2.section{font-size:13px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin:34px 0 4px; display:flex; align-items:center; gap:8px;}
-  h2.section .pill{font-size:10px; letter-spacing:.04em; text-transform:none; background:var(--border-soft); color:var(--muted); padding:2px 8px; border-radius:20px; font-weight:600;}
-  .section-note{font-size:13.5px; color:var(--muted); margin:0 0 16px; max-width:640px;}
-  .empty{font-size:13.5px; color:var(--muted); font-style:italic; background:var(--card); border:1px dashed var(--border); border-radius:12px; padding:14px 16px;}
+  .stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:26px;}
+  .stat{flex:1;min-width:110px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;}
+  .stat .n{font-size:22px;font-weight:650;line-height:1.1;}
+  .stat .l{font-size:12px;color:var(--muted);margin-top:2px;}
+  h2.section{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:34px 0 4px;display:flex;align-items:center;gap:8px;}
+  h2.section .pill{font-size:10px;letter-spacing:.04em;text-transform:none;background:var(--border-soft);color:var(--muted);padding:2px 8px;border-radius:20px;font-weight:600;}
+  .empty{font-size:13.5px;color:var(--muted);font-style:italic;background:var(--card);border:1px dashed var(--border);border-radius:12px;padding:14px 16px;}
   .program{margin-bottom:20px;}
-  .program-head{display:flex; align-items:baseline; gap:10px; margin-bottom:8px; padding-left:10px; border-left:4px solid var(--accent,var(--border)); }
-  .program-head .name{font-weight:650; font-size:15.5px;}
-  .program-head .counts{font-size:12px; color:var(--muted);}
-  .pkg{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:4px 0; margin-bottom:10px; overflow:hidden;}
-  .pkg summary{list-style:none; cursor:pointer; padding:10px 16px; font-size:13.5px; font-weight:600; display:flex; align-items:center; justify-content:space-between;}
+  .program-head{display:flex;align-items:baseline;gap:10px;margin-bottom:8px;padding-left:10px;border-left:4px solid var(--accent,var(--border));}
+  .program-head .name{font-weight:650;font-size:15.5px;}
+  .program-head .counts{font-size:12px;color:var(--muted);}
+  .pkg{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:4px 0;margin-bottom:10px;overflow:hidden;}
+  .pkg summary{list-style:none;cursor:pointer;padding:10px 16px;font-size:13.5px;font-weight:600;display:flex;align-items:center;justify-content:space-between;}
   .pkg summary::-webkit-details-marker{display:none;}
-  .pkg summary .chev{color:var(--muted); font-size:11px; transition:transform .15s;}
+  .pkg summary .chev{color:var(--muted);font-size:11px;transition:transform .15s;}
   .pkg[open] summary .chev{transform:rotate(90deg);}
-  .pkg summary .pcounts{font-size:11.5px; color:var(--muted); font-weight:500;}
-  .item{position:relative; padding:9px 36px 9px 13px; margin:0 12px 6px; border-left:3px solid var(--teal); font-size:13.5px;}
+  .pkg summary .pcounts{font-size:11.5px;color:var(--muted);font-weight:500;}
+  .item{position:relative;padding:9px 36px 9px 13px;margin:0 12px 6px;border-left:3px solid var(--teal);font-size:13.5px;}
   .item.blocking{border-left-color:var(--terracotta);}
-  .item.unverified{border-left-color:var(--gold); font-style:italic;}
-  .item.watch{border-left-color:var(--border); border-left-style:dashed; color:var(--muted);}
+  .item.unverified{border-left-color:var(--gold);font-style:italic;}
+  .item.watch{border-left-color:var(--border);border-left-style:dashed;color:var(--muted);}
   .item.completed{border-left-color:rgb(154,116,178);}
-  .badge.w{color:var(--muted); border:1px solid var(--muted);}
-  .badge.c{color:rgb(154,116,178); border:1px solid rgb(154,116,178);}
-  .badge.n{color:var(--rose); border:1px solid var(--rose);}
-  .item .badge{display:inline-block; font-weight:700; font-size:10.5px; border-radius:3px; padding:1px 5px; margin-right:6px; vertical-align:1px;}
-  .badge.p{color:var(--terracotta); border:1px solid var(--terracotta);}
-  .badge.u{color:var(--gold); border:1px solid var(--gold);}
-  .item .meta{font-size:11.5px; color:var(--muted); margin-top:4px;}
-  .item .why{font-size:12px; color:var(--muted); margin-top:4px; border-top:1px dashed var(--border-soft); padding-top:5px;}
-  .talk-group{margin-bottom:18px;}
-  .talk-group h3{font-size:14px; font-weight:650; margin:0 0 8px; padding-left:10px; border-left:4px solid var(--accent,var(--border));}
-  .talk-group h4{font-size:12.5px; font-weight:650; margin:10px 0 3px; padding-left:10px;}
-  .talk-group h4:first-of-type{margin-top:0;}
-  .talk-group p{font-size:13.5px; margin:0 0 8px; padding-left:10px; max-width:660px;}
-  .talk-group p:last-child{margin-bottom:0;}
-  .copybar{display:flex; justify-content:flex-end; margin-top:10px;}
-  .copybtn{background:var(--text); color:#fff; border:none; border-radius:8px; padding:8px 14px; font-size:13px; font-weight:600; cursor:pointer;}
-  .copybtn:active{opacity:.8;}
-  .copybtn.copied{background:var(--teal);}
-  footer{margin-top:42px; padding-top:16px; border-top:1px solid var(--border); font-size:12.5px; color:var(--muted);}
-
-  /* ---- Quick capture additions ---- */
-  .capture{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px 20px; margin:18px 0 26px;}
-  .capture .tag{display:inline-block; font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--gold); margin-bottom:10px;}
-  .capture-row{display:flex; gap:8px; flex-wrap:wrap;}
-  .capture-row select, .capture-row input[type=text]{font-family:inherit; font-size:13.5px; padding:8px 10px; border:1px solid var(--border); border-radius:8px; background:#fff; color:var(--text);}
-  .capture-row input[type=text]{flex:1; min-width:180px;}
-  .capture-row button{background:var(--text); color:#fff; border:none; border-radius:8px; padding:8px 16px; font-size:13px; font-weight:600; cursor:pointer;}
-  .capture-row button:active{opacity:.8;}
-  .capture-status{font-size:11.5px; color:var(--muted); margin-top:8px;}
-  .pending-list{margin-top:10px;}
-  .pending-row{display:flex; align-items:flex-start; gap:8px; padding:8px 0; border-top:1px dashed var(--border-soft); font-size:13px; flex-wrap:wrap;}
-  .pending-row:first-child{border-top:none;}
-  .pending-row .ptype{color:var(--gold); font-weight:700; font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; border:1px solid var(--gold); border-radius:3px; padding:1px 5px; flex-shrink:0; margin-top:1px;}
-  .pending-row .ptype.ptype-blocker{color:var(--terracotta); border-color:var(--terracotta);}
-  .pending-row .ptype.ptype-watch{color:var(--muted); border-color:var(--muted);}
-  .pending-row .ptype.ptype-complete{color:rgb(154,116,178); border-color:rgb(154,116,178);}
-  .pending-row .ptype.ptype-item{color:var(--teal); border-color:var(--teal);}
-  .pending-row .pbody{flex:1 1 auto; min-width:160px;}
-  .pending-row .pwhen{color:var(--faint); font-size:11px; flex-shrink:0; margin-top:2px; white-space:nowrap;}
-  .pending-row .pedit{background:none; border:1px solid var(--border); color:var(--muted); border-radius:6px; padding:2px 8px; font-size:11px; cursor:pointer; flex-shrink:0; font-family:inherit;}
-  .pending-row .pedit:hover{border-color:var(--muted); color:var(--text);}
-  .pending-row.pending-row-editing{flex-direction:column; align-items:stretch; gap:6px;}
-  .pedit-row{display:flex; gap:6px; flex-wrap:wrap;}
-  .pedit-row select, .pedit-row input[type=text]{font-family:inherit; font-size:12.5px; padding:6px 8px; border:1px solid var(--border); border-radius:6px; background:#fff; color:var(--text);}
-  .pedit-row input[type=text]{flex:1; min-width:140px;}
-  .pedit-row button{font-family:inherit; font-size:12px; font-weight:600; border-radius:6px; padding:6px 12px; cursor:pointer; border:none; background:var(--text); color:#fff;}
-  .pedit-row button.pcancel{background:none; border:1px solid var(--border); color:var(--muted);}
-  .pending-empty{font-size:12.5px; color:var(--faint); font-style:italic;}
-  .done-toggle{position:absolute; top:9px; right:13px; width:15px; height:15px; cursor:pointer; accent-color:var(--sage);}
-  .item.done-pending{opacity:.55; text-decoration:line-through;}
-
-  /* ---- Controls: view toggle, color mode, search ---- */
-  .controls{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin:0 0 8px; background:var(--card); border:1px solid var(--border); border-radius:14px; padding:12px 16px;}
-  .control-group{display:flex; gap:4px; align-items:center; background:var(--border-soft); border-radius:9px; padding:3px;}
-  .control-group button{font-family:inherit; font-size:12.5px; font-weight:600; border:none; background:none; color:var(--muted); padding:6px 11px; border-radius:7px; cursor:pointer;}
-  .control-group button.active{background:#fff; color:var(--text); box-shadow:0 1px 2px rgba(0,0,0,.08);}
-  .control-toggle{display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--muted); cursor:pointer; user-select:none;}
-  .control-toggle input{accent-color:var(--terracotta);}
-  .searchbox{flex:1; min-width:160px; display:flex; align-items:center;}
-  .searchbox input{width:100%; font-family:inherit; font-size:13px; padding:7px 11px; border:1px solid var(--border); border-radius:8px; background:#fff; color:var(--text);}
-  .search-clear{display:none; font-size:12px; color:var(--muted); background:none; border:1px solid var(--border); border-radius:6px; padding:6px 10px; cursor:pointer; font-family:inherit;}
-
-  /* ---- Focus panel ---- */
-  .focus{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px 20px; margin:0 0 26px;}
-  .focus .tag{display:inline-block; font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--rose); margin-bottom:10px;}
-  .focus-list{display:flex; flex-direction:column; gap:0;}
-  .focus-row{display:flex; align-items:flex-start; gap:9px; padding:7px 0; border-top:1px dashed var(--border-soft); font-size:13px; cursor:pointer;}
-  .focus-row:first-child{border-top:none;}
-  .focus-row:hover{color:var(--text);}
-  .focus-row .why-icon{flex-shrink:0; font-size:10.5px; font-weight:700; border-radius:3px; padding:1px 5px; margin-top:1px;}
-  .focus-row .why-icon.fi-block{color:var(--terracotta); border:1px solid var(--terracotta);}
-  .focus-row .why-icon.fi-due{color:var(--gold); border:1px solid var(--gold);}
-  .focus-row .why-icon.fi-decide{color:var(--mauve); border:1px solid var(--mauve);}
-  .focus-row .ftext{flex:1;}
-  .focus-row .floc{color:var(--faint); font-size:11.5px;}
-  .focus-empty{font-size:13px; color:var(--muted); font-style:italic;}
-  .item.flash{animation:flashHighlight 1.4s ease;}
-  @keyframes flashHighlight{0%{background:rgba(181,144,66,.22);} 100%{background:transparent;}}
-
-  /* ---- Court / delegate tags ---- */
-  .ctag{display:inline-block; font-size:11px; color:var(--muted); margin-top:4px; margin-right:10px;}
-  .ctag b{font-weight:650; color:var(--text);}
-  .ctag.ctag-you b{color:var(--sage);}
-
-  /* ---- Priority color mode ---- */
-  body.priority-mode .item{border-left-color:var(--taupe);}
-  body.priority-mode .item[data-pri-computed="high"]{border-left-color:var(--rose);}
-  body.priority-mode .item[data-pri-computed="med"]{border-left-color:var(--olive);}
-  body.priority-mode .item[data-pri-computed="low"]{border-left-color:var(--border);}
-  .pri-key{display:none; gap:14px; font-size:11.5px; color:var(--muted); margin:-4px 0 16px; padding-left:2px;}
-  body.priority-mode .pri-key{display:flex;}
-  .pri-key span{display:flex; align-items:center; gap:5px;}
-  .pri-key .sw{width:10px; height:10px; border-radius:2px; display:inline-block;}
-
-  /* ---- Category / discipline pills ---- */
-  .taglist{margin-top:5px;}
-  .taglist .pill2{display:inline-block; font-size:10px; font-weight:600; color:var(--muted); background:var(--border-soft); border-radius:10px; padding:2px 8px; margin:0 4px 4px 0;}
-
-  /* ---- Alt views ---- */
-  .altgroup{margin-bottom:20px;}
-  .altgroup-head{display:flex; align-items:baseline; gap:10px; margin-bottom:8px; padding-left:10px; border-left:4px solid var(--gold);}
-  .altgroup-head .name{font-weight:650; font-size:15.5px;}
-  .altgroup-head .counts{font-size:12px; color:var(--muted);}
-  .altgroup .pkg{margin-bottom:10px;}
-
-  /* ---- My Court filter ---- */
-  .btn-mycourt{font-family:inherit; font-size:12.5px; font-weight:600; border:1px solid var(--border); background:none; color:var(--muted); padding:6px 11px; border-radius:7px; cursor:pointer; white-space:nowrap;}
-  .btn-mycourt.active{background:var(--sage); color:#fff; border-color:transparent;}
-
-  /* ---- Inline priority select ---- */
-  .pri-sel{font-family:inherit; font-size:10px; color:var(--muted); background:var(--border-soft); border:1px solid var(--border); border-radius:4px; padding:1px 4px; cursor:pointer; margin-top:5px; display:block; max-width:110px;}
-  .pri-sel:focus{outline:none;}
-
-  /* ---- Court edit input ---- */
-  .court-edit-inp{font-family:inherit; font-size:11px; padding:2px 6px; border:1px solid var(--muted); border-radius:4px; width:130px;}
-  .ctag b{cursor:pointer; text-underline-offset:2px;}
+  .item .badge{display:inline-block;font-weight:700;font-size:10.5px;border-radius:3px;padding:1px 5px;margin-right:6px;vertical-align:1px;}
+  .badge.p{color:var(--terracotta);border:1px solid var(--terracotta);}
+  .badge.u{color:var(--gold);border:1px solid var(--gold);}
+  .badge.w{color:var(--muted);border:1px solid var(--muted);}
+  .badge.n{color:var(--rose);border:1px solid var(--rose);}
+  .badge.c{color:rgb(154,116,178);border:1px solid rgb(154,116,178);}
+  .item .meta{font-size:11.5px;color:var(--muted);margin-top:4px;}
+  .item .why{font-size:12px;color:var(--muted);margin-top:4px;border-top:1px dashed var(--border-soft);padding-top:5px;}
+  .done-toggle{position:absolute;top:9px;right:13px;width:15px;height:15px;cursor:pointer;accent-color:var(--sage);}
+  .item.done-pending{opacity:.55;text-decoration:line-through;}
+  /* action pill */
+  .action-pill{display:inline-block;font-size:9.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;border-radius:3px;padding:1px 5px;margin-right:5px;vertical-align:1px;}
+  .action-pill.ap-model{background:rgba(94,158,149,.15);color:var(--teal);}
+  .action-pill.ap-review{background:rgba(168,118,142,.15);color:var(--mauve);}
+  .action-pill.ap-coordinate{background:rgba(150,134,118,.15);color:var(--taupe);}
+  .action-pill.ap-chase{background:rgba(176,122,100,.15);color:var(--terracotta);}
+  .action-pill.ap-admin{background:rgba(150,148,96,.15);color:var(--olive);}
+  /* next action */
+  .item-next{display:flex;align-items:baseline;gap:6px;margin-top:6px;font-size:12px;color:var(--sage);line-height:1.45;}
+  .item-next::before{content:'→';flex-shrink:0;font-size:11px;color:var(--faint);}
+  /* subtasks */
+  .subtask-list{margin:7px 0 2px 2px;display:flex;flex-direction:column;gap:4px;}
+  .st-item{display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--muted);line-height:1.4;}
+  .st-item input[type=checkbox]{margin-top:2px;accent-color:var(--sage);flex-shrink:0;cursor:pointer;}
+  .st-label{flex:1;}
+  .st-item.st-done .st-label{text-decoration:line-through;opacity:.45;}
+  /* timeline */
+  .tl-toggle{background:none;border:none;font-family:inherit;font-size:10.5px;color:var(--faint);cursor:pointer;padding:4px 0 2px;display:inline-flex;align-items:center;gap:4px;}
+  .tl-toggle:hover{color:var(--muted);}
+  .timeline-wrap{margin:3px 0 2px 3px;padding-left:10px;border-left:2px solid var(--border-soft);display:none;}
+  .timeline-wrap.tl-open{display:block;}
+  .tl-entry{position:relative;font-size:11.5px;color:var(--muted);padding:3px 0;line-height:1.45;}
+  .tl-entry::before{content:'';position:absolute;left:-14px;top:7px;width:6px;height:6px;border-radius:50%;background:var(--border);border:2px solid var(--bg);}
+  .tl-entry:first-child::before{background:var(--sage);}
+  .tl-date{font-size:10.5px;color:var(--faint);margin-right:5px;}
+  /* court / delegate */
+  .ctaglist{margin-top:5px;}
+  .ctag{display:inline-block;font-size:11px;color:var(--muted);margin-right:10px;}
+  .ctag b{font-weight:650;color:var(--text);cursor:pointer;}
   .ctag b:hover{text-decoration:underline dotted;}
-
-  /* ---- Collapsible programs ---- */
-  .program-head{cursor:pointer;}
-  .program-head .pchev{color:var(--muted); font-size:11px; margin-right:2px; transition:transform .15s; display:inline-block;}
-  .program.collapsed .pchev{transform:rotate(-90deg);}
-  .program.collapsed > .pkg, .program.collapsed > details.pkg{display:none;}
-
-  /* ---- Filter bar chips ---- */
-  .filter-bar{display:flex; gap:5px; flex-wrap:wrap; align-items:center; margin:0 0 18px; padding:10px 14px; background:var(--card); border:1px solid var(--border); border-radius:12px;}
-  .filter-label{font-size:11.5px; font-weight:600; color:var(--muted); margin-right:2px; white-space:nowrap;}
-  .filter-sep{width:1px; height:18px; background:var(--border); margin:0 6px; flex-shrink:0;}
-  .fchip{font-family:inherit; font-size:11.5px; font-weight:600; border:1px solid var(--border); background:none; color:var(--muted); padding:4px 11px; border-radius:20px; cursor:pointer; transition:all .12s; white-space:nowrap;}
-  .fchip:hover{border-color:var(--faint); color:var(--text);}
-  .fchip.active{color:#fff; border-color:transparent;}
+  .ctag.ctag-you b{color:var(--sage);}
+  .court-edit-inp{font-family:inherit;font-size:11px;padding:2px 6px;border:1px solid var(--muted);border-radius:4px;width:130px;}
+  /* tag pills */
+  .taglist{margin-top:5px;}
+  .taglist .pill2{display:inline-block;font-size:10px;font-weight:600;color:var(--muted);background:var(--border-soft);border-radius:10px;padding:2px 8px;margin:0 4px 4px 0;}
+  /* priority select */
+  .pri-sel{font-family:inherit;font-size:10px;color:var(--muted);background:var(--border-soft);border:1px solid var(--border);border-radius:4px;padding:1px 4px;cursor:pointer;margin-top:5px;display:block;max-width:110px;}
+  .pri-sel:focus{outline:none;}
+  /* flash */
+  .item.flash{animation:flashHighlight 1.4s ease;}
+  @keyframes flashHighlight{0%{background:rgba(181,144,66,.22);}100%{background:transparent;}}
+  /* Talk groups (completed section) */
+  .talk-group{margin-bottom:18px;}
+  .talk-group h3{font-size:14px;font-weight:650;margin:0 0 8px;padding-left:10px;border-left:4px solid var(--accent,var(--border));}
+  .talk-group h4{font-size:12.5px;font-weight:650;margin:10px 0 3px;padding-left:10px;}
+  .talk-group h4:first-of-type{margin-top:0;}
+  .talk-group p{font-size:13.5px;margin:0 0 8px;padding-left:10px;max-width:660px;}
+  .talk-group p:last-child{margin-bottom:0;}
+  footer{margin-top:42px;padding-top:16px;border-top:1px solid var(--border);font-size:12.5px;color:var(--muted);}
+  /* Quick Capture */
+  .capture{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin:18px 0 26px;}
+  .capture .tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+  .capture-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .capture-row select,.capture-row input[type=text]{font-family:inherit;font-size:13.5px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--text);}
+  .capture-row input[type=text]{flex:1;min-width:180px;}
+  .capture-row button{background:var(--text);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;}
+  .capture-row button:active{opacity:.8;}
+  .capture-status{font-size:11.5px;color:var(--muted);margin-top:8px;}
+  .pending-list{margin-top:10px;}
+  .pending-row{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-top:1px dashed var(--border-soft);font-size:13px;flex-wrap:wrap;}
+  .pending-row:first-child{border-top:none;}
+  .pending-row .ptype{color:var(--gold);font-weight:700;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;border:1px solid var(--gold);border-radius:3px;padding:1px 5px;flex-shrink:0;margin-top:1px;}
+  .pending-row .ptype.ptype-blocker{color:var(--terracotta);border-color:var(--terracotta);}
+  .pending-row .ptype.ptype-watch{color:var(--muted);border-color:var(--muted);}
+  .pending-row .ptype.ptype-complete{color:rgb(154,116,178);border-color:rgb(154,116,178);}
+  .pending-row .ptype.ptype-item{color:var(--teal);border-color:var(--teal);}
+  .pending-row .pbody{flex:1 1 auto;min-width:160px;}
+  .pending-row .pwhen{color:var(--faint);font-size:11px;flex-shrink:0;margin-top:2px;white-space:nowrap;}
+  .pending-row .pedit{background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:2px 8px;font-size:11px;cursor:pointer;flex-shrink:0;font-family:inherit;}
+  .pending-row .pedit:hover{border-color:var(--muted);color:var(--text);}
+  .pending-row.pending-row-editing{flex-direction:column;align-items:stretch;gap:6px;}
+  .pedit-row{display:flex;gap:6px;flex-wrap:wrap;}
+  .pedit-row select,.pedit-row input[type=text]{font-family:inherit;font-size:12.5px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--text);}
+  .pedit-row input[type=text]{flex:1;min-width:140px;}
+  .pedit-row button{font-family:inherit;font-size:12px;font-weight:600;border-radius:6px;padding:6px 12px;cursor:pointer;border:none;background:var(--text);color:#fff;}
+  .pedit-row button.pcancel{background:none;border:1px solid var(--border);color:var(--muted);}
+  .pending-empty{font-size:12.5px;color:var(--faint);font-style:italic;}
+  /* Controls */
+  .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 8px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 16px;}
+  .control-group{display:flex;gap:4px;align-items:center;background:var(--border-soft);border-radius:9px;padding:3px;}
+  .control-group button{font-family:inherit;font-size:12.5px;font-weight:600;border:none;background:none;color:var(--muted);padding:6px 11px;border-radius:7px;cursor:pointer;}
+  .control-group button.active{background:#fff;color:var(--text);box-shadow:0 1px 2px rgba(0,0,0,.08);}
+  .control-toggle{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);cursor:pointer;user-select:none;}
+  .control-toggle input{accent-color:var(--terracotta);}
+  .searchbox{flex:1;min-width:160px;display:flex;align-items:center;}
+  .searchbox input{width:100%;font-family:inherit;font-size:13px;padding:7px 11px;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--text);}
+  .search-clear{display:none;font-size:12px;color:var(--muted);background:none;border:1px solid var(--border);border-radius:6px;padding:6px 10px;cursor:pointer;font-family:inherit;}
+  .btn-mycourt{font-family:inherit;font-size:12.5px;font-weight:600;border:1px solid var(--border);background:none;color:var(--muted);padding:6px 11px;border-radius:7px;cursor:pointer;white-space:nowrap;}
+  .btn-mycourt.active{background:var(--sage);color:#fff;border-color:transparent;}
+  /* Filter bar */
+  .filter-bar{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin:0 0 18px;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:12px;}
+  .filter-label{font-size:11.5px;font-weight:600;color:var(--muted);margin-right:2px;white-space:nowrap;}
+  .filter-sep{width:1px;height:18px;background:var(--border);margin:0 6px;flex-shrink:0;}
+  .fchip{font-family:inherit;font-size:11.5px;font-weight:600;border:1px solid var(--border);background:none;color:var(--muted);padding:4px 11px;border-radius:20px;cursor:pointer;transition:all .12s;white-space:nowrap;}
+  .fchip:hover{border-color:var(--faint);color:var(--text);}
+  .fchip.active{color:#fff;border-color:transparent;}
   .fchip.fh-today.active{background:var(--terracotta);}
   .fchip.fh-jul3.active{background:var(--mauve);}
   .fchip.fh-week.active{background:var(--teal);}
@@ -185,47 +159,58 @@
   .fchip.fa-coordinate.active{background:var(--taupe);}
   .fchip.fa-chase.active{background:var(--terracotta);}
   .fchip.fa-admin.active{background:var(--olive);}
-
-  /* ---- Action pill on each item ---- */
-  .action-pill{display:inline-block; font-size:9.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; border-radius:3px; padding:1px 5px; margin-right:5px; vertical-align:1px;}
-  .action-pill.ap-model{background:rgba(94,158,149,.15); color:var(--teal);}
-  .action-pill.ap-review{background:rgba(168,118,142,.15); color:var(--mauve);}
-  .action-pill.ap-coordinate{background:rgba(150,134,118,.15); color:var(--taupe);}
-  .action-pill.ap-chase{background:rgba(176,122,100,.15); color:var(--terracotta);}
-  .action-pill.ap-admin{background:rgba(150,148,96,.15); color:var(--olive);}
-
-  /* ---- Next action line ---- */
-  .item-next{display:flex; align-items:baseline; gap:6px; margin-top:6px; font-size:12px; color:var(--sage); line-height:1.45;}
-  .item-next::before{content:'→'; flex-shrink:0; font-size:11px; color:var(--faint);}
-
-  /* ---- Sub-tasks ---- */
-  .subtask-list{margin:7px 0 2px 2px; display:flex; flex-direction:column; gap:4px;}
-  .st-item{display:flex; align-items:flex-start; gap:7px; font-size:12px; color:var(--muted); line-height:1.4;}
-  .st-item input[type=checkbox]{margin-top:2px; accent-color:var(--sage); flex-shrink:0; cursor:pointer;}
-  .st-label{flex:1;}
-  .st-item.st-done .st-label{text-decoration:line-through; opacity:.45;}
-
-  /* ---- Timeline ---- */
-  .tl-toggle{background:none; border:none; font-family:inherit; font-size:10.5px; color:var(--faint); cursor:pointer; padding:4px 0 2px; display:inline-flex; align-items:center; gap:4px;}
-  .tl-toggle:hover{color:var(--muted);}
-  .timeline-wrap{margin:3px 0 2px 3px; padding-left:10px; border-left:2px solid var(--border-soft); display:none;}
-  .timeline-wrap.tl-open{display:block;}
-  .tl-entry{position:relative; font-size:11.5px; color:var(--muted); padding:3px 0; line-height:1.45;}
-  .tl-entry::before{content:''; position:absolute; left:-14px; top:7px; width:6px; height:6px; border-radius:50%; background:var(--border); border:2px solid var(--bg);}
-  .tl-entry:first-child::before{background:var(--sage);}
-  .tl-date{font-size:10.5px; color:var(--faint); margin-right:5px;}
-
-  /* ---- Today's Focus card ---- */
-  .today-focus{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px 20px; margin:0 0 20px;}
-  .today-focus .tag{display:inline-block; font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--terracotta); margin-bottom:10px;}
-  .tf-list{display:flex; flex-direction:column; gap:0;}
-  .tf-row{display:flex; align-items:flex-start; gap:9px; padding:7px 0; border-top:1px dashed var(--border-soft); font-size:13px; cursor:pointer; line-height:1.45;}
+  /* Alt-view groups */
+  .altgroup{margin-bottom:20px;}
+  .altgroup-head{display:flex;align-items:baseline;gap:10px;margin-bottom:8px;padding-left:10px;border-left:4px solid var(--gold);}
+  .altgroup-head .name{font-weight:650;font-size:15.5px;}
+  .altgroup-head .counts{font-size:12px;color:var(--muted);}
+  /* Priority mode */
+  body.priority-mode .item{border-left-color:var(--taupe);}
+  body.priority-mode .item.watch{border-left-color:var(--border);border-left-style:dashed;}
+  body.priority-mode .item[data-pri-computed="high"]{border-left-color:var(--rose);}
+  body.priority-mode .item[data-pri-computed="med"]{border-left-color:var(--olive);}
+  body.priority-mode .item[data-pri-computed="low"]{border-left-color:var(--border);}
+  .pri-key{display:none;gap:14px;font-size:11.5px;color:var(--muted);margin:-4px 0 16px;padding-left:2px;}
+  body.priority-mode .pri-key{display:flex;}
+  .pri-key span{display:flex;align-items:center;gap:5px;}
+  .pri-key .sw{width:10px;height:10px;border-radius:2px;display:inline-block;}
+  /* Collapsible programs */
+  .program-head{cursor:pointer;}
+  .program-head .pchev{color:var(--muted);font-size:11px;margin-right:2px;transition:transform .15s;display:inline-block;}
+  .program.collapsed .pchev{transform:rotate(-90deg);}
+  .program.collapsed>.pkg,.program.collapsed>details.pkg{display:none;}
+  /* Focus panels */
+  .focus{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 20px;margin:0 0 26px;}
+  .focus .tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--rose);margin-bottom:10px;}
+  .focus-list{display:flex;flex-direction:column;gap:0;}
+  .focus-row{display:flex;align-items:flex-start;gap:9px;padding:7px 0;border-top:1px dashed var(--border-soft);font-size:13px;cursor:pointer;}
+  .focus-row:first-child{border-top:none;}
+  .focus-row .why-icon{flex-shrink:0;font-size:10.5px;font-weight:700;border-radius:3px;padding:1px 5px;margin-top:1px;}
+  .focus-row .why-icon.fi-block{color:var(--terracotta);border:1px solid var(--terracotta);}
+  .focus-row .why-icon.fi-due{color:var(--gold);border:1px solid var(--gold);}
+  .focus-row .why-icon.fi-decide{color:var(--mauve);border:1px solid var(--mauve);}
+  .focus-row .ftext{flex:1;}
+  .focus-row .floc{color:var(--faint);font-size:11.5px;}
+  .focus-empty{font-size:13px;color:var(--muted);font-style:italic;}
+  /* Today's Focus */
+  .today-focus{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 20px;margin:0 0 20px;}
+  .today-focus .tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--terracotta);margin-bottom:10px;}
+  .tf-list{display:flex;flex-direction:column;gap:0;}
+  .tf-row{display:flex;align-items:flex-start;gap:9px;padding:7px 0;border-top:1px dashed var(--border-soft);font-size:13px;cursor:pointer;line-height:1.45;}
   .tf-row:first-child{border-top:none;}
   .tf-row:hover .tf-text{color:var(--text);}
-  .tf-action-wrap{flex-shrink:0; padding-top:1px;}
-  .tf-text{flex:1; color:var(--text);}
-  .tf-loc{color:var(--faint); font-size:11.5px; margin-top:2px;}
-  .tf-empty{font-size:13px; color:var(--muted); font-style:italic;}
+  .tf-action-wrap{flex-shrink:0;padding-top:1px;}
+  .tf-text{flex:1;color:var(--text);}
+  .tf-loc{color:var(--faint);font-size:11.5px;margin-top:2px;}
+  .tf-empty{font-size:13px;color:var(--muted);font-style:italic;}
+  /* Item location (program · package) — visible in Status/Discipline views, hidden in Program view */
+  .item-loc{font-size:10.5px;color:var(--faint);margin-top:3px;font-style:normal;}
+  #programView .item-loc{display:none;}
+  /* Copybar */
+  .copybar{display:flex;justify-content:flex-end;margin-top:10px;}
+  .copybtn{background:var(--text);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;}
+  .copybtn:active{opacity:.8;}
+  .copybtn.copied{background:var(--teal);}
 </style>
 </head>
 <body>
@@ -234,7 +219,7 @@
   <div class="masthead">
     <p class="eyebrow">Work tracker · briefing</p>
     <h1>End-of-day triage — Tuesday, June 30, 2026</h1>
-    <p class="lede">Full task review: every open item triaged, courts confirmed, sub-tasks added, and new features deployed. Items updated from Jun 30 Copilot searches and the SME Workshop session.</p>
+    <p class="lede">Full task review. Items are now data-driven — updating them doesn't touch the rendering code. Three grouping modes: Program, Status (P/U/W), Discipline.</p>
   </div>
 
   <div class="capture">
@@ -267,21 +252,14 @@
 
   <div class="voice">
     <span class="tag">What we sorted out today</span>
-
-    <h4>Full task triage — every open item reviewed</h4>
-    <p>Went through all 26+ open items one by one: confirmed courts, merged duplicates (Beam Demo + knuckle bulkhead; lift shaft + wall construction; bulkhead diagrams + knuckle AV), and dropped two items that aren't yours (sprinkler grid, old staging lighting watch).</p>
-
-    <h4>Three tasks confirmed done, three new items added</h4>
-    <p>Done: Revit type-parameter fix, VW Mason hidden in Revizto before the Jun 30 review, and the Jun 30 AM YYC Security meeting. New: Haptic TP5 progress set review (team: Shadi, Kirk, Luke, Michelle, Chris H), Retail/banner detail modeling (start current detail while waiting on YYC/commercial), and Kirk RFI check-in before Thursday's OAC.</p>
-
-    <h4>Sub-tasks and timeline history now on key items</h4>
-    <p>Items with ITEM_DATA entries show independently-checkable sub-tasks and a collapsible timeline. Example: the door-adjacent signage task has an interim sub-task (center signs now) separate from the main task (wait for Entro's answer) — so the partial win is trackable.</p>
-
-    <h4>Horizon + action filters added</h4>
-    <p>New filter chips sit below the controls: filter by time horizon (Today / Before Jul 3 / This Week) and by action type (Model / Review / Coordinate / Chase / Admin). Combine with My Court and search for surgical triage at the start of each day.</p>
-
-    <h4>Today's Focus is now computed, not static</h4>
-    <p>The old static To-Do list is gone. Today's Focus pulls directly from items tagged <em>today</em> in your court — so it's always accurate without manual updates.</p>
+    <h4>Architecture change: items are now data-driven</h4>
+    <p>All 35 open items are defined in a JavaScript array at the top of the script section. Future updates only touch the data — not the rendering code. Adding an item = one new object in the array. Checking it off = done toggle. Nothing breaks.</p>
+    <h4>Three grouping modes</h4>
+    <p>Program (Concourse B → packages, Centralized / PBS, etc.), Status (groups all Blocking P items together, then Unverified U, Watch W, and Open), and Discipline (groups by Architectural, Structural, Mechanical, Electrical, Signage, etc.). Metadata — status badge, discipline pills, court, action type — shows on every item in every view.</p>
+    <h4>Filter chips + Today's Focus</h4>
+    <p>Horizon chips (Today / Before Jul 3 / This Week) and action chips (Model / Review / Coordinate / Chase / Admin) work in all three views. Today's Focus is computed — it pulls items tagged horizon=today in your court, so it's always accurate.</p>
+    <h4>Full triage from Jun 30</h4>
+    <p>Done: Revit type-parameter fix, VW Mason hidden in Revizto, Jun 30 YYC Security meeting. New: Haptic TP5 review, retail/banner detail, Kirk RFI check-in, Entro 100% DD wayfinding review. Sub-tasks and timeline history on 11 key items.</p>
   </div>
 
   <div class="stats">
@@ -305,8 +283,8 @@
   <div class="controls">
     <div class="control-group" id="viewToggle">
       <button data-view="program" class="active" onclick="setView('program')">Program</button>
-      <button data-view="category" onclick="setView('category')">Category</button>
-      <button data-view="discipline" onclick="setView('discipline')">Coordination</button>
+      <button data-view="status" onclick="setView('status')">Status</button>
+      <button data-view="discipline" onclick="setView('discipline')">Discipline</button>
     </div>
     <label class="control-toggle"><input type="checkbox" id="priModeToggle" onchange="togglePriorityMode()"> Priority colors</label>
     <label class="control-toggle"><input type="checkbox" id="collapseAllToggle" onchange="toggleCollapseAll()"> Collapse sections</label>
@@ -317,7 +295,7 @@
     <button class="search-clear" id="searchClear" onclick="clearSearch()">Clear</button>
   </div>
 
-  <div class="filter-bar" id="filterBar">
+  <div class="filter-bar">
     <span class="filter-label">Horizon:</span>
     <button class="fchip fh-today" data-horizon="today" onclick="toggleHorizonChip(this)">Today</button>
     <button class="fchip fh-jul3" data-horizon="jul3" onclick="toggleHorizonChip(this)">Before Jul 3</button>
@@ -337,254 +315,10 @@
     <span><i class="sw" style="background:var(--border)"></i>Low</span>
   </div>
 
-  <h2 class="section">Open items, by program</h2>
+  <h2 class="section" id="viewHeading">Open items, by program</h2>
 
-  <div id="programView">
-
-  <!-- ========== CONCOURSE B ========== -->
-  <div class="program">
-    <div class="program-head" style="--accent:var(--mauve)" onclick="onProgramHeadClick(event)">
-      <span class="pchev">▾</span><span class="name" style="color:var(--mauve)">Concourse B</span>
-      <span class="counts">— open</span>
-    </div>
-
-    <details class="pkg">
-      <summary><span>Package 4.2 — Arrivals + Penthouse <span class="chev">▸</span></span><span class="pcounts">1 open</span></summary>
-      <div class="item" data-date="2026-06-29" data-id="i1" data-cat="documentation" data-disc="AR" data-court="You" data-horizon="today" data-action="chase">
-        <span class="badge n">N</span>Chad Gray's Package 4.2 Addendum 04 cover-page request — change list not yet delivered
-        <div class="meta">Chad Gray (PCL) raised Jun 29. Chris H asked Chad for a screenshot; Chad re-clarified he wants the full change list. Thursday check-in needed.</div>
-      </div>
-    </details>
-
-    <details class="pkg" open>
-      <summary><span>Package 4.3 — Building Envelope <span class="chev">▸</span></span><span class="pcounts">1 open · 1 blocking</span></summary>
-      <div class="item blocking" data-date="2026-06-23" data-id="i2" data-cat="decisions" data-disc="AR ST" data-court="YYC" data-due="2026-07-05" data-horizon="watch">
-        <span class="badge p">P</span>Communicate precast-removal recommendation to YYC, await decision
-        <div class="why">Blocked by: waiting on YYC's call. Removing the precast touches the roof warranty — that's why this isn't just a detailing question. Same issue as RFI 000099.0. <strong>Escalate if no response by Jul 5.</strong></div>
-        <div class="meta">via DTR Con B meeting · raised 2026-06-23</div>
-      </div>
-      <div class="item unverified" data-date="2026-06-29" data-id="i3" data-cat="documentation" data-disc="owner" data-court="You" data-horizon="week" data-action="chase">
-        <span class="badge n">N</span><span class="badge u">U</span>Confirm Trade Log bid-submission deadline for Package 4.3
-        <div class="meta">Believed to be early July, possibly the week of the 23rd — exact date unclear. Raised Jun 29.</div>
-      </div>
-    </details>
-
-    <details class="pkg" open>
-      <summary><span>Package 5 — Departures Level <span class="chev">▸</span></span><span class="pcounts">— open</span></summary>
-
-      <div class="item blocking" data-date="2026-06-25" data-id="i4" data-cat="meetings" data-disc="AR EL security" data-court="You" data-due="2026-07-03" data-horizon="week" data-action="coordinate">
-        <span class="badge p">P</span>Schedule door actuator control strategy coordination meeting — architecture vs. electrical vs. security
-        <div class="why">Blocked by: nothing external — this is on you to get on the calendar. Greg Pink (SMP) / Chris H thread, 2026-06-25. Check in with Chris H Thursday re: booking. <strong>Target: booked by Fri Jul 3.</strong></div>
-      </div>
-
-      <div class="item" data-date="2026-06-30" data-id="i5" data-cat="decisions" data-disc="AR" data-court="You" data-due="2026-07-03" data-horizon="today" data-action="model">
-        <span class="badge n">N</span>Millwork + Faisal portal detail — confirm 80% design intent and incorporate into model
-        <div class="meta">Faisal sent portal sketch + vending machine enclosure sketch Jun 30. Haptic removed vending machines from model. Caleb (SMP Electrical) emailed Anthony about vending machines — watch that thread. Millwork package goes to YYC Jul 3; Haptic comments due Jun 30.</div>
-      </div>
-
-      <div class="item" data-date="2026-06-30" data-id="i6" data-cat="coordination" data-disc="AR ST ME EL safety" data-court="You" data-horizon="week" data-action="coordinate">
-        Washroom ceiling coordination — follow up with Elisa on make-up counter / bench question
-        <div class="meta">Ceiling decision resolved Jun 30: stay under joists, 75mm mechanical clearance on perimeter (faux cove), suspended grid + drywall + t-bar grid at vanity. Elisa coordinating with Mechanical + Electrical. Outstanding: 2 benches added to washroom — YYC standards also show a make-up counter; confirm intent with Elisa.</div>
-      </div>
-
-      <div class="item watch" data-date="2026-06-29" data-id="i8" data-cat="coordination" data-disc="safety EL" data-court="Parks" data-horizon="watch">
-        <span class="badge w">W</span>Evacuation zoning — Parks following up with Senez code consultant on single-zone option for Concourse B
-        <div class="meta">Raised Jun 29. May have minor effect on electrical sequence of operations. Watching — nothing to action until Parks comes back.</div>
-      </div>
-
-      <div class="item" data-date="2026-06-30" data-id="i10" data-cat="coordination" data-disc="ST AR" data-court="YYC" data-horizon="watch" data-action="coordinate">
-        Knuckle bulkhead + AV screen — 3 height options going to SteerCo; beam impact on screen area
-        <div class="meta">Jun 30: Anthony emailed Erica with 3 bulkhead options for smaller screen size — going to SteerCo. If no decision by 80% (Jul 3), no room for the larger screen. Kevin Vogt Beam Demo: additional mezzanine framing may affect ceilings, bulkheads, stone cladding. Two zones: mid-area (structural adding beam) and end area near Starbucks (YYC choosing height option this week).</div>
-      </div>
-
-      <div class="item" data-date="2026-06-26" data-id="i15" data-cat="documentation" data-disc="AR ST" data-court="YYC" data-horizon="watch" data-pri="low">
-        <span class="badge w">W</span>TP5 outstanding items — 6 items, mostly YYC and SMP courts
-        <div class="meta">Copilot search Jun 30 found 6 outstanding items. Courts: mostly YYC, some SMP. Watching — flag when an item shifts to your court. Elisa Leung / Kevin Vogt thread, Jun 26.</div>
-      </div>
-
-      <div class="item" data-id="i16" data-cat="documentation" data-disc="AR" data-court="You" data-pri="low" data-horizon="week" data-action="review">
-        Go through Chris H's Bluebeam session notes — identify action items
-        <div class="meta">Pre-existing item. Low priority — no raised date on record.</div>
-      </div>
-
-      <div class="item" data-date="2026-06-30" data-id="i17" data-cat="drawings" data-disc="ST AR" data-court="You" data-horizon="today" data-action="model">
-        <span class="badge n">N</span>Wall construction update — CMU → stud wall behind Elbow River + Summit House; add CMU at elevator
-        <div class="meta">Priority AM Wednesday. SME Workshop: 3 options presented, Kevin Vogt favors option 3; block wall direction structurally cleared. Summit House also in scope: HSS structural element there — model around it. Lift shaft detailing merged here.</div>
-      </div>
-
-      <div class="item" data-date="2026-06-29" data-id="i19" data-cat="coordination" data-disc="ME AR" data-court="You" data-horizon="week" data-action="coordinate">
-        <span class="badge n">N</span>Knuckle ceiling drop — coordinate with Clive (DIALOG Mechanical) for duct clearance height
-        <div class="meta">Knuckle area needs a dropped ceiling for mechanical exhaust ducts running above the baffle ceiling. Shadi to confirm required drop height with Clive, then update model.</div>
-      </div>
-
-      <div class="item watch" data-date="2026-06-29" data-id="i20" data-cat="documentation" data-disc="ME ST" data-court="You" data-horizon="watch" data-pri="low">
-        <span class="badge w">W</span>Exhaust fan weights — confirm/document weights above baffle ceiling
-        <div class="meta">SME Workshop Jun 29. Watch — waiting on structural to confirm if this is needed.</div>
-      </div>
-
-      <div class="item" data-date="2026-06-29" data-id="i22" data-cat="drawings" data-disc="AR safety" data-court="You" data-pri="low" data-horizon="week" data-action="model">
-        <span class="badge n">N</span>Fire cabinet model update — confirm confirmed placement (off stone surfaces) in model
-        <div class="meta">Placement principle is settled (Neil Dobie/Vittorio/Anthony/Shadi) — only the model update is outstanding. Low priority.</div>
-      </div>
-
-      <div class="item watch" data-date="2026-06-29" data-id="i23" data-cat="rfi" data-disc="owner" data-court="Parks" data-horizon="watch" data-pri="low">
-        <span class="badge w">W</span>Terminal Operations RFI — second core option; waiting on Parks
-        <div class="meta">SME Workshop Jun 29. Parks to follow up with Terminal Operations re: second core. Watching — nothing to action until Parks responds.</div>
-      </div>
-
-      <div class="item" data-date="2026-06-29" data-id="i24" data-cat="drawings" data-disc="ST AR" data-court="You" data-pri="low" data-horizon="week" data-action="model">
-        <span class="badge n">N</span>Movement joint modeling
-        <div class="meta">SME Workshop Jun 29. Low priority.</div>
-      </div>
-
-      <div class="item watch" data-date="2026-06-29" data-id="i26" data-cat="drawings" data-disc="ST AR" data-court="You" data-pri="low" data-horizon="watch">
-        <span class="badge w">W</span>Portal sides structural detail — thickness confirmed, waiting only if something changes
-        <div class="meta">Structural is modeling the current strategy and will continue until told otherwise. Watch only.</div>
-      </div>
-
-      <div class="item" data-date="2026-06-30" data-id="i44" data-cat="drawings" data-disc="AR" data-court="You" data-horizon="today" data-action="review">
-        <span class="badge n">N</span>Haptic TP5 progress set — go through in detail with the team
-        <div class="meta">Chris H shared the TP5 progress set with the full production team (Shadi, Kirk, Luke, Michelle) Jun 30. Quick look taken — detailed review with team outstanding.</div>
-      </div>
-
-      <div class="item" data-date="2026-06-30" data-id="i46" data-cat="coordination" data-disc="AR" data-court="You" data-horizon="today" data-action="coordinate">
-        <span class="badge n">N</span>Kirk RFI check-in — sync before Thursday's construction meeting
-        <div class="meta">Josh gave Kirk (technologist, Pkg 4.3 + 5, CA work) a list of RFIs to own. Kirk will ask Shadi and Chris H for help on what he needs. Check in with Kirk Thursday morning so the team can answer Josh's questions together.</div>
-      </div>
-
-    </details>
-
-    <details class="pkg">
-      <summary><span>Package 6 — Retail Fitout <span class="chev">▸</span></span><span class="pcounts">2 open</span></summary>
-      <div class="item" data-date="2026-06-30" data-id="i45" data-cat="drawings" data-disc="AR" data-court="You" data-horizon="week" data-action="model">
-        <span class="badge n">N</span>Retail / banner detail — start modeling current detail while waiting on YYC and commercial team
-        <div class="meta">Discussion ongoing with YYC and commercial team on retail banner. Modeling the current detail is in Shadi's court — mid-priority. If bandwidth, this is a blocker to getting ahead. Erica + Anthony court for decisions/updates.</div>
-      </div>
-      <div class="item" data-date="2026-06-30" data-id="i28" data-cat="coordination" data-disc="EL AR" data-court="You" data-horizon="week" data-action="coordinate">
-        Wall-wash lighting — assign 2D detail to Michelle or Luke
-        <div class="meta">Caleb Jacobs (SMP) sent cut sheet. Shadi to assign the 2D detail (not 3D) to Michelle or Luke. Jun 30.</div>
-      </div>
-    </details>
-
-    <details class="pkg">
-      <summary><span>Signage (Entro) <span class="chev">▸</span></span><span class="pcounts">1 open</span></summary>
-      <div class="item" data-date="2026-06-30" data-id="i29" data-cat="decisions" data-disc="signage" data-court="Entro" data-horizon="week" data-action="coordinate">
-        Washroom + door-adjacent signage placement — interim: center them; wait for Entro's final answer
-        <div class="meta">Washroom signs: align to door or center on panel — question sent Jun 28, response pending. Door-adjacent room-ID signs: gave Chris H a list; interim decision is to center signs until Entro responds. Move signs to center now as a partial task.</div>
-      </div>
-    </details>
-
-    <details class="pkg">
-      <summary><span>Material keynotes <span class="chev">▸</span></span><span class="pcounts">1 open</span></summary>
-      <div class="item" data-date="2026-06-29" data-id="i30" data-cat="coordination" data-disc="AR" data-court="Haptic" data-horizon="week" data-action="coordinate">
-        Set up material keynotes mapped to Specification sections, publish to ACC for Haptic/K-Studio
-        <div class="meta">Finish schedule mapped Jun 28; sent to Rick Adams. Jun 29: sent Elisa (Interiors) question about millwork metal. Next: Haptic adds keynotes to their model.</div>
-      </div>
-    </details>
-  </div>
-
-  <!-- ========== CENTRALIZED / PBS ========== -->
-  <div class="program">
-    <div class="program-head" style="--accent:var(--sage)" onclick="onProgramHeadClick(event)">
-      <span class="pchev">▾</span><span class="name" style="color:var(--sage)">Centralized / PBS</span>
-      <span class="counts">— open</span>
-    </div>
-
-    <details class="pkg" open>
-      <summary><span>NPSC <span class="chev">▸</span></span><span class="pcounts">1 blocking</span></summary>
-      <div class="item blocking" data-date="2026-06-30" data-id="i31" data-cat="decisions" data-disc="security AR" data-court="You" data-delegate="Josh Garcia" data-due="2026-07-03" data-horizon="today" data-action="chase">
-        <span class="badge p">P</span>NPSC PSL door hardware — chase Josh Garcia to issue PCN; send to Steve Isaac (procurement)
-        <div class="why">PCN required for 6 PSL doors (D54F01, D55F02, D56E01, D59G01, D60G00 + one more). Steve Isaac is the hardware consultant — Chris H already sent him Concourse B Departures hardware today (same consultant). Flag urgency for procurement. Cloud relocated NPSC reception desk; confirm biometric mount is by-others.</div>
-        <div class="meta">YYC Security meeting held Jun 30 AM. Daniela Vasquez confirmed 6 doors Jun 11. Josh Garcia is the contract administrator chasing this.</div>
-      </div>
-    </details>
-
-    <details class="pkg">
-      <summary><span>Lighting <span class="chev">▸</span></span><span class="pcounts">1 watch</span></summary>
-      <div class="item watch" data-date="2026-06-30" data-id="i32" data-cat="documentation" data-disc="EL" data-court="Erica Loh" data-pri="low" data-horizon="watch">
-        <span class="badge w">W</span>L17 light fixture alternate — waiting on Chris Lenzin's response
-        <div class="meta">Patrick (DIALOG) got the Geba weights from Elisdon (contractor) Jun 30 — submitted to consultant. Waiting on Chris Lenzin. Watch — Erica Loh's design team owns this, not Shadi directly.</div>
-      </div>
-    </details>
-
-    <details class="pkg">
-      <summary><span>Signage (Entro) <span class="chev">▸</span></span><span class="pcounts">1 watch</span></summary>
-      <div class="item watch" data-date="2026-06-23" data-id="i33" data-cat="decisions" data-disc="signage" data-court="You" data-pri="low" data-horizon="watch">
-        <span class="badge w">W</span>Confirm regulatory signage approach from YYC PBS Wayfinding Kick-Off
-        <div class="meta">Valerie Moss, Jun 23 — no walkthrough scheduled yet, nothing to action until one is. Watch.</div>
-      </div>
-    </details>
-
-    <details class="pkg" open>
-      <summary><span>General <span class="chev">▸</span></span><span class="pcounts">2 open</span></summary>
-      <div class="item" data-date="2026-06-28" data-id="i34" data-cat="decisions" data-disc="EL owner" data-court="You" data-horizon="week" data-action="coordinate">
-        NPS / electrical scope dispute — YYC raised design gaps and fee pushback; team debating continuing vs. withdrawing
-        <div class="meta">Confirmed Jun 28.</div>
-      </div>
-      <div class="item" data-date="2026-06-30" data-id="i47" data-cat="documentation" data-disc="signage" data-court="You" data-horizon="week" data-action="review">
-        <span class="badge n">N</span>Entro 100% DD wayfinding review — Shadi + Erica to review together
-        <div class="meta">Entro's 100% DD set needs review. Shadi not sure what's on it — possibly a task for both Shadi and Erica to review. Jun 30.</div>
-      </div>
-    </details>
-  </div>
-
-  <!-- ========== CROSS-PROGRAM ========== -->
-  <div class="program">
-    <div class="program-head" style="--accent:var(--taupe)" onclick="onProgramHeadClick(event)">
-      <span class="pchev">▾</span><span class="name" style="color:var(--taupe)">Cross-program</span>
-      <span class="counts">— open</span>
-    </div>
-    <div class="pkg" style="padding:6px 0;">
-      <div class="item watch" data-date="2026-06-26" data-id="i36" data-cat="decisions" data-disc="AR owner" data-court="Erica Loh" data-pri="low" data-horizon="watch">
-        <span class="badge w">W</span>YYC Masterplan Model — scope gaps, needs direction
-        <div class="meta">Erica Loh flagged Jun 23, recapped Jun 26. TP5 is the priority. Watch — Erica's court.</div>
-      </div>
-      <div class="item" data-date="2026-07-02" data-id="i37" data-cat="meetings" data-disc="owner" data-court="You" data-due="2026-07-02" data-horizon="jul3" data-action="admin">
-        BIM Transition Plan — lunch with John Souleles (Studio Chair) and Matt Parks
-        <div class="meta">Thursday, Jul 2 — confirmed. John Souleles and Parks attending. Firm-level, separate from any single project.</div>
-      </div>
-      <div class="item" data-date="2026-07-09" data-id="i38" data-cat="meetings" data-disc="security" data-court="You" data-due="2026-07-09" data-horizon="week" data-action="admin">
-        <span class="badge n">N</span>IT Systems / VDGS review — Shane Zbrodoff
-        <div class="meta">Thursday, Jul 9.</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ========== RFIs ========== -->
-  <div class="program">
-    <div class="program-head" style="--accent:var(--rfi)" onclick="onProgramHeadClick(event)">
-      <span class="pchev">▾</span><span class="name" style="color:var(--rfi)">RFIs</span>
-      <span class="counts">— open</span>
-    </div>
-
-    <details class="pkg" open>
-      <summary><span>Concourse B — Onware <span class="chev">▸</span></span><span class="pcounts">2 open · 1 blocking</span></summary>
-      <div class="item" data-date="2026-06-29" data-id="i40" data-cat="rfi" data-disc="AR" data-court="You" data-horizon="week" data-action="chase">
-        <span class="badge n">N</span>RFI 000085.2 — Penthouse Paint Abatement — waiting response
-        <div class="meta">Raised Jun 29. Package 4.2.</div>
-      </div>
-      <div class="item" data-date="2026-06-25" data-id="i41" data-cat="rfi" data-disc="security" data-court="Mikaelyn Sych" data-horizon="week" data-action="chase">
-        RFI 000104.0 — NAVCAN Fiber Cable — waiting on Mikaelyn Sych
-        <div class="meta">Raised Jun 25.</div>
-      </div>
-      <div class="item blocking" data-date="2026-06-28" data-id="i42" data-cat="rfi" data-disc="AR ST" data-court="Mikaelyn Sych" data-delegate="Josh" data-due="2026-07-05" data-horizon="jul3" data-action="chase">
-        <span class="badge p">P</span>RFI 000099.0 — Precast Parapet Tie-in Detail — waiting on Mikaelyn Sych
-        <div class="why">Same underlying issue as Package 4.3 task — precast removal affects roof warranty. PCL testing removability of existing parapet cap. Josh following up at construction meeting. <strong>Escalate if no response by Jul 5.</strong></div>
-        <div class="meta">Raised Jun 23, found Jun 28.</div>
-      </div>
-    </details>
-
-    <details class="pkg">
-      <summary><span>Centralized / PBS — Planner board <span class="chev">▸</span></span><span class="pcounts">1 open</span></summary>
-      <div class="item" data-id="i43" data-cat="rfi" data-disc="ME ST EL" data-court="N/A" data-pri="low" data-horizon="watch">
-        RFI 247 — Access &amp; Support Above CM3 Ceiling Q2 — 1/4 sub-items done (ME+ST+EL)
-      </div>
-    </details>
-  </div>
-
-  </div><!-- /programView -->
-
-  <div id="categoryView" style="display:none"></div>
+  <div id="programView"></div>
+  <div id="statusView" style="display:none"></div>
   <div id="disciplineView" style="display:none"></div>
 
   <h2 class="section">Completed <span class="pill">resolved this session or today</span></h2>
@@ -613,426 +347,676 @@
 
   <footer>
     This reads straight from Tasks.md and RFIs.md each time we sit down — Obsidian stays the system of record, this is the interactive view. Items added or checked off here land in the tracker sheet, not the vault, until you tell me to sync.<br>
-    Badges: <span class="badge p">P</span> blocking · <span class="badge u">U</span> unverified · <span class="badge w">W</span> watch-only · <span class="badge n">N</span> new since last check-in · <span class="badge c">C</span> completed today.
-    Horizon filters: Today = priority for today · Before Jul 3 = due at 80% milestone · This Week = this work week.
+    Badges: <span class="badge p">P</span> blocking · <span class="badge u">U</span> unverified · <span class="badge w">W</span> watch-only · <span class="badge n">N</span> new since last check-in · <span class="badge c">C</span> completed today.<br>
+    <strong>To update items:</strong> edit the ITEMS array and ITEM_DETAILS object at the top of the &lt;script&gt; section. Rendering and grouping never need to change.
   </footer>
 
 </div>
 <script>
-// ===== Apps Script URL =====
-var API_URL = 'https://script.google.com/macros/s/AKfycbxyXNwkwuVce17hEA-fKff-sdHt1mXYOpf7ZSgoUZX9vWvJVlrp3BDLKIpki2F8uRFt/exec';
+// ============================================================
+// ITEM DATA — edit this section to add/update/remove items
+// Everything else (rendering, grouping, filters) stays the same
+// ============================================================
 
-// ===== Rich item metadata =====
-// Structure: { next: string, subtasks: string[], updates: 'YYYY-MM-DD|text'[] }
-var ITEM_DATA = {
-  'i1': {
-    next: 'Check in with Chris H Thursday — confirm Add04 change list has been sent to Chad Gray (PCL)',
-    subtasks: ['Chris H sends Add04 change list to Chad Gray (PCL) — not just a screenshot'],
-    updates: [
+var ITEMS = [
+  // ===== CONCOURSE B — Package 4.2 =====
+  {id:'i1', title:'Chad Gray — Add04 change list not yet delivered to PCL',
+   status:'open', isNew:true, program:'Concourse B', pkg:'Package 4.2 — Arrivals + Penthouse',
+   cat:'documentation', disc:['AR'], court:'You', horizon:'today', action:'chase', date:'2026-06-29',
+   meta:'Chad Gray (PCL) raised Jun 29. Chris H asked Chad for a screenshot; Chad re-clarified he wants the full change list. Thursday check-in needed.'},
+
+  // ===== CONCOURSE B — Package 4.3 =====
+  {id:'i2', title:'Communicate precast-removal recommendation to YYC, await decision',
+   status:'blocking', program:'Concourse B', pkg:'Package 4.3 — Building Envelope',
+   cat:'decisions', disc:['AR','ST'], court:'YYC', horizon:'watch', date:'2026-06-23', due:'2026-07-05',
+   why:'Blocked by: waiting on YYC\'s call. Removing the precast touches the roof warranty — that\'s why this isn\'t just a detailing question. Same issue as RFI 000099.0. Escalate if no response by Jul 5.',
+   meta:'via DTR Con B meeting · raised 2026-06-23'},
+
+  {id:'i3', title:'Confirm Trade Log bid-submission deadline for Package 4.3',
+   status:'unverified', isNew:true, program:'Concourse B', pkg:'Package 4.3 — Building Envelope',
+   cat:'documentation', disc:['owner'], court:'You', horizon:'week', action:'chase', date:'2026-06-29',
+   meta:'Believed to be early July, possibly the week of the 23rd — exact date unclear. Raised Jun 29.'},
+
+  // ===== CONCOURSE B — Package 5 =====
+  {id:'i4', title:'Schedule door actuator control strategy meeting — architecture vs. electrical vs. security',
+   status:'blocking', program:'Concourse B', pkg:'Package 5 — Departures Level',
+   cat:'meetings', disc:['AR','EL','security'], court:'You', horizon:'week', action:'coordinate', date:'2026-06-25', due:'2026-07-03',
+   why:'Nothing external blocking — this is on you to get on the calendar. Greg Pink (SMP) / Chris H thread, 2026-06-25. Check in with Chris H Thursday. Target: booked by Fri Jul 3.'},
+
+  {id:'i5', title:'Millwork + Faisal portal detail — confirm 80% design intent and incorporate into model',
+   status:'open', isNew:true, program:'Concourse B', pkg:'Package 5 — Departures Level',
+   cat:'decisions', disc:['AR'], court:'You', horizon:'today', action:'model', date:'2026-06-30', due:'2026-07-03',
+   meta:'Faisal sent portal sketch + vending machine enclosure sketch Jun 30. Haptic removed vending machines from model. Caleb (SMP Electrical) emailed Anthony about vending machines — watch that thread. Millwork package goes to YYC Jul 3; Haptic comments due Jun 30.'},
+
+  {id:'i6', title:'Washroom ceiling coordination — follow up with Elisa on make-up counter / bench question',
+   status:'open', program:'Concourse B', pkg:'Package 5 — Departures Level',
+   cat:'coordination', disc:['AR','ST','ME','EL','safety'], court:'You', horizon:'week', action:'coordinate', date:'2026-06-30',
+   meta:'Ceiling resolved Jun 30: stay under joists, 75mm mechanical clearance on perimeter (faux cove), suspended grid + drywall + t-bar at vanity. Outstanding: 2 benches added to washroom — YYC standards also show a make-up counter; confirm intent with Elisa.'},
+
+  {id:'i8', title:'Evacuation zoning — Parks following up with Senez code consultant on single-zone option',
+   status:'watch', program:'Concourse B', pkg:'Package 5 — Departures Level',
+   cat:'coordination', disc:['safety','EL'], court:'Parks', horizon:'watch', date:'2026-06-29',
+   meta:'Raised Jun 29. May have minor effect on electrical sequence of operations. Watching — nothing to action until Parks comes back.'},
+
+  {id:'i10', title:'Knuckle bulkhead + AV screen — 3 height options going to SteerCo; beam impact on screen area',
+   status:'open', program:'Concourse B', pkg:'Package 5 — Departures Level',
+   cat:'coordination', disc:['ST','AR'], court:'YYC', horizon:'watch', action:'coordinate', date:'2026-06-30',
+   meta:'Jun 30: Anthony emailed Erica with 3 bulkhead options for smaller screen size — going to SteerCo. If no decision by 80% (Jul 3), no room for the larger screen. Kevin Vogt Beam Demo: additional mezzanine framing may affect ceilings, bulkheads, stone cladding.'},
+
+  {id:'i15', title:'TP5 outstanding items — 6 items, mostly YYC and SMP courts',
+   status:'watch', program:'Concourse B', pkg:'Package 5 — Departures Level',
+   cat:'documentation', disc:['AR','ST'], court:'YYC', horizon:'watch', pri:'low', date:'2026-06-26',
+   meta:'Copilot search Jun 30 found 6 outstanding items. Courts: mostly YYC, some SMP. Watching — flag when an item shifts to your court. Elisa Leung / Kevin Vogt thread, Jun 26.'},
+
+  {id:'i16', title:'Go through Chris H\'s Bluebeam session notes — identify action items',
+   status:'open', program:'Concourse B', pkg:'Package 5 — Departures Level',
+   cat:'documentation', disc:['AR'], court:'You', horizon:'week', action:'review', pri:'low',
+   meta:'Pre-existing item. Low priority — no raised date on record.'},
+
+  {id:'i17', title:'Wall construction update — CMU → stud wall behind Elbow River + Summit House; add CMU at elevator',
+   status:'open', isNew:true, program:'Concourse B', pkg:'Package 5 — Departures Level',
+   cat:'drawings', disc:['ST','AR'], court:'You', horizon:'today', action:'model', date:'2026-06-30',
+   meta:'Priority AM Wednesday. SME Workshop: 3 options, Kevin Vogt favors option 3; block wall direction structurally cleared. Summit House in scope: HSS structural — model around it. Lift shaft detailing merged here.'},
+
+  {id:'i19', title:'Knuckle ceiling drop — coordinate with Clive (DIALOG Mechanical) for duct clearance height',
+   status:'open', isNew:true, program:'Concourse B', pkg:'Package 5 — Departures Level',
+   cat:'coordination', disc:['ME','AR'], court:'You', horizon:'week', action:'coordinate', date:'2026-06-29',
+   meta:'Knuckle area needs a dropped ceiling for mechanical exhaust ducts running above the baffle ceiling. Shadi to confirm required drop height with Clive, then update model.'},
+
+  {id:'i20', title:'Exhaust fan weights — confirm/document weights above baffle ceiling',
+   status:'watch', program:'Concourse B', pkg:'Package 5 — Departures Level',
+   cat:'documentation', disc:['ME','ST'], court:'You', horizon:'watch', pri:'low', date:'2026-06-29',
+   meta:'SME Workshop Jun 29. Watch — waiting on structural to confirm if this is needed.'},
+
+  {id:'i22', title:'Fire cabinet model update — confirm placement (off stone surfaces) in model',
+   status:'open', isNew:true, program:'Concourse B', pkg:'Package 5 — Departures Level',
+   cat:'drawings', disc:['AR','safety'], court:'You', horizon:'week', action:'model', pri:'low', date:'2026-06-29',
+   meta:'Placement principle is settled (Neil Dobie/Vittorio/Anthony/Shadi) — only the model update is outstanding. Low priority.'},
+
+  {id:'i23', title:'Terminal Operations RFI — second core option; waiting on Parks',
+   status:'watch', program:'Concourse B', pkg:'Package 5 — Departures Level',
+   cat:'rfi', disc:['owner'], court:'Parks', horizon:'watch', pri:'low', date:'2026-06-29',
+   meta:'SME Workshop Jun 29. Parks to follow up with Terminal Operations re: second core. Watching — nothing to action until Parks responds.'},
+
+  {id:'i24', title:'Movement joint modeling',
+   status:'open', isNew:true, program:'Concourse B', pkg:'Package 5 — Departures Level',
+   cat:'drawings', disc:['ST','AR'], court:'You', horizon:'week', action:'model', pri:'low', date:'2026-06-29',
+   meta:'SME Workshop Jun 29. Low priority.'},
+
+  {id:'i26', title:'Portal sides structural detail — thickness confirmed, watching only if something changes',
+   status:'watch', program:'Concourse B', pkg:'Package 5 — Departures Level',
+   cat:'drawings', disc:['ST','AR'], court:'You', horizon:'watch', pri:'low', date:'2026-06-29',
+   meta:'Structural is modeling the current strategy and will continue until told otherwise. Watch only.'},
+
+  {id:'i44', title:'Haptic TP5 progress set — go through in detail with the team',
+   status:'open', isNew:true, program:'Concourse B', pkg:'Package 5 — Departures Level',
+   cat:'drawings', disc:['AR'], court:'You', horizon:'today', action:'review', date:'2026-06-30',
+   meta:'Chris H shared the TP5 progress set with the full production team (Shadi, Kirk, Luke, Michelle) Jun 30. Quick look taken — detailed review with team outstanding.'},
+
+  {id:'i46', title:'Kirk RFI check-in — sync before Thursday\'s construction meeting',
+   status:'open', isNew:true, program:'Concourse B', pkg:'Package 5 — Departures Level',
+   cat:'coordination', disc:['AR'], court:'You', horizon:'today', action:'coordinate', date:'2026-06-30',
+   meta:'Josh gave Kirk (technologist, Pkg 4.3 + 5, CA work) a list of RFIs to own. Check in with Kirk Thursday morning so the team can answer Josh\'s questions together at the OAC.'},
+
+  // ===== CONCOURSE B — Package 6 =====
+  {id:'i45', title:'Retail / banner detail — start modeling current detail while waiting on YYC and commercial team',
+   status:'open', isNew:true, program:'Concourse B', pkg:'Package 6 — Retail Fitout',
+   cat:'drawings', disc:['AR'], court:'You', horizon:'week', action:'model', date:'2026-06-30',
+   meta:'Discussion ongoing with YYC and commercial team on retail banner. Modeling the current detail is in Shadi\'s court — mid-priority. Erica + Anthony court for decisions/updates.'},
+
+  {id:'i28', title:'Wall-wash lighting — assign 2D detail to Michelle or Luke',
+   status:'open', program:'Concourse B', pkg:'Package 6 — Retail Fitout',
+   cat:'coordination', disc:['EL','AR'], court:'You', horizon:'week', action:'coordinate', date:'2026-06-30',
+   meta:'Caleb Jacobs (SMP) sent cut sheet. Shadi to assign the 2D detail (not 3D) to Michelle or Luke. Jun 30.'},
+
+  // ===== CONCOURSE B — Signage (Entro) =====
+  {id:'i29', title:'Washroom + door-adjacent signage placement — interim: center them; wait for Entro\'s final answer',
+   status:'open', program:'Concourse B', pkg:'Signage (Entro)',
+   cat:'decisions', disc:['signage'], court:'Entro', horizon:'week', action:'coordinate', date:'2026-06-30',
+   meta:'Washroom signs: align to door or center on panel — question sent Jun 28, response pending. Door-adjacent room-ID signs: interim decision is to center signs until Entro responds.'},
+
+  // ===== CONCOURSE B — Material keynotes =====
+  {id:'i30', title:'Set up material keynotes mapped to Specification sections, publish to ACC for Haptic/K-Studio',
+   status:'open', program:'Concourse B', pkg:'Material keynotes',
+   cat:'coordination', disc:['AR'], court:'Haptic', horizon:'week', action:'coordinate', date:'2026-06-29',
+   meta:'Finish schedule mapped Jun 28; sent to Rick Adams. Jun 29: sent Elisa (Interiors) question about millwork metal. Next: Haptic adds keynotes to their model.'},
+
+  // ===== CENTRALIZED / PBS =====
+  {id:'i31', title:'NPSC PSL door hardware — chase Josh Garcia to issue PCN; send to Steve Isaac (procurement)',
+   status:'blocking', program:'Centralized / PBS', pkg:'NPSC',
+   cat:'decisions', disc:['security','AR'], court:'You', delegate:'Josh Garcia', horizon:'today', action:'chase', date:'2026-06-30', due:'2026-07-03',
+   why:'PCN required for 6 PSL doors (D54F01, D55F02, D56E01, D59G01, D60G00 + one more). Steve Isaac is the hardware consultant — Chris H already sent him Concourse B Departures hardware today. Flag urgency for procurement. Cloud relocated NPSC reception desk; confirm biometric mount is by-others.',
+   meta:'YYC Security meeting held Jun 30 AM. Daniela Vasquez confirmed 6 doors Jun 11. Josh Garcia is the contract administrator chasing this.'},
+
+  {id:'i32', title:'L17 light fixture alternate — waiting on Chris Lenzin\'s response',
+   status:'watch', program:'Centralized / PBS', pkg:'Lighting',
+   cat:'documentation', disc:['EL'], court:'Erica Loh', horizon:'watch', pri:'low', date:'2026-06-30',
+   meta:'Patrick (DIALOG) got the Geba weights from Elisdon (contractor) Jun 30 — submitted to consultant. Waiting on Chris Lenzin. Watch — Erica Loh\'s design team owns this.'},
+
+  {id:'i33', title:'Confirm regulatory signage approach from YYC PBS Wayfinding Kick-Off',
+   status:'watch', program:'Centralized / PBS', pkg:'Signage (Entro)',
+   cat:'decisions', disc:['signage'], court:'You', horizon:'watch', pri:'low', date:'2026-06-23',
+   meta:'Valerie Moss, Jun 23 — no walkthrough scheduled yet, nothing to action until one is. Watch.'},
+
+  {id:'i34', title:'NPS / electrical scope dispute — YYC raised design gaps and fee pushback',
+   status:'open', program:'Centralized / PBS', pkg:'General',
+   cat:'decisions', disc:['EL','owner'], court:'You', horizon:'week', action:'coordinate', date:'2026-06-28',
+   meta:'Confirmed Jun 28.'},
+
+  {id:'i47', title:'Entro 100% DD wayfinding review — Shadi + Erica to review together',
+   status:'open', isNew:true, program:'Centralized / PBS', pkg:'General',
+   cat:'documentation', disc:['signage'], court:'You', horizon:'week', action:'review', date:'2026-06-30',
+   meta:'Entro\'s 100% DD set needs review. Possibly a task for both Shadi and Erica to review. Jun 30.'},
+
+  // ===== CROSS-PROGRAM =====
+  {id:'i36', title:'YYC Masterplan Model — scope gaps, needs direction',
+   status:'watch', program:'Cross-program', pkg:'',
+   cat:'decisions', disc:['AR','owner'], court:'Erica Loh', horizon:'watch', pri:'low', date:'2026-06-26',
+   meta:'Erica Loh flagged Jun 23, recapped Jun 26. TP5 is the priority. Watch — Erica\'s court.'},
+
+  {id:'i37', title:'BIM Transition Plan — lunch with John Souleles (Studio Chair) and Matt Parks',
+   status:'open', program:'Cross-program', pkg:'',
+   cat:'meetings', disc:['owner'], court:'You', horizon:'jul3', action:'admin', date:'2026-07-02', due:'2026-07-02',
+   meta:'Thursday, Jul 2 — confirmed. John Souleles and Parks attending. Firm-level, separate from any single project.'},
+
+  {id:'i38', title:'IT Systems / VDGS review — Shane Zbrodoff',
+   status:'open', isNew:true, program:'Cross-program', pkg:'',
+   cat:'meetings', disc:['security'], court:'You', horizon:'week', action:'admin', date:'2026-07-09', due:'2026-07-09',
+   meta:'Thursday, Jul 9.'},
+
+  // ===== RFIs =====
+  {id:'i40', title:'RFI 000085.2 — Penthouse Paint Abatement — waiting response',
+   status:'open', isNew:true, program:'RFIs', pkg:'Concourse B — Onware',
+   cat:'rfi', disc:['AR'], court:'You', horizon:'week', action:'chase', date:'2026-06-29',
+   meta:'Raised Jun 29. Package 4.2.'},
+
+  {id:'i41', title:'RFI 000104.0 — NAVCAN Fiber Cable — waiting on Mikaelyn Sych',
+   status:'open', program:'RFIs', pkg:'Concourse B — Onware',
+   cat:'rfi', disc:['security'], court:'Mikaelyn Sych', horizon:'week', action:'chase', date:'2026-06-25',
+   meta:'Raised Jun 25.'},
+
+  {id:'i42', title:'RFI 000099.0 — Precast Parapet Tie-in Detail — waiting on Mikaelyn Sych',
+   status:'blocking', program:'RFIs', pkg:'Concourse B — Onware',
+   cat:'rfi', disc:['AR','ST'], court:'Mikaelyn Sych', delegate:'Josh', horizon:'jul3', action:'chase', date:'2026-06-28', due:'2026-07-05',
+   why:'Same underlying issue as Package 4.3 task — precast removal affects roof warranty. PCL testing removability of existing parapet cap. Josh following up at construction meeting. Escalate if no response by Jul 5.',
+   meta:'Raised Jun 23, found Jun 28.'},
+
+  {id:'i43', title:'RFI 247 — Access & Support Above CM3 Ceiling Q2 — 1/4 sub-items done (ME+ST+EL)',
+   status:'watch', program:'RFIs', pkg:'Centralized / PBS — Planner board',
+   cat:'rfi', disc:['ME','ST','EL'], court:'N/A', horizon:'watch', pri:'low'}
+];
+
+// ============================================================
+// ITEM DETAILS — next action, sub-tasks, timeline updates
+// Only items with rich detail need an entry here
+// ============================================================
+
+var ITEM_DETAILS = {
+  'i1':{
+    next:'Check in with Chris H Thursday — confirm Add04 change list has been sent to Chad Gray (PCL)',
+    subtasks:['Chris H sends Add04 change list to Chad Gray (PCL) — not just a screenshot'],
+    updates:[
       '2026-06-30|Chris H asked Chad for a screenshot; Chad re-clarified he wants the full change list',
       '2026-06-29|Chad Gray (PCL) raised request; Shadi prepared list and gave it to Chris H'
     ]
   },
-  'i4': {
-    next: 'Check in with Chris H Thursday — confirm door actuator coordination meeting is booked (Greg Pink / SMP)',
-    subtasks: ['Book meeting: AR + EL + security + Greg Pink (SMP) — target booked by Jul 3'],
-    updates: ['2026-06-25|Greg Pink (SMP) / Chris H raised the door actuator control strategy gap; coordination meeting flagged as needed']
+  'i4':{
+    next:'Check in with Chris H Thursday — confirm door actuator coordination meeting is booked (Greg Pink / SMP)',
+    subtasks:['Book meeting: AR + EL + security + Greg Pink (SMP) — target booked by Jul 3'],
+    updates:['2026-06-25|Greg Pink (SMP) / Chris H raised the door actuator control strategy gap; coordination meeting flagged as needed']
   },
-  'i5': {
-    next: 'Reply to Faisal confirming portal sketch = approved design intent for 80%; incorporate detail into model',
-    subtasks: [
+  'i5':{
+    next:'Reply to Faisal confirming portal sketch = approved design intent for 80%; incorporate detail into model',
+    subtasks:[
       'Reply to Faisal Mohsin — confirm portal sketch = approved design intent for the 80% package (Jul 3)',
       'Incorporate Faisal\'s portal frame + storage cabinetry detail into the Revit model',
       'Document why Percy\'s facade placement (Parks-approved) doesn\'t work — prepare to show Parks'
     ],
-    updates: [
+    updates:[
       '2026-06-30|Faisal sent portal sketch + vending machine enclosure sketch; Haptic removed vending machines from model; Caleb (SMP Electrical) emailed Anthony re: vending machines — watch that thread',
       '2026-06-29|Faisal Mohsin portal frame / storage cabinetry sketch received; 80% package to YYC Jul 3; Haptic comments due Jun 30',
       '2026-06-25|Percy Yeung millwork pricing package thread started'
     ]
   },
-  'i6': {
-    next: 'Ask Elisa: YYC standards show a make-up counter — is the intent bench + make-up counter, or just benches?',
-    subtasks: [
-      'Check with Elisa on make-up counter: 2 benches added, YYC standards also show a make-up counter — confirm if one of each is the intent'
-    ],
-    updates: [
+  'i6':{
+    next:'Ask Elisa: YYC standards show a make-up counter — is the intent bench + make-up counter, or just benches?',
+    subtasks:['Check with Elisa on make-up counter: 2 benches added, YYC standards also show a make-up counter — confirm if one of each is the intent'],
+    updates:[
       '2026-06-30|Ceiling resolved: stay under joists, 75mm mechanical perimeter clearance (faux cove), suspended grid + drywall + t-bar at vanity. Elisa coordinating with ME + EL.',
       '2026-06-30|Elisa confirmed 2 benches added to washroom; YYC standards also show a make-up counter',
       '2026-06-29|Structural: gypsum below offset wall, stud box above; suspended gypsum (CGC) in open areas. Light cove dropped — structure won\'t allow it.'
     ]
   },
-  'i10': {
-    next: 'Wait for SteerCo decision on bulkhead option; if no answer by 80% (Jul 3), proceed with compact option',
-    subtasks: [
+  'i10':{
+    next:'Wait for SteerCo decision on bulkhead option; if no answer by 80% (Jul 3), proceed with compact option',
+    subtasks:[
       'Confirm structural beam impact on screen area — coordinate with Kevin Vogt',
       'Prepare height-option diagrams for stakeholder package if needed'
     ],
-    updates: [
+    updates:[
       '2026-06-30|Anthony emailed Erica with 3 bulkhead options for smaller screen; going to SteerCo. No answer by 80% = go with compact option.',
       '2026-06-29|Kevin Vogt Beam Demo: additional mezzanine framing may affect ceilings, bulkheads, stone cladding',
       '2026-06-29|Two zones affected: mid-area (structural adding beam); end area near Starbucks (YYC choosing height option this week)'
     ]
   },
-  'i17': {
-    next: 'Update Revit — CMU → stud wall (rated + non-rated) behind Elbow River + Summit House; add CMU at elevator — priority AM Wednesday',
-    subtasks: [
+  'i17':{
+    next:'Update Revit — CMU → stud wall (rated + non-rated) behind Elbow River + Summit House; add CMU at elevator — priority AM Wednesday',
+    subtasks:[
       'Update: CMU → rated stud wall behind Elbow River area',
       'Update: CMU → stud wall behind Summit House area (HSS structural — work around it)',
       'Add CMU wall at elevator shaft',
       'Determine and model the detail in front of the wall'
     ],
-    updates: [
-      '2026-06-30|Summit House scope confirmed as part of this task; HSS structural at Summit House — model around it. Lift shaft detailing merged here.',
+    updates:[
+      '2026-06-30|Summit House scope confirmed; HSS structural at Summit House — model around it. Lift shaft detailing merged here.',
       '2026-06-29|SME Workshop: 3 construction options by Anthony; Kevin Vogt favors option 3. Block wall direction structurally cleared per Kevin.'
     ]
   },
-  'i19': {
-    next: 'Ask Clive (DIALOG Mechanical) — how much drop does he need above the knuckle area for his ducts?',
-    subtasks: [
+  'i19':{
+    next:'Ask Clive (DIALOG Mechanical) — how much drop does he need above the knuckle area for his ducts?',
+    subtasks:[
       'Ask Clive (DIALOG Mechanical) for required duct clearance/drop height above knuckle baffle ceiling',
       'Set lowered ceiling height and update model'
     ],
-    updates: ['2026-06-29|Knuckle area needs dropped ceiling for mechanical exhaust ducts running above baffle ceiling. Shadi to coordinate ceiling height with Clive.']
+    updates:['2026-06-29|Knuckle area needs dropped ceiling for mechanical exhaust ducts running above baffle ceiling. Shadi to coordinate ceiling height with Clive.']
   },
-  'i29': {
-    next: 'Move door-adjacent signs to center (interim action now); wait for Entro\'s answer before finalizing',
-    subtasks: [
+  'i29':{
+    next:'Move door-adjacent signs to center (interim action now); wait for Entro\'s answer before finalizing',
+    subtasks:[
       'Interim: update model — center door-adjacent room-ID signs on the panel next to the door (don\'t wait for Entro)',
       'Wait for Entro\'s final answer on alignment; update once received'
     ],
-    updates: [
+    updates:[
       '2026-06-30|Gave Chris H list of door-adjacent signs; interim decision is to center them until Entro responds',
       '2026-06-28|Washroom sign placement question also open: align to door frame or center on panel? Question sent to Entro Jun 28.'
     ]
   },
-  'i31': {
-    next: 'Nudge Josh Garcia — issue PCN for 6 PSL doors and send to Steve Isaac with urgency flag',
-    subtasks: [
+  'i31':{
+    next:'Nudge Josh Garcia — issue PCN for 6 PSL doors and send to Steve Isaac with urgency flag',
+    subtasks:[
       'Chase Josh Garcia: issue PCN for 6 PSL doors (D54F01, D55F02, D56E01, D59G01, D60G00 + one more)',
       'Send PCN to Steve Isaac (hardware consultant) — flag procurement urgency',
       'Confirm biometric mount is by-others (Cloud relocated NPSC reception desk)',
       'Update door schedule once PCN issued and Steve Isaac responds'
     ],
-    updates: [
+    updates:[
       '2026-06-30|Chris H already sent Concourse B Departures door hardware to Steve Isaac today — same consultant, useful context for the chase',
       '2026-06-30|YYC Security meeting held AM Jun 30 — PSL doors + exit core hardware discussed',
       '2026-06-11|Daniela Vasquez confirmed 6 doors need hardware upgrades; DIALOG to issue PCN'
     ]
   },
-  'i44': {
-    next: 'Go through Haptic\'s TP5 progress set in detail with the team — don\'t skim',
-    subtasks: [
+  'i44':{
+    next:'Go through Haptic\'s TP5 progress set in detail with the team — don\'t skim',
+    subtasks:[
       'Review Haptic TP5 progress set comments in detail',
       'Coordinate team response: assign comments to Kirk, Luke, Michelle, Chris H as appropriate'
     ],
-    updates: ['2026-06-30|Chris H shared Haptic TP5 progress set with full production team (Shadi, Kirk, Luke, Michelle). Quick look taken — detailed review outstanding.']
+    updates:['2026-06-30|Chris H shared Haptic TP5 progress set with full production team (Shadi, Kirk, Luke, Michelle). Quick look taken — detailed review outstanding.']
   },
-  'i46': {
-    next: 'Check in with Kirk before Thursday — go through Josh\'s RFI list and figure out where he needs help',
-    subtasks: [
+  'i46':{
+    next:'Check in with Kirk before Thursday — go through Josh\'s RFI list and figure out where he needs help',
+    subtasks:[
       'Sync with Kirk: review Josh\'s assigned RFI list',
       'Identify which RFIs need Shadi or Chris H\'s input to answer',
       'Prepare answers ahead of Josh\'s Thursday construction / OAC meeting'
     ],
-    updates: ['2026-06-30|Josh gave Kirk a list of RFIs to own and find answers for. Kirk is technologist on Pkg 4.3 + Pkg 5, now doing CA work. Kirk will ask Shadi and Chris H for help.']
+    updates:['2026-06-30|Josh gave Kirk a list of RFIs to own and find answers for. Kirk is technologist on Pkg 4.3 + Pkg 5, now doing CA work. Kirk will ask Shadi and Chris H for help.']
   }
 };
 
-// ===== Program → package map =====
-var PROGRAM_PACKAGES = {
-  'Concourse B': ['Package 4.2 — Arrivals + Penthouse','Package 4.3 — Building Envelope','Package 5 — Departures Level','Package 6 — Retail Fitout','Signage (Entro)','Material keynotes'],
-  'Centralized / PBS': ['NPSC','Lighting','Signage (Entro)','General'],
-  'Cross-program': [],
-  'Upcoming': [],
-  'RFIs': ['Concourse B — Onware','Centralized / PBS — Planner board'],
-  'General': []
-};
+// ============================================================
+// CONSTANTS — program config, category/discipline labels
+// ============================================================
 
-// ===== Category / discipline schema =====
+var API_URL = 'https://script.google.com/macros/s/AKfycbxyXNwkwuVce17hEA-fKff-sdHt1mXYOpf7ZSgoUZX9vWvJVlrp3BDLKIpki2F8uRFt/exec';
+
+var PROGRAM_ORDER = ['Concourse B','Centralized / PBS','Cross-program','RFIs'];
+var PROGRAM_PKGS = {
+  'Concourse B':['Package 4.2 — Arrivals + Penthouse','Package 4.3 — Building Envelope','Package 5 — Departures Level','Package 6 — Retail Fitout','Signage (Entro)','Material keynotes'],
+  'Centralized / PBS':['NPSC','Lighting','Signage (Entro)','General'],
+  'Cross-program':[''],
+  'RFIs':['Concourse B — Onware','Centralized / PBS — Planner board']
+};
+var PROGRAM_COLORS = {
+  'Concourse B':'var(--mauve)','Centralized / PBS':'var(--sage)',
+  'Cross-program':'var(--taupe)','Upcoming':'var(--olive)','RFIs':'var(--rfi)','General':'var(--gold)'
+};
+var PROGRAM_PACKAGES = {
+  'Concourse B':['Package 4.2 — Arrivals + Penthouse','Package 4.3 — Building Envelope','Package 5 — Departures Level','Package 6 — Retail Fitout','Signage (Entro)','Material keynotes'],
+  'Centralized / PBS':['NPSC','Lighting','Signage (Entro)','General'],
+  'Cross-program':[],'Upcoming':[],'RFIs':['Concourse B — Onware','Centralized / PBS — Planner board'],'General':[]
+};
 var CATEGORY_LABELS = {
-  decisions:'Decisions Needed', meetings:'Meetings/Workshops', rfi:'RFI',
-  coordination:'Coordination/Communication', documentation:'Documentation/Confirmation', drawings:'Drawings/Model'
+  decisions:'Decisions Needed',meetings:'Meetings/Workshops',rfi:'RFI',
+  coordination:'Coordination',documentation:'Documentation',drawings:'Drawings/Model'
 };
 var CATEGORY_ORDER = ['decisions','meetings','rfi','coordination','documentation','drawings'];
 var DISCIPLINE_LABELS = {
-  AR:'Architectural', ST:'Structural', ME:'Mechanical', EL:'Electrical',
-  signage:'Signage', safety:'Code/Life-Safety', security:'IT/Security', owner:'Owner/Stakeholder'
+  AR:'Architectural',ST:'Structural',ME:'Mechanical',EL:'Electrical',
+  signage:'Signage',safety:'Code/Life-Safety',security:'IT/Security',owner:'Owner/Stakeholder'
 };
 var DISCIPLINE_ORDER = ['AR','ST','ME','EL','signage','safety','security','owner'];
+var STATUS_GROUPS = [
+  {key:'blocking',label:'Blocking',color:'var(--terracotta)'},
+  {key:'unverified',label:'Unverified',color:'var(--gold)'},
+  {key:'open',label:'Open',color:'var(--teal)'},
+  {key:'watch',label:'Watch',color:'var(--border)'}
+];
+var VIEW_HEADINGS = {
+  program:'Open items, by program',
+  status:'Open items, by status',
+  discipline:'Open items, by discipline'
+};
+var activeHorizons = {}, activeActions = {};
 
-// ===== Active filter state =====
-var activeHorizons = {};
-var activeActions = {};
+// ============================================================
+// RENDERING
+// ============================================================
 
-function toggleHorizonChip(btn){
-  var h = btn.getAttribute('data-horizon');
-  if(activeHorizons[h]){ delete activeHorizons[h]; btn.classList.remove('active'); }
-  else { activeHorizons[h] = true; btn.classList.add('active'); }
-  applySearchFilter();
-}
-
-function toggleActionChip(btn){
-  var a = btn.getAttribute('data-action');
-  if(activeActions[a]){ delete activeActions[a]; btn.classList.remove('active'); }
-  else { activeActions[a] = true; btn.classList.add('active'); }
-  applySearchFilter();
-}
-
-function hasActiveHorizons(){ return Object.keys(activeHorizons).length > 0; }
-function hasActiveActions(){ return Object.keys(activeActions).length > 0; }
-
-// ===== Utility =====
 function escapeHtml(s){
-  var d = document.createElement('div');
-  d.textContent = s;
-  return d.innerHTML;
+  var d=document.createElement('div'); d.textContent=s; return d.innerHTML;
 }
 
-function pkgDisplayName(pkgEl){
-  var span = pkgEl.querySelector('summary > span:first-child');
-  if(!span) return '';
-  return span.textContent.replace(/▸/g,'').trim();
+function makeBadge(cls,text){
+  var b=document.createElement('span'); b.className='badge '+cls; b.textContent=text; return b;
 }
 
-function findPkgBlock(programEl, pkgName){
-  if(!programEl || !pkgName) return null;
-  var blocks = programEl.querySelectorAll('.pkg');
-  for(var i=0;i<blocks.length;i++){
-    if(pkgDisplayName(blocks[i]) === pkgName) return blocks[i];
+function renderItem(itemData){
+  var el=document.createElement('div');
+  var cls='item';
+  if(itemData.status==='blocking')cls+=' blocking';
+  else if(itemData.status==='unverified')cls+=' unverified';
+  else if(itemData.status==='watch')cls+=' watch';
+  el.className=cls;
+  el.setAttribute('data-id',itemData.id);
+  el.setAttribute('data-cat',itemData.cat||'');
+  el.setAttribute('data-disc',(itemData.disc||[]).join(' '));
+  el.setAttribute('data-court',itemData.court||'');
+  el.setAttribute('data-horizon',itemData.horizon||'');
+  el.setAttribute('data-action',itemData.action||'');
+  el.setAttribute('data-date',itemData.date||'');
+  el.setAttribute('data-program',itemData.program||'');
+  el.setAttribute('data-pkg',itemData.pkg||'');
+  if(itemData.due)el.setAttribute('data-due',itemData.due);
+  if(itemData.delegate)el.setAttribute('data-delegate',itemData.delegate);
+  if(itemData.pri)el.setAttribute('data-pri',itemData.pri);
+
+  // Action pill
+  if(itemData.action){
+    var pill=document.createElement('span');
+    pill.className='action-pill ap-'+itemData.action;
+    pill.textContent=itemData.action;
+    el.appendChild(pill);
   }
-  return null;
-}
+  // Status badge
+  if(itemData.status==='blocking')el.appendChild(makeBadge('p','P'));
+  else if(itemData.status==='unverified')el.appendChild(makeBadge('u','U'));
+  else if(itemData.status==='watch')el.appendChild(makeBadge('w','W'));
+  // New badge
+  if(itemData.isNew)el.appendChild(makeBadge('n','N'));
 
-function getItemMainText(item){
-  var clone = item.cloneNode(true);
-  Array.prototype.slice.call(clone.querySelectorAll('.meta,.why,.badge,.done-toggle,.ctaglist,.taglist,.item-next,.subtask-list,.tl-toggle,.timeline-wrap,.action-pill')).forEach(function(n){ n.remove(); });
-  return clone.textContent.trim().replace(/\s+/g,' ');
-}
+  // Title
+  el.appendChild(document.createTextNode(itemData.title));
 
-function getItemLocation(item){
-  var progEl = item.closest('.program');
-  var nameEl = progEl ? progEl.querySelector('.program-head .name') : null;
-  var program = nameEl ? nameEl.textContent.trim() : '';
-  var pkgEl = item.closest('.pkg');
-  var pkg = pkgEl ? pkgDisplayName(pkgEl) : '';
-  return {program:program, pkg:pkg};
-}
+  // Why / meta
+  if(itemData.why){var why=document.createElement('div');why.className='why';why.textContent=itemData.why;el.appendChild(why);}
+  if(itemData.meta){var meta=document.createElement('div');meta.className='meta';meta.textContent=itemData.meta;el.appendChild(meta);}
 
-function isDone(item){ return item.classList.contains('done-pending'); }
-
-// ===== Wire rich details (action pill, next action, sub-tasks, timeline) =====
-function wireItemDetails(){
-  document.querySelectorAll('#programView .item[data-cat]').forEach(function(item){
-    if(item.classList.contains('item-details-wired')) return;
-    item.classList.add('item-details-wired');
-
-    var id = item.getAttribute('data-id');
-    var action = item.getAttribute('data-action');
-    var data = id && ITEM_DATA[id] ? ITEM_DATA[id] : null;
-
-    // Action pill — prepend before first text node / badge
-    if(action){
-      var pill = document.createElement('span');
-      pill.className = 'action-pill ap-' + action;
-      pill.textContent = action;
-      item.insertBefore(pill, item.firstChild);
-    }
-
-    if(!data) return;
-
-    // Next action line
-    if(data.next){
-      var nextEl = document.createElement('div');
-      nextEl.className = 'item-next';
-      nextEl.textContent = data.next;
-      item.appendChild(nextEl);
-    }
-
-    // Sub-tasks
-    if(data.subtasks && data.subtasks.length){
-      var stList = document.createElement('div');
-      stList.className = 'subtask-list';
-      data.subtasks.forEach(function(st){
-        var stItem = document.createElement('div');
-        stItem.className = 'st-item';
-        var cb = document.createElement('input');
-        cb.type = 'checkbox';
-        cb.addEventListener('change', function(){ stItem.classList.toggle('st-done', cb.checked); });
-        var lbl = document.createElement('span');
-        lbl.className = 'st-label';
-        lbl.textContent = st;
-        stItem.appendChild(cb);
-        stItem.appendChild(lbl);
-        stList.appendChild(stItem);
+  // Rich details (next, subtasks, timeline)
+  var det=ITEM_DETAILS[itemData.id];
+  if(det){
+    if(det.next){var nx=document.createElement('div');nx.className='item-next';nx.textContent=det.next;el.appendChild(nx);}
+    if(det.subtasks&&det.subtasks.length){
+      var stList=document.createElement('div');stList.className='subtask-list';
+      det.subtasks.forEach(function(st){
+        var stItem=document.createElement('div');stItem.className='st-item';
+        var cb=document.createElement('input');cb.type='checkbox';
+        cb.addEventListener('change',function(){stItem.classList.toggle('st-done',cb.checked);});
+        var lbl=document.createElement('span');lbl.className='st-label';lbl.textContent=st;
+        stItem.appendChild(cb);stItem.appendChild(lbl);stList.appendChild(stItem);
       });
-      item.appendChild(stList);
+      el.appendChild(stList);
     }
-
-    // Timeline
-    if(data.updates && data.updates.length){
-      var tlBtn = document.createElement('button');
-      tlBtn.className = 'tl-toggle';
-      tlBtn.textContent = '⌕ ' + data.updates.length + ' update' + (data.updates.length !== 1 ? 's' : '');
-      var tlWrap = document.createElement('div');
-      tlWrap.className = 'timeline-wrap';
-      data.updates.forEach(function(upd){
-        var bar = upd.indexOf('|');
-        var dateStr = bar > -1 ? upd.slice(0, bar) : '';
-        var text = bar > -1 ? upd.slice(bar + 1) : upd;
-        var entry = document.createElement('div');
-        entry.className = 'tl-entry';
-        entry.innerHTML = (dateStr ? '<span class="tl-date">' + escapeHtml(dateStr) + '</span>' : '') + escapeHtml(text);
+    if(det.updates&&det.updates.length){
+      var tlBtn=document.createElement('button');tlBtn.className='tl-toggle';
+      tlBtn.textContent='⌕ '+det.updates.length+' update'+(det.updates.length!==1?'s':'');
+      var tlWrap=document.createElement('div');tlWrap.className='timeline-wrap';
+      det.updates.forEach(function(upd){
+        var bar=upd.indexOf('|');
+        var ds=bar>-1?upd.slice(0,bar):'';
+        var txt=bar>-1?upd.slice(bar+1):upd;
+        var entry=document.createElement('div');entry.className='tl-entry';
+        if(ds){var sp=document.createElement('span');sp.className='tl-date';sp.textContent=ds;entry.appendChild(sp);}
+        entry.appendChild(document.createTextNode(txt));
         tlWrap.appendChild(entry);
       });
-      tlBtn.addEventListener('click', function(){ tlWrap.classList.toggle('tl-open'); });
-      item.appendChild(tlBtn);
-      item.appendChild(tlWrap);
+      tlBtn.addEventListener('click',function(){tlWrap.classList.toggle('tl-open');});
+      el.appendChild(tlBtn);el.appendChild(tlWrap);
     }
-  });
-}
-
-// ===== Today's Focus — computed from data-horizon="today" items in your court =====
-function buildTodayFocus(){
-  var list = document.getElementById('tfList');
-  if(!list) return;
-  list.innerHTML = '';
-
-  var items = Array.prototype.slice.call(document.querySelectorAll('#programView .item[data-horizon="today"]'));
-  items = items.filter(function(it){
-    return !isDone(it) && it.getAttribute('data-court') === 'You';
-  });
-
-  if(!items.length){
-    list.innerHTML = '<span class="tf-empty">Nothing tagged for today in your court.</span>';
-    return;
   }
 
-  items.forEach(function(item){
-    var row = document.createElement('div');
-    row.className = 'tf-row';
-    var action = item.getAttribute('data-action') || '';
-    var id = item.getAttribute('data-id');
-    var data = id && ITEM_DATA[id] ? ITEM_DATA[id] : null;
-    var nextText = (data && data.next) ? data.next : getItemMainText(item).slice(0, 130);
-    var loc = getItemLocation(item);
-    var locStr = loc.program + (loc.pkg ? ' · ' + loc.pkg.replace(/Package \d[\d.]*\s*—\s*/,'') : '');
-
-    var actionWrap = document.createElement('div');
-    actionWrap.className = 'tf-action-wrap';
-    if(action){
-      var apill = document.createElement('span');
-      apill.className = 'action-pill ap-' + action;
-      apill.textContent = action;
-      actionWrap.appendChild(apill);
+  // Court / delegate tag
+  var courtWrap=document.createElement('div');courtWrap.className='ctaglist';
+  var courtSpan=document.createElement('span');
+  courtSpan.className='ctag'+(itemData.court==='You'?' ctag-you':'');
+  courtSpan.appendChild(document.createTextNode('Court: '));
+  var courtB=document.createElement('b');courtB.textContent=itemData.court||'';courtB.title='Click to edit court';
+  courtB.addEventListener('click',function(e){
+    e.stopPropagation();
+    var inp=document.createElement('input');inp.type='text';inp.className='court-edit-inp';inp.value=el.getAttribute('data-court')||'';
+    courtB.replaceWith(inp);inp.focus();inp.select();
+    function commit(){
+      var val=inp.value.trim();if(val){el.setAttribute('data-court',val);courtB.textContent=val;}
+      inp.replaceWith(courtB);
+      buildFocusPanel();buildTodayFocus();applySearchFilter();
     }
-
-    var textWrap = document.createElement('div');
-    textWrap.className = 'tf-text';
-    textWrap.textContent = nextText;
-    var locEl = document.createElement('div');
-    locEl.className = 'tf-loc';
-    locEl.textContent = locStr;
-    textWrap.appendChild(locEl);
-
-    row.appendChild(actionWrap);
-    row.appendChild(textWrap);
-    row.addEventListener('click', function(){ focusJumpTo(item); });
-    list.appendChild(row);
+    inp.addEventListener('blur',commit);
+    inp.addEventListener('keydown',function(ke){if(ke.key==='Enter')inp.blur();if(ke.key==='Escape')inp.replaceWith(courtB);});
   });
-}
-
-// ===== Quick capture =====
-function setStatus(msg){ document.getElementById('capStatus').textContent = msg; }
-
-function localQueueKey(){ return 'wt-capture-queue'; }
-function queueLocally(payload){
-  var q = JSON.parse(localStorage.getItem(localQueueKey()) || '[]');
-  q.push(payload); localStorage.setItem(localQueueKey(), JSON.stringify(q));
-}
-function flushLocalQueue(){
-  if(!API_URL || API_URL.indexOf('PASTE_') === 0) return;
-  var q = JSON.parse(localStorage.getItem(localQueueKey()) || '[]');
-  if(!q.length) return;
-  var remaining = [];
-  q.forEach(function(payload){
-    sendToSheet(payload, function(ok){ if(!ok) remaining.push(payload); localStorage.setItem(localQueueKey(), JSON.stringify(remaining)); });
-  });
-}
-function sendToSheet(payload, cb){
-  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
-    .then(function(r){return r.json();}).then(function(){if(cb)cb(true);}).catch(function(){if(cb)cb(false);});
-}
-
-function refreshCapPkg(){
-  var program = document.getElementById('capProgram').value;
-  var pkgSel = document.getElementById('capPkg');
-  var pkgs = PROGRAM_PACKAGES[program] || [];
-  pkgSel.innerHTML = '';
-  var g = document.createElement('option'); g.value=''; g.textContent = pkgs.length?'No specific package':'No packages in this program';
-  pkgSel.appendChild(g);
-  pkgs.forEach(function(p){var o=document.createElement('option');o.value=p;o.textContent=p;pkgSel.appendChild(o);});
-  refreshCapItem();
-}
-
-function refreshCapItem(){
-  var program = document.getElementById('capProgram').value;
-  var pkgName = document.getElementById('capPkg').value;
-  var sel = document.getElementById('capItem');
-  sel.innerHTML = '';
-  var g=document.createElement('option');g.value='';g.textContent=pkgName?'General note for this package':'General note for this program';sel.appendChild(g);
-  var prog = findProgramBlock(program);
-  var items = [];
-  if(prog){
-    if(pkgName){var pkgBlock=findPkgBlock(prog,pkgName);if(pkgBlock)items=Array.prototype.slice.call(pkgBlock.querySelectorAll('.item'));}
-    else{items=Array.prototype.slice.call(prog.querySelectorAll('.item'));}
+  courtSpan.appendChild(courtB);courtWrap.appendChild(courtSpan);
+  if(itemData.delegate){
+    var delSpan=document.createElement('span');delSpan.className='ctag';
+    delSpan.appendChild(document.createTextNode('Delegated to: '));
+    var delB=document.createElement('b');delB.textContent=itemData.delegate;
+    delSpan.appendChild(delB);courtWrap.appendChild(delSpan);
   }
-  items.forEach(function(it){
-    var full=getItemMainText(it).slice(0,200);
-    var snippet=full.length>90?full.slice(0,90)+'…':full;
-    var o=document.createElement('option');o.value=full;o.textContent=snippet;sel.appendChild(o);
+  el.appendChild(courtWrap);
+
+  // Tag pills (category + discipline)
+  var tagWrap=document.createElement('div');tagWrap.className='taglist';
+  var catPill=document.createElement('span');catPill.className='pill2';catPill.textContent=CATEGORY_LABELS[itemData.cat]||itemData.cat||'';
+  tagWrap.appendChild(catPill);
+  (itemData.disc||[]).forEach(function(d){
+    var p=document.createElement('span');p.className='pill2';p.textContent=DISCIPLINE_LABELS[d]||d;tagWrap.appendChild(p);
+  });
+  el.appendChild(tagWrap);
+
+  // Location tag (hidden in program view, shown in status/discipline views)
+  if(itemData.program){
+    var locEl=document.createElement('div');locEl.className='item-loc';
+    var locParts=[itemData.program];
+    if(itemData.pkg)locParts.push(itemData.pkg.replace(/Package \d[\d.]*\s*—\s*/,''));
+    locEl.textContent='⌂ '+locParts.join(' · ');
+    el.appendChild(locEl);
+  }
+
+  // Priority selector
+  var priSel=document.createElement('select');priSel.className='pri-sel';priSel.title='Override priority';
+  [['auto','Pri: Auto'],['high','Pri: High'],['med','Pri: Med'],['low','Pri: Low']].forEach(function(pair){
+    var o=document.createElement('option');o.value=pair[0];o.textContent=pair[1];priSel.appendChild(o);
+  });
+  priSel.value=itemData.pri||'auto';
+  priSel.addEventListener('change',function(){
+    if(priSel.value==='auto')el.removeAttribute('data-pri');else el.setAttribute('data-pri',priSel.value);
+    applyComputedPriorities();buildFocusPanel();
+  });
+  el.appendChild(priSel);
+
+  // Done toggle
+  var doneCb=document.createElement('input');doneCb.type='checkbox';doneCb.className='done-toggle';
+  doneCb.title='Mark complete — syncs to vault next check-in';
+  doneCb.addEventListener('change',function(){
+    if(doneCb.checked){
+      el.classList.add('done-pending');setBadgeComplete(el);
+      var payload={type:'complete',program:itemData.program||'',pkg:itemData.pkg||'',itemRef:'',text:itemData.title.slice(0,200),ts:new Date().toISOString()};
+      logComplete(payload);renderPendingRow(payload);
+    }else{el.classList.remove('done-pending');restoreBadge(el);}
+    recalcCounts();buildFocusPanel();buildTodayFocus();
+  });
+  el.appendChild(doneCb);
+
+  return el;
+}
+
+// ============================================================
+// VIEW BUILDERS
+// ============================================================
+
+function buildProgramView(){
+  var container=document.getElementById('programView');
+  container.innerHTML='';
+
+  PROGRAM_ORDER.forEach(function(progName){
+    var progItems=ITEMS.filter(function(it){return it.program===progName;});
+    if(!progItems.length)return;
+    var color=PROGRAM_COLORS[progName]||'var(--gold)';
+    var progEl=document.createElement('div');progEl.className='program';
+
+    var head=document.createElement('div');head.className='program-head';
+    head.style.cssText='--accent:'+color;
+    head.onclick=onProgramHeadClick;
+    var pchev=document.createElement('span');pchev.className='pchev';pchev.textContent='▾';
+    var nameEl=document.createElement('span');nameEl.className='name';nameEl.style.color=color;nameEl.textContent=progName;
+    var countsEl=document.createElement('span');countsEl.className='counts';countsEl.textContent='— open';
+    head.appendChild(pchev);head.appendChild(nameEl);head.appendChild(countsEl);
+    progEl.appendChild(head);
+
+    var pkgs=PROGRAM_PKGS[progName]||[''];
+    pkgs.forEach(function(pkgName){
+      var pkgItems=progItems.filter(function(it){return it.pkg===pkgName;});
+      if(!pkgItems.length)return;
+      pkgItems=sortItemData(pkgItems);
+
+      if(!pkgName){
+        var box=document.createElement('div');box.className='pkg';box.style.padding='6px 0';
+        pkgItems.forEach(function(item){box.appendChild(renderItem(item));});
+        progEl.appendChild(box);return;
+      }
+
+      var hasUrgent=pkgItems.some(function(it){return it.status==='blocking'||it.horizon==='today'||it.horizon==='jul3';});
+      var det=document.createElement('details');det.className='pkg';det.open=hasUrgent;
+      var summ=document.createElement('summary');
+      var sLabel=document.createElement('span');
+      sLabel.innerHTML=escapeHtml(pkgName)+' <span class="chev">▸</span>';
+      var pcounts=document.createElement('span');pcounts.className='pcounts';pcounts.textContent='— open';
+      summ.appendChild(sLabel);summ.appendChild(pcounts);det.appendChild(summ);
+      pkgItems.forEach(function(item){det.appendChild(renderItem(item));});
+      progEl.appendChild(det);
+    });
+
+    container.appendChild(progEl);
   });
 }
 
-function onCapTypeChange(){
-  var type = document.getElementById('capType').value;
-  var needsItemRef = (type==='note'||type==='blocker'||type==='watch');
-  document.getElementById('capItemRow').style.display = needsItemRef?'':'none';
-  if(needsItemRef) refreshCapItem();
-  var textEl = document.getElementById('capText');
-  textEl.placeholder = type==='blocker'?"Why it's blocking (optional)…" : type==='watch'?'Why to watch it (optional)…' : "What happened / what's new…";
+function buildStatusView(){
+  var container=document.getElementById('statusView');
+  container.innerHTML='';
+
+  STATUS_GROUPS.forEach(function(group){
+    var groupItems=ITEMS.filter(function(it){return it.status===group.key;});
+    if(!groupItems.length)return;
+    groupItems=sortItemData(groupItems);
+
+    var t=tallyData(groupItems);
+    var grp=document.createElement('div');grp.className='altgroup';
+    var gh=document.createElement('div');gh.className='altgroup-head';
+    gh.style.borderLeftColor=group.color;
+    var gname=document.createElement('span');gname.className='name';gname.textContent=group.label;
+    var gcounts=document.createElement('span');gcounts.className='counts';gcounts.textContent=formatCounts(t.open,t.blocking,t.watch);
+    gh.appendChild(gname);gh.appendChild(gcounts);grp.appendChild(gh);
+
+    var box=document.createElement('div');box.className='pkg';box.style.padding='4px 0';
+    groupItems.forEach(function(item){box.appendChild(makeAltClone(item.id));});
+    grp.appendChild(box);container.appendChild(grp);
+  });
+
+  if(!container.children.length){container.innerHTML='<p class="empty">Nothing to show.</p>';}
+  applySearchFilter();
 }
 
-function onCapProgramChange(){ refreshCapPkg(); }
-function onCapPkgChange(){ refreshCapItem(); }
+function buildDisciplineView(){
+  var container=document.getElementById('disciplineView');
+  container.innerHTML='';
 
-function addCapture(){
-  var type=document.getElementById('capType').value;
-  var program=document.getElementById('capProgram').value;
-  var pkg=document.getElementById('capPkg').value;
-  var needsItemRef=(type==='note'||type==='blocker'||type==='watch');
-  var itemRef=needsItemRef?document.getElementById('capItem').value:'';
-  var textEl=document.getElementById('capText');
-  var text=textEl.value.trim();
-  if(!text) return;
-  var payload={type:type,program:program,pkg:pkg,itemRef:itemRef,text:text,ts:new Date().toISOString()};
-  renderPendingRow(payload);
-  if(type==='item'){insertCapturedItem(program,pkg,text);}
-  textEl.value='';
-  if(!API_URL||API_URL.indexOf('PASTE_')===0){queueLocally(payload);setStatus('Saved locally — Apps Script URL not configured.');return;}
-  sendToSheet(payload,function(ok){
-    if(ok){setStatus('Saved to your tracker sheet — not in the vault yet.');}
-    else{queueLocally(payload);setStatus('Could not reach the sheet — saved locally, will retry.');}
+  DISCIPLINE_ORDER.forEach(function(disc){
+    var discItems=ITEMS.filter(function(it){return (it.disc||[]).indexOf(disc)!==-1;});
+    if(!discItems.length)return;
+    discItems=sortItemData(discItems);
+
+    var t=tallyData(discItems);
+    var grp=document.createElement('div');grp.className='altgroup';
+    var gh=document.createElement('div');gh.className='altgroup-head';
+    var gname=document.createElement('span');gname.className='name';gname.textContent=DISCIPLINE_LABELS[disc]||disc;
+    var gcounts=document.createElement('span');gcounts.className='counts';gcounts.textContent=formatCounts(t.open,t.blocking,t.watch);
+    gh.appendChild(gname);gh.appendChild(gcounts);grp.appendChild(gh);
+
+    var box=document.createElement('div');box.className='pkg';box.style.padding='4px 0';
+    discItems.forEach(function(item){box.appendChild(makeAltClone(item.id));});
+    grp.appendChild(box);container.appendChild(grp);
+  });
+
+  if(!container.children.length){container.innerHTML='<p class="empty">Nothing to show.</p>';}
+  applySearchFilter();
+}
+
+function makeAltClone(id){
+  var orig=document.querySelector('#programView .item[data-id="'+id+'"]');
+  if(!orig){return document.createElement('div');}
+  var clone=orig.cloneNode(true);clone.removeAttribute('id');
+  // Remove priority selector (not interactive in alt view)
+  var priSel=clone.querySelector('.pri-sel');if(priSel)priSel.remove();
+  // Sync done-toggle
+  var origCb=orig.querySelector('.done-toggle');
+  var cloneCb=clone.querySelector('.done-toggle');
+  if(cloneCb&&origCb){
+    cloneCb.checked=origCb.checked;
+    cloneCb.addEventListener('change',function(){
+      origCb.checked=cloneCb.checked;
+      origCb.dispatchEvent(new Event('change'));
+    });
+  }
+  return clone;
+}
+
+// ============================================================
+// SORTING + TALLYING
+// ============================================================
+
+function sortItemData(arr){
+  return arr.slice().sort(function(a,b){
+    var sa=a.status==='blocking'?0:a.status==='unverified'?1:a.status==='watch'?3:2;
+    var sb=b.status==='blocking'?0:b.status==='unverified'?1:b.status==='watch'?3:2;
+    if(sa!==sb)return sa-sb;
+    var ha=a.horizon==='today'?0:a.horizon==='jul3'?1:a.horizon==='week'?2:3;
+    var hb=b.horizon==='today'?0:b.horizon==='jul3'?1:b.horizon==='week'?2:3;
+    if(ha!==hb)return ha-hb;
+    var da=a.date?new Date(a.date+'T00:00:00').getTime():0;
+    var db=b.date?new Date(b.date+'T00:00:00').getTime():0;
+    return db-da;
   });
 }
 
-// ===== Live counts =====
-function formatCounts(open,blocking,watch){
-  var parts=[];if(open>0)parts.push(open+' open');if(blocking>0)parts.push(blocking+' blocking');if(watch>0)parts.push(watch+' watch');
-  return parts.length?parts.join(' · '):'0 open';
+function tallyData(arr){
+  var open=0,blocking=0,watch=0;
+  arr.forEach(function(it){
+    if(it.status==='blocking')blocking++;
+    else if(it.status==='watch')watch++;
+    else open++;
+  });
+  return{open:open,blocking:blocking,watch:watch};
 }
 
-function tally(items){
+function tallyDom(items){
   var open=0,blocking=0,watch=0;
   items.forEach(function(it){
     if(isDone(it))return;
@@ -1043,41 +1027,43 @@ function tally(items){
   return{open:open,blocking:blocking,watch:watch};
 }
 
-function itemPriority(item){
-  if(isDone(item))return 4;
-  if(item.classList.contains('blocking'))return 0;
-  if(item.querySelector(':scope > .badge.n'))return 1;
-  if(item.classList.contains('watch'))return 3;
-  return 2;
+function isDone(item){return item.classList.contains('done-pending');}
+
+function formatCounts(open,blocking,watch){
+  var parts=[];if(open>0)parts.push(open+' open');if(blocking>0)parts.push(blocking+' blocking');if(watch>0)parts.push(watch+' watch');
+  return parts.length?parts.join(' · '):'0 open';
 }
 
-function itemDateValue(item){
-  var d=item.getAttribute('data-date');
-  if(!d)return -Infinity;
-  var t=new Date(d+'T00:00:00').getTime();
-  return isNaN(t)?-Infinity:t;
+function getItemMainText(item){
+  var clone=item.cloneNode(true);
+  Array.prototype.slice.call(clone.querySelectorAll('.meta,.why,.badge,.done-toggle,.ctaglist,.taglist,.item-next,.subtask-list,.tl-toggle,.timeline-wrap,.action-pill,.pri-sel')).forEach(function(n){n.remove();});
+  return clone.textContent.trim().replace(/\s+/g,' ');
 }
 
-function sortItemsInContainer(container){
-  var items=Array.prototype.slice.call(container.children).filter(function(el){return el.classList&&el.classList.contains('item');});
-  if(items.length<2)return;
-  items.sort(function(a,b){var pa=itemPriority(a),pb=itemPriority(b);if(pa!==pb)return pa-pb;return itemDateValue(b)-itemDateValue(a);});
-  items.forEach(function(it){container.appendChild(it);});
+function getItemLocation(item){
+  var progEl=item.closest('.program');
+  var nameEl=progEl?progEl.querySelector('.program-head .name'):null;
+  var program=nameEl?nameEl.textContent.trim():'';
+  var pkgEl=item.closest('.pkg');
+  var pkg='';
+  if(pkgEl){var sp=pkgEl.querySelector('summary > span:first-child');pkg=sp?sp.textContent.replace(/▸/g,'').trim():'';}
+  return{program:program,pkg:pkg};
 }
 
-function sortAllItems(){ document.querySelectorAll('.pkg').forEach(sortItemsInContainer); }
+// ============================================================
+// COUNTS
+// ============================================================
 
 function recalcCounts(){
-  sortAllItems();
   var grandOpen=0,grandBlocking=0,grandWatch=0;
-  document.querySelectorAll('.program').forEach(function(prog){
-    var t=tally(Array.prototype.slice.call(prog.querySelectorAll('.item')));
+  document.querySelectorAll('#programView .program').forEach(function(prog){
+    var t=tallyDom(Array.prototype.slice.call(prog.querySelectorAll('.item')));
     var countsEl=prog.querySelector('.program-head .counts');
     if(countsEl)countsEl.textContent=formatCounts(t.open,t.blocking,t.watch);
     grandOpen+=t.open;grandBlocking+=t.blocking;grandWatch+=t.watch;
     prog.querySelectorAll('details.pkg').forEach(function(pkg){
       var pcountsEl=pkg.querySelector('.pcounts');if(!pcountsEl)return;
-      var pt=tally(Array.prototype.slice.call(pkg.querySelectorAll('.item')));
+      var pt=tallyDom(Array.prototype.slice.call(pkg.querySelectorAll('.item')));
       pcountsEl.textContent=formatCounts(pt.open,pt.blocking,pt.watch);
     });
   });
@@ -1089,192 +1075,214 @@ function recalcCounts(){
   if(s2)s2.textContent=grandWatch;
 }
 
-// ===== Badge complete / restore =====
-function setBadgeComplete(item){
-  var existing=item.querySelector(':scope > .badge');
-  if(item.dataset.origBadge===undefined){item.dataset.origBadge=existing?existing.outerHTML:'';}
-  if(existing){existing.outerHTML='<span class="badge c">C</span>';}
-  else{var b=document.createElement('span');b.className='badge c';b.textContent='C';item.insertBefore(b,item.firstChild);}
-}
+// ============================================================
+// PRIORITY
+// ============================================================
 
-function restoreBadge(item){
-  if(item.dataset.origBadge===undefined)return;
-  var current=item.querySelector(':scope > .badge.c');if(!current)return;
-  if(item.dataset.origBadge){current.outerHTML=item.dataset.origBadge;}else{current.remove();}
-}
-
-// ===== Program block helpers =====
-function programColor(name){
-  var map={'Concourse B':'var(--mauve)','Centralized / PBS':'var(--sage)','Cross-program':'var(--taupe)','Upcoming':'var(--olive)','RFIs':'var(--rfi)','General':'var(--gold)'};
-  return map[name]||'var(--gold)';
-}
-
-function findProgramBlock(name){
-  var heads=document.querySelectorAll('.program-head .name');
-  for(var i=0;i<heads.length;i++){if(heads[i].textContent.trim()===name)return heads[i].closest('.program');}
-  return null;
-}
-
-function ensureProgramBlock(name){
-  var existing=findProgramBlock(name);if(existing)return existing;
-  var prog=document.createElement('div');prog.className='program';
-  var color=programColor(name);
-  prog.innerHTML='<div class="program-head" style="--accent:'+color+'"><span class="name" style="color:'+color+'">'+escapeHtml(name)+'</span><span class="counts"></span></div>';
-  var heading=Array.prototype.filter.call(document.querySelectorAll('h2.section'),function(h){return h.textContent.indexOf('Completed')!==-1;})[0];
-  if(heading){heading.parentNode.insertBefore(prog,heading);}else{document.querySelector('.wrap').appendChild(prog);}
-  return prog;
-}
-
-function ensureCapturePkg(programEl){
-  var pkg=programEl.querySelector('.pkg[data-capture="1"]');if(pkg)return pkg;
-  pkg=document.createElement('details');pkg.className='pkg';pkg.setAttribute('data-capture','1');pkg.open=true;
-  pkg.innerHTML='<summary><span>Captured at work <span class="chev">▸</span></span><span class="pcounts"></span></summary>';
-  programEl.querySelector('.program-head').insertAdjacentElement('afterend',pkg);return pkg;
-}
-
-function ensureNamedCapturePkg(programEl,pkgName){
-  var existing=findPkgBlock(programEl,pkgName);if(existing)return existing;
-  var pkg=document.createElement('details');pkg.className='pkg';pkg.open=true;
-  pkg.innerHTML='<summary><span>'+escapeHtml(pkgName)+' <span class="chev">▸</span></span><span class="pcounts"></span></summary>';
-  programEl.querySelector('.program-head').insertAdjacentElement('afterend',pkg);return pkg;
-}
-
-function insertCapturedItem(programName,pkgName,text){
-  var prog=ensureProgramBlock(programName||'General');
-  var pkg=pkgName?ensureNamedCapturePkg(prog,pkgName):ensureCapturePkg(prog);
-  var item=document.createElement('div');item.className='item';
-  item.setAttribute('data-date',new Date().toISOString().slice(0,10));
-  item.innerHTML='<span class="badge n">N</span>'+escapeHtml(text)+'<div class="meta">Added today — pending sync</div>';
-  pkg.appendChild(item);wireDoneToggles();refreshAll();
-}
-
-function logComplete(payload){
-  if(!API_URL||API_URL.indexOf('PASTE_')===0){queueLocally(payload);return;}
-  sendToSheet(payload,function(ok){if(!ok)queueLocally(payload);});
-}
-
-function typeLabel(type){
-  return type==='note'?'Note':type==='complete'?'Done':type==='blocker'?'Blocker':type==='watch'?'Watch':'New';
-}
-
-function formatTs(ts){
-  if(!ts)return'';var d=new Date(ts);if(isNaN(d.getTime()))return'';
-  return d.toLocaleDateString(undefined,{month:'short',day:'numeric'})+' · '+d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
-}
-
-function sendEdit(payload,cb){
-  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({},payload,{action:'edit'}))})
-    .then(function(r){return r.json();}).then(function(res){cb(!!(res&&res.ok));}).catch(function(){cb(false);});
-}
-
-function renderPendingRow(payload){
-  var list=document.getElementById('pendingList');
-  var empty=list.querySelector('.pending-empty');if(empty)empty.remove();
-  var row=document.createElement('div');row.className='pending-row';
-  renderPendingRowView(row,payload);list.appendChild(row);
-}
-
-function renderPendingRowView(row,payload){
-  row.className='pending-row';row.innerHTML='';
-  var typeEl=document.createElement('span');typeEl.className='ptype ptype-'+payload.type;typeEl.textContent=typeLabel(payload.type);row.appendChild(typeEl);
-  var body=document.createElement('span');body.className='pbody';
-  var lp=[];if(payload.program)lp.push(payload.program);if(payload.pkg)lp.push(payload.pkg);
-  var prefix=lp.length?'<strong>'+escapeHtml(lp.join(' › '))+':</strong> ':'';
-  var text;
-  if((payload.type==='note'||payload.type==='blocker'||payload.type==='watch')&&payload.itemRef){
-    var ref=payload.itemRef.length>60?payload.itemRef.slice(0,60)+'…':payload.itemRef;
-    text='<em>Re: '+escapeHtml(ref)+'</em> — '+escapeHtml(payload.text);
-  }else{text=escapeHtml(payload.text);}
-  body.innerHTML=prefix+text;row.appendChild(body);
-  var when=document.createElement('span');when.className='pwhen';when.textContent=formatTs(payload.ts);row.appendChild(when);
-  if(payload.row){
-    var editBtn=document.createElement('button');editBtn.type='button';editBtn.className='pedit';editBtn.textContent='Edit';
-    editBtn.onclick=function(){renderPendingRowEdit(row,payload);};row.appendChild(editBtn);
-  }
-}
-
-function renderPendingRowEdit(row,payload){
-  row.className='pending-row pending-row-editing';row.innerHTML='';
-  var typeSel=document.createElement('select');
-  ['item','note','blocker','watch','complete'].forEach(function(t){var o=document.createElement('option');o.value=t;o.textContent=typeLabel(t);if(t===payload.type)o.selected=true;typeSel.appendChild(o);});
-  var programSel=document.createElement('select');
-  Object.keys(PROGRAM_PACKAGES).forEach(function(p){var o=document.createElement('option');o.value=p;o.textContent=p;if(p===payload.program)o.selected=true;programSel.appendChild(o);});
-  var pkgSel=document.createElement('select');
-  function refreshPkgOptions(){
-    var pkgs=PROGRAM_PACKAGES[programSel.value]||[];var keepPkg=programSel.value===payload.program?payload.pkg:'';
-    pkgSel.innerHTML='';var none=document.createElement('option');none.value='';none.textContent=pkgs.length?'No specific package':'No packages';pkgSel.appendChild(none);
-    pkgs.forEach(function(p){var o=document.createElement('option');o.value=p;o.textContent=p;if(p===keepPkg)o.selected=true;pkgSel.appendChild(o);});
-  }
-  refreshPkgOptions();programSel.addEventListener('change',refreshPkgOptions);
-  var itemRefInput=document.createElement('input');itemRefInput.type='text';itemRefInput.placeholder='Item this refers to (optional)';itemRefInput.value=payload.itemRef||'';
-  var textInput=document.createElement('input');textInput.type='text';textInput.value=payload.text||'';
-  var saveBtn=document.createElement('button');saveBtn.type='button';saveBtn.textContent='Save';
-  saveBtn.onclick=function(){
-    var text=textInput.value.trim();if(!text)return;
-    var updated={row:payload.row,ts:payload.ts,type:typeSel.value,program:programSel.value,pkg:pkgSel.value,itemRef:itemRefInput.value.trim(),text:text};
-    saveBtn.disabled=true;saveBtn.textContent='Saving…';
-    sendEdit(updated,function(ok){if(ok){renderPendingRowView(row,updated);}else{saveBtn.disabled=false;saveBtn.textContent='Save';setStatus('Could not save — check connection.');}});
-  };
-  var cancelBtn=document.createElement('button');cancelBtn.type='button';cancelBtn.className='pcancel';cancelBtn.textContent='Cancel';
-  cancelBtn.onclick=function(){renderPendingRowView(row,payload);};
-  var r1=document.createElement('div');r1.className='pedit-row';r1.appendChild(typeSel);r1.appendChild(programSel);r1.appendChild(pkgSel);
-  var r2=document.createElement('div');r2.className='pedit-row';r2.appendChild(itemRefInput);
-  var r3=document.createElement('div');r3.className='pedit-row';r3.appendChild(textInput);r3.appendChild(saveBtn);r3.appendChild(cancelBtn);
-  row.appendChild(r1);row.appendChild(r2);row.appendChild(r3);
-}
-
-// ===== Done toggles =====
-function wireDoneToggles(){
-  document.querySelectorAll('.item').forEach(function(el){
-    if(el.querySelector('.done-toggle'))return;
-    var cb=document.createElement('input');cb.type='checkbox';cb.className='done-toggle';cb.title='Mark complete — syncs to vault next check-in';
-    cb.addEventListener('change',function(){
-      if(cb.checked){
-        var snippet=getItemMainText(el).slice(0,200);
-        el.classList.add('done-pending');setBadgeComplete(el);
-        var loc=getItemLocation(el);
-        var payload={type:'complete',program:loc.program||'',pkg:loc.pkg||'',itemRef:'',text:snippet,ts:new Date().toISOString()};
-        logComplete(payload);renderPendingRow(payload);
-      }else{el.classList.remove('done-pending');restoreBadge(el);}
-      refreshAll();
-    });
-    el.appendChild(cb);
-  });
-}
-
-function loadPending(){
-  if(!API_URL||API_URL.indexOf('PASTE_')===0)return;
-  fetch(API_URL+'?action=pending').then(function(r){return r.json();}).then(function(rows){
-    if(!rows||!rows.length)return;
-    var list=document.getElementById('pendingList');list.innerHTML='';
-    rows.forEach(function(row){renderPendingRow(row);});
-  }).catch(function(){});
-}
-
-// ===== Computed priority =====
 function computePriority(item){
   var explicit=item.getAttribute('data-pri');if(explicit)return explicit;
   if(item.classList.contains('blocking'))return'high';
   var due=item.getAttribute('data-due');
   if(due){var days=Math.ceil((new Date(due+'T00:00:00').getTime()-Date.now())/86400000);if(days<=3)return'high';if(days<=10)return'med';}
-  if(item.querySelector(':scope > .badge.u'))return'med';
   if(item.classList.contains('watch'))return'low';
   return'med';
 }
 
 function applyComputedPriorities(){
-  document.querySelectorAll('#programView .item[data-cat]').forEach(function(item){
+  document.querySelectorAll('#programView .item').forEach(function(item){
     item.setAttribute('data-pri-computed',computePriority(item));
   });
 }
 
-// ===== Court / delegate + tag pills =====
-function renderCourtDelegate(){
-  document.querySelectorAll('#programView .item[data-court]').forEach(function(item){
-    if(item.querySelector(':scope > .ctaglist'))return;
-    var court=item.getAttribute('data-court');var delegate=item.getAttribute('data-delegate');
-    var wrap=document.createElement('div');wrap.className='ctaglist';
-    var courtSpan=document.createElement('span');courtSpan.className='ctag'+(court==='You'?' ctag-you':'');
-    var bEl=document.createElement('b');bEl.textContent=court;bEl.title='Click to edit court';
-    bEl.addEventListener('click',function(e){
-      e.s
+// ============================================================
+// BADGE COMPLETE / RESTORE
+// ============================================================
+
+function setBadgeComplete(item){
+  var existing=item.querySelector(':scope>.badge');
+  if(item.dataset.origBadge===undefined)item.dataset.origBadge=existing?existing.outerHTML:'';
+  if(existing)existing.outerHTML='<span class="badge c">C</span>';
+  else{var b=makeBadge('c','C');item.insertBefore(b,item.firstChild);}
+}
+
+function restoreBadge(item){
+  if(item.dataset.origBadge===undefined)return;
+  var current=item.querySelector(':scope>.badge.c');if(!current)return;
+  if(item.dataset.origBadge)current.outerHTML=item.dataset.origBadge;else current.remove();
+}
+
+// ============================================================
+// FOCUS PANELS
+// ============================================================
+
+function buildFocusPanel(){
+  var items=Array.prototype.slice.call(document.querySelectorAll('#programView .item'));
+  var rows=[];
+  items.forEach(function(item){
+    if(isDone(item))return;
+    var due=item.getAttribute('data-due');var cat=item.getAttribute('data-cat');var court=item.getAttribute('data-court');
+    var reasons=[];
+    if(item.classList.contains('blocking'))reasons.push({code:'block',label:'P'});
+    if(due){var days=Math.ceil((new Date(due+'T00:00:00').getTime()-Date.now())/86400000);if(days<=7)reasons.push({code:'due',label:days<=0?'Overdue':'Due '+days+'d'});}
+    if(cat==='decisions'&&court==='You'&&!item.classList.contains('blocking'))reasons.push({code:'decide',label:'?'});
+    if(reasons.length){var pri=item.getAttribute('data-pri-computed');rows.push({item:item,pri:pri,due:due,reasons:reasons});}
+  });
+  var priRank={high:0,med:1,low:2};var reasonRank={block:0,due:1,decide:2};
+  rows.sort(function(a,b){
+    var pa=priRank[a.pri]!==undefined?priRank[a.pri]:1;var pb=priRank[b.pri]!==undefined?priRank[b.pri]:1;if(pa!==pb)return pa-pb;
+    var ra=reasonRank[a.reasons[0].code]!==undefined?reasonRank[a.reasons[0].code]:3;var rb=reasonRank[b.reasons[0].code]!==undefined?reasonRank[b.reasons[0].code]:3;if(ra!==rb)return ra-rb;
+    var da=a.due?new Date(a.due).getTime():Infinity;var db=b.due?new Date(b.due).getTime():Infinity;return da-db;
+  });
+  rows=rows.slice(0,8);
+  var list=document.getElementById('focusList');list.innerHTML='';
+  if(!rows.length){list.innerHTML='<span class="focus-empty">Nothing urgent right now.</span>';return;}
+  rows.forEach(function(r){
+    var row=document.createElement('div');row.className='focus-row';
+    var code=r.reasons[0].code;
+    var iconClass=code==='block'?'fi-block':code==='due'?'fi-due':'fi-decide';
+    var loc=getItemLocation(r.item);
+    var icon=document.createElement('span');icon.className='why-icon '+iconClass;icon.textContent=r.reasons[0].label;
+    var ftext=document.createElement('span');ftext.className='ftext';ftext.textContent=getItemMainText(r.item).slice(0,140);
+    var floc=document.createElement('span');floc.className='floc';floc.textContent=loc.program;
+    row.appendChild(icon);row.appendChild(ftext);row.appendChild(floc);
+    row.addEventListener('click',function(){focusJumpTo(r.item);});
+    list.appendChild(row);
+  });
+}
+
+function buildTodayFocus(){
+  var list=document.getElementById('tfList');if(!list)return;
+  list.innerHTML='';
+  var items=Array.prototype.slice.call(document.querySelectorAll('#programView .item[data-horizon="today"]'));
+  items=items.filter(function(it){return !isDone(it)&&it.getAttribute('data-court')==='You';});
+  if(!items.length){list.innerHTML='<span class="tf-empty">Nothing tagged for today in your court.</span>';return;}
+  items.forEach(function(item){
+    var row=document.createElement('div');row.className='tf-row';
+    var action=item.getAttribute('data-action')||'';
+    var id=item.getAttribute('data-id');
+    var det=id&&ITEM_DETAILS[id]?ITEM_DETAILS[id]:null;
+    var nextText=det&&det.next?det.next:getItemMainText(item).slice(0,130);
+    var loc=getItemLocation(item);
+    var locStr=loc.program+(loc.pkg?' · '+loc.pkg.replace(/Package \d[\d.]*\s*—\s*/,''):'');
+    var actionWrap=document.createElement('div');actionWrap.className='tf-action-wrap';
+    if(action){var ap=document.createElement('span');ap.className='action-pill ap-'+action;ap.textContent=action;actionWrap.appendChild(ap);}
+    var textWrap=document.createElement('div');textWrap.className='tf-text';textWrap.textContent=nextText;
+    var locEl=document.createElement('div');locEl.className='tf-loc';locEl.textContent=locStr;textWrap.appendChild(locEl);
+    row.appendChild(actionWrap);row.appendChild(textWrap);
+    row.addEventListener('click',function(){focusJumpTo(item);});
+    list.appendChild(row);
+  });
+}
+
+function focusJumpTo(item){
+  setView('program');
+  setTimeout(function(){
+    // Ensure the package is open
+    var det=item.closest('details.pkg');if(det)det.open=true;
+    item.scrollIntoView({behavior:'smooth',block:'center'});
+    item.classList.add('flash');setTimeout(function(){item.classList.remove('flash');},1500);
+  },60);
+}
+
+// ============================================================
+// VIEW TOGGLE
+// ============================================================
+
+function setView(view){
+  document.querySelectorAll('#viewToggle button').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-view')===view);});
+  document.getElementById('programView').style.display=view==='program'?'':'none';
+  document.getElementById('statusView').style.display=view==='status'?'':'none';
+  document.getElementById('disciplineView').style.display=view==='discipline'?'':'none';
+  var h=document.getElementById('viewHeading');if(h)h.childNodes[0].textContent=VIEW_HEADINGS[view]||'Open items';
+  if(view==='status')buildStatusView();
+  if(view==='discipline')buildDisciplineView();
+  applySearchFilter();
+}
+
+// ============================================================
+// FILTER BAR (horizon + action chips)
+// ============================================================
+
+function toggleHorizonChip(btn){
+  var h=btn.getAttribute('data-horizon');
+  if(activeHorizons[h]){delete activeHorizons[h];btn.classList.remove('active');}
+  else{activeHorizons[h]=true;btn.classList.add('active');}
+  applySearchFilter();
+}
+
+function toggleActionChip(btn){
+  var a=btn.getAttribute('data-action');
+  if(activeActions[a]){delete activeActions[a];btn.classList.remove('active');}
+  else{activeActions[a]=true;btn.classList.add('active');}
+  applySearchFilter();
+}
+
+function hasActiveHorizons(){return Object.keys(activeHorizons).length>0;}
+function hasActiveActions(){return Object.keys(activeActions).length>0;}
+
+// ============================================================
+// SEARCH + FILTERS
+// ============================================================
+
+function applySearchFilter(){
+  var term=document.getElementById('searchBox').value.trim().toLowerCase();
+  var myCourtOnly=document.getElementById('myCourtBtn').classList.contains('active');
+  var hasFilter=term||myCourtOnly||hasActiveHorizons()||hasActiveActions();
+  document.getElementById('searchClear').style.display=term?'':'none';
+  var activeView=document.getElementById('programView').style.display!=='none'?document.getElementById('programView')
+    :document.getElementById('statusView').style.display!=='none'?document.getElementById('statusView')
+    :document.getElementById('disciplineView');
+  Array.prototype.slice.call(activeView.querySelectorAll('.item')).forEach(function(it){
+    var text=it.textContent.toLowerCase();
+    var matchTerm=!term||text.indexOf(term)!==-1;
+    var matchCourt=!myCourtOnly||it.getAttribute('data-court')==='You';
+    var matchHorizon=!hasActiveHorizons()||!!activeHorizons[it.getAttribute('data-horizon')||''];
+    var matchAction=!hasActiveActions()||!!activeActions[it.getAttribute('data-action')||''];
+    it.style.display=(matchTerm&&matchCourt&&matchHorizon&&matchAction)?'':'none';
+  });
+  Array.prototype.slice.call(activeView.querySelectorAll('.pkg')).forEach(function(pkg){
+    var visible=Array.prototype.slice.call(pkg.querySelectorAll('.item')).some(function(it){return it.style.display!=='none';});
+    pkg.style.display=(!hasFilter||visible)?'':'none';
+  });
+  Array.prototype.slice.call(activeView.querySelectorAll('.altgroup')).forEach(function(grp){
+    var visible=Array.prototype.slice.call(grp.querySelectorAll('.item')).some(function(it){return it.style.display!=='none';});
+    grp.style.display=(!hasFilter||visible)?'':'none';
+  });
+  if(activeView.id==='programView'){
+    Array.prototype.slice.call(activeView.querySelectorAll('.program')).forEach(function(prog){
+      var visible=Array.prototype.slice.call(prog.querySelectorAll('.item')).some(function(it){return it.style.display!=='none';});
+      prog.style.display=(!hasFilter||visible)?'':'none';
+    });
+  }
+}
+
+function onSearchInput(){applySearchFilter();}
+function clearSearch(){document.getElementById('searchBox').value='';applySearchFilter();}
+function toggleMyCourtFilter(){document.getElementById('myCourtBtn').classList.toggle('active');applySearchFilter();}
+function togglePriorityMode(){document.body.classList.toggle('priority-mode',document.getElementById('priModeToggle').checked);}
+function onProgramHeadClick(e){var prog=e.currentTarget.closest('.program');if(prog)prog.classList.toggle('collapsed');}
+function toggleCollapseAll(){
+  var collapse=document.getElementById('collapseAllToggle').checked;
+  document.querySelectorAll('#programView>.program').forEach(function(p){p.classList.toggle('collapsed',collapse);});
+  document.querySelectorAll('#programView details.pkg').forEach(function(d){d.open=!collapse;});
+}
+
+// ============================================================
+// QUICK CAPTURE
+// ============================================================
+
+function setStatus(msg){document.getElementById('capStatus').textContent=msg;}
+
+function localQueueKey(){return'wt-capture-queue';}
+function queueLocally(payload){
+  try{var q=JSON.parse(localStorage.getItem(localQueueKey())||'[]');q.push(payload);localStorage.setItem(localQueueKey(),JSON.stringify(q));}catch(e){}
+}
+function flushLocalQueue(){
+  if(!API_URL||API_URL.indexOf('PASTE_')===0)return;
+  try{var q=JSON.parse(localStorage.getItem(localQueueKey())||'[]');if(!q.length)return;
+  var remaining=[];q.forEach(function(payload){sendToSheet(payload,function(ok){if(!ok)remaining.push(payload);});});
+  localStorage.setItem(localQueueKey(),JSON.stringify(remaining));}catch(e){}
+}
+function sendToSheet(payload,cb){
+  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
+    .then(function(r){return r.json();}).then(function()
