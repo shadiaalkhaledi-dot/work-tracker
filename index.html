@@ -157,6 +157,17 @@
   .altgroup-head .counts{font-size:12px; color:var(--muted);}
   .altgroup .pkg{margin-bottom:10px;}
 
+  /* ---- My Court filter button ---- */
+  .btn-mycourt{font-family:inherit; font-size:12.5px; font-weight:600; border:1px solid var(--border); background:none; color:var(--muted); padding:6px 11px; border-radius:7px; cursor:pointer; white-space:nowrap;}
+  .btn-mycourt.active{background:var(--sage); color:#fff; border-color:transparent;}
+  /* ---- Inline priority select on items ---- */
+  .pri-sel{font-family:inherit; font-size:10px; color:var(--muted); background:var(--border-soft); border:1px solid var(--border); border-radius:4px; padding:1px 4px; cursor:pointer; margin-top:5px; display:block; max-width:110px;}
+  .pri-sel:focus{outline:none;}
+  /* ---- Inline court edit input ---- */
+  .court-edit-inp{font-family:inherit; font-size:11px; padding:2px 6px; border:1px solid var(--muted); border-radius:4px; width:130px;}
+  .ctag b{cursor:pointer; text-underline-offset:2px;}
+  .ctag b:hover{text-decoration:underline dotted;}
+
   /* ---- Collapsible program sections ---- */
   .program-head{cursor:pointer;}
   .program-head .pchev{color:var(--muted); font-size:11px; margin-right:2px; transition:transform .15s; display:inline-block;}
@@ -241,6 +252,7 @@
     </div>
     <label class="control-toggle"><input type="checkbox" id="priModeToggle" onchange="togglePriorityMode()"> Priority colors</label>
     <label class="control-toggle"><input type="checkbox" id="collapseAllToggle" onchange="toggleCollapseAll()"> Collapse sections</label>
+    <button class="btn-mycourt" id="myCourtBtn" onclick="toggleMyCourtFilter()">My court</button>
     <div class="searchbox">
       <input type="text" id="searchBox" placeholder="Search items…" oninput="onSearchInput()">
     </div>
@@ -377,6 +389,7 @@
       </div>
     </details>
   </div>
+
   <div class="program">
     <div class="program-head" style="--accent:var(--sage)" onclick="onProgramHeadClick(event)">
       <span class="pchev">▾</span><span class="name" style="color:var(--sage)">Centralized / PBS</span>
@@ -942,6 +955,7 @@ function sendEdit(payload, cb){
     .then(function(res){ cb(!!(res && res.ok)); })
     .catch(function(){ cb(false); });
 }
+
 function renderPendingRow(payload){
   var list = document.getElementById('pendingList');
   var empty = list.querySelector('.pending-empty');
@@ -1180,9 +1194,37 @@ function renderCourtDelegate(){
     var delegate = item.getAttribute('data-delegate');
     var wrap = document.createElement('div');
     wrap.className = 'ctaglist';
+    // Court span — <b> is click-to-edit
     var courtSpan = document.createElement('span');
     courtSpan.className = 'ctag' + (court === 'You' ? ' ctag-you' : '');
-    courtSpan.innerHTML = 'Court: <b>' + escapeHtml(court) + '</b>';
+    var bEl = document.createElement('b');
+    bEl.textContent = court;
+    bEl.title = 'Click to edit court';
+    bEl.addEventListener('click', function(e){
+      e.stopPropagation();
+      var inp = document.createElement('input');
+      inp.type = 'text';
+      inp.className = 'court-edit-inp';
+      inp.value = item.getAttribute('data-court') || '';
+      bEl.replaceWith(inp);
+      inp.focus(); inp.select();
+      function commit(){
+        var val = inp.value.trim();
+        if(val) item.setAttribute('data-court', val);
+        var cl = item.querySelector(':scope > .ctaglist');
+        if(cl) cl.remove();
+        renderCourtDelegate();
+        buildFocusPanel();
+        applySearchFilter();
+      }
+      inp.addEventListener('blur', commit);
+      inp.addEventListener('keydown', function(ke){
+        if(ke.key === 'Enter'){ inp.blur(); }
+        if(ke.key === 'Escape'){ item.setAttribute('data-court', court); inp.blur(); }
+      });
+    });
+    courtSpan.appendChild(document.createTextNode('Court: '));
+    courtSpan.appendChild(bEl);
     wrap.appendChild(courtSpan);
     if(delegate){
       var delSpan = document.createElement('span');
@@ -1293,55 +1335,92 @@ function setView(view){
   applySearchFilter();
 }
 
+function makeAltClone(orig){
+  var clone = orig.cloneNode(true);
+  clone.removeAttribute('id');
+  // Strip priority selects — editing happens in Program view only
+  Array.prototype.slice.call(clone.querySelectorAll('.pri-sel')).forEach(function(s){ s.remove(); });
+  var origCb = orig.querySelector('.done-toggle');
+  var cb = clone.querySelector('.done-toggle');
+  if(cb){
+    cb.checked = origCb ? origCb.checked : false;
+    cb.addEventListener('change', function(){
+      if(origCb){ origCb.checked = cb.checked; origCb.dispatchEvent(new Event('change')); }
+    });
+  }
+  return clone;
+}
+
 function buildAltView(kind){
   var container = document.getElementById(kind === 'category' ? 'categoryView' : 'disciplineView');
   container.innerHTML = '';
-  var order = kind === 'category' ? CATEGORY_ORDER : DISCIPLINE_ORDER;
-  var labels = kind === 'category' ? CATEGORY_LABELS : DISCIPLINE_LABELS;
-  var groups = {};
-  order.forEach(function(key){ groups[key] = []; });
-  Array.prototype.slice.call(document.querySelectorAll('#programView .item[data-cat]')).forEach(function(item){
-    if(kind === 'category'){
+
+  if(kind === 'category'){
+    // Category view: group by category type
+    var order = CATEGORY_ORDER;
+    var labels = CATEGORY_LABELS;
+    var groups = {};
+    order.forEach(function(key){ groups[key] = []; });
+    Array.prototype.slice.call(document.querySelectorAll('#programView .item[data-cat]')).forEach(function(item){
       var c = item.getAttribute('data-cat');
       if(c && groups[c]) groups[c].push(item);
-    } else {
-      (item.getAttribute('data-disc') || '').split(/\s+/).filter(Boolean).forEach(function(d){
-        if(groups[d]) groups[d].push(item);
+    });
+    order.forEach(function(key){
+      var arr = groups[key];
+      if(!arr.length) return;
+      arr.sort(function(a,b){
+        var pa = itemPriority(a), pb = itemPriority(b);
+        if(pa !== pb) return pa - pb;
+        return itemDateValue(b) - itemDateValue(a);
       });
-    }
-  });
-  order.forEach(function(key){
-    var arr = groups[key];
-    if(!arr.length) return;
-    arr.sort(function(a,b){
-      var pa = itemPriority(a), pb = itemPriority(b);
-      if(pa !== pb) return pa - pb;
-      return itemDateValue(b) - itemDateValue(a);
+      var t = tally(arr);
+      var grp = document.createElement('div');
+      grp.className = 'altgroup';
+      grp.innerHTML = '<div class="altgroup-head"><span class="name">' + escapeHtml(labels[key] || key) +
+        '</span><span class="counts">' + formatCounts(t.open, t.blocking, t.watch) + '</span></div>';
+      var box = document.createElement('div');
+      box.className = 'pkg';
+      box.style.padding = '4px 0';
+      arr.forEach(function(orig){ box.appendChild(makeAltClone(orig)); });
+      grp.appendChild(box);
+      container.appendChild(grp);
     });
-    var t = tally(arr);
-    var grp = document.createElement('div');
-    grp.className = 'altgroup';
-    grp.innerHTML = '<div class="altgroup-head"><span class="name">' + escapeHtml(labels[key] || key) +
-      '</span><span class="counts">' + formatCounts(t.open, t.blocking, t.watch) + '</span></div>';
-    var box = document.createElement('div');
-    box.className = 'pkg';
-    box.style.padding = '4px 0';
-    arr.forEach(function(orig){
-      var clone = orig.cloneNode(true);
-      clone.removeAttribute('id');
-      var origCb = orig.querySelector('.done-toggle');
-      var cb = clone.querySelector('.done-toggle');
-      if(cb){
-        cb.checked = origCb ? origCb.checked : false;
-        cb.addEventListener('change', function(){
-          if(origCb){ origCb.checked = cb.checked; origCb.dispatchEvent(new Event('change')); }
-        });
+  } else {
+    // Coordination view: group by package (preserving document order)
+    var seen = [];
+    var pkgMap = {};
+    Array.prototype.slice.call(document.querySelectorAll('#programView .item[data-cat]')).forEach(function(item){
+      var loc = getItemLocation(item);
+      var key = loc.program + '|||' + loc.pkg;
+      if(!pkgMap[key]){
+        pkgMap[key] = {program: loc.program, pkg: loc.pkg, items: []};
+        seen.push(key);
       }
-      box.appendChild(clone);
+      pkgMap[key].items.push(item);
     });
-    grp.appendChild(box);
-    container.appendChild(grp);
-  });
+    seen.forEach(function(key){
+      var g = pkgMap[key];
+      var arr = g.items;
+      arr.sort(function(a,b){
+        var pa = itemPriority(a), pb = itemPriority(b);
+        if(pa !== pb) return pa - pb;
+        return itemDateValue(b) - itemDateValue(a);
+      });
+      var t = tally(arr);
+      var label = g.program + (g.pkg ? ' — ' + g.pkg : '');
+      var grp = document.createElement('div');
+      grp.className = 'altgroup';
+      grp.innerHTML = '<div class="altgroup-head"><span class="name">' + escapeHtml(label) +
+        '</span><span class="counts">' + formatCounts(t.open, t.blocking, t.watch) + '</span></div>';
+      var box = document.createElement('div');
+      box.className = 'pkg';
+      box.style.padding = '4px 0';
+      arr.forEach(function(orig){ box.appendChild(makeAltClone(orig)); });
+      grp.appendChild(box);
+      container.appendChild(grp);
+    });
+  }
+
   if(!container.children.length){
     container.innerHTML = '<p class="empty">Nothing to show in this view yet.</p>';
   }
@@ -1365,30 +1444,68 @@ function toggleCollapseAll(){
   document.querySelectorAll('#programView details.pkg').forEach(function(d){ d.open = !collapse; });
 }
 
+// ===== Inline priority selector on each item =====
+function wireInlineEdits(){
+  document.querySelectorAll('#programView .item[data-cat]').forEach(function(item){
+    if(item.querySelector('.pri-sel')) return;
+    var sel = document.createElement('select');
+    sel.className = 'pri-sel';
+    sel.title = 'Override priority (Auto = computed from blocking/due/watch state)';
+    [['auto','Pri: Auto'],['high','Pri: High'],['med','Pri: Med'],['low','Pri: Low']].forEach(function(pair){
+      var o = document.createElement('option');
+      o.value = pair[0]; o.textContent = pair[1];
+      sel.appendChild(o);
+    });
+    sel.value = item.getAttribute('data-pri') || 'auto';
+    sel.addEventListener('change', function(){
+      if(sel.value === 'auto'){ item.removeAttribute('data-pri'); }
+      else { item.setAttribute('data-pri', sel.value); }
+      applyComputedPriorities();
+      buildFocusPanel();
+      var activeBtn = document.querySelector('#viewToggle button.active');
+      if(activeBtn && activeBtn.getAttribute('data-view') !== 'program'){
+        buildAltView(activeBtn.getAttribute('data-view'));
+      }
+    });
+    var toggle = item.querySelector('.done-toggle');
+    if(toggle){ item.insertBefore(sel, toggle); } else { item.appendChild(sel); }
+  });
+}
+
+// ===== My Court filter toggle =====
+function toggleMyCourtFilter(){
+  document.getElementById('myCourtBtn').classList.toggle('active');
+  applySearchFilter();
+}
+
 // ===== Search: filters whichever view is currently visible, hiding empty
 // packages/groups/programs along with the items that don't match. =====
 function applySearchFilter(){
   var term = document.getElementById('searchBox').value.trim().toLowerCase();
+  var myCourtOnly = document.getElementById('myCourtBtn').classList.contains('active');
+  var hasFilter = term || myCourtOnly;
   document.getElementById('searchClear').style.display = term ? '' : 'none';
   var activeContainer = document.getElementById('programView').style.display !== 'none' ? document.getElementById('programView')
     : document.getElementById('categoryView').style.display !== 'none' ? document.getElementById('categoryView')
     : document.getElementById('disciplineView');
   Array.prototype.slice.call(activeContainer.querySelectorAll('.item')).forEach(function(it){
     var text = it.textContent.toLowerCase();
-    it.style.display = (!term || text.indexOf(term) !== -1) ? '' : 'none';
+    var matchTerm = !term || text.indexOf(term) !== -1;
+    var matchCourt = !myCourtOnly || it.getAttribute('data-court') === 'You';
+    it.style.display = (matchTerm && matchCourt) ? '' : 'none';
   });
   Array.prototype.slice.call(activeContainer.querySelectorAll('.pkg')).forEach(function(pkg){
     var visible = Array.prototype.slice.call(pkg.querySelectorAll('.item')).some(function(it){ return it.style.display !== 'none'; });
-    pkg.style.display = (!term || visible) ? '' : 'none';
+    pkg.style.display = (!hasFilter || visible) ? '' : 'none';
   });
   Array.prototype.slice.call(activeContainer.querySelectorAll('.altgroup')).forEach(function(grp){
     var visible = Array.prototype.slice.call(grp.querySelectorAll('.item')).some(function(it){ return it.style.display !== 'none'; });
-    grp.style.display = (!term || visible) ? '' : 'none';
+    grp.style.display = (!hasFilter || visible) ? '' : 'none';
   });
   if(activeContainer.id === 'programView'){
     Array.prototype.slice.call(activeContainer.querySelectorAll('.program')).forEach(function(prog){
       var visible = Array.prototype.slice.call(prog.querySelectorAll('.item')).some(function(it){ return it.style.display !== 'none'; });
-      prog.style.display = (!term || visible) ? '' : 'none';
+      prog.style.display = (!hasFilter || visible) ? '' : 'none';
     });
   }
 }
@@ -1404,6 +1521,7 @@ function refreshAll(){
   applyComputedPriorities();
   renderCourtDelegate();
   renderTagPills();
+  wireInlineEdits();
   buildFocusPanel();
   var activeBtn = document.querySelector('#viewToggle button.active');
   if(activeBtn && activeBtn.getAttribute('data-view') !== 'program'){
@@ -1420,9 +1538,9 @@ document.addEventListener('DOMContentLoaded', function(){
   applyComputedPriorities();
   renderCourtDelegate();
   renderTagPills();
+  wireInlineEdits();
   buildFocusPanel();
 });
 </script>
 </body>
 </html>
-
