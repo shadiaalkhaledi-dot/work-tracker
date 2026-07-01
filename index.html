@@ -922,22 +922,30 @@ function buildStatusView(){
   var container=document.getElementById('statusView');
   container.innerHTML='';
 
-  STATUS_GROUPS.forEach(function(group){
-    var groupItems=ITEMS.filter(function(it){return it.status===group.key;});
-    if(!groupItems.length)return;
-    groupItems=sortItemData(groupItems);
-
-    var t=tallyData(groupItems);
-    var grp=document.createElement('div');grp.className='altgroup';
+  PROGRAM_ORDER.forEach(function(progName){
+    var progItems=ITEMS.filter(function(it){return it.program===progName;});
+    if(!progItems.length)return;
+    var color=PROGRAM_COLORS[progName]||'var(--gold)';
+    var progEl=document.createElement('div');progEl.className='altgroup';
     var gh=document.createElement('div');gh.className='altgroup-head';
-    gh.style.borderLeftColor=group.color;
-    var gname=document.createElement('span');gname.className='name';gname.textContent=group.label;
+    gh.style.borderLeftColor=color;
+    var gname=document.createElement('span');gname.className='name';gname.style.color=color;gname.textContent=progName;
+    var t=tallyData(progItems);
     var gcounts=document.createElement('span');gcounts.className='counts';gcounts.textContent=formatCounts(t.open,t.blocking,t.watch);
-    gh.appendChild(gname);gh.appendChild(gcounts);grp.appendChild(gh);
-
-    var box=document.createElement('div');box.className='pkg';box.style.padding='4px 0';
-    groupItems.forEach(function(item){box.appendChild(makeAltClone(item.id));});
-    grp.appendChild(box);container.appendChild(grp);
+    gh.appendChild(gname);gh.appendChild(gcounts);progEl.appendChild(gh);
+    STATUS_GROUPS.forEach(function(group){
+      var groupItems=progItems.filter(function(it){return it.status===group.key;});
+      if(!groupItems.length)return;
+      groupItems=sortItemData(groupItems);
+      var subHead=document.createElement('div');
+      subHead.style.cssText='font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:'+group.color+';padding:6px 13px 2px;margin-top:4px;';
+      subHead.textContent=group.label;
+      progEl.appendChild(subHead);
+      var box=document.createElement('div');box.style.padding='2px 0 4px';
+      groupItems.forEach(function(item){box.appendChild(makeAltClone(item.id));});
+      progEl.appendChild(box);
+    });
+    container.appendChild(progEl);
   });
 
   if(!container.children.length){container.innerHTML='<p class="empty">Nothing to show.</p>';}
@@ -948,21 +956,30 @@ function buildDisciplineView(){
   var container=document.getElementById('disciplineView');
   container.innerHTML='';
 
-  DISCIPLINE_ORDER.forEach(function(disc){
-    var discItems=ITEMS.filter(function(it){return (it.disc||[]).indexOf(disc)!==-1;});
-    if(!discItems.length)return;
-    discItems=sortItemData(discItems);
-
-    var t=tallyData(discItems);
-    var grp=document.createElement('div');grp.className='altgroup';
+  PROGRAM_ORDER.forEach(function(progName){
+    var progItems=ITEMS.filter(function(it){return it.program===progName;});
+    if(!progItems.length)return;
+    var color=PROGRAM_COLORS[progName]||'var(--gold)';
+    var progEl=document.createElement('div');progEl.className='altgroup';
     var gh=document.createElement('div');gh.className='altgroup-head';
-    var gname=document.createElement('span');gname.className='name';gname.textContent=DISCIPLINE_LABELS[disc]||disc;
+    gh.style.borderLeftColor=color;
+    var gname=document.createElement('span');gname.className='name';gname.style.color=color;gname.textContent=progName;
+    var t=tallyData(progItems);
     var gcounts=document.createElement('span');gcounts.className='counts';gcounts.textContent=formatCounts(t.open,t.blocking,t.watch);
-    gh.appendChild(gname);gh.appendChild(gcounts);grp.appendChild(gh);
-
-    var box=document.createElement('div');box.className='pkg';box.style.padding='4px 0';
-    discItems.forEach(function(item){box.appendChild(makeAltClone(item.id));});
-    grp.appendChild(box);container.appendChild(grp);
+    gh.appendChild(gname);gh.appendChild(gcounts);progEl.appendChild(gh);
+    DISCIPLINE_ORDER.forEach(function(disc){
+      var discItems=progItems.filter(function(it){return (it.disc||[]).indexOf(disc)!==-1;});
+      if(!discItems.length)return;
+      discItems=sortItemData(discItems);
+      var subHead=document.createElement('div');
+      subHead.style.cssText='font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);padding:6px 13px 2px;margin-top:4px;';
+      subHead.textContent=DISCIPLINE_LABELS[disc]||disc;
+      progEl.appendChild(subHead);
+      var box=document.createElement('div');box.style.padding='2px 0 4px';
+      discItems.forEach(function(item){box.appendChild(makeAltClone(item.id));});
+      progEl.appendChild(box);
+    });
+    container.appendChild(progEl);
   });
 
   if(!container.children.length){container.innerHTML='<p class="empty">Nothing to show.</p>';}
