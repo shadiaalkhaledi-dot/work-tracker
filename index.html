@@ -746,7 +746,7 @@ document.addEventListener('DOMContentLoaded',function(){
   function init(){
     buildProgramView();recalcCounts();applyComputedPriorities();buildFocusPanel();buildTodayFocus();refreshCapPkg();flushLocalQueue();loadPending();
   }
-  fetch('data.json')
+  fetch('data.json?v='+Date.now())
     .then(function(r){return r.json();})
     .then(function(d){renderSessionData(d);if(d.items)ITEMS=d.items;if(d.details)ITEM_DETAILS=d.details;init();})
     .catch(function(){init();});
