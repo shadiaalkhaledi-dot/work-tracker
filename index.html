@@ -194,6 +194,18 @@
   .copybtn:active{opacity:.8;}
   .copybtn.copied{background:var(--teal);}
   /* ---- 2026-07-04 model additions ---- */
+  .sec-label{font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);display:block;margin:9px 0 2px;}
+  .sec-row{display:flex;align-items:center;gap:2px;margin-top:9px;}
+  .sec-row .sec-label{margin:0;}
+  .prog-dots{display:inline-flex;gap:3px;margin-left:8px;align-items:center;}
+  .prog-dots i{width:6px;height:6px;border-radius:50%;background:var(--border);display:inline-block;}
+  .prog-dots i.on{background:var(--teal);}
+  .st-count{font-size:10.5px;color:var(--muted);margin-left:7px;font-variant-numeric:tabular-nums;}
+  .timeline-wrap .tl-entry{position:relative;padding-left:15px;}
+  .timeline-wrap .tl-entry::before{content:'';position:absolute;left:2px;top:.6em;width:5px;height:5px;border-radius:50%;background:var(--faint);}
+  .item-foot{display:flex;flex-wrap:wrap;gap:5px 14px;align-items:center;border-top:1px solid var(--border-soft);margin-top:10px;padding-top:8px;}
+  .item-foot .ctaglist,.item-foot .taglist{margin:0;}
+  .item-foot .item-loc{margin:0;}
   .badge.i{color:#f59e0b;border-color:#f59e0b;}
   .then-tag{display:inline-block;font-size:11px;color:var(--muted);border:1px dashed var(--border);border-radius:12px;padding:1px 8px;margin-left:6px;}
   .state-pill{text-transform:uppercase;letter-spacing:.04em;font-weight:700;}
@@ -201,6 +213,8 @@
   .item-actions{margin-top:7px;display:flex;gap:6px;flex-wrap:wrap;}
   .item-actions button{background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:2px 9px;font-size:11px;cursor:pointer;font-family:inherit;}
   .item-actions button:hover{border-color:var(--muted);color:var(--text);}
+  .add-item-btn{background:none;border:1px dashed var(--border);color:var(--muted);border-radius:6px;padding:1px 9px;font-size:11px;cursor:pointer;font-family:inherit;margin-left:10px;flex:0 0 auto;}
+  .add-item-btn:hover{border-color:#f59e0b;color:#f59e0b;}
   .phase-chip{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:10px;padding:1px 8px;margin-left:8px;vertical-align:1px;}
   .phase-bid{background:rgba(181,144,66,.14);color:var(--gold);}
   .phase-construction{background:rgba(94,158,149,.14);color:var(--teal);}
@@ -213,6 +227,7 @@
   .hist-entry .hd{font-size:11px;color:var(--faint);font-variant-numeric:tabular-nums;margin-right:8px;}
   .hist-entry.hist-ms{border-left-color:var(--gold);}
   .hist-entry.hist-done{border-left-color:var(--teal);}
+  .hist-entry.hist-up{border-left-color:#f59e0b;border-left-style:dashed;color:var(--muted);}
   .court-cascade{display:inline-flex;gap:4px;}
   .court-cascade select,.court-cascade input{font-family:inherit;font-size:12px;padding:2px 4px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--text);max-width:150px;}
   #morningBtn.active{background:#f59e0b;border-color:#f59e0b;color:#fff;}
@@ -256,7 +271,7 @@
   </div>
 
   <div class="capture">
-    <span class="tag">Quick capture — brand-new items only (use the buttons on a card for notes, subtasks, blockers)</span>
+    <span class="tag">Quick capture — new items land via "+ item" on a package below; use this box only when unsure where it belongs</span>
     <div class="capture-row">
       <select id="capType" style="display:none"><option value="item" selected>New item</option></select>
       <select id="capProgram" onchange="onCapProgramChange()"></select>
@@ -463,64 +478,83 @@ function renderItem(itemData){
   if(itemData.why){var why=document.createElement('div');why.className='why';why.textContent=itemData.why;el.appendChild(why);}
   if(itemData.meta){var meta=document.createElement('div');meta.className='meta';meta.textContent=itemData.meta;el.appendChild(meta);}
   var det=ITEM_DETAILS[itemData.id];
-  if(det){
-    if(det.next){var nx=document.createElement('div');nx.className='item-next';nx.textContent=det.next;el.appendChild(nx);}
-    if(det.subtasks&&det.subtasks.length){
-      var stList=document.createElement('div');stList.className='subtask-list';
-      det.subtasks.forEach(function(st){
-        var stItem=document.createElement('div');stItem.className='st-item';
-        var cb=document.createElement('input');cb.type='checkbox';
-        cb.addEventListener('change',function(){stItem.classList.toggle('st-done',cb.checked);});
-        var lbl=document.createElement('span');lbl.className='st-label';lbl.textContent=st;
-        stItem.appendChild(cb);stItem.appendChild(lbl);stList.appendChild(stItem);
-      });
-      el.appendChild(stList);
-    }
-    if(det.updates&&det.updates.length){
-      var tlBtn=document.createElement('button');tlBtn.className='tl-toggle';
-      tlBtn.textContent='⌕ '+det.updates.length+' update'+(det.updates.length!==1?'s':'');
-      var tlWrap=document.createElement('div');tlWrap.className='timeline-wrap';
-      det.updates.forEach(function(upd){
-        var bar=upd.indexOf('|');var ds=bar>-1?upd.slice(0,bar):'';var txt=bar>-1?upd.slice(bar+1):upd;
-        var entry=document.createElement('div');entry.className='tl-entry';
-        if(ds){var sp=document.createElement('span');sp.className='tl-date';sp.textContent=ds;entry.appendChild(sp);}
-        entry.appendChild(document.createTextNode(txt));tlWrap.appendChild(entry);
-      });
-      tlBtn.addEventListener('click',function(){tlWrap.classList.toggle('tl-open');});
-      el.appendChild(tlBtn);el.appendChild(tlWrap);
-    }
+  if(det&&det.next){
+    var nxWrap=document.createElement('div');nxWrap.className='item-next';
+    var nxLab=document.createElement('span');nxLab.className='sec-label';nxLab.textContent='Next';nxWrap.appendChild(nxLab);
+    nxWrap.appendChild(document.createTextNode(det.next));el.appendChild(nxWrap);
   }
+  if(det&&det.subtasks&&det.subtasks.length){
+    var doneCt=det.subtasks.filter(function(st){return st.indexOf('\u2713')===0;}).length;
+    var stHead=document.createElement('div');stHead.className='sec-row';
+    var stLab=document.createElement('span');stLab.className='sec-label';stLab.textContent='Steps';stHead.appendChild(stLab);
+    var dots=document.createElement('span');dots.className='prog-dots';
+    det.subtasks.slice(0,12).forEach(function(st){var i=document.createElement('i');if(st.indexOf('\u2713')===0)i.className='on';dots.appendChild(i);});
+    stHead.appendChild(dots);
+    var stCount=document.createElement('span');stCount.className='st-count';stCount.textContent=doneCt+'/'+det.subtasks.length+' done';stHead.appendChild(stCount);
+    el.appendChild(stHead);
+    var stList=document.createElement('div');stList.className='subtask-list';
+    det.subtasks.forEach(function(st){
+      var isDoneSt=st.indexOf('\u2713')===0;var label=isDoneSt?st.slice(1).trim():st;
+      var stItem=document.createElement('div');stItem.className='st-item'+(isDoneSt?' st-done':'');
+      var cb=document.createElement('input');cb.type='checkbox';cb.checked=isDoneSt;
+      cb.addEventListener('change',function(){
+        stItem.classList.toggle('st-done',cb.checked);
+        var ons=stList.parentNode.querySelectorAll('.st-item.st-done').length;
+        stCount.textContent=ons+'/'+det.subtasks.length+' done';
+        var ds=dots.querySelectorAll('i');for(var k=0;k<ds.length;k++)ds[k].className=k<ons?'on':'';
+      });
+      var lbl=document.createElement('span');lbl.className='st-label';lbl.textContent=label;
+      stItem.appendChild(cb);stItem.appendChild(lbl);stList.appendChild(stItem);
+    });
+    el.appendChild(stList);
+  }
+  if(det&&det.updates&&det.updates.length){
+    var tlBtn=document.createElement('button');tlBtn.className='tl-toggle';
+    tlBtn.innerHTML='<span class="sec-label" style="margin:0 6px 0 0;display:inline;">History</span>'+det.updates.length+' update'+(det.updates.length!==1?'s':'')+' \u25B8';
+    var tlWrap=document.createElement('div');tlWrap.className='timeline-wrap';
+    det.updates.forEach(function(upd){
+      var bar=upd.indexOf('|');var ds=bar>-1?upd.slice(0,bar):'';var txt=bar>-1?upd.slice(bar+1):upd;
+      var entry=document.createElement('div');entry.className='tl-entry';
+      if(ds){var sp=document.createElement('span');sp.className='tl-date';sp.textContent=ds;entry.appendChild(sp);}
+      entry.appendChild(document.createTextNode(txt));tlWrap.appendChild(entry);
+    });
+    tlBtn.addEventListener('click',function(){tlWrap.classList.toggle('tl-open');});
+    el.appendChild(tlBtn);el.appendChild(tlWrap);
+  }
+  // ---- footer: court chain + pills + location on one clean row ----
+  var foot=document.createElement('div');foot.className='item-foot';
   var courtWrap=document.createElement('div');courtWrap.className='ctaglist';
   var courtSpan=document.createElement('span');
   courtSpan.className='ctag'+(courtHasYou(itemData.court)?' ctag-you':'');
   courtSpan.appendChild(document.createTextNode('Court: '));
-  var courtB=document.createElement('b');courtB.textContent=courtList(itemData.court).join(' + ');courtB.title='Click to edit court (discipline → person)';
+  var courtB=document.createElement('b');courtB.textContent=courtList(itemData.court).join(' + ');courtB.title='Click to edit court (discipline \u2192 person)';
   courtB.addEventListener('click',function(e){e.stopPropagation();openCourtEditor(el,courtB);});
   courtSpan.appendChild(courtB);courtWrap.appendChild(courtSpan);
+  if(itemData.then){
+    var thenSpan=document.createElement('span');thenSpan.className='then-tag';thenSpan.textContent='then \u2192 '+itemData.then;
+    thenSpan.title='Where the ball goes next \u2014 Claude advances court along this chain at check-in';
+    courtWrap.appendChild(thenSpan);
+  }
   if(itemData.delegate){
     var delSpan=document.createElement('span');delSpan.className='ctag';
     delSpan.appendChild(document.createTextNode('Delegated to: '));
     var delB=document.createElement('b');delB.textContent=itemData.delegate;
     delSpan.appendChild(delB);courtWrap.appendChild(delSpan);
   }
-  if(itemData.then){
-    var thenSpan=document.createElement('span');thenSpan.className='then-tag';thenSpan.textContent='then → '+itemData.then;
-    thenSpan.title='Where the ball goes next — Claude advances court along this chain at check-in';
-    courtWrap.appendChild(thenSpan);
-  }
-  el.appendChild(courtWrap);
+  foot.appendChild(courtWrap);
   var tagWrap=document.createElement('div');tagWrap.className='taglist';
   var catPill=document.createElement('span');catPill.className='pill2';catPill.textContent=CATEGORY_LABELS[itemData.cat]||itemData.cat||'';
   tagWrap.appendChild(catPill);
   if(itemData.state){var statePill=document.createElement('span');statePill.className='pill2 state-pill';statePill.textContent='RFI: '+itemData.state;tagWrap.appendChild(statePill);}
   (itemData.disc||[]).forEach(function(d){var p=document.createElement('span');p.className='pill2';p.textContent=DISCIPLINE_LABELS[d]||d;tagWrap.appendChild(p);});
-  el.appendChild(tagWrap);
+  foot.appendChild(tagWrap);
   if(itemData.program){
     var locEl=document.createElement('div');locEl.className='item-loc';
     var locParts=[itemData.program];
-    if(itemData.pkg)locParts.push(itemData.pkg.replace(/Package \d[\d.]*\s*—\s*/,''));
-    locEl.textContent='⌂ '+locParts.join(' · ');el.appendChild(locEl);
+    if(itemData.pkg)locParts.push(itemData.pkg.replace(/Package \d[\d.]*\s*\u2014\s*/,''));
+    locEl.textContent='\u2302 '+locParts.join(' \u00b7 ');foot.appendChild(locEl);
   }
+  el.appendChild(foot);
   var actRow=document.createElement('div');actRow.className='item-actions';
   [['subtask','+ subtask','The sub-step itself…'],['blocker','flag blocking',"Why it's blocking (optional)…"],['note','add note',"What happened / what's new…"]].forEach(function(a){
     var btn=document.createElement('button');btn.type='button';btn.textContent=a[1];
@@ -549,6 +583,20 @@ function renderItem(itemData){
   return el;
 }
 
+function makeAddItemBtn(program,pkg){
+  var b=document.createElement('button');b.type='button';b.className='add-item-btn';b.textContent='+ item';
+  b.title='Capture a brand-new item under '+(pkg||program);
+  b.addEventListener('click',function(e){
+    e.preventDefault();e.stopPropagation();
+    var text=window.prompt('New item under '+(pkg||program)+':');
+    if(!text||!text.trim())return;
+    var payload={type:'item',program:program||'',pkg:pkg||'',itemRef:'',text:text.trim(),ts:new Date().toISOString()};
+    queueLocally(payload);renderPendingRow(payload);
+    setStatus('New item captured under '+(pkg||program)+' — copy for check-in when ready.');
+  });
+  return b;
+}
+
 function buildProgramView(){
   var container=document.getElementById('programView');container.innerHTML='';
   PROGRAM_ORDER.forEach(function(progName){
@@ -560,7 +608,7 @@ function buildProgramView(){
     var pchev=document.createElement('span');pchev.className='pchev';pchev.textContent='▾';
     var nameEl=document.createElement('span');nameEl.className='name';nameEl.style.color=color;nameEl.textContent=progName;
     var countsEl=document.createElement('span');countsEl.className='counts';countsEl.textContent='— open';
-    head.appendChild(pchev);head.appendChild(nameEl);head.appendChild(countsEl);progEl.appendChild(head);
+    head.appendChild(pchev);head.appendChild(nameEl);head.appendChild(countsEl);head.appendChild(makeAddItemBtn(progName,''));progEl.appendChild(head);
     var pkgs=PROGRAM_PKGS[progName]||[''];
     pkgs.forEach(function(pkgName){
       var pkgItems=progItems.filter(function(it){return it.pkg===pkgName;});
@@ -571,7 +619,7 @@ function buildProgramView(){
       var summ=document.createElement('summary');
       var sLabel=document.createElement('span');sLabel.innerHTML=escapeHtml(pkgName)+' <span class="chev">▸</span>';
       var pcounts=document.createElement('span');pcounts.className='pcounts';pcounts.textContent='— open';
-      summ.appendChild(sLabel);summ.appendChild(pcounts);det.appendChild(summ);
+      summ.appendChild(sLabel);summ.appendChild(pcounts);summ.appendChild(makeAddItemBtn(progName,pkgName));det.appendChild(summ);
       pkgItems.forEach(function(item){det.appendChild(renderItem(item));});progEl.appendChild(det);
     });
     container.appendChild(progEl);
@@ -646,7 +694,7 @@ function tallyData(arr){var open=0,blocking=0,watch=0;arr.forEach(function(it){i
 function tallyDom(items){var open=0,blocking=0,watch=0;items.forEach(function(it){if(isDone(it))return;if(it.classList.contains('blocking'))blocking++;else if(it.classList.contains('watch'))watch++;else open++;});return{open:open,blocking:blocking,watch:watch};}
 function isDone(item){return item.classList.contains('done-pending');}
 function formatCounts(open,blocking,watch){var parts=[];if(open>0)parts.push(open+' open');if(blocking>0)parts.push(blocking+' blocking');if(watch>0)parts.push(watch+' watch');return parts.length?parts.join(' · '):'0 open';}
-function getItemMainText(item){var clone=item.cloneNode(true);Array.prototype.slice.call(clone.querySelectorAll('.meta,.why,.badge,.done-toggle,.ctaglist,.taglist,.item-next,.subtask-list,.tl-toggle,.timeline-wrap,.action-pill,.pri-sel')).forEach(function(n){n.remove();});return clone.textContent.trim().replace(/\s+/g,' ');}
+function getItemMainText(item){var clone=item.cloneNode(true);Array.prototype.slice.call(clone.querySelectorAll('.meta,.why,.badge,.done-toggle,.ctaglist,.taglist,.item-next,.subtask-list,.tl-toggle,.timeline-wrap,.action-pill,.pri-sel,.sec-row,.sec-label,.item-foot,.item-actions,.item-loc')).forEach(function(n){n.remove();});return clone.textContent.trim().replace(/\s+/g,' ');}
 function getItemLocation(item){var progEl=item.closest('.program');var nameEl=progEl?progEl.querySelector('.program-head .name'):null;var program=nameEl?nameEl.textContent.trim():'';var pkgEl=item.closest('.pkg');var pkg='';if(pkgEl){var sp=pkgEl.querySelector('summary > span:first-child');pkg=sp?sp.textContent.replace(/▸/g,'').trim():'';}return{program:program,pkg:pkg};}
 
 function recalcCounts(){
@@ -917,6 +965,40 @@ function buildOverviewView(){
   if(!c.children.length)c.innerHTML='<p class="empty">Nothing to show.</p>';
 }
 
+function histRow(ev){
+  var row=document.createElement('div');row.className='hist-entry '+(ev.cls||'');
+  row.innerHTML='<span class="hd">'+escapeHtml(ev.date)+'</span>'+escapeHtml(ev.text);
+  return row;
+}
+function pkgEvents(pkgItems,ms){
+  var events=[];
+  if(ms)(ms.rows||[]).forEach(function(r){
+    if(/^\d{4}-\d{2}-\d{2}/.test(r.date)){
+      if(r.status==='submitted')events.push({date:r.date.slice(0,10),cls:'hist-ms',text:'📦 issued — '+r.what.slice(0,110)});
+      else events.push({date:r.date.slice(0,10),cls:'hist-up',text:'◇ upcoming — '+r.what.slice(0,110)});
+    }else if(r.status==='upcoming'){
+      events.push({date:'TBD',cls:'hist-up',text:'◇ upcoming — '+r.what.slice(0,110)});
+    }
+  });
+  pkgItems.forEach(function(it){
+    var det=ITEM_DETAILS[it.id];
+    if(it.date)events.push({date:it.date,cls:'',text:'+ raised: '+it.title.slice(0,100)});
+    if(det&&det.updates)det.updates.forEach(function(u){
+      var bar=u.indexOf('|');var ds=bar>-1?u.slice(0,bar):'';var tx=bar>-1?u.slice(bar+1):u;
+      if(ds)events.push({date:ds,cls:'',text:it.title.slice(0,45)+': '+tx.slice(0,100)});
+    });
+    if(it.status==='completed'){
+      var dd=det&&det.updates&&det.updates.length?det.updates[det.updates.length-1].split('|')[0]:(it.date||'—');
+      events.push({date:dd,cls:'hist-done',text:'✓ resolved: '+it.title.slice(0,100)});
+    }
+  });
+  // sort desc; TBD (undated upcoming) pinned to the top
+  events.sort(function(a,b){
+    if(a.date==='TBD')return -1;if(b.date==='TBD')return 1;
+    return b.date<a.date?-1:b.date>a.date?1:0;
+  });
+  return events;
+}
 function buildHistoryView(){
   var c=document.getElementById('historyView');c.innerHTML='';
   // Decisions log
@@ -924,42 +1006,47 @@ function buildHistoryView(){
   var decisions=ITEMS.filter(function(it){return it.cat==='decisions';});
   if(!decisions.length){var e0=document.createElement('p');e0.className='empty';e0.textContent='No decisions tracked.';c.appendChild(e0);}
   decisions.forEach(function(it){
-    var row=document.createElement('div');row.className='hist-entry'+(it.status==='completed'?' hist-done':'');
     var det=ITEM_DETAILS[it.id];var last=det&&det.updates&&det.updates.length?det.updates[det.updates.length-1]:null;
     var lastDate=last?last.split('|')[0]:(it.date||'');
-    row.innerHTML='<span class="hd">'+escapeHtml(lastDate)+'</span>'+escapeHtml(it.title.slice(0,110))
-      +' <span style="color:var(--faint)">— court: '+escapeHtml(courtList(it.court).join(' + ')||'—')+(it.status==='completed'?' · resolved':'')+'</span>';
-    c.appendChild(row);
+    c.appendChild(histRow({date:lastDate,cls:it.status==='completed'?'hist-done':'',
+      text:it.title.slice(0,110)+' — court: '+(courtList(it.court).join(' + ')||'—')+(it.status==='completed'?' · resolved':'')}));
   });
-  // Timeline: submitted milestones + completions + recent updates
-  sectionHead(c,'What happened so far — milestones · completions · updates','var(--teal)');
-  var events=[];
-  MILESTONES.forEach(function(m){
-    (m.rows||[]).forEach(function(r){
-      if(r.status==='submitted'&&/^\d{4}-\d{2}-\d{2}/.test(r.date))
-        events.push({date:r.date.slice(0,10),cls:'hist-ms',text:'📦 '+m.package.split('[')[0].trim()+' — '+r.what.slice(0,90)});
+  // Per program → package history
+  var usedMs={};
+  PROGRAM_ORDER.forEach(function(progName){
+    var progItems=ITEMS.filter(function(it){return it.program===progName;});
+    if(!progItems.length)return;
+    var color=PROGRAM_COLORS[progName]||'var(--gold)';
+    var head=document.createElement('div');head.className='altgroup-head';head.style.borderLeftColor=color;head.style.marginTop='22px';
+    var nm=document.createElement('span');nm.className='name';nm.style.color=color;nm.textContent=progName;head.appendChild(nm);
+    c.appendChild(head);
+    var pkgs=PROGRAM_PKGS[progName]&&PROGRAM_PKGS[progName].length?PROGRAM_PKGS[progName]:[''];
+    pkgs.forEach(function(pkgName){
+      var pkgItems=progItems.filter(function(it){return it.pkg===pkgName;});
+      if(!pkgItems.length)return;
+      var ms=milestoneFor(pkgName||progName,progName);
+      if(ms)usedMs[ms.package]=true;
+      var events=pkgEvents(pkgItems,ms);
+      if(!events.length)return;
+      var sub=document.createElement('div');
+      sub.style.cssText='font-size:12px;font-weight:700;color:var(--muted);padding:10px 2px 2px;';
+      sub.textContent=(pkgName||progName)+(ms&&ms.phase?' · '+ms.phase:'');
+      c.appendChild(sub);
+      events.slice(0,60).forEach(function(ev){c.appendChild(histRow(ev));});
     });
   });
-  ITEMS.forEach(function(it){
-    var det=ITEM_DETAILS[it.id];
-    if(it.status==='completed'){
-      var dd=det&&det.updates&&det.updates.length?det.updates[det.updates.length-1].split('|')[0]:(it.date||'');
-      events.push({date:dd||'0000-00-00',cls:'hist-done',text:'✓ '+it.title.slice(0,100)});
-    }else if(det&&det.updates){
-      det.updates.forEach(function(u){
-        var bar=u.indexOf('|');var ds=bar>-1?u.slice(0,bar):'';var tx=bar>-1?u.slice(bar+1):u;
-        if(ds&&daysUntil(ds)!==null&&daysUntil(ds)>=-14)
-          events.push({date:ds,cls:'',text:it.title.slice(0,55)+': '+tx.slice(0,90)});
-      });
-    }
-  });
-  events.sort(function(a,b){return b.date<a.date?-1:b.date>a.date?1:0;});
-  if(!events.length){var e3=document.createElement('p');e3.className='empty';e3.textContent='No history yet.';c.appendChild(e3);}
-  events.slice(0,120).forEach(function(ev){
-    var row=document.createElement('div');row.className='hist-entry '+ev.cls;
-    row.innerHTML='<span class="hd">'+escapeHtml(ev.date)+'</span>'+escapeHtml(ev.text);
-    c.appendChild(row);
-  });
+  // Milestone packages with no items on the board (e.g. Demo 1–3, 4.1)
+  var leftovers=MILESTONES.filter(function(m){return !usedMs[m.package];});
+  var leftEvents=[];
+  leftovers.forEach(function(m){(m.rows||[]).forEach(function(r){
+    if(r.status==='submitted'&&/^\d{4}-\d{2}-\d{2}/.test(r.date))
+      leftEvents.push({date:r.date.slice(0,10),cls:'hist-ms',text:'📦 '+m.package.split('[')[0].trim()+' — '+r.what.slice(0,90)});
+  });});
+  if(leftEvents.length){
+    sectionHead(c,'Issued record — packages with no open items','var(--faint)');
+    leftEvents.sort(function(a,b){return b.date<a.date?-1:b.date>a.date?1:0;});
+    leftEvents.forEach(function(ev){c.appendChild(histRow(ev));});
+  }
 }
 
 function renderSessionData(d){
