@@ -193,6 +193,29 @@
   .copybtn{background:var(--text);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;}
   .copybtn:active{opacity:.8;}
   .copybtn.copied{background:var(--teal);}
+  /* ---- 2026-07-04 model additions ---- */
+  .badge.i{color:#f59e0b;border-color:#f59e0b;}
+  .then-tag{display:inline-block;font-size:11px;color:var(--muted);border:1px dashed var(--border);border-radius:12px;padding:1px 8px;margin-left:6px;}
+  .state-pill{text-transform:uppercase;letter-spacing:.04em;font-weight:700;}
+  .fa-respond.active{background:rgb(94,138,158);color:#fff;border-color:rgb(94,138,158);}
+  .item-actions{margin-top:7px;display:flex;gap:6px;flex-wrap:wrap;}
+  .item-actions button{background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:2px 9px;font-size:11px;cursor:pointer;font-family:inherit;}
+  .item-actions button:hover{border-color:var(--muted);color:var(--text);}
+  .phase-chip{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:10px;padding:1px 8px;margin-left:8px;vertical-align:1px;}
+  .phase-bid{background:rgba(181,144,66,.14);color:var(--gold);}
+  .phase-construction{background:rgba(94,158,149,.14);color:var(--teal);}
+  .ov-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin:10px 0;}
+  .ov-card h4{margin:0 0 4px;font-size:14px;font-weight:650;}
+  .ov-line{font-size:12.5px;color:var(--muted);margin:2px 0;}
+  .ov-countdown{font-weight:700;color:var(--teal);}
+  .ov-countdown.soon{color:var(--terracotta);}
+  .hist-entry{font-size:13px;padding:5px 0 5px 14px;border-left:2px solid var(--border-soft);margin-left:4px;}
+  .hist-entry .hd{font-size:11px;color:var(--faint);font-variant-numeric:tabular-nums;margin-right:8px;}
+  .hist-entry.hist-ms{border-left-color:var(--gold);}
+  .hist-entry.hist-done{border-left-color:var(--teal);}
+  .court-cascade{display:inline-flex;gap:4px;}
+  .court-cascade select,.court-cascade input{font-family:inherit;font-size:12px;padding:2px 4px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--text);max-width:150px;}
+  #morningBtn.active{background:#f59e0b;border-color:#f59e0b;color:#fff;}
   /* ---- password gate ---- */
   #gateOverlay{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;align-items:center;justify-content:center;}
   .gate-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:28px 30px;max-width:340px;width:calc(100% - 48px);text-align:center;}
@@ -233,15 +256,9 @@
   </div>
 
   <div class="capture">
-    <span class="tag">Quick capture — while you're at work</span>
+    <span class="tag">Quick capture — brand-new items only (use the buttons on a card for notes, subtasks, blockers)</span>
     <div class="capture-row">
-      <select id="capType" onchange="onCapTypeChange()">
-        <option value="item">New item</option>
-        <option value="note">Note — follow-up on an existing item</option>
-        <option value="blocker">Blocker — flag an item as blocking</option>
-        <option value="watch">Watch — add an item to the watch list</option>
-        <option value="subtask">Subtask — add a step under an existing item</option>
-      </select>
+      <select id="capType" style="display:none"><option value="item" selected>New item</option></select>
       <select id="capProgram" onchange="onCapProgramChange()"></select>
       <select id="capPkg" onchange="onCapPkgChange()"></select>
       <input type="text" id="capText" placeholder="What happened / what's new…">
@@ -250,8 +267,9 @@
     <div class="capture-row" id="capItemRow" style="display:none;">
       <select id="capItem" style="flex:1 1 100%;"></select>
     </div>
-    <div class="capture-status" id="capStatus">Saved straight to your tracker sheet — not in the vault yet. Tell me to sync next time we're in a session.</div>
+    <div class="capture-status" id="capStatus">Captures save locally in this browser. Click “Copy for check-in” and paste to Claude to fold them into the vault.</div>
     <div class="pending-list" id="pendingList"><span class="pending-empty">Nothing pending yet.</span></div>
+    <div class="capture-row" style="justify-content:flex-end;gap:8px;margin-top:10px;"><button type="button" onclick="clearCaptures()" style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:5px 12px;font-size:12.5px;cursor:pointer;font-family:inherit;">Clear</button><button type="button" onclick="exportCaptures()">Copy for check-in</button></div>
   </div>
 
   <div class="voice" id="voiceBox"></div>
@@ -279,9 +297,12 @@
       <button data-view="program" class="active" onclick="setView('program')">Program</button>
       <button data-view="status" onclick="setView('status')">Status</button>
       <button data-view="discipline" onclick="setView('discipline')">Discipline</button>
+      <button data-view="court" onclick="setView('court')">Court</button>
+      <button data-view="overview" onclick="setView('overview')">Overview</button>
+      <button data-view="history" onclick="setView('history')">History</button>
     </div>
-    <label class="control-toggle"><input type="checkbox" id="priModeToggle" onchange="togglePriorityMode()"> Priority colors</label>
     <label class="control-toggle"><input type="checkbox" id="collapseAllToggle" onchange="toggleCollapseAll()"> Collapse sections</label>
+    <button class="btn-mycourt" id="morningBtn" onclick="toggleMorningPreset()" title="Today + overdue + blocking, in my court — applied within the full board">Morning</button>
     <button class="btn-mycourt" id="myCourtBtn" onclick="toggleMyCourtFilter()">My court</button>
     <div class="searchbox">
       <input type="text" id="searchBox" placeholder="Search items…" oninput="onSearchInput()">
@@ -299,6 +320,7 @@
     <button class="fchip fa-model" data-action="model" onclick="toggleActionChip(this)">Model</button>
     <button class="fchip fa-review" data-action="review" onclick="toggleActionChip(this)">Review</button>
     <button class="fchip fa-coordinate" data-action="coordinate" onclick="toggleActionChip(this)">Coordinate</button>
+    <button class="fchip fa-respond" data-action="respond" onclick="toggleActionChip(this)">Respond</button>
     <button class="fchip fa-chase" data-action="chase" onclick="toggleActionChip(this)">Chase</button>
     <button class="fchip fa-admin" data-action="admin" onclick="toggleActionChip(this)">Admin</button>
   </div>
@@ -314,6 +336,9 @@
   <div id="programView"></div>
   <div id="statusView" style="display:none"></div>
   <div id="disciplineView" style="display:none"></div>
+  <div id="courtView" style="display:none"></div>
+  <div id="overviewView" style="display:none"></div>
+  <div id="historyView" style="display:none"></div>
 
   <div id="completedSection"></div>
 
@@ -355,12 +380,56 @@ var STATUS_GROUPS = [
 var VIEW_HEADINGS = {
   program:'Open items, by program',
   status:'Open items, by status',
-  discipline:'Open items, by discipline'
+  discipline:'Open items, by discipline',
+  court:'The court — whose move is it?',
+  overview:'Status overview, per package',
+  history:'What happened so far'
 };
 var activeHorizons = {}, activeActions = {};
+var MILESTONES = [], STAKEHOLDERS = [];
+var VIEW_IDS = {program:'programView',status:'statusView',discipline:'disciplineView',court:'courtView',overview:'overviewView',history:'historyView'};
+var morningActive = false;
+function courtList(v){return Array.isArray(v)?v:(v?String(v).split(',').map(function(x){return x.trim();}).filter(Boolean):[]);}
+function courtHasYou(v){return courtList(v).indexOf('You')!==-1;}
+function elCourtHasYou(el){return courtHasYou(el.getAttribute('data-court')||'');}
 
 function escapeHtml(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
 function makeBadge(cls,text){var b=document.createElement('span');b.className='badge '+cls;b.textContent=text;return b;}
+
+function openCourtEditor(el,courtB){
+  var wrap=document.createElement('span');wrap.className='court-cascade';
+  var discSel=document.createElement('select');
+  var discs=[];STAKEHOLDERS.forEach(function(p){if(p.disc&&discs.indexOf(p.disc)===-1)discs.push(p.disc);});discs.sort();
+  var opts=[['','discipline…'],['You','You']].concat(discs.map(function(d){return[d,d];})).concat([['__other','Other / list…']]);
+  opts.forEach(function(o){var op=document.createElement('option');op.value=o[0];op.textContent=o[1];discSel.appendChild(op);});
+  var personSel=document.createElement('select');personSel.style.display='none';
+  var freeInp=document.createElement('input');freeInp.type='text';freeInp.style.display='none';freeInp.value=el.getAttribute('data-court')||'';freeInp.placeholder='Name, Name…';
+  function commit(val){
+    val=(val||'').trim();
+    if(val){el.setAttribute('data-court',val);courtB.textContent=courtList(val).join(' + ');
+      var ct=courtB.closest('.ctag');if(ct)ct.classList.toggle('ctag-you',courtHasYou(val));}
+    wrap.replaceWith(courtB);buildFocusPanel();buildTodayFocus();applySearchFilter();
+  }
+  discSel.addEventListener('change',function(){
+    var v=discSel.value;
+    personSel.style.display='none';freeInp.style.display='none';
+    if(v==='You'){commit('You');return;}
+    if(v==='__other'){freeInp.style.display='';freeInp.focus();freeInp.select();return;}
+    if(!v)return;
+    personSel.innerHTML='';
+    var ppl=STAKEHOLDERS.filter(function(p){return p.disc===v;});
+    var ph=document.createElement('option');ph.value='';ph.textContent='person…';personSel.appendChild(ph);
+    ppl.forEach(function(p){var o=document.createElement('option');o.value=p.name;o.textContent=p.name+(p.org&&!p.internal?' ('+p.org+')':'');personSel.appendChild(o);});
+    personSel.style.display='';personSel.focus();
+  });
+  personSel.addEventListener('change',function(){if(personSel.value)commit(personSel.value);});
+  freeInp.addEventListener('keydown',function(ke){if(ke.key==='Enter')commit(freeInp.value);if(ke.key==='Escape')wrap.replaceWith(courtB);});
+  freeInp.addEventListener('blur',function(){if(freeInp.style.display!=='none')commit(freeInp.value);});
+  var esc=function(ke){if(ke.key==='Escape')wrap.replaceWith(courtB);};
+  discSel.addEventListener('keydown',esc);personSel.addEventListener('keydown',esc);
+  wrap.appendChild(discSel);wrap.appendChild(personSel);wrap.appendChild(freeInp);
+  courtB.replaceWith(wrap);discSel.focus();
+}
 
 function renderItem(itemData){
   var el=document.createElement('div');
@@ -372,7 +441,10 @@ function renderItem(itemData){
   el.setAttribute('data-id',itemData.id);
   el.setAttribute('data-cat',itemData.cat||'');
   el.setAttribute('data-disc',(itemData.disc||[]).join(' '));
-  el.setAttribute('data-court',itemData.court||'');
+  el.setAttribute('data-court',courtList(itemData.court).join(', '));
+  if(itemData.then)el.setAttribute('data-then',itemData.then);
+  if(itemData.impact)el.setAttribute('data-impact',itemData.impact);
+  if(itemData.state)el.setAttribute('data-state',itemData.state);
   el.setAttribute('data-horizon',itemData.horizon||'');
   el.setAttribute('data-action',itemData.action||'');
   el.setAttribute('data-date',itemData.date||'');
@@ -385,6 +457,7 @@ function renderItem(itemData){
   if(itemData.status==='blocking')el.appendChild(makeBadge('p','P'));
   else if(itemData.status==='unverified')el.appendChild(makeBadge('u','U'));
   else if(itemData.status==='watch')el.appendChild(makeBadge('w','W'));
+  if(itemData.impact==='high')el.appendChild(makeBadge('i','★'));
   if(itemData.isNew)el.appendChild(makeBadge('n','N'));
   el.appendChild(document.createTextNode(itemData.title));
   if(itemData.why){var why=document.createElement('div');why.className='why';why.textContent=itemData.why;el.appendChild(why);}
@@ -419,20 +492,10 @@ function renderItem(itemData){
   }
   var courtWrap=document.createElement('div');courtWrap.className='ctaglist';
   var courtSpan=document.createElement('span');
-  courtSpan.className='ctag'+(itemData.court==='You'?' ctag-you':'');
+  courtSpan.className='ctag'+(courtHasYou(itemData.court)?' ctag-you':'');
   courtSpan.appendChild(document.createTextNode('Court: '));
-  var courtB=document.createElement('b');courtB.textContent=itemData.court||'';courtB.title='Click to edit court';
-  courtB.addEventListener('click',function(e){
-    e.stopPropagation();
-    var inp=document.createElement('input');inp.type='text';inp.className='court-edit-inp';inp.value=el.getAttribute('data-court')||'';
-    courtB.replaceWith(inp);inp.focus();inp.select();
-    function commit(){
-      var val=inp.value.trim();if(val){el.setAttribute('data-court',val);courtB.textContent=val;}
-      inp.replaceWith(courtB);buildFocusPanel();buildTodayFocus();applySearchFilter();
-    }
-    inp.addEventListener('blur',commit);
-    inp.addEventListener('keydown',function(ke){if(ke.key==='Enter')inp.blur();if(ke.key==='Escape')inp.replaceWith(courtB);});
-  });
+  var courtB=document.createElement('b');courtB.textContent=courtList(itemData.court).join(' + ');courtB.title='Click to edit court (discipline → person)';
+  courtB.addEventListener('click',function(e){e.stopPropagation();openCourtEditor(el,courtB);});
   courtSpan.appendChild(courtB);courtWrap.appendChild(courtSpan);
   if(itemData.delegate){
     var delSpan=document.createElement('span');delSpan.className='ctag';
@@ -440,10 +503,16 @@ function renderItem(itemData){
     var delB=document.createElement('b');delB.textContent=itemData.delegate;
     delSpan.appendChild(delB);courtWrap.appendChild(delSpan);
   }
+  if(itemData.then){
+    var thenSpan=document.createElement('span');thenSpan.className='then-tag';thenSpan.textContent='then → '+itemData.then;
+    thenSpan.title='Where the ball goes next — Claude advances court along this chain at check-in';
+    courtWrap.appendChild(thenSpan);
+  }
   el.appendChild(courtWrap);
   var tagWrap=document.createElement('div');tagWrap.className='taglist';
   var catPill=document.createElement('span');catPill.className='pill2';catPill.textContent=CATEGORY_LABELS[itemData.cat]||itemData.cat||'';
   tagWrap.appendChild(catPill);
+  if(itemData.state){var statePill=document.createElement('span');statePill.className='pill2 state-pill';statePill.textContent='RFI: '+itemData.state;tagWrap.appendChild(statePill);}
   (itemData.disc||[]).forEach(function(d){var p=document.createElement('span');p.className='pill2';p.textContent=DISCIPLINE_LABELS[d]||d;tagWrap.appendChild(p);});
   el.appendChild(tagWrap);
   if(itemData.program){
@@ -452,16 +521,20 @@ function renderItem(itemData){
     if(itemData.pkg)locParts.push(itemData.pkg.replace(/Package \d[\d.]*\s*—\s*/,''));
     locEl.textContent='⌂ '+locParts.join(' · ');el.appendChild(locEl);
   }
-  var priSel=document.createElement('select');priSel.className='pri-sel';priSel.title='Override priority';
-  [['auto','Pri: Auto'],['high','Pri: High'],['med','Pri: Med'],['low','Pri: Low']].forEach(function(pair){
-    var o=document.createElement('option');o.value=pair[0];o.textContent=pair[1];priSel.appendChild(o);
+  var actRow=document.createElement('div');actRow.className='item-actions';
+  [['subtask','+ subtask','The sub-step itself…'],['blocker','flag blocking',"Why it's blocking (optional)…"],['note','add note',"What happened / what's new…"]].forEach(function(a){
+    var btn=document.createElement('button');btn.type='button';btn.textContent=a[1];
+    btn.addEventListener('click',function(e){
+      e.stopPropagation();
+      var text=window.prompt(a[2]+'\n\nItem: '+itemData.title.slice(0,120));
+      if(text===null)return;
+      var payload={type:a[0],program:itemData.program||'',pkg:itemData.pkg||'',itemRef:itemData.title.slice(0,160),text:(text||'').trim(),ts:new Date().toISOString()};
+      queueLocally(payload);renderPendingRow(payload);
+      setStatus('Captured — saved locally, copy for check-in when ready.');
+    });
+    actRow.appendChild(btn);
   });
-  priSel.value=itemData.pri||'auto';
-  priSel.addEventListener('change',function(){
-    if(priSel.value==='auto')el.removeAttribute('data-pri');else el.setAttribute('data-pri',priSel.value);
-    applyComputedPriorities();buildFocusPanel();
-  });
-  el.appendChild(priSel);
+  el.appendChild(actRow);
   var doneCb=document.createElement('input');doneCb.type='checkbox';doneCb.className='done-toggle';
   doneCb.title='Mark complete — syncs next check-in';
   doneCb.addEventListener('change',function(){
@@ -589,10 +662,10 @@ function recalcCounts(){
   var sprintEndEl=document.getElementById('statSprintEnd');
   if(sprintEndEl&&window.SPRINT_END_DATE){var sprintDate=new Date(window.SPRINT_END_DATE+'T23:59:59');var sprintCount=0;document.querySelectorAll('#programView .item').forEach(function(it){if(isDone(it))return;var due=it.getAttribute('data-due');if(due&&new Date(due+'T23:59:59')<=sprintDate)sprintCount++;});sprintEndEl.textContent=sprintCount;}
   var overdueEl=document.getElementById('statOverdue');
-  if(overdueEl){var now=Date.now();var overdueCount=0;document.querySelectorAll('#programView .item').forEach(function(it){if(isDone(it))return;var due=it.getAttribute('data-due');if(due&&it.getAttribute('data-court')==='You'&&new Date(due+'T23:59:59').getTime()<now)overdueCount++;});overdueEl.textContent=overdueCount;}
+  if(overdueEl){var now=Date.now();var overdueCount=0;document.querySelectorAll('#programView .item').forEach(function(it){if(isDone(it))return;var due=it.getAttribute('data-due');if(due&&elCourtHasYou(it)&&new Date(due+'T23:59:59').getTime()<now)overdueCount++;});overdueEl.textContent=overdueCount;}
 }
 
-function computePriority(item){var explicit=item.getAttribute('data-pri');if(explicit)return explicit;if(item.classList.contains('blocking'))return'high';var due=item.getAttribute('data-due');if(due){var days=Math.ceil((new Date(due+'T00:00:00').getTime()-Date.now())/86400000);if(days<=3)return'high';if(days<=10)return'med';}if(item.classList.contains('watch'))return'low';return'med';}
+function computePriority(item){if(item.classList.contains('blocking'))return'high';var due=item.getAttribute('data-due');if(due){var days=Math.ceil((new Date(due+'T00:00:00').getTime()-Date.now())/86400000);if(days<=3)return'high';if(days<=10)return'med';}if(item.classList.contains('watch'))return'low';return'med';}
 function applyComputedPriorities(){document.querySelectorAll('#programView .item').forEach(function(item){item.setAttribute('data-pri-computed',computePriority(item));});}
 
 function setBadgeComplete(item){var existing=item.querySelector(':scope>.badge');if(item.dataset.origBadge===undefined)item.dataset.origBadge=existing?existing.outerHTML:'';if(existing)existing.outerHTML='<span class="badge c">C</span>';else{var b=makeBadge('c','C');item.insertBefore(b,item.firstChild);}}
@@ -625,7 +698,7 @@ function buildFocusPanel(){
 function buildTodayFocus(){
   var list=document.getElementById('tfList');if(!list)return;list.innerHTML='';
   var items=Array.prototype.slice.call(document.querySelectorAll('#programView .item[data-horizon="today"]'));
-  items=items.filter(function(it){return !isDone(it)&&it.getAttribute('data-court')==='You';});
+  items=items.filter(function(it){return !isDone(it)&&elCourtHasYou(it);});
   if(!items.length){list.innerHTML='<span class="tf-empty">Nothing tagged for today in your court.</span>';return;}
   items.forEach(function(item){
     var row=document.createElement('div');row.className='tf-row';
@@ -644,12 +717,21 @@ function focusJumpTo(item){setView('program');setTimeout(function(){var det=item
 
 function setView(view){
   document.querySelectorAll('#viewToggle button').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-view')===view);});
-  document.getElementById('programView').style.display=view==='program'?'':'none';
-  document.getElementById('statusView').style.display=view==='status'?'':'none';
-  document.getElementById('disciplineView').style.display=view==='discipline'?'':'none';
+  Object.keys(VIEW_IDS).forEach(function(k){var elv=document.getElementById(VIEW_IDS[k]);if(elv)elv.style.display=k===view?'':'none';});
   var h=document.getElementById('viewHeading');if(h)h.childNodes[0].textContent=VIEW_HEADINGS[view]||'Open items';
-  if(view==='status')buildStatusView();if(view==='discipline')buildDisciplineView();applySearchFilter();
+  if(view==='status')buildStatusView();
+  if(view==='discipline')buildDisciplineView();
+  if(view==='court')buildCourtView();
+  if(view==='overview')buildOverviewView();
+  if(view==='history')buildHistoryView();
+  applySearchFilter();
 }
+function toggleMorningPreset(){
+  morningActive=!morningActive;
+  document.getElementById('morningBtn').classList.toggle('active',morningActive);
+  applySearchFilter();
+}
+function isOverdueEl(it){var due=it.getAttribute('data-due');if(!due)return false;return new Date(due+'T23:59:59').getTime()<Date.now();}
 
 function toggleHorizonChip(btn){var h=btn.getAttribute('data-horizon');if(activeHorizons[h]){delete activeHorizons[h];btn.classList.remove('active');}else{activeHorizons[h]=true;btn.classList.add('active');}applySearchFilter();}
 function toggleActionChip(btn){var a=btn.getAttribute('data-action');if(activeActions[a]){delete activeActions[a];btn.classList.remove('active');}else{activeActions[a]=true;btn.classList.add('active');}applySearchFilter();}
@@ -657,10 +739,11 @@ function hasActiveHorizons(){return Object.keys(activeHorizons).length>0;}
 function hasActiveActions(){return Object.keys(activeActions).length>0;}
 
 function applySearchFilter(){
-  var term=document.getElementById('searchBox').value.trim().toLowerCase();var myCourtOnly=document.getElementById('myCourtBtn').classList.contains('active');var hasFilter=term||myCourtOnly||hasActiveHorizons()||hasActiveActions();
+  var term=document.getElementById('searchBox').value.trim().toLowerCase();var myCourtOnly=document.getElementById('myCourtBtn').classList.contains('active');var hasFilter=term||myCourtOnly||morningActive||hasActiveHorizons()||hasActiveActions();
   document.getElementById('searchClear').style.display=term?'':'none';
-  var activeView=document.getElementById('programView').style.display!=='none'?document.getElementById('programView'):document.getElementById('statusView').style.display!=='none'?document.getElementById('statusView'):document.getElementById('disciplineView');
-  Array.prototype.slice.call(activeView.querySelectorAll('.item')).forEach(function(it){var text=it.textContent.toLowerCase();var matchTerm=!term||text.indexOf(term)!==-1;var matchCourt=!myCourtOnly||it.getAttribute('data-court')==='You';var matchHorizon=!hasActiveHorizons()||!!activeHorizons[it.getAttribute('data-horizon')||''];var matchAction=!hasActiveActions()||!!activeActions[it.getAttribute('data-action')||''];it.style.display=(matchTerm&&matchCourt&&matchHorizon&&matchAction)?'':'none';});
+  var activeView=null;Object.keys(VIEW_IDS).some(function(k){var v=document.getElementById(VIEW_IDS[k]);if(v&&v.style.display!=='none'){activeView=v;return true;}return false;});
+  if(!activeView)activeView=document.getElementById('programView');
+  Array.prototype.slice.call(activeView.querySelectorAll('.item')).forEach(function(it){var text=it.textContent.toLowerCase();var matchTerm=!term||text.indexOf(term)!==-1;var matchCourt=!myCourtOnly||elCourtHasYou(it);var matchHorizon=!hasActiveHorizons()||!!activeHorizons[it.getAttribute('data-horizon')||''];var matchAction=!hasActiveActions()||!!activeActions[it.getAttribute('data-action')||''];var matchMorning=!morningActive||(elCourtHasYou(it)&&((it.getAttribute('data-horizon')||'')==='today'||it.classList.contains('blocking')||isOverdueEl(it)));it.style.display=(matchTerm&&matchCourt&&matchHorizon&&matchAction&&matchMorning)?'':'none';});
   Array.prototype.slice.call(activeView.querySelectorAll('.pkg')).forEach(function(pkg){var visible=Array.prototype.slice.call(pkg.querySelectorAll('.item')).some(function(it){return it.style.display!=='none';});pkg.style.display=(!hasFilter||visible)?'':'none';});
   Array.prototype.slice.call(activeView.querySelectorAll('.altgroup')).forEach(function(grp){var visible=Array.prototype.slice.call(grp.querySelectorAll('.item')).some(function(it){return it.style.display!=='none';});grp.style.display=(!hasFilter||visible)?'':'none';});
   if(activeView.id==='programView'){Array.prototype.slice.call(activeView.querySelectorAll('.program')).forEach(function(prog){var visible=Array.prototype.slice.call(prog.querySelectorAll('.item')).some(function(it){return it.style.display!=='none';});prog.style.display=(!hasFilter||visible)?'':'none';});}
@@ -668,7 +751,7 @@ function applySearchFilter(){
 function onSearchInput(){applySearchFilter();}
 function clearSearch(){document.getElementById('searchBox').value='';applySearchFilter();}
 function toggleMyCourtFilter(){document.getElementById('myCourtBtn').classList.toggle('active');applySearchFilter();}
-function togglePriorityMode(){document.body.classList.toggle('priority-mode',document.getElementById('priModeToggle').checked);}
+/* pri toggle retired 2026-07-04 — urgency colors always on, derived */
 function onProgramHeadClick(e){var prog=e.currentTarget.closest('.program');if(prog)prog.classList.toggle('collapsed');}
 function toggleCollapseAll(){var collapse=document.getElementById('collapseAllToggle').checked;document.querySelectorAll('#programView>.program').forEach(function(p){p.classList.toggle('collapsed',collapse);});document.querySelectorAll('#programView details.pkg').forEach(function(d){d.open=!collapse;});}
 
@@ -700,7 +783,7 @@ function addCapture(){
   var textEl=document.getElementById('capText');var text=textEl.value.trim();if(!text)return;
   var payload={type:type,program:program,pkg:pkg,itemRef:itemRef,text:text,ts:new Date().toISOString()};
   renderPendingRow(payload);textEl.value='';
-  if(!API_URL||API_URL.indexOf('PASTE_')===0){queueLocally(payload);setStatus('Saved locally — Apps Script URL not configured yet.');return;}
+  if(!API_URL||API_URL.indexOf('PASTE_')===0){queueLocally(payload);setStatus('Saved locally ('+queueCount()+' pending). Click “Copy for check-in” to sync with Claude.');return;}
   sendToSheet(payload,function(ok){if(ok)setStatus('Saved to your tracker sheet — tell Claude to sync next session.');else{queueLocally(payload);setStatus('Could not reach the sheet — saved locally, will retry.');}});
 }
 function typeLabel(type){return type==='note'?'Note':type==='complete'?'Done':type==='blocker'?'Blocker':type==='watch'?'Watch':type==='subtask'?'Subtask':'New';}
@@ -735,7 +818,149 @@ function renderPendingRowEdit(row,payload){
   var r3=document.createElement('div');r3.className='pedit-row';r3.appendChild(textInput);r3.appendChild(saveBtn);r3.appendChild(cancelBtn);
   row.appendChild(r1);row.appendChild(r2);row.appendChild(r3);
 }
-function loadPending(){if(!API_URL||API_URL.indexOf('PASTE_')===0)return;fetch(API_URL+'?action=pending').then(function(r){return r.json();}).then(function(rows){if(!rows||!rows.length)return;var list=document.getElementById('pendingList');list.innerHTML='';rows.forEach(function(row){renderPendingRow(row);});}).catch(function(){});}
+function loadPending(){if(!API_URL||API_URL.indexOf('PASTE_')===0){renderLocalQueue();return;}fetch(API_URL+'?action=pending').then(function(r){return r.json();}).then(function(rows){if(!rows||!rows.length)return;var list=document.getElementById('pendingList');list.innerHTML='';rows.forEach(function(row){renderPendingRow(row);});}).catch(function(){});}
+function readQueue(){try{return JSON.parse(localStorage.getItem(localQueueKey())||'[]');}catch(e){return[];}}
+function queueCount(){return readQueue().length;}
+function renderLocalQueue(){var q=readQueue();if(!q.length)return;var list=document.getElementById('pendingList');list.innerHTML='';q.forEach(function(p){renderPendingRow(p);});}
+function exportCaptures(){var q=readQueue();if(!q.length){setStatus('Nothing to copy yet.');return;}var lines=q.map(function(p){var loc=[p.program,p.pkg].filter(Boolean).join(' \u203a ');var ref=p.itemRef?(' [re: '+p.itemRef+']'):'';return '- ['+typeLabel(p.type)+'] '+(loc?loc+': ':'')+p.text+ref;});var out='Work Tracker captures \u2014 '+new Date().toLocaleDateString()+'\n'+lines.join('\n');if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(out).then(function(){setStatus('Copied '+q.length+' capture(s) \u2014 paste to Claude at check-in.');},function(){window.prompt('Copy these and paste to Claude:',out);});}else{window.prompt('Copy these and paste to Claude:',out);}}
+function clearCaptures(){if(!readQueue().length){setStatus('Queue already empty.');return;}if(window.confirm('Clear captured items? Only do this after copying them to Claude.')){localStorage.setItem(localQueueKey(),'[]');document.getElementById('pendingList').innerHTML='<span class="pending-empty">Nothing pending yet.</span>';setStatus('Local queue cleared.');}}
+
+// ---- 2026-07-04 views: Court / Overview / History ----
+function pkgNum(name){var m=/Package\s+([\d.]+)/i.exec(name||'');return m?m[1]:null;}
+function milestoneFor(pkgName,progName){
+  var n=pkgNum(pkgName);
+  for(var i=0;i<MILESTONES.length;i++){
+    var mn=pkgNum(MILESTONES[i].package);
+    if(n&&mn&&(mn===n||(n.indexOf('.')>0&&mn===n.split('.')[0]+'.'+n.split('.')[1])))return MILESTONES[i];
+  }
+  for(var j=0;j<MILESTONES.length;j++){
+    var base=(MILESTONES[j].package||'').split('(')[0].split('[')[0].trim().toLowerCase();
+    var hay=((pkgName||'')+' '+(progName||'')).toLowerCase();
+    if(base&&hay.indexOf(base.slice(0,12))!==-1)return MILESTONES[j];
+  }
+  return null;
+}
+function daysUntil(iso){if(!/^\d{4}-\d{2}-\d{2}$/.test(iso||''))return null;return Math.ceil((new Date(iso+'T00:00:00').getTime()-Date.now())/86400000);}
+function phaseChip(phase){if(!phase)return '';return '<span class="phase-chip phase-'+phase+'">'+phase+'</span>';}
+function sectionHead(container,label,color){var h=document.createElement('div');h.style.cssText='font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:'+(color||'var(--muted)')+';padding:14px 2px 2px;';h.textContent=label;container.appendChild(h);}
+
+function buildCourtView(){
+  var c=document.getElementById('courtView');c.innerHTML='';
+  var open=ITEMS.filter(function(it){return it.status!=='completed';});
+  // Coming to my court — then:: You, ball currently elsewhere
+  var coming=open.filter(function(it){return (it.then||'').indexOf('You')!==-1&&!courtHasYou(it.court);});
+  sectionHead(c,'Coming to my court — heads-up (then:: You)','var(--gold)');
+  if(coming.length){var box=document.createElement('div');coming.forEach(function(it){box.appendChild(makeAltClone(it.id));});c.appendChild(box);}
+  else{var e1=document.createElement('p');e1.className='empty';e1.textContent='Nothing queued to land on you.';c.appendChild(e1);}
+  // Who owes me — court ≠ You, grouped by person (bottleneck = first name)
+  sectionHead(c,'Who owes me — per-person chase list','var(--terracotta)');
+  var byPerson={};
+  open.forEach(function(it){
+    var cl=courtList(it.court);if(!cl.length||courtHasYou(it))return;
+    cl.forEach(function(name,idx){(byPerson[name]=byPerson[name]||[]).push({it:it,bottleneck:idx===0});});
+  });
+  var names=Object.keys(byPerson).sort(function(a,b){return byPerson[b].length-byPerson[a].length;});
+  if(!names.length){var e2=document.createElement('p');e2.className='empty';e2.textContent='Nobody owes you anything right now. Suspicious.';c.appendChild(e2);}
+  names.forEach(function(name){
+    var grp=document.createElement('div');grp.className='altgroup';
+    var gh=document.createElement('div');gh.className='altgroup-head';gh.style.borderLeftColor='var(--terracotta)';
+    var person=null;for(var i=0;i<STAKEHOLDERS.length;i++){if(STAKEHOLDERS[i].name===name){person=STAKEHOLDERS[i];break;}}
+    var gname=document.createElement('span');gname.className='name';gname.textContent=name+(person?' — '+person.disc+(person.org?' · '+person.org:''):'');
+    var gcount=document.createElement('span');gcount.className='counts';gcount.textContent=byPerson[name].length+' item'+(byPerson[name].length!==1?'s':'');
+    gh.appendChild(gname);gh.appendChild(gcount);grp.appendChild(gh);
+    byPerson[name].forEach(function(entry){grp.appendChild(makeAltClone(entry.it.id));});
+    c.appendChild(grp);
+  });
+  // Delegated — still my responsibility
+  var delegated=open.filter(function(it){return it.delegate;});
+  if(delegated.length){
+    sectionHead(c,'Delegated — still my responsibility, they execute','var(--teal)');
+    var dbox=document.createElement('div');delegated.forEach(function(it){dbox.appendChild(makeAltClone(it.id));});c.appendChild(dbox);
+  }
+}
+
+function buildOverviewView(){
+  var c=document.getElementById('overviewView');c.innerHTML='';
+  PROGRAM_ORDER.forEach(function(progName){
+    var progItems=ITEMS.filter(function(it){return it.program===progName;});
+    if(!progItems.length)return;
+    var color=PROGRAM_COLORS[progName]||'var(--gold)';
+    var head=document.createElement('div');head.className='altgroup-head';head.style.borderLeftColor=color;
+    var nm=document.createElement('span');nm.className='name';nm.style.color=color;nm.textContent=progName;head.appendChild(nm);
+    c.appendChild(head);
+    var pkgs=PROGRAM_PKGS[progName]&&PROGRAM_PKGS[progName].length?PROGRAM_PKGS[progName]:[''];
+    pkgs.forEach(function(pkgName){
+      var pkgItems=progItems.filter(function(it){return it.pkg===pkgName;});
+      if(!pkgItems.length)return;
+      var t=tallyData(pkgItems);
+      var doneItems=pkgItems.filter(function(it){return it.status==='completed';});
+      var ms=milestoneFor(pkgName,progName);
+      var card=document.createElement('div');card.className='ov-card';
+      var h=document.createElement('h4');h.innerHTML=escapeHtml(pkgName||progName)+(ms&&ms.phase?phaseChip(ms.phase):'');card.appendChild(h);
+      var counts=document.createElement('div');counts.className='ov-line';
+      counts.textContent=formatCounts(t.open,t.blocking,t.watch)+(doneItems.length?' · '+doneItems.length+' completed':'');card.appendChild(counts);
+      if(ms&&ms.next){
+        var nx=document.createElement('div');nx.className='ov-line';
+        var d=daysUntil(ms.next.date);
+        var cd=d===null?'('+ms.next.date+')':d<0?'(overdue '+(-d)+'d)':d===0?'(today)':'(in '+d+'d)';
+        nx.innerHTML='Next: '+escapeHtml(ms.next.what.slice(0,90))+' <span class="ov-countdown'+(d!==null&&d<=7?' soon':'')+'">'+escapeHtml(cd)+'</span>';
+        card.appendChild(nx);
+      }
+      if(doneItems.length){
+        var rc=document.createElement('div');rc.className='ov-line';
+        rc.textContent='Recently done: '+doneItems.slice(-3).map(function(it){return it.title.slice(0,50);}).join(' · ');
+        card.appendChild(rc);
+      }
+      c.appendChild(card);
+    });
+  });
+  if(!c.children.length)c.innerHTML='<p class="empty">Nothing to show.</p>';
+}
+
+function buildHistoryView(){
+  var c=document.getElementById('historyView');c.innerHTML='';
+  // Decisions log
+  sectionHead(c,'Decisions log — what · who · state','var(--mauve)');
+  var decisions=ITEMS.filter(function(it){return it.cat==='decisions';});
+  if(!decisions.length){var e0=document.createElement('p');e0.className='empty';e0.textContent='No decisions tracked.';c.appendChild(e0);}
+  decisions.forEach(function(it){
+    var row=document.createElement('div');row.className='hist-entry'+(it.status==='completed'?' hist-done':'');
+    var det=ITEM_DETAILS[it.id];var last=det&&det.updates&&det.updates.length?det.updates[det.updates.length-1]:null;
+    var lastDate=last?last.split('|')[0]:(it.date||'');
+    row.innerHTML='<span class="hd">'+escapeHtml(lastDate)+'</span>'+escapeHtml(it.title.slice(0,110))
+      +' <span style="color:var(--faint)">— court: '+escapeHtml(courtList(it.court).join(' + ')||'—')+(it.status==='completed'?' · resolved':'')+'</span>';
+    c.appendChild(row);
+  });
+  // Timeline: submitted milestones + completions + recent updates
+  sectionHead(c,'What happened so far — milestones · completions · updates','var(--teal)');
+  var events=[];
+  MILESTONES.forEach(function(m){
+    (m.rows||[]).forEach(function(r){
+      if(r.status==='submitted'&&/^\d{4}-\d{2}-\d{2}/.test(r.date))
+        events.push({date:r.date.slice(0,10),cls:'hist-ms',text:'📦 '+m.package.split('[')[0].trim()+' — '+r.what.slice(0,90)});
+    });
+  });
+  ITEMS.forEach(function(it){
+    var det=ITEM_DETAILS[it.id];
+    if(it.status==='completed'){
+      var dd=det&&det.updates&&det.updates.length?det.updates[det.updates.length-1].split('|')[0]:(it.date||'');
+      events.push({date:dd||'0000-00-00',cls:'hist-done',text:'✓ '+it.title.slice(0,100)});
+    }else if(det&&det.updates){
+      det.updates.forEach(function(u){
+        var bar=u.indexOf('|');var ds=bar>-1?u.slice(0,bar):'';var tx=bar>-1?u.slice(bar+1):u;
+        if(ds&&daysUntil(ds)!==null&&daysUntil(ds)>=-14)
+          events.push({date:ds,cls:'',text:it.title.slice(0,55)+': '+tx.slice(0,90)});
+      });
+    }
+  });
+  events.sort(function(a,b){return b.date<a.date?-1:b.date>a.date?1:0;});
+  if(!events.length){var e3=document.createElement('p');e3.className='empty';e3.textContent='No history yet.';c.appendChild(e3);}
+  events.slice(0,120).forEach(function(ev){
+    var row=document.createElement('div');row.className='hist-entry '+ev.cls;
+    row.innerHTML='<span class="hd">'+escapeHtml(ev.date)+'</span>'+escapeHtml(ev.text);
+    c.appendChild(row);
+  });
+}
 
 function renderSessionData(d){
   // API URL can be set from data.json — means the friend never edits index.html
@@ -750,7 +975,12 @@ function renderSessionData(d){
     var pt=document.getElementById('pageTitle');if(pt&&d.meta.title)pt.textContent=d.meta.title;
     var pl=document.getElementById('pageLede');if(pl&&d.meta.lede)pl.textContent=d.meta.lede;
     var tt=document.getElementById('todayTag');if(tt&&d.meta.sessionDate)tt.textContent='Today — '+d.meta.sessionDate;
-    if(d.meta.sprintEnd){window.SPRINT_END_DATE=d.meta.sprintEnd;var sc=document.getElementById('sprintChip');if(sc&&d.meta.sprintEndLabel)sc.textContent='Before '+d.meta.sprintEndLabel;var ssl=document.getElementById('statSprintEndLabel');if(ssl&&d.meta.sprintEndLabel)ssl.textContent='due by '+d.meta.sprintEndLabel;}
+    var sprintEnd=d.meta.sprintEnd;
+    if(!sprintEnd||new Date(sprintEnd+'T23:59:59').getTime()<Date.now()){
+      var best=null;MILESTONES.forEach(function(m){if(m.next&&/^\d{4}-\d{2}-\d{2}$/.test(m.next.date)&&new Date(m.next.date).getTime()>=Date.now()&&(!best||m.next.date<best))best=m.next.date;});
+      if(best){sprintEnd=best;d.meta.sprintEnd=best;d.meta.sprintEndLabel=new Date(best+'T00:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric'});}
+    }
+    if(sprintEnd){window.SPRINT_END_DATE=sprintEnd;var sc=document.getElementById('sprintChip');if(sc&&d.meta.sprintEndLabel)sc.textContent='Before '+d.meta.sprintEndLabel;var ssl=document.getElementById('statSprintEndLabel');if(ssl&&d.meta.sprintEndLabel)ssl.textContent='due by '+d.meta.sprintEndLabel;}
     if(d.meta.generated){var ft=document.querySelector('footer');if(ft){var gEl=document.createElement('div');gEl.style.cssText='margin-top:6px;color:var(--faint);font-size:11.5px;';gEl.textContent='Data generated '+d.meta.generated;ft.appendChild(gEl);}}
   }
   if(d.voice&&d.voice.length){
@@ -774,9 +1004,10 @@ function appendTalkGroup(container,grp){
 }
 
 function init(){
+  document.body.classList.add('priority-mode');
   buildProgramView();recalcCounts();applyComputedPriorities();buildFocusPanel();buildTodayFocus();refreshCapPkg();flushLocalQueue();loadPending();
 }
-function boot(d){renderSessionData(d);if(d.items)ITEMS=d.items;if(d.details)ITEM_DETAILS=d.details;init();restoreUiState();}
+function boot(d){MILESTONES=d.milestones||[];STAKEHOLDERS=d.stakeholders||[];renderSessionData(d);if(d.items)ITEMS=d.items;if(d.details)ITEM_DETAILS=d.details;init();restoreUiState();}
 
 // ---- encrypted data (data.enc.json) — password gate ----
 var GATE_PASS_KEY='wt-gate-pass';
@@ -820,9 +1051,9 @@ function saveUiState(){
     var viewBtn=document.querySelector('#viewToggle button.active');
     localStorage.setItem(UI_STATE_KEY,JSON.stringify({
       view:viewBtn?viewBtn.getAttribute('data-view'):'program',
-      pri:document.getElementById('priModeToggle').checked,
       collapse:document.getElementById('collapseAllToggle').checked,
       myCourt:document.getElementById('myCourtBtn').classList.contains('active'),
+      morning:morningActive,
       horizons:Object.keys(activeHorizons),actions:Object.keys(activeActions)
     }));
   }catch(e){}
@@ -833,7 +1064,7 @@ function restoreUiState(){
     (s.horizons||[]).forEach(function(h){var b=document.querySelector('.fchip[data-horizon="'+h+'"]');if(b&&!activeHorizons[h])toggleHorizonChip(b);});
     (s.actions||[]).forEach(function(a){var b=document.querySelector('.fchip[data-action="'+a+'"]');if(b&&!activeActions[a])toggleActionChip(b);});
     if(s.myCourt)document.getElementById('myCourtBtn').classList.add('active');
-    if(s.pri){document.getElementById('priModeToggle').checked=true;togglePriorityMode();}
+    if(s.morning)toggleMorningPreset();
     if(s.collapse){document.getElementById('collapseAllToggle').checked=true;toggleCollapseAll();}
     if(s.view&&s.view!=='program')setView(s.view);
     applySearchFilter();
