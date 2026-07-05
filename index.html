@@ -224,6 +224,8 @@
   .ml-due{font-weight:500;color:var(--muted);font-size:12px;}
   .ml-due.over{color:var(--rose);font-weight:700;}
   .item.pending-local{border-style:dashed;}
+  .focus-row .why-icon{width:auto;min-width:64px;padding:1px 7px;font-size:9px;letter-spacing:.05em;border-radius:4px;white-space:nowrap;}
+  .focus-row .fwho{font-size:11px;white-space:nowrap;flex:0 0 auto;font-weight:600;}
   .rfi-block{border-left:3px solid var(--rfi);margin:10px 0 6px 4px;padding-left:8px;}
   .rfi-head{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--rfi);padding:4px 0 2px;}
   .ms-row{font-size:13px;padding:3px 0;color:var(--text);}
@@ -840,9 +842,9 @@ function buildFocusPanel(){
   items.forEach(function(item){
     if(isDone(item))return;
     var due=item.getAttribute('data-due');var cat=item.getAttribute('data-cat');var court=item.getAttribute('data-court');var reasons=[];
-    if(item.classList.contains('blocking'))reasons.push({code:'block',label:'P'});
-    if(due){var days=Math.ceil((new Date(due+'T00:00:00').getTime()-Date.now())/86400000);if(days<=7)reasons.push({code:'due',label:days<=0?'Overdue':'Due '+days+'d'});}
-    if(cat==='decisions'&&court==='You'&&!item.classList.contains('blocking'))reasons.push({code:'decide',label:'?'});
+    if(item.classList.contains('blocking'))reasons.push({code:'block',label:'BLOCKING'});
+    if(due){var days=Math.ceil((new Date(due+'T00:00:00').getTime()-Date.now())/86400000);if(days<=7)reasons.push({code:'due',label:days<0?'OVERDUE '+(-days)+'d':days===0?'DUE TODAY':'DUE IN '+days+'d'});}
+    if(cat==='decisions'&&courtHasYou(court)&&!item.classList.contains('blocking'))reasons.push({code:'decide',label:'DECISION'});
     if(reasons.length){var pri=item.getAttribute('data-pri-computed');rows.push({item:item,pri:pri,due:due,reasons:reasons});}
   });
   var priRank={high:0,med:1,low:2};var reasonRank={block:0,due:1,decide:2};
@@ -852,10 +854,14 @@ function buildFocusPanel(){
   if(!rows.length){list.innerHTML='<span class="focus-empty">Nothing urgent right now.</span>';return;}
   rows.forEach(function(r){
     var row=document.createElement('div');row.className='focus-row';var code=r.reasons[0].code;var iconClass=code==='block'?'fi-block':code==='due'?'fi-due':'fi-decide';var loc=getItemLocation(r.item);
-    var icon=document.createElement('span');icon.className='why-icon '+iconClass;icon.textContent=r.reasons[0].label;
-    var ftext=document.createElement('span');ftext.className='ftext';ftext.textContent=getItemMainText(r.item).slice(0,140);
+    var icon=document.createElement('span');icon.className='why-icon '+iconClass;icon.textContent=r.reasons.map(function(x){return x.label;}).join(' + ');
+    var ftext=document.createElement('span');ftext.className='ftext';ftext.textContent=getItemMainText(r.item).slice(0,110);
+    var who=document.createElement('span');who.className='fwho';
+    var cl2=courtList(r.item.getAttribute('data-court')||'');
+    who.textContent=courtHasYou(cl2)?'on You':cl2.length?'waiting on '+cl2.join(' + '):'';
+    who.style.color=courtHasYou(cl2)?'var(--teal)':'var(--muted)';
     var floc=document.createElement('span');floc.className='floc';floc.textContent=loc.program;
-    row.appendChild(icon);row.appendChild(ftext);row.appendChild(floc);row.addEventListener('click',function(){focusJumpTo(r.item);});list.appendChild(row);
+    row.appendChild(icon);row.appendChild(ftext);row.appendChild(who);row.appendChild(floc);row.addEventListener('click',function(){focusJumpTo(r.item);});list.appendChild(row);
   });
 }
 
