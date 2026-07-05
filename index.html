@@ -49,18 +49,15 @@
   .badge.p{color:var(--terracotta);border:1px solid var(--terracotta);}
   .badge.u{color:var(--gold);border:1px solid var(--gold);}
   .badge.w{color:var(--muted);border:1px solid var(--muted);}
-  .badge.n{color:var(--rose);border:1px solid var(--rose);}
+  .badge.n{color:var(--sage);border:1px solid var(--sage);}
+  .badge.pend{color:#f59e0b;border:1px solid #f59e0b;}
   .badge.c{color:rgb(154,116,178);border:1px solid rgb(154,116,178);}
   .item .meta{font-size:11.5px;color:var(--muted);margin-top:4px;}
   .item .why{font-size:12px;color:var(--muted);margin-top:4px;border-top:1px dashed var(--border-soft);padding-top:5px;}
   .done-toggle{position:absolute;top:9px;right:13px;width:15px;height:15px;cursor:pointer;accent-color:var(--sage);}
   .item.done-pending{opacity:.55;text-decoration:line-through;}
   .action-pill{display:inline-block;font-size:9.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;border-radius:3px;padding:1px 5px;margin-right:5px;vertical-align:1px;}
-  .action-pill.ap-model{background:rgba(94,158,149,.15);color:var(--teal);}
-  .action-pill.ap-review{background:rgba(168,118,142,.15);color:var(--mauve);}
-  .action-pill.ap-coordinate{background:rgba(150,134,118,.15);color:var(--taupe);}
-  .action-pill.ap-chase{background:rgba(176,122,100,.15);color:var(--terracotta);}
-  .action-pill.ap-admin{background:rgba(150,148,96,.15);color:var(--olive);}
+  .action-pill{background:var(--border-soft);color:var(--muted);}
   .item-next{display:flex;align-items:baseline;gap:6px;margin-top:6px;font-size:12px;color:var(--sage);line-height:1.45;}
   .item-next::before{content:'→';flex-shrink:0;font-size:11px;color:var(--faint);}
   .subtask-list{margin:7px 0 2px 2px;display:flex;flex-direction:column;gap:4px;}
@@ -152,11 +149,9 @@
   .altgroup-head{display:flex;align-items:baseline;gap:10px;margin-bottom:8px;padding-left:10px;border-left:4px solid var(--gold);}
   .altgroup-head .name{font-weight:650;font-size:15.5px;}
   .altgroup-head .counts{font-size:12px;color:var(--muted);}
-  body.priority-mode .item{border-left-color:var(--taupe);}
-  body.priority-mode .item.watch{border-left-color:var(--border);border-left-style:dashed;}
-  body.priority-mode .item[data-pri-computed="high"]{border-left-color:var(--rose);}
-  body.priority-mode .item[data-pri-computed="med"]{border-left-color:var(--olive);}
-  body.priority-mode .item[data-pri-computed="low"]{border-left-color:var(--border);}
+  body.priority-mode .item[data-pri-computed="high"]{border-left-width:6px;margin-left:9px;}
+  body.priority-mode .item[data-pri-computed="med"]{border-left-width:3px;margin-left:12px;}
+  body.priority-mode .item[data-pri-computed="low"]{border-left-width:1px;margin-left:14px;}
   .pri-key{display:none;gap:14px;font-size:11.5px;color:var(--muted);margin:-4px 0 16px;padding-left:2px;}
   body.priority-mode .pri-key{display:flex;}
   .pri-key span{display:flex;align-items:center;gap:5px;}
@@ -342,11 +337,13 @@
       <button data-view="status" onclick="setView('status')">Status</button>
       <button data-view="discipline" onclick="setView('discipline')">Discipline</button>
       <button data-view="court" onclick="setView('court')">Court</button>
+      <button data-view="upcoming" onclick="setView('upcoming')">Upcoming</button>
       <button data-view="overview" onclick="setView('overview')">Overview</button>
       <button data-view="history" onclick="setView('history')">History</button>
     </div>
     <label class="control-toggle"><input type="checkbox" id="collapseAllToggle" onchange="toggleCollapseAll()"> Collapse sections</label>
     <label class="control-toggle"><input type="checkbox" id="cardsExpToggle" onchange="toggleCardsExpanded()"> Expand cards</label>
+    <label class="control-toggle"><input type="checkbox" id="urgencyToggle" checked onchange="toggleUrgencyColors()"> Urgency edges</label>
     <button class="btn-mycourt" id="morningBtn" onclick="toggleMorningPreset()" title="Today + overdue + blocking, in my court — applied within the full board">Morning</button>
     <button class="btn-mycourt" id="myCourtBtn" onclick="toggleMyCourtFilter()">My court</button>
     <div class="searchbox">
@@ -370,11 +367,23 @@
     <button class="fchip fa-admin" data-action="admin" onclick="toggleActionChip(this)">Admin</button>
   </div>
 
-  <div class="pri-key">
-    <span><i class="sw" style="background:var(--rose)"></i>High</span>
-    <span><i class="sw" style="background:var(--olive)"></i>Med</span>
-    <span><i class="sw" style="background:var(--border)"></i>Low</span>
+  <div class="pri-key" id="priKey">
+    <span style="color:var(--muted);">Edge color = state (terracotta blocked · teal open · grey watch) · edge thickness = urgency:</span>
+    <span><i style="display:inline-block;width:6px;height:14px;background:var(--muted);vertical-align:-2px;margin-right:5px;"></i>act now</span>
+    <span><i style="display:inline-block;width:3px;height:14px;background:var(--muted);vertical-align:-2px;margin-right:5px;"></i>dated soon</span>
+    <span><i style="display:inline-block;width:1px;height:14px;background:var(--muted);vertical-align:-2px;margin-right:5px;"></i>no clock</span>
   </div>
+
+  <details style="margin:6px 0 0;font-size:12px;color:var(--muted);">
+    <summary style="cursor:pointer;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--faint);">Color key — what each color means</summary>
+    <div style="padding:8px 2px 2px;line-height:1.9;">
+      <b style="color:var(--text);">Where</b> — section headers carry the program's identity color: <span style="color:var(--mauve);font-weight:700;">Concourse B</span> · <span style="color:var(--sage);font-weight:700;">Centralized / PBS</span> · <span style="color:var(--taupe);font-weight:700;">Cross-program</span>. <span style="color:var(--rfi);font-weight:700;">Grey-brown blocks</span> = the RFI sub-system inside a package.<br>
+      <b style="color:var(--text);">Whose move / state</b> — the line under each title: <span style="color:var(--terracotta);font-weight:700;">terracotta = blocking</span> · <span style="color:var(--teal);font-weight:700;">teal = on you</span> · <span style="color:var(--muted);font-weight:700;">grey = waiting on someone / watch</span>.<br>
+      <b style="color:var(--text);">The card's left edge carries two things at once</b> — its <b>color</b> is the state (<span style="color:var(--terracotta);font-weight:700;">terracotta = blocking</span> · <span style="color:var(--teal);font-weight:700;">teal = open</span> · grey dashed = watch), and its <b>thickness</b> is derived urgency: thick = act now (overdue / blocking / due today) · medium = dated soon · hairline = no clock. Same logic in lists: items get thick edges, dated history/timeline rows get thin ones.<br>
+      <b style="color:var(--text);">Attention</b> — <span style="color:#f59e0b;font-weight:700;">amber</span> always means "look at this": ★ HIGH impact, PENDING captures, date-TBD submissions, the Morning preset.<br>
+      Everything else (action pills, category tags) is deliberately neutral — the word is the information.
+    </div>
+  </details>
 
   <h2 class="section" id="viewHeading">Open items, by program</h2>
 
@@ -382,6 +391,7 @@
   <div id="statusView" style="display:none"></div>
   <div id="disciplineView" style="display:none"></div>
   <div id="courtView" style="display:none"></div>
+  <div id="upcomingView" style="display:none"></div>
   <div id="overviewView" style="display:none"></div>
   <div id="historyView" style="display:none"></div>
 
@@ -389,7 +399,7 @@
 
   <footer>
     This page reads from data.json each session — update that file each check-in, this HTML shell never changes.<br>
-    Badges: <span class="badge p">P</span> blocking · <span class="badge u">U</span> unverified · <span class="badge w">W</span> watch-only · <span class="badge n">N</span> new since last check-in · <span class="badge c">C</span> completed today.<br>
+    Badges: <span class="badge p">BLOCKING</span> holding up others/critical path · <span class="badge w">WATCH</span> not actionable, keeping an eye · <span class="badge i">★ HIGH</span> project-significant (impact) · <span class="badge n">NEW</span> since last check-in · <span class="badge pend">PENDING</span> captured here, not yet in the vault · <span class="badge c">C</span> completed today.<br>
     <strong>To update items:</strong> edit data.json only — items, details, voice, completed, programs. The HTML shell (this file) never needs to change.
   </footer>
 
@@ -427,12 +437,13 @@ var VIEW_HEADINGS = {
   status:'Open items, by status',
   discipline:'Open items, by discipline',
   court:'The court — whose move is it?',
+  upcoming:'Upcoming — everything with a date on it',
   overview:'Status overview, per package',
   history:'What happened so far'
 };
 var activeHorizons = {}, activeActions = {};
 var MILESTONES = [], STAKEHOLDERS = [];
-var VIEW_IDS = {program:'programView',status:'statusView',discipline:'disciplineView',court:'courtView',overview:'overviewView',history:'historyView'};
+var VIEW_IDS = {program:'programView',status:'statusView',discipline:'disciplineView',court:'courtView',upcoming:'upcomingView',overview:'overviewView',history:'historyView'};
 var morningActive = false;
 function courtList(v){return Array.isArray(v)?v:(v?String(v).split(',').map(function(x){return x.trim();}).filter(Boolean):[]);}
 function courtHasYou(v){return courtList(v).indexOf('You')!==-1;}
@@ -451,8 +462,14 @@ function openCourtEditor(el,courtB){
   var freeInp=document.createElement('input');freeInp.type='text';freeInp.style.display='none';freeInp.value=el.getAttribute('data-court')||'';freeInp.placeholder='Name, Name…';
   function commit(val){
     val=(val||'').trim();
-    if(val){el.setAttribute('data-court',val);courtB.textContent=courtList(val).join(' + ');
-      var ct=courtB.closest('.ctag');if(ct)ct.classList.toggle('ctag-you',courtHasYou(val));}
+    if(val&&val!==(el.getAttribute('data-court')||'')){
+      el.setAttribute('data-court',val);courtB.textContent=courtList(val).join(' + ');
+      var ct=courtB.closest('.ctag');if(ct)ct.classList.toggle('ctag-you',courtHasYou(val));
+      var id=el.getAttribute('data-id');var src=null;
+      for(var i=0;i<ITEMS.length;i++){if(ITEMS[i].id===id){src=ITEMS[i];break;}}
+      if(src){var payload={type:'court',program:src.program||'',pkg:src.pkg||'',itemRef:src.title.slice(0,160),text:val,ts:new Date().toISOString()};
+        queueLocally(payload);renderPendingRow(payload);setStatus('Court change recorded \u2014 syncs at check-in.');}
+    }
     wrap.replaceWith(courtB);buildFocusPanel();buildTodayFocus();applySearchFilter();
   }
   discSel.addEventListener('change',function(){
@@ -529,7 +546,7 @@ function renderItem(itemData){
   else if(itemData.status==='unverified')el.appendChild(makeBadge('u','UNVERIFIED'));
   else if(itemData.status==='watch')el.appendChild(makeBadge('w','WATCH'));
   if(itemData.impact==='high')el.appendChild(makeBadge('i','\u2605 HIGH'));
-  if(itemData.pendingLocal)el.appendChild(makeBadge('n','PENDING'));
+  if(itemData.pendingLocal)el.appendChild(makeBadge('pend','PENDING'));
   else if(itemData.isNew)el.appendChild(makeBadge('n','NEW'));
   el.appendChild(document.createTextNode(itemData.title));
   el.appendChild(buildMoveLine(itemData,el));
@@ -566,6 +583,9 @@ function renderItem(itemData){
         var ons=stList.parentNode.querySelectorAll('.st-item.st-done').length;
         stCount.textContent=ons+'/'+det.subtasks.length+' done';
         var ds=dots.querySelectorAll('i');for(var k=0;k<ds.length;k++)ds[k].className=k<ons?'on':'';
+        var payload={type:'stepdone',program:itemData.program||'',pkg:itemData.pkg||'',itemRef:itemData.title.slice(0,160),text:label.slice(0,160),ts:new Date().toISOString()};
+        if(cb.checked){queueLocally(payload);renderPendingRow(payload);setStatus('Step recorded \u2014 syncs at check-in.');}
+        else{removeQueued('stepdone',payload.itemRef,payload.text);rebuildPendingList();}
       });
       var lbl=document.createElement('span');lbl.className='st-label';lbl.textContent=label;
       stItem.appendChild(cb);stItem.appendChild(lbl);stList.appendChild(stItem);
@@ -791,7 +811,7 @@ function recalcCounts(){
   if(overdueEl){var now=Date.now();var overdueCount=0;document.querySelectorAll('#programView .item').forEach(function(it){if(isDone(it))return;var due=it.getAttribute('data-due');if(due&&elCourtHasYou(it)&&new Date(due+'T23:59:59').getTime()<now)overdueCount++;});overdueEl.textContent=overdueCount;}
 }
 
-function computePriority(item){if(item.classList.contains('blocking'))return'high';var due=item.getAttribute('data-due');if(due){var days=Math.ceil((new Date(due+'T00:00:00').getTime()-Date.now())/86400000);if(days<=3)return'high';if(days<=10)return'med';}if(item.classList.contains('watch'))return'low';return'med';}
+function computePriority(item){if(item.classList.contains('blocking'))return'high';var due=item.getAttribute('data-due');if(due){var days=Math.ceil((new Date(due+'T00:00:00').getTime()-Date.now())/86400000);if(days<=3)return'high';if(days<=10)return'med';return'low';}if((item.getAttribute('data-horizon')||'')==='today')return'high';return'low';}
 function applyComputedPriorities(){document.querySelectorAll('#programView .item').forEach(function(item){item.setAttribute('data-pri-computed',computePriority(item));});}
 
 function setBadgeComplete(item){var existing=item.querySelector(':scope>.badge');if(item.dataset.origBadge===undefined)item.dataset.origBadge=existing?existing.outerHTML:'';if(existing)existing.outerHTML='<span class="badge c">C</span>';else{var b=makeBadge('c','C');item.insertBefore(b,item.firstChild);}}
@@ -848,6 +868,7 @@ function setView(view){
   if(view==='status')buildStatusView();
   if(view==='discipline')buildDisciplineView();
   if(view==='court')buildCourtView();
+  if(view==='upcoming')buildUpcomingView();
   if(view==='overview')buildOverviewView();
   if(view==='history')buildHistoryView();
   applySearchFilter();
@@ -877,7 +898,7 @@ function applySearchFilter(){
 function onSearchInput(){applySearchFilter();}
 function clearSearch(){document.getElementById('searchBox').value='';applySearchFilter();}
 function toggleMyCourtFilter(){document.getElementById('myCourtBtn').classList.toggle('active');applySearchFilter();}
-/* pri toggle retired 2026-07-04 — urgency colors always on, derived */
+function toggleUrgencyColors(){var on=document.getElementById('urgencyToggle').checked;document.body.classList.toggle('priority-mode',on);var k=document.getElementById('priKey');if(k)k.style.display=on?'':'none';}
 function onProgramHeadClick(e){var prog=e.currentTarget.closest('.program');if(prog)prog.classList.toggle('collapsed');}
 function toggleCollapseAll(){var collapse=document.getElementById('collapseAllToggle').checked;document.querySelectorAll('#programView>.program').forEach(function(p){p.classList.toggle('collapsed',collapse);});document.querySelectorAll('#programView details.pkg').forEach(function(d){d.open=!collapse;});}
 
@@ -912,7 +933,7 @@ function addCapture(){
   if(!API_URL||API_URL.indexOf('PASTE_')===0){queueLocally(payload);refreshBoard();setStatus('Added to the board ('+queueCount()+' pending). Click “Copy for check-in” to sync with Claude.');return;}
   sendToSheet(payload,function(ok){if(ok)setStatus('Saved to your tracker sheet — tell Claude to sync next session.');else{queueLocally(payload);setStatus('Could not reach the sheet — saved locally, will retry.');}});
 }
-function typeLabel(type){return type==='note'?'Note':type==='complete'?'Done':type==='blocker'?'Blocker':type==='watch'?'Watch':type==='subtask'?'Subtask':'New';}
+function typeLabel(type){return type==='note'?'Note':type==='complete'?'Done':type==='blocker'?'Blocker':type==='watch'?'Watch':type==='subtask'?'Subtask':type==='stepdone'?'Step done':type==='court'?'Court \u2192':'New';}
 function formatTs(ts){if(!ts)return'';var d=new Date(ts);if(isNaN(d.getTime()))return'';return d.toLocaleDateString(undefined,{month:'short',day:'numeric'})+' · '+d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});}
 
 function renderPendingRow(payload){var list=document.getElementById('pendingList');var empty=list.querySelector('.pending-empty');if(empty)empty.remove();var row=document.createElement('div');row.className='pending-row';renderPendingRowView(row,payload);list.appendChild(row);}
@@ -945,6 +966,17 @@ function renderPendingRowEdit(row,payload){
   row.appendChild(r1);row.appendChild(r2);row.appendChild(r3);
 }
 function loadPending(){if(!API_URL||API_URL.indexOf('PASTE_')===0){renderLocalQueue();return;}fetch(API_URL+'?action=pending').then(function(r){return r.json();}).then(function(rows){if(!rows||!rows.length)return;var list=document.getElementById('pendingList');list.innerHTML='';rows.forEach(function(row){renderPendingRow(row);});}).catch(function(){});}
+function removeQueued(type,itemRef,text){
+  var q=readQueue();
+  for(var i=q.length-1;i>=0;i--){if(q[i].type===type&&q[i].itemRef===itemRef&&(!text||q[i].text===text)){q.splice(i,1);break;}}
+  try{localStorage.setItem(localQueueKey(),JSON.stringify(q));}catch(e){}
+}
+function rebuildPendingList(){
+  var list=document.getElementById('pendingList');if(!list)return;list.innerHTML='';
+  var q=readQueue();
+  if(!q.length){list.innerHTML='<span class="pending-empty">Nothing pending yet.</span>';return;}
+  q.forEach(function(p){renderPendingRow(p);});
+}
 function readQueue(){try{return JSON.parse(localStorage.getItem(localQueueKey())||'[]');}catch(e){return[];}}
 function queueCount(){return readQueue().length;}
 function renderLocalQueue(){var q=readQueue();if(!q.length)return;var list=document.getElementById('pendingList');list.innerHTML='';q.forEach(function(p){renderPendingRow(p);});}
@@ -1003,6 +1035,50 @@ function buildCourtView(){
     sectionHead(c,'Delegated — still my responsibility, they execute','var(--teal)');
     var dbox=document.createElement('div');delegated.forEach(function(it){dbox.appendChild(makeAltClone(it.id));});c.appendChild(dbox);
   }
+}
+
+function buildUpcomingView(){
+  var c=document.getElementById('upcomingView');c.innerHTML='';
+  var today=new Date().toISOString().slice(0,10);
+  var evts=[];
+  ITEMS.forEach(function(it){
+    if(it.status==='completed'||!it.due)return;
+    evts.push({date:it.due,kind:'item',it:it});
+  });
+  MILESTONES.forEach(function(m){
+    (m.rows||[]).forEach(function(r){
+      if(r.status!=='upcoming')return;
+      if(/no submission dates/i.test(r.what))return;
+      var pkgLabel=m.package.split('[')[0].split('(')[0].trim();
+      if(/^\d{4}-\d{2}-\d{2}/.test(r.date))evts.push({date:r.date.slice(0,10),kind:'ms',text:pkgLabel+' \u2014 '+r.what.replace(/\u2190[^\u00b7]*$/,'').slice(0,90)});
+      else evts.push({date:null,kind:'ms',text:pkgLabel+' \u2014 '+r.what.slice(0,90)});
+    });
+  });
+  var buckets=[
+    {label:'Overdue',color:'var(--rose)',test:function(d){return d&&d<today;}},
+    {label:'Today',color:'var(--terracotta)',test:function(d){return d===today;}},
+    {label:'Next 7 days',color:'var(--gold)',test:function(d){if(!d||d<=today)return false;return daysUntil(d)<=7;}},
+    {label:'Later',color:'var(--teal)',test:function(d){return d&&daysUntil(d)>7;}},
+    {label:'No date yet \u2014 needs one',color:'var(--faint)',test:function(d){return !d;}}
+  ];
+  var any=false;
+  buckets.forEach(function(b){
+    var hits=evts.filter(function(e){return b.test(e.date);});
+    if(!hits.length)return;
+    any=true;
+    hits.sort(function(a,b2){return (a.date||'9999')<(b2.date||'9999')?-1:1;});
+    sectionHead(c,b.label+' \u00b7 '+hits.length,b.color);
+    hits.forEach(function(e){
+      if(e.kind==='ms'){
+        var row=document.createElement('div');row.className='hist-entry hist-up';
+        row.innerHTML='<span class="hd">'+escapeHtml(e.date||'TBD')+'</span>\u25c7 submission \u00b7 '+escapeHtml(e.text);
+        c.appendChild(row);
+      }else{
+        c.appendChild(makeAltClone(e.it.id));
+      }
+    });
+  });
+  if(!any)c.innerHTML='<p class="empty">Nothing dated is coming up.</p>';
 }
 
 function buildOverviewView(){
@@ -1204,7 +1280,8 @@ function buildMsStrip(){
     var cdTxt=c.d===null?'date TBD':c.d<0?(-c.d)+'d overdue':c.d===0?'today':'in '+c.d+'d';
     chip.className='ms-chip'+(c.d===null?' tbd':(c.d<=7?' soon':''));
     chip.innerHTML='<b>'+escapeHtml(c.label)+'</b> '+escapeHtml(c.what)+' <span class="cd">'+escapeHtml(cdTxt)+'</span>';
-    chip.title=c.label+' \u2014 '+c.what+(c.d===null?' (date TBD)':' \u00b7 '+c.date);
+    chip.title='Open the Upcoming view';chip.style.cursor='pointer';
+    chip.addEventListener('click',function(){setView('upcoming');});
     strip.appendChild(chip);
   });
   strip.style.display='';
@@ -1229,6 +1306,15 @@ function applyPendingOverlay(){
       var id='pending-'+i;
       items.push({id:id,title:p.text,status:'open',program:p.program||'',pkg:p.pkg||'',pendingLocal:true});
       details[id]={next:null,subtasks:[],updates:[ds+'|Captured on the site \u2014 folds into the vault at check-in']};
+    }else if(p.type==='court'&&p.itemRef){
+      for(var c2=0;c2<items.length;c2++){if(items[c2].title.slice(0,60)===p.itemRef.slice(0,60)){items[c2].court=p.text.indexOf(',')>-1?p.text.split(',').map(function(x){return x.trim();}):p.text;break;}}
+    }else if(p.type==='stepdone'&&p.itemRef){
+      for(var s2=0;s2<items.length;s2++){
+        if(items[s2].title.slice(0,60)!==p.itemRef.slice(0,60))continue;
+        var dd=details[items[s2].id];if(!dd)break;
+        for(var t2=0;t2<dd.subtasks.length;t2++){if(dd.subtasks[t2]===p.text||dd.subtasks[t2]===p.text+' \u23f3'){dd.subtasks[t2]='\u2713 '+dd.subtasks[t2];break;}}
+        break;
+      }
     }else if(p.type==='complete'&&p.text){
       var tgt=null;
       for(var k=0;k<items.length;k++){if(items[k].title.slice(0,60)===p.text.slice(0,60)){tgt=items[k];break;}}
@@ -1296,6 +1382,7 @@ function saveUiState(){
       view:viewBtn?viewBtn.getAttribute('data-view'):'program',
       collapse:document.getElementById('collapseAllToggle').checked,
       cardsExp:document.getElementById('cardsExpToggle').checked,
+      urgency:document.getElementById('urgencyToggle').checked,
       myCourt:document.getElementById('myCourtBtn').classList.contains('active'),
       morning:morningActive,
       horizons:Object.keys(activeHorizons),actions:Object.keys(activeActions)
@@ -1310,6 +1397,7 @@ function restoreUiState(){
     if(s.myCourt)document.getElementById('myCourtBtn').classList.add('active');
     if(s.morning)toggleMorningPreset();
     if(s.cardsExp){document.getElementById('cardsExpToggle').checked=true;toggleCardsExpanded();}
+    if(s.urgency===false){document.getElementById('urgencyToggle').checked=false;toggleUrgencyColors();}
     if(s.collapse){document.getElementById('collapseAllToggle').checked=true;toggleCollapseAll();}
     if(s.view&&s.view!=='program')setView(s.view);
     applySearchFilter();
