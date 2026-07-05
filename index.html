@@ -125,7 +125,9 @@
   .pedit-row button{font-family:inherit;font-size:12px;font-weight:600;border-radius:6px;padding:6px 12px;cursor:pointer;border:none;background:var(--text);color:#fff;}
   .pedit-row button.pcancel{background:none;border:1px solid var(--border);color:var(--muted);}
   .pending-empty{font-size:12.5px;color:var(--faint);font-style:italic;}
-  .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 8px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 16px;}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 8px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 16px;position:sticky;top:8px;z-index:20;box-shadow:0 1px 0 var(--bg);}
+  .item.completed{display:none;}
+  body.show-completed .item.completed{display:block;opacity:.55;}
   .control-group{display:flex;gap:4px;align-items:center;background:var(--border-soft);border-radius:9px;padding:3px;}
   .control-group button{font-family:inherit;font-size:12.5px;font-weight:600;border:none;background:none;color:var(--muted);padding:6px 11px;border-radius:7px;cursor:pointer;}
   .control-group button.active{background:#fff;color:var(--text);box-shadow:0 1px 2px rgba(0,0,0,.08);}
@@ -244,6 +246,27 @@
   .card-collapse:hover{color:var(--muted);}
   body.cards-expanded .card-collapse{display:none;}
   .item-prov{font-size:10.5px;color:var(--faint);}
+  .stale-chip{display:inline-block;font-size:10px;font-weight:700;color:#f59e0b;border:1px dashed #f59e0b;border-radius:10px;padding:0 7px;margin-left:8px;vertical-align:1px;}
+  .fresh-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--teal);margin-left:8px;vertical-align:0;}
+  .tab-count{display:inline-block;font-size:10px;font-weight:700;background:var(--border-soft);color:var(--muted);border-radius:9px;padding:0 6px;margin-left:5px;vertical-align:1px;}
+  .tab-count.warn{background:#f59e0b;color:#fff;}
+  .tf-row{font-size:13px;padding:3px 0;cursor:pointer;}
+  .tf-row:hover{color:var(--teal);}
+  .tf-row.tf-done{text-decoration:line-through;color:var(--muted);}
+  .g-sec{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin:12px 0;}
+  .g-h{font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--teal);margin-bottom:8px;}
+  .g-flow{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;margin:8px 0;}
+  .g-box{border:1px solid var(--border);border-radius:8px;padding:7px 11px;font-size:12.5px;line-height:1.35;background:var(--bg);}
+  .g-box small{color:var(--muted);font-size:11px;}
+  .g-box.g-done{border-color:var(--teal);}
+  .g-box.g-warm{border-color:var(--terracotta);}
+  .g-arr{align-self:center;color:var(--faint);font-weight:700;}
+  .g-p{font-size:13px;color:var(--text);margin:8px 0 2px;}
+  .g-tbl{font-size:12.5px;border-collapse:collapse;width:100%;}
+  .g-tbl td{border-top:1px solid var(--border-soft);padding:5px 10px 5px 0;vertical-align:top;}
+  .g-tbl td:first-child{white-space:nowrap;color:var(--muted);}
+  .g-quad td{border:1px solid var(--border);padding:7px 10px;text-align:center;}
+  .g-quad .g-warm2{color:var(--terracotta);font-weight:700;}
   .state-pill{text-transform:uppercase;letter-spacing:.04em;font-weight:700;}
   .fa-respond.active{background:rgb(94,138,158);color:#fff;border-color:rgb(94,138,158);}
   .item-actions{margin-top:7px;display:flex;gap:6px;flex-wrap:wrap;}
@@ -287,6 +310,19 @@
     .st-item{font-size:13px;}
     .st-item input[type=checkbox]{width:17px;height:17px;}
     .capture-row select,.capture-row input[type=text]{flex:1 1 100%;font-size:15px;}
+    .controls{position:static;}
+    .ms-strip{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+    .ms-strip .ms-chip{flex:0 0 auto;}
+    #viewToggle{flex-wrap:wrap;}
+    .focus-row{flex-wrap:wrap;}
+    .focus-row .fwho{flex-basis:100%;padding-left:2px;}
+    .move-line{font-size:12px;}
+    .card-brief{font-size:10.5px;gap:6px;}
+    .item-foot{gap:4px 8px;}
+    .g-flow{flex-direction:column;align-items:stretch;}
+    .g-arr{align-self:flex-start;padding-left:6px;}
+    .g-tbl{font-size:11.5px;}
+    .court-cascade select,.court-cascade input{max-width:110px;}
     .capture-row button{flex:1 1 100%;padding:11px;}
     .controls{padding:10px 12px;}
     .control-group button{padding:8px 12px;}
@@ -326,7 +362,7 @@
     <div class="capture-row" style="justify-content:flex-end;gap:8px;margin-top:10px;"><button type="button" onclick="clearCaptures()" style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:5px 12px;font-size:12.5px;cursor:pointer;font-family:inherit;">Clear</button><button type="button" onclick="exportCaptures()">Copy for check-in</button></div>
   </div>
 
-  <div class="voice" id="voiceBox"></div>
+  <details class="voice"><summary style="cursor:pointer;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--teal);">What we sorted out — session notes</summary><div id="voiceBox"></div></details>
 
   <div class="stats">
     <div class="stat"><div class="n" id="statOutstanding">—</div><div class="l">outstanding items</div></div>
@@ -358,14 +394,16 @@
       <button data-view="milestones" onclick="setView('milestones')">Milestones</button>
       <button data-view="overview" onclick="setView('overview')">Overview</button>
       <button data-view="history" onclick="setView('history')">History</button>
+      <button data-view="guide" onclick="setView('guide')">Guide</button>
     </div>
     <label class="control-toggle"><input type="checkbox" id="collapseAllToggle" onchange="toggleCollapseAll()"> Collapse sections</label>
     <label class="control-toggle"><input type="checkbox" id="cardsExpToggle" onchange="toggleCardsExpanded()"> Expand cards</label>
     <label class="control-toggle"><input type="checkbox" id="urgencyToggle" checked onchange="toggleUrgencyColors()"> Urgency edges</label>
+    <label class="control-toggle"><input type="checkbox" id="showCompletedToggle" onchange="toggleShowCompleted()"> Show completed</label>
     <button class="btn-mycourt" id="morningBtn" onclick="toggleMorningPreset()" title="Today + overdue + blocking, in my court — applied within the full board">Morning</button>
     <button class="btn-mycourt" id="myCourtBtn" onclick="toggleMyCourtFilter()">My court</button>
     <div class="searchbox">
-      <input type="text" id="searchBox" placeholder="Search items…" oninput="onSearchInput()">
+      <input type="text" id="searchBox" placeholder="Search items…  ( / )" oninput="onSearchInput()">
     </div>
     <button class="search-clear" id="searchClear" onclick="clearSearch()">Clear</button>
   </div>
@@ -413,6 +451,79 @@
   <div id="milestonesView" style="display:none"></div>
   <div id="overviewView" style="display:none"></div>
   <div id="historyView" style="display:none"></div>
+  <div id="guideView" style="display:none">
+
+    <div class="g-sec"><div class="g-h">1 · The journey of an item</div>
+      <div class="g-flow">
+        <span class="g-box">Something happens<br><small>meeting · Teams · email · site "+ item"</small></span><span class="g-arr">→</span>
+        <span class="g-box">Check-in with Claude<br><small>folded into the vault with tags, source named</small></span><span class="g-arr">→</span>
+        <span class="g-box">Lands here as a card<br><small>one home: Program → Package</small></span><span class="g-arr">→</span>
+        <span class="g-box">The ball moves<br><small>court advances along <b>then →</b> chains</small></span><span class="g-arr">→</span>
+        <span class="g-box g-done">Done<br><small>dated resolution → History + Friday rollup</small></span>
+      </div>
+      <p class="g-p">One item = one workstream. If a card keeps getting messy, it's usually two items — Claude proposes the split at check-in.</p>
+    </div>
+
+    <div class="g-sec"><div class="g-h">2 · One home, many lenses</div>
+      <p class="g-p">Every item lives in exactly <b>one place</b> (Program → Package — the filing cabinet). Everything else is a <b>lens</b> — an independent dial you can filter by, cutting across all programs at once:</p>
+      <table class="g-tbl">
+        <tr><td><b>court</b></td><td>whose move is it <i>right now</i> — a person or You; can be a short list (first name = the bottleneck)</td></tr>
+        <tr><td><b>then →</b></td><td>who the ball goes to next — powers "coming to my court"</td></tr>
+        <tr><td><b>delegate</b></td><td>still <i>your</i> responsibility, they execute — stays in your accountability view</td></tr>
+        <tr><td><b>horizon</b></td><td>today · week · sprint (until the package's next submission) · watch (no clock)</td></tr>
+        <tr><td><b>action</b></td><td>the <i>mode</i> of work, from the Next line's verb: model · review · coordinate · respond (you owe an answer) · chase (you want theirs) · admin</td></tr>
+        <tr><td><b>discipline</b></td><td>what trade the item is <i>about</i> — the subject, nothing else</td></tr>
+        <tr><td><b>category</b></td><td>what kind of thing it is: decisions · meetings · coordination · documentation · drawings · rfi. Rule: action = how you work, category = what it is — never overlap</td></tr>
+      </table>
+    </div>
+
+    <div class="g-sec"><div class="g-h">3 · How a card earns its look</div>
+      <p class="g-p"><b>Urgency is computed, never hand-set</b> — it becomes the edge <i>thickness</i>:</p>
+      <div class="g-flow">
+        <span class="g-box g-warm">overdue</span><span class="g-arr">or</span>
+        <span class="g-box g-warm">blocking</span><span class="g-arr">or</span>
+        <span class="g-box g-warm">due ≤ 3d / today</span><span class="g-arr">→</span>
+        <span class="g-box"><b>thick edge</b> — act now</span>
+      </div>
+      <div class="g-flow">
+        <span class="g-box">due within 10 days</span><span class="g-arr">→</span><span class="g-box"><b>medium edge</b> — it thickens as the date approaches</span>
+      </div>
+      <div class="g-flow">
+        <span class="g-box">no date</span><span class="g-arr">→</span><span class="g-box"><b>hairline</b> — no clock</span>
+      </div>
+      <p class="g-p"><b>Importance (★ HIGH)</b> is separate and rare. Claude proposes it only from a named signal — critical path · cost · safety/code · cross-package ripple · a decision others wait on · owner (YYC) visibility. No signal, no star. Urgent×important together pick your <b>Today five</b>, always plus 1–2 important-not-urgent items so strategic work isn't buried.</p>
+    </div>
+
+    <div class="g-sec"><div class="g-h">4 · Court × blocking = your verb</div>
+      <table class="g-tbl g-quad">
+        <tr><td></td><td><b>ball is yours</b></td><td><b>ball is theirs</b></td></tr>
+        <tr><td><b>blocking</b></td><td class="g-warm2">DO — drop other things</td><td class="g-warm2">CHASE — push the person named</td></tr>
+        <tr><td><b>not blocking</b></td><td>QUEUE — schedule it</td><td>WAIT — watch, don't nag yet</td></tr>
+      </table>
+      <p class="g-p">The colored line under each title says this in words: <span style="color:var(--terracotta);font-weight:700;">Blocking · waiting on YYC</span> vs <span style="color:var(--teal);font-weight:700;">on You</span>.</p>
+    </div>
+
+    <div class="g-sec"><div class="g-h">5 · "Coordinating with" — the derived lens</div>
+      <p class="g-p">The <b>Discipline</b> filter shows what an item is <i>about</i>. "Coordinating with" answers a different question: <b>whose hat is the ball under?</b> It's never tagged — it's derived: the item's court names a person → Stakeholders.md says what hat they wear → the item lands in that group. Use it to batch conversations: before the mechanical call, open Court → "Coordinating with → Mechanical" and everything waiting on a mechanical person is one list.</p>
+      <div class="g-flow">
+        <span class="g-box">item: court = Greg Pink</span><span class="g-arr">→</span>
+        <span class="g-box">Stakeholders: Greg = EL · SMP</span><span class="g-arr">→</span>
+        <span class="g-box">shows under "Coordinating with → Electrical"</span>
+      </div>
+    </div>
+
+    <div class="g-sec"><div class="g-h">6 · RFIs — their own little machine</div>
+      <div class="g-flow">
+        <span class="g-box">open<br><small>contractor raises</small></span><span class="g-arr">→</span>
+        <span class="g-box">answered<br><small>design responds</small></span><span class="g-arr">→</span>
+        <span class="g-box">reopened<br><small>if unsettled — rev .0 → .1</small></span><span class="g-arr">→</span>
+        <span class="g-box g-done">closed<br><small>scope/cost change → PCN or SI</small></span>
+      </div>
+      <p class="g-p">RFIs live inside their package (the black-edged block) and in the RFI Log register on the Overview tab. Concourse B's run in Onware, Centralized's on the Planner board.</p>
+    </div>
+
+    <p class="g-p" style="color:var(--faint);">Source of truth for all of this: the Obsidian vault. This page just renders it — the daily check-in with Claude is where things change.</p>
+  </div>
 
   <div id="completedSection"></div>
 
@@ -459,11 +570,12 @@ var VIEW_HEADINGS = {
   upcoming:'Upcoming — everything with a date on it',
   milestones:'Milestones — every package, every submission',
   overview:'Status overview, per package',
-  history:'What happened so far'
+  history:'What happened so far',
+  guide:'How the tracker thinks — the journey of an item'
 };
 var activeHorizons = {}, activeActions = {};
 var MILESTONES = [], STAKEHOLDERS = [];
-var VIEW_IDS = {program:'programView',status:'statusView',discipline:'disciplineView',court:'courtView',upcoming:'upcomingView',milestones:'milestonesView',overview:'overviewView',history:'historyView'};
+var VIEW_IDS = {program:'programView',status:'statusView',discipline:'disciplineView',court:'courtView',upcoming:'upcomingView',milestones:'milestonesView',overview:'overviewView',history:'historyView',guide:'guideView'};
 var morningActive = false;
 function courtList(v){return Array.isArray(v)?v:(v?String(v).split(',').map(function(x){return x.trim();}).filter(Boolean):[]);}
 function courtHasYou(v){return courtList(v).indexOf('You')!==-1;}
@@ -540,6 +652,7 @@ function buildMoveLine(it,el){
 function renderItem(itemData){
   var el=document.createElement('div');
   var cls='item';
+  if(itemData.status==='completed')cls+=' completed';
   if(itemData.pendingComplete)cls+=' done-pending';
   if(itemData.pendingLocal)cls+=' pending-local';
   if(itemData.status==='blocking')cls+=' blocking';
@@ -624,6 +737,18 @@ function renderItem(itemData){
     });
     tlBtn.addEventListener('click',function(){tlWrap.classList.toggle('tl-open');});
     more.appendChild(tlBtn);more.appendChild(tlWrap);
+  }
+  // ---- movement age: stale chip (5d+ quiet) or fresh dot (moved in last 24h) ----
+  var lastMove=null;
+  if(det&&det.updates&&det.updates.length){var lm2=det.updates[det.updates.length-1].split('|')[0];if(/^\d{4}-\d{2}-\d{2}$/.test(lm2))lastMove=lm2;}
+  if(!lastMove&&itemData.date)lastMove=itemData.date;
+  if(itemData.status!=='completed'&&itemData.status!=='watch'&&lastMove){
+    var ageDays=Math.floor((Date.now()-new Date(lastMove+'T00:00:00').getTime())/86400000);
+    var ml2=el.querySelector('.move-line');
+    if(ml2){
+      if(ageDays>=5){var sc2=document.createElement('span');sc2.className='stale-chip';sc2.textContent='stale '+ageDays+'d';sc2.title='No movement since '+lastMove+' — surfaces at check-in';ml2.appendChild(sc2);}
+      else if(ageDays<=1){var fd=document.createElement('span');fd.className='fresh-dot';fd.title='Moved '+(ageDays===0?'today':'yesterday');ml2.appendChild(fd);}
+    }
   }
   // ---- footer: court chain + pills + location on one clean row ----
   var foot=document.createElement('div');foot.className='item-foot';
@@ -808,9 +933,9 @@ function sortItemData(arr){
     var da=a.date?new Date(a.date+'T00:00:00').getTime():0;var db=b.date?new Date(b.date+'T00:00:00').getTime():0;return db-da;
   });
 }
-function tallyData(arr){var open=0,blocking=0,watch=0;arr.forEach(function(it){if(it.status==='blocking')blocking++;else if(it.status==='watch')watch++;else open++;});return{open:open,blocking:blocking,watch:watch};}
+function tallyData(arr){var open=0,blocking=0,watch=0;arr.forEach(function(it){if(it.status==='completed')return;if(it.status==='blocking')blocking++;else if(it.status==='watch')watch++;else open++;});return{open:open,blocking:blocking,watch:watch};}
 function tallyDom(items){var open=0,blocking=0,watch=0;items.forEach(function(it){if(isDone(it))return;if(it.classList.contains('blocking'))blocking++;else if(it.classList.contains('watch'))watch++;else open++;});return{open:open,blocking:blocking,watch:watch};}
-function isDone(item){return item.classList.contains('done-pending');}
+function isDone(item){return item.classList.contains('done-pending')||item.classList.contains('completed');}
 function formatCounts(open,blocking,watch){var parts=[];if(open>0)parts.push(open+' open');if(blocking>0)parts.push(blocking+' blocking');if(watch>0)parts.push(watch+' watch');return parts.length?parts.join(' · '):'0 open';}
 function getItemMainText(item){var clone=item.cloneNode(true);Array.prototype.slice.call(clone.querySelectorAll('.meta,.why,.badge,.done-toggle,.ctaglist,.taglist,.item-next,.subtask-list,.tl-toggle,.timeline-wrap,.action-pill,.pri-sel,.sec-row,.sec-label,.item-foot,.item-actions,.item-loc,.move-line,.card-brief,.card-collapse')).forEach(function(n){n.remove();});return clone.textContent.trim().replace(/\s+/g,' ');}
 function getItemLocation(item){var progEl=item.closest('.program');var nameEl=progEl?progEl.querySelector('.program-head .name'):null;var program=nameEl?nameEl.textContent.trim():'';var pkgEl=item.closest('.pkg');var pkg='';if(pkgEl){var sp=pkgEl.querySelector('summary > span:first-child');pkg=sp?sp.textContent.replace(/▸/g,'').trim():'';}return{program:program,pkg:pkg};}
@@ -866,6 +991,7 @@ function buildFocusPanel(){
 }
 
 function buildTodayFocus(){
+  if(window.TODAY_FROM_VAULT)return;
   var list=document.getElementById('tfList');if(!list)return;list.innerHTML='';
   var items=Array.prototype.slice.call(document.querySelectorAll('#programView .item[data-horizon="today"]'));
   items=items.filter(function(it){return !isDone(it)&&elCourtHasYou(it);});
@@ -916,6 +1042,10 @@ function applySearchFilter(){
   var activeView=null;Object.keys(VIEW_IDS).some(function(k){var v=document.getElementById(VIEW_IDS[k]);if(v&&v.style.display!=='none'){activeView=v;return true;}return false;});
   if(!activeView)activeView=document.getElementById('programView');
   Array.prototype.slice.call(activeView.querySelectorAll('.item')).forEach(function(it){var text=it.textContent.toLowerCase();var matchTerm=!term||text.indexOf(term)!==-1;var matchCourt=!myCourtOnly||elCourtHasYou(it);var matchHorizon=!hasActiveHorizons()||!!activeHorizons[it.getAttribute('data-horizon')||''];var matchAction=!hasActiveActions()||!!activeActions[it.getAttribute('data-action')||''];var matchMorning=!morningActive||(elCourtHasYou(it)&&((it.getAttribute('data-horizon')||'')==='today'||it.classList.contains('blocking')||isOverdueEl(it)));it.style.display=(matchTerm&&matchCourt&&matchHorizon&&matchAction&&matchMorning)?'':'none';});
+  var h2=document.getElementById('viewHeading');
+  if(h2){var old=h2.querySelector('.filter-count');if(old)old.remove();
+    if(hasFilter){var all2=activeView.querySelectorAll('.item');var vis2=0;for(var v2=0;v2<all2.length;v2++){if(all2[v2].style.display!=='none'&&!all2[v2].classList.contains('completed'))vis2++;}
+      var fc=document.createElement('span');fc.className='pill filter-count';fc.textContent='showing '+vis2;h2.appendChild(fc);}}
   Array.prototype.slice.call(activeView.querySelectorAll('.pkg')).forEach(function(pkg){var visible=Array.prototype.slice.call(pkg.querySelectorAll('.item')).some(function(it){return it.style.display!=='none';});pkg.style.display=(!hasFilter||visible)?'':'none';});
   Array.prototype.slice.call(activeView.querySelectorAll('.altgroup')).forEach(function(grp){var visible=Array.prototype.slice.call(grp.querySelectorAll('.item')).some(function(it){return it.style.display!=='none';});grp.style.display=(!hasFilter||visible)?'':'none';});
   if(activeView.id==='programView'){Array.prototype.slice.call(activeView.querySelectorAll('.program')).forEach(function(prog){var visible=Array.prototype.slice.call(prog.querySelectorAll('.item')).some(function(it){return it.style.display!=='none';});prog.style.display=(!hasFilter||visible)?'':'none';});}
@@ -923,6 +1053,7 @@ function applySearchFilter(){
 function onSearchInput(){applySearchFilter();}
 function clearSearch(){document.getElementById('searchBox').value='';applySearchFilter();}
 function toggleMyCourtFilter(){document.getElementById('myCourtBtn').classList.toggle('active');applySearchFilter();}
+function toggleShowCompleted(){document.body.classList.toggle('show-completed',document.getElementById('showCompletedToggle').checked);recalcCounts();}
 function toggleUrgencyColors(){var on=document.getElementById('urgencyToggle').checked;document.body.classList.toggle('priority-mode',on);var k=document.getElementById('priKey');if(k)k.style.display=on?'':'none';}
 function onProgramHeadClick(e){var prog=e.currentTarget.closest('.program');if(prog)prog.classList.toggle('collapsed');}
 function toggleCollapseAll(){var collapse=document.getElementById('collapseAllToggle').checked;document.querySelectorAll('#programView>.program').forEach(function(p){p.classList.toggle('collapsed',collapse);});document.querySelectorAll('#programView details.pkg').forEach(function(d){d.open=!collapse;});}
@@ -1054,6 +1185,44 @@ function buildCourtView(){
     byPerson[name].forEach(function(entry){grp.appendChild(makeAltClone(entry.it.id));});
     c.appendChild(grp);
   });
+  // Coordinating with — counterpart discipline, derived from who holds the ball
+  var HAT_LABELS={AR:'Architectural',ST:'Structural',ME:'Mechanical',EL:'Electrical',FP:'Fire Protection',ID:'Interior Design',signage:'Signage',security:'Security',safety:'Life-Safety',owner:'Owner (YYC)',GC:'Contractor (PCL)',PM:'Project Management',CA:'Contract Admin',BIM:'BIM',QA:'QA/QC',AV:'AV',acoustics:'Acoustics',hardware:'Door Hardware',spec:'Specifications',envelope:'Envelope'};
+  var ORG_HATS={'YYC':'owner','Haptic':'AR','K-Studio':'ID','PCL':'GC','Entro':'signage','S+A':'ME','SMP':'EL','RJC':'ST','VW Mason':'AV','BKL':'acoustics','Tillicum':'hardware'};
+  function hatFor(name){
+    for(var hi=0;hi<STAKEHOLDERS.length;hi++){if(STAKEHOLDERS[hi].name===name)return STAKEHOLDERS[hi].disc;}
+    var nl=name.toLowerCase();
+    for(var hj=0;hj<STAKEHOLDERS.length;hj++){
+      var parts=STAKEHOLDERS[hj].name.toLowerCase().split(/\s+/);
+      if(parts.indexOf(nl)!==-1)return STAKEHOLDERS[hj].disc;
+    }
+    if(ORG_HATS[name])return ORG_HATS[name];
+    return '?';
+  }
+  var byHat={};
+  open.forEach(function(it){
+    courtList(it.court).forEach(function(name){
+      if(name==='You'||name==='TBD')return;
+      var hat=hatFor(name);
+      var g=byHat[hat]=byHat[hat]||{people:{},ids:{},items:[]};
+      g.people[name]=1;
+      if(!g.ids[it.id]){g.ids[it.id]=1;g.items.push(it);}
+    });
+  });
+  var hats=Object.keys(byHat).sort(function(a,b){return byHat[b].items.length-byHat[a].items.length;});
+  if(hats.length){
+    sectionHead(c,'Coordinating with — by counterpart discipline (derived: court \u2192 their hat)','var(--mauve)');
+    hats.forEach(function(hat){
+      var g=byHat[hat];
+      var grp=document.createElement('div');grp.className='altgroup';
+      var gh=document.createElement('div');gh.className='altgroup-head';gh.style.borderLeftColor='var(--mauve)';
+      var gname=document.createElement('span');gname.className='name';
+      gname.textContent=(HAT_LABELS[hat]||hat)+' \u2014 '+Object.keys(g.people).join(', ');
+      var gcount=document.createElement('span');gcount.className='counts';gcount.textContent=g.items.length+' item'+(g.items.length!==1?'s':'');
+      gh.appendChild(gname);gh.appendChild(gcount);grp.appendChild(gh);
+      g.items.forEach(function(it){grp.appendChild(makeAltClone(it.id));});
+      c.appendChild(grp);
+    });
+  }
   // Delegated — still my responsibility
   var delegated=open.filter(function(it){return it.delegate;});
   if(delegated.length){
@@ -1292,9 +1461,25 @@ function renderSessionData(d){
     if(sprintEnd){window.SPRINT_END_DATE=sprintEnd;var sc=document.getElementById('sprintChip');if(sc&&d.meta.sprintEndLabel)sc.textContent='Before '+d.meta.sprintEndLabel;var ssl=document.getElementById('statSprintEndLabel');if(ssl&&d.meta.sprintEndLabel)ssl.textContent='due by '+d.meta.sprintEndLabel;}
     if(d.meta.generated){var ft=document.querySelector('footer');if(ft){var gEl=document.createElement('div');gEl.style.cssText='margin-top:6px;color:var(--faint);font-size:11.5px;';gEl.textContent='Data generated '+d.meta.generated;ft.appendChild(gEl);}}
   }
+  if(d.today&&d.today.items&&d.today.items.length){
+    var tf=document.getElementById('tfList');
+    if(tf){tf.innerHTML='';
+      d.today.items.forEach(function(t){
+        var row=document.createElement('div');row.className='tf-row';
+        if(t.action){var ap2=document.createElement('span');ap2.className='action-pill ap-'+t.action;ap2.textContent=t.action;row.appendChild(ap2);}
+        row.appendChild(document.createTextNode(t.text));
+        if(t.done)row.classList.add('tf-done');
+        row.title='Click to find on the board';
+        row.addEventListener('click',function(){var sb=document.getElementById('searchBox');if(sb){sb.value=t.text.split(/[\u2014:;,\u00b7]/)[0].split(' ').slice(0,4).join(' ');applySearchFilter();}});
+        tf.appendChild(row);
+      });
+      var tt2=document.getElementById('todayTag');if(tt2&&d.today.label)tt2.textContent='Today \u00b7 from check-in '+d.today.label;
+      window.TODAY_FROM_VAULT=true;
+    }
+  }
   if(d.voice&&d.voice.length){
     var vb=document.getElementById('voiceBox');
-    if(vb){var tag=document.createElement('span');tag.className='tag';tag.textContent='What we sorted out today';vb.appendChild(tag);d.voice.forEach(function(e){var h=document.createElement('h4');h.textContent=e.h4;vb.appendChild(h);var p=document.createElement('p');p.textContent=e.p;vb.appendChild(p);});}
+    if(vb){d.voice.forEach(function(e){var h=document.createElement('h4');h.textContent=e.h4;vb.appendChild(h);var p=document.createElement('p');p.textContent=e.p;vb.appendChild(p);});}
   }
   renderCompleted(d);
 }
@@ -1341,6 +1526,9 @@ function buildMsStrip(){
   });
   strip.style.display='';
 }
+document.addEventListener('keydown',function(e){
+  if(e.key==='/'&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){e.preventDefault();var sb=document.getElementById('searchBox');if(sb)sb.focus();}
+});
 document.addEventListener('click',function(e){
   var t=e.target.closest('.card-brief,.card-collapse');if(!t)return;
   var item=t.closest('.item');if(item)item.classList.toggle('open');
@@ -1349,7 +1537,7 @@ function toggleCardsExpanded(){document.body.classList.toggle('cards-expanded',d
 function init(){
   document.body.classList.add('priority-mode');
   buildMsStrip();
-  buildProgramView();recalcCounts();applyComputedPriorities();buildFocusPanel();buildTodayFocus();refreshCapPkg();flushLocalQueue();loadPending();
+  buildProgramView();recalcCounts();applyComputedPriorities();buildFocusPanel();buildTodayFocus();updateTabCounts();refreshCapPkg();flushLocalQueue();loadPending();
 }
 var BASE_ITEMS=[],BASE_DETAILS={};
 function applyPendingOverlay(){
@@ -1387,7 +1575,21 @@ function applyPendingOverlay(){
   ITEMS=items;ITEM_DETAILS=details;
 }
 function activeViewKey(){var b=document.querySelector('#viewToggle button.active');return b?b.getAttribute('data-view'):'program';}
-function refreshBoard(){applyPendingOverlay();buildProgramView();recalcCounts();applyComputedPriorities();buildFocusPanel();buildTodayFocus();setView(activeViewKey());}
+function updateTabCounts(){
+  var open=ITEMS.filter(function(it){return it.status!=='completed';});
+  var coming=open.filter(function(it){return (it.then||'').indexOf('You')!==-1&&!courtHasYou(it.court);}).length;
+  var today=new Date().toISOString().slice(0,10);
+  var overdue=open.filter(function(it){return it.due&&it.due<today;}).length;
+  function setCount(view,n,warn){
+    var b=document.querySelector('#viewToggle button[data-view="'+view+'"]');if(!b)return;
+    var span=b.querySelector('.tab-count');
+    if(!span){span=document.createElement('span');span.className='tab-count';b.appendChild(span);}
+    span.textContent=n>0?String(n):'';span.style.display=n>0?'':'none';
+    span.classList.toggle('warn',!!warn);
+  }
+  setCount('court',coming,false);setCount('upcoming',overdue,true);
+}
+function refreshBoard(){applyPendingOverlay();buildProgramView();recalcCounts();applyComputedPriorities();buildFocusPanel();buildTodayFocus();updateTabCounts();setView(activeViewKey());}
 var RFI_PROGRAMS={'Concourse B (Onware)':{host:'Concourse B',system:'Onware'},'Centralized / PBS (Planner board)':{host:'Centralized / PBS',system:'Planner board'}};
 function boot(d){MILESTONES=d.milestones||[];STAKEHOLDERS=d.stakeholders||[];renderSessionData(d);
   BASE_ITEMS=(d.items||[]).map(function(it){var m=RFI_PROGRAMS[it.program];if(m){it.program=m.host;it.rfiSystem=m.system;}return it;});
@@ -1438,6 +1640,7 @@ function saveUiState(){
       collapse:document.getElementById('collapseAllToggle').checked,
       cardsExp:document.getElementById('cardsExpToggle').checked,
       urgency:document.getElementById('urgencyToggle').checked,
+      showDone:document.getElementById('showCompletedToggle').checked,
       myCourt:document.getElementById('myCourtBtn').classList.contains('active'),
       morning:morningActive,
       horizons:Object.keys(activeHorizons),actions:Object.keys(activeActions)
@@ -1453,6 +1656,7 @@ function restoreUiState(){
     if(s.morning)toggleMorningPreset();
     if(s.cardsExp){document.getElementById('cardsExpToggle').checked=true;toggleCardsExpanded();}
     if(s.urgency===false){document.getElementById('urgencyToggle').checked=false;toggleUrgencyColors();}
+    if(s.showDone){document.getElementById('showCompletedToggle').checked=true;toggleShowCompleted();}
     if(s.collapse){document.getElementById('collapseAllToggle').checked=true;toggleCollapseAll();}
     if(s.view&&s.view!=='program')setView(s.view);
     applySearchFilter();
