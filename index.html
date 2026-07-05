@@ -221,6 +221,13 @@
   .item.pending-local{border-style:dashed;}
   .rfi-block{border-left:3px solid var(--rfi);margin:10px 0 6px 4px;padding-left:8px;}
   .rfi-head{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--rfi);padding:4px 0 2px;}
+  .ms-row{font-size:13px;padding:3px 0;color:var(--text);}
+  .ms-row .msr-date{display:inline-block;min-width:88px;color:var(--faint);font-size:11.5px;font-variant-numeric:tabular-nums;}
+  .ms-row .msr-mark{color:var(--teal);font-weight:700;margin-right:4px;}
+  .ms-row.ms-done{color:var(--muted);}
+  .ms-row.ms-tbd .msr-mark,.ms-row.ms-tbd .msr-date{color:#f59e0b;}
+  .msr-cd{color:var(--teal);font-size:12px;}
+  .msr-cd.soon{color:var(--terracotta);}
   .card-brief{display:flex;gap:9px;flex-wrap:wrap;align-items:center;font-size:11px;color:var(--faint);margin-top:7px;cursor:pointer;}
   .card-brief:hover{color:var(--muted);}
   .card-more{display:none;}
@@ -338,6 +345,7 @@
       <button data-view="discipline" onclick="setView('discipline')">Discipline</button>
       <button data-view="court" onclick="setView('court')">Court</button>
       <button data-view="upcoming" onclick="setView('upcoming')">Upcoming</button>
+      <button data-view="milestones" onclick="setView('milestones')">Milestones</button>
       <button data-view="overview" onclick="setView('overview')">Overview</button>
       <button data-view="history" onclick="setView('history')">History</button>
     </div>
@@ -392,6 +400,7 @@
   <div id="disciplineView" style="display:none"></div>
   <div id="courtView" style="display:none"></div>
   <div id="upcomingView" style="display:none"></div>
+  <div id="milestonesView" style="display:none"></div>
   <div id="overviewView" style="display:none"></div>
   <div id="historyView" style="display:none"></div>
 
@@ -438,12 +447,13 @@ var VIEW_HEADINGS = {
   discipline:'Open items, by discipline',
   court:'The court — whose move is it?',
   upcoming:'Upcoming — everything with a date on it',
+  milestones:'Milestones — every package, every submission',
   overview:'Status overview, per package',
   history:'What happened so far'
 };
 var activeHorizons = {}, activeActions = {};
 var MILESTONES = [], STAKEHOLDERS = [];
-var VIEW_IDS = {program:'programView',status:'statusView',discipline:'disciplineView',court:'courtView',upcoming:'upcomingView',overview:'overviewView',history:'historyView'};
+var VIEW_IDS = {program:'programView',status:'statusView',discipline:'disciplineView',court:'courtView',upcoming:'upcomingView',milestones:'milestonesView',overview:'overviewView',history:'historyView'};
 var morningActive = false;
 function courtList(v){return Array.isArray(v)?v:(v?String(v).split(',').map(function(x){return x.trim();}).filter(Boolean):[]);}
 function courtHasYou(v){return courtList(v).indexOf('You')!==-1;}
@@ -869,6 +879,7 @@ function setView(view){
   if(view==='discipline')buildDisciplineView();
   if(view==='court')buildCourtView();
   if(view==='upcoming')buildUpcomingView();
+  if(view==='milestones')buildMilestonesView();
   if(view==='overview')buildOverviewView();
   if(view==='history')buildHistoryView();
   applySearchFilter();
@@ -1035,6 +1046,36 @@ function buildCourtView(){
     sectionHead(c,'Delegated — still my responsibility, they execute','var(--teal)');
     var dbox=document.createElement('div');delegated.forEach(function(it){dbox.appendChild(makeAltClone(it.id));});c.appendChild(dbox);
   }
+}
+
+function buildMilestonesView(){
+  var c=document.getElementById('milestonesView');c.innerHTML='';
+  if(!MILESTONES.length){c.innerHTML='<p class="empty">No milestones in the data — add them to Projects/Milestones.md.</p>';return;}
+  MILESTONES.forEach(function(m){
+    var card=document.createElement('div');card.className='ov-card';
+    var h=document.createElement('h4');
+    h.innerHTML=escapeHtml(m.package.split('[')[0].trim())+(m.phase?phaseChip(m.phase):'');
+    card.appendChild(h);
+    (m.rows||[]).forEach(function(r){
+      if(/no submission dates/i.test(r.what))return;
+      var row=document.createElement('div');
+      var dated=/^\d{4}-\d{2}-\d{2}/.test(r.date);
+      var d=dated?daysUntil(r.date.slice(0,10)):null;
+      if(r.status==='submitted'){
+        row.className='ms-row ms-done';
+        row.innerHTML='<span class="msr-date">'+escapeHtml(r.date)+'</span><span class="msr-mark">\u2713</span> '+escapeHtml(r.what);
+      }else{
+        row.className='ms-row'+(dated?'':' ms-tbd');
+        var cd=dated?(d<0?(-d)+'d over':d===0?'today':'in '+d+'d'):'date TBD';
+        row.innerHTML='<span class="msr-date">'+escapeHtml(dated?r.date.slice(0,10):'TBD')+'</span><span class="msr-mark">\u25c7</span> '+escapeHtml(r.what)+' <b class="msr-cd'+(dated&&d<=7?' soon':'')+'">'+escapeHtml(cd)+'</b>';
+      }
+      card.appendChild(row);
+    });
+    c.appendChild(card);
+  });
+  var note=document.createElement('p');note.className='empty';
+  note.textContent='Source of truth: vault \u203a Projects \u203a Milestones.md \u2014 add or firm up a date there and it flows here at the next check-in.';
+  c.appendChild(note);
 }
 
 function buildUpcomingView(){
@@ -1280,8 +1321,8 @@ function buildMsStrip(){
     var cdTxt=c.d===null?'date TBD':c.d<0?(-c.d)+'d overdue':c.d===0?'today':'in '+c.d+'d';
     chip.className='ms-chip'+(c.d===null?' tbd':(c.d<=7?' soon':''));
     chip.innerHTML='<b>'+escapeHtml(c.label)+'</b> '+escapeHtml(c.what)+' <span class="cd">'+escapeHtml(cdTxt)+'</span>';
-    chip.title='Open the Upcoming view';chip.style.cursor='pointer';
-    chip.addEventListener('click',function(){setView('upcoming');});
+    chip.title='Open the Milestones view';chip.style.cursor='pointer';
+    chip.addEventListener('click',function(){setView('milestones');});
     strip.appendChild(chip);
   });
   strip.style.display='';
