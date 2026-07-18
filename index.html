@@ -268,6 +268,9 @@
   .g-quad td{border:1px solid var(--border);padding:7px 10px;text-align:center;}
   .g-quad .g-warm2{color:var(--terracotta);font-weight:700;}
   .state-pill{text-transform:uppercase;letter-spacing:.04em;font-weight:700;}
+  .addendum-pill{color:var(--gold);border:1px solid var(--gold);background:transparent;}
+  .topic-pill{color:var(--muted);border:1px dashed var(--border);background:transparent;}
+  #topicsView .topic-pill{display:none;}
   .fa-respond.active{background:rgb(94,138,158);color:#fff;border-color:rgb(94,138,158);}
   .item-actions{margin-top:7px;display:flex;gap:6px;flex-wrap:wrap;}
   .item-actions button{background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:2px 9px;font-size:11px;cursor:pointer;font-family:inherit;}
@@ -389,6 +392,7 @@
       <button data-view="program" class="active" onclick="setView('program')">Program</button>
       <button data-view="status" onclick="setView('status')">Status</button>
       <button data-view="discipline" onclick="setView('discipline')">Discipline</button>
+      <button data-view="topics" onclick="setView('topics')">Topics</button>
       <button data-view="court" onclick="setView('court')">Court</button>
       <button data-view="upcoming" onclick="setView('upcoming')">Upcoming</button>
       <button data-view="milestones" onclick="setView('milestones')">Milestones</button>
@@ -446,6 +450,7 @@
   <div id="programView"></div>
   <div id="statusView" style="display:none"></div>
   <div id="disciplineView" style="display:none"></div>
+  <div id="topicsView" style="display:none"></div>
   <div id="courtView" style="display:none"></div>
   <div id="upcomingView" style="display:none"></div>
   <div id="milestonesView" style="display:none"></div>
@@ -556,6 +561,15 @@ var DISCIPLINE_LABELS = {
   signage:'Signage',safety:'Code/Life-Safety',security:'IT/Security',owner:'Owner/Stakeholder'
 };
 var DISCIPLINE_ORDER = ['AR','ST','ME','EL','signage','safety','security','owner'];
+var TOPIC_ACRONYMS = {av:'AV',cm:'CM',cps:'CPS',fec:'FEC',aed:'AED',imit:'IMIT',it:'IT',navcan:'NAVCAN',npsc:'NPSC',rfi:'RFI',wc:'WC',yyc:'YYC',grc:'GRC',dtr:'DTR',bf:'BF',avc:'AVC'};
+function topicLabel(slug){
+  if(!slug)return'Untagged';
+  return slug.split('-').map(function(w){
+    if(/\d/.test(w))return w.toUpperCase();
+    if(TOPIC_ACRONYMS[w])return TOPIC_ACRONYMS[w];
+    return w.charAt(0).toUpperCase()+w.slice(1);
+  }).join(' ');
+}
 var STATUS_GROUPS = [
   {key:'blocking',label:'Blocking',color:'var(--terracotta)'},
   {key:'unverified',label:'Unverified',color:'var(--gold)'},
@@ -566,6 +580,7 @@ var VIEW_HEADINGS = {
   program:'Open items, by program',
   status:'Open items, by status',
   discipline:'Open items, by discipline',
+  topics:'Topics — related work, grouped across packages',
   court:'The court — whose move is it?',
   upcoming:'Upcoming — everything with a date on it',
   milestones:'Milestones — every package, every submission',
@@ -575,7 +590,7 @@ var VIEW_HEADINGS = {
 };
 var activeHorizons = {}, activeActions = {};
 var MILESTONES = [], STAKEHOLDERS = [];
-var VIEW_IDS = {program:'programView',status:'statusView',discipline:'disciplineView',court:'courtView',upcoming:'upcomingView',milestones:'milestonesView',overview:'overviewView',history:'historyView',guide:'guideView'};
+var VIEW_IDS = {program:'programView',status:'statusView',discipline:'disciplineView',topics:'topicsView',court:'courtView',upcoming:'upcomingView',milestones:'milestonesView',overview:'overviewView',history:'historyView',guide:'guideView'};
 var morningActive = false;
 function courtList(v){return Array.isArray(v)?v:(v?String(v).split(',').map(function(x){return x.trim();}).filter(Boolean):[]);}
 function courtHasYou(v){return courtList(v).indexOf('You')!==-1;}
@@ -661,6 +676,7 @@ function renderItem(itemData){
   el.className=cls;
   el.setAttribute('data-id',itemData.id);
   el.setAttribute('data-cat',itemData.cat||'');
+  if(itemData.topic)el.setAttribute('data-topic',itemData.topic);
   el.setAttribute('data-disc',(itemData.disc||[]).join(' '));
   el.setAttribute('data-court',courtList(itemData.court).join(', '));
   if(itemData.then)el.setAttribute('data-then',itemData.then);
@@ -765,6 +781,8 @@ function renderItem(itemData){
   var catPill=document.createElement('span');catPill.className='pill2';catPill.textContent=CATEGORY_LABELS[itemData.cat]||itemData.cat||'';
   tagWrap.appendChild(catPill);
   if(itemData.state){var statePill=document.createElement('span');statePill.className='pill2 state-pill';statePill.textContent='RFI: '+itemData.state;tagWrap.appendChild(statePill);}
+  if(itemData.addendum){var addPill=document.createElement('span');addPill.className='pill2 state-pill addendum-pill';addPill.textContent='Addendum '+itemData.addendum;tagWrap.appendChild(addPill);}
+  if(itemData.topic){var topicPill=document.createElement('span');topicPill.className='pill2 topic-pill';topicPill.textContent=topicLabel(itemData.topic);tagWrap.appendChild(topicPill);}
   (itemData.disc||[]).forEach(function(d){var p=document.createElement('span');p.className='pill2';p.textContent=DISCIPLINE_LABELS[d]||d;tagWrap.appendChild(p);});
   foot.appendChild(tagWrap);
   if(itemData.program){
@@ -912,6 +930,35 @@ function buildDisciplineView(){
   if(!container.children.length){container.innerHTML='<p class="empty">Nothing to show.</p>';}applySearchFilter();
 }
 
+function buildTopicsView(){
+  var container=document.getElementById('topicsView');container.innerHTML='';
+  var byTopic={};
+  ITEMS.forEach(function(it){
+    var key=it.topic||'';
+    (byTopic[key]=byTopic[key]||[]).push(it);
+  });
+  var keys=Object.keys(byTopic).filter(function(k){return k;});
+  keys.sort(function(a,b){return topicLabel(a).localeCompare(topicLabel(b));});
+  if(byTopic['']&&byTopic[''].length)keys.push('');
+  keys.forEach(function(key){
+    var groupItems=byTopic[key];
+    var t=tallyData(groupItems);
+    var accent=t.blocking>0?'var(--terracotta)':(t.open>0?'var(--teal)':'var(--border)');
+    var groupEl=document.createElement('div');groupEl.className='altgroup';
+    var gh=document.createElement('div');gh.className='altgroup-head';gh.style.borderLeftColor=accent;
+    var gname=document.createElement('span');gname.className='name';gname.style.color=accent;
+    gname.textContent=key?topicLabel(key):'Untagged (no topic set yet)';
+    var gcounts=document.createElement('span');gcounts.className='counts';gcounts.textContent=formatCounts(t.open,t.blocking,t.watch);
+    gh.appendChild(gname);gh.appendChild(gcounts);groupEl.appendChild(gh);
+    var box=document.createElement('div');box.style.padding='2px 0 4px';
+    sortItemData(groupItems).forEach(function(item){box.appendChild(makeAltClone(item.id));});
+    groupEl.appendChild(box);
+    container.appendChild(groupEl);
+  });
+  if(!container.children.length){container.innerHTML='<p class="empty">Nothing to show.</p>';}
+  applySearchFilter();
+}
+
 function makeAltClone(id){
   var orig=document.querySelector('#programView .item[data-id="'+id+'"]');
   if(!orig){return document.createElement('div');}
@@ -1017,6 +1064,7 @@ function setView(view){
   var h=document.getElementById('viewHeading');if(h)h.childNodes[0].textContent=VIEW_HEADINGS[view]||'Open items';
   if(view==='status')buildStatusView();
   if(view==='discipline')buildDisciplineView();
+  if(view==='topics')buildTopicsView();
   if(view==='court')buildCourtView();
   if(view==='upcoming')buildUpcomingView();
   if(view==='milestones')buildMilestonesView();
