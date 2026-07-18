@@ -192,17 +192,31 @@ function check(label, cond) {
   const freshChip = document.getElementById("dataFreshness");
   check("freshness chip has text", !!(freshChip && freshChip.textContent.trim().length));
 
-  // 14. package quick-jump is populated and actually opens + flashes the target package
-  const pkgJump = document.getElementById("pkgJump");
-  check("package quick-jump has options beyond the placeholder", !!(pkgJump && pkgJump.querySelectorAll("option").length > 1));
-  const firstPkgOpt = pkgJump && pkgJump.querySelector("optgroup option");
-  if (firstPkgOpt) {
-    pkgJump.value = firstPkgOpt.value;
-    window.onPkgJumpChange();
+  // 14. command palette: finds packages/people/items; package pick opens + flashes
+  window.setView("program");
+  const sb = document.getElementById("searchBox");
+  sb.value = "Envelope";
+  sb.dispatchEvent(new window.Event("input"));
+  const pkgRow = document.querySelector("#palette .pal-package");
+  check("palette finds a package for 'Envelope'", !!pkgRow);
+  if (pkgRow) {
+    pkgRow.dispatchEvent(new window.MouseEvent("mousedown", { bubbles: true }));
     await new Promise((r) => setTimeout(r, 150));
     const flashedPkg = document.querySelector("#programView details.pkg.flash");
-    check("package jump opens and flashes the target package", !!(flashedPkg && flashedPkg.open));
+    check("palette package pick opens and flashes the target", !!(flashedPkg && flashedPkg.open));
   }
+  sb.value = "knuckle";
+  sb.dispatchEvent(new window.Event("input"));
+  check("palette finds a thread for 'knuckle'", !!document.querySelector("#palette .pal-thread"));
+  const itemRow = document.querySelector("#palette .pal-item");
+  check("palette finds items for 'knuckle'", !!itemRow);
+  if (itemRow) {
+    itemRow.dispatchEvent(new window.MouseEvent("mousedown", { bubbles: true }));
+    check("palette item pick opens the drawer", document.getElementById("drawerOverlay").style.display !== "none");
+    window.closeDrawer();
+  }
+  sb.value = "";
+  sb.dispatchEvent(new window.Event("input"));
 
   // 15. pending-capture rows: Edit/Remove actually persist to localStorage (this is the ONLY
   // capture path in real use — API_URL stays unset, so payload.row is always undefined; the
@@ -284,12 +298,13 @@ function check(label, cond) {
   // 19. nudge button: records a chase and resets the quiet clock
   window.setView("program");
   window.buildRadarPanel();
-  const nudge = document.querySelector("#radarList .nudge-btn");
+  const nudge = document.querySelector("#radarList .nudge-btn:not(.chase-btn)");
   if (nudge) {
     const before = JSON.parse(window.localStorage.getItem("wt-capture-queue") || "[]").length;
     nudge.click();
     const q = JSON.parse(window.localStorage.getItem("wt-capture-queue") || "[]");
     check("nudge queues a chase capture", q.length === before + 1 && q[q.length-1].text.indexOf("nudged") === 0);
+    check("toast appears where the action happened", !!document.querySelector("#toastWrap .toast"));
   } else {
     check("nudge button present on a waiting radar row", false);
   }
@@ -309,6 +324,54 @@ function check(label, cond) {
     const evRow = document.querySelector("#historyView .ev-row[style*=pointer], #historyView .ev-row");
     if (evRow) { evRow.click(); check("history event opens the drawer", document.getElementById("drawerOverlay").style.display !== "none"); window.closeDrawer(); }
   }
+
+  // 21. chase draft: copy button exists on waiting radar rows; text is substantive
+  window.setView("program");
+  window.buildRadarPanel();
+  const chaseBtn = document.querySelector("#radarList .chase-btn");
+  check("copy-chase button on radar rows", !!chaseBtn);
+  const waitingItem = data.items.find((i) => i.status !== "completed" && i.court && String(i.court).indexOf("You") === -1);
+  if (waitingItem) {
+    const txt = window.chaseTextFor(waitingItem);
+    check("chase text greets and references the item", txt.indexOf("Hi ") === 0 && txt.indexOf(waitingItem.title.slice(0, 20)) !== -1);
+  }
+
+  // 22. meeting prep: selector renders, picking a person builds the brief + copy agenda
+  window.setView("court");
+  const prepSel = document.querySelector(".prep-box select");
+  check("prep selector exists in Court view", !!prepSel);
+  const personOpt = prepSel && Array.from(prepSel.querySelectorAll("optgroup[label=People] option"))[0];
+  if (personOpt) {
+    prepSel.value = personOpt.value;
+    prepSel.dispatchEvent(new window.Event("change"));
+    const box = document.querySelector(".prep-box");
+    check("prep brief shows They-owe-you section", box.textContent.indexOf("They owe you") !== -1);
+    check("prep brief has a copy-agenda button", !!Array.from(box.querySelectorAll("button")).find((b) => b.textContent.indexOf("copy agenda") !== -1));
+    window.prepChoice = ""; window.setView("court");
+  }
+
+  // 23. week summary text contains its five sections
+  const wtxt = window.weekSummaryText();
+  ["Closed", "Moved", "Still blocking", "Coming up"].forEach((sec) => {
+    check("week summary has section: " + sec, wtxt.indexOf(sec) !== -1);
+  });
+  check("copy-week-summary button in History", (window.setView("history"), !!Array.from(document.querySelectorAll("#historyView .hist-filters button")).find((b) => b.textContent.indexOf("week summary") !== -1)));
+
+  // 24. milestone risk flags render when blocking work sits behind a near date (data-dependent)
+  const riskChips = document.querySelectorAll(".ms-chip.risk").length;
+  console.log("  (info) at-risk submission chips right now:", riskChips);
+
+  // 25. capture box is a slim collapsible bar whose summary counts the queue
+  const capBox = document.getElementById("captureBox");
+  check("capture box is a <details>", !!capBox && capBox.tagName === "DETAILS");
+  check("capture summary reports pending count", document.getElementById("capSumNote").textContent.indexOf("pending") !== -1);
+
+  // 26. threads are grouped by program (with cross-program group when present)
+  window.setView("topics");
+  check("threads view has program group headers", document.querySelectorAll("#topicsView .altgroup-head").length > 0);
+
+  // 27. stats live inside the briefing now
+  check("stats row folded into briefing", !!document.querySelector("#briefing .stats"));
 
   if (errs.length) {
     console.log(`${errs.length} unexpected error(s):`);
