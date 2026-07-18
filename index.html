@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- Work Tracker shell - 2026-07-18 build (7 rounds in one day; see memory: work-tracker-site-redesign-2026-07-18). Run smoke_test.js before every deploy. -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -104,7 +105,6 @@
   .pkg.flash{animation:flashHighlight 1.4s ease;}
   .freshness-chip{font-size:10.5px;font-weight:600;color:var(--muted);background:var(--border-soft);border-radius:10px;padding:1px 8px;margin-left:8px;letter-spacing:0;text-transform:none;vertical-align:1px;}
   .freshness-chip.stale{background:#f59e0b;color:#fff;}
-  .pkg-jump{font-family:inherit;font-size:12.5px;padding:7px 9px;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--muted);max-width:170px;}
   @keyframes flashHighlight{0%{background:rgba(181,144,66,.22);}100%{background:transparent;}}
   .talk-group{margin-bottom:18px;}
   .talk-group h3{font-size:14px;font-weight:650;margin:0 0 8px;padding-left:10px;border-left:4px solid var(--accent,var(--border));}
@@ -1013,8 +1013,6 @@ function renderItem(itemData){
     var nxLab=document.createElement('span');nxLab.className='sec-label';nxLab.textContent='Next';nxWrap.appendChild(nxLab);
     nxWrap.appendChild(document.createTextNode(det.next));el.appendChild(nxWrap);
   }
-  {
-  }
   if(det&&det.subtasks&&det.subtasks.length){
     var doneCt=det.subtasks.filter(function(st){return st.indexOf('\u2713')===0;}).length;
     var stHead=document.createElement('div');stHead.className='sec-row';
@@ -1462,11 +1460,6 @@ function jumpToPackage(progName,pkgName){
       target.classList.add('flash');setTimeout(function(){target.classList.remove('flash');},1500);
     }
   },60);
-}
-function onPkgJumpChange(){
-  var sel=document.getElementById('pkgJump');var v=sel.value;if(!v)return;
-  var parts=v.split('||');jumpToPackage(parts[0],parts[1]);
-  sel.value='';
 }
 
 function setView(view){
@@ -2141,35 +2134,6 @@ function histRow(ev){
   row.innerHTML='<span class="hd">'+escapeHtml(ev.date)+'</span>'+escapeHtml(ev.text);
   return row;
 }
-function pkgEvents(pkgItems,ms){
-  var events=[];
-  if(ms)(ms.rows||[]).forEach(function(r){
-    if(/^\d{4}-\d{2}-\d{2}/.test(r.date)){
-      if(r.status==='submitted')events.push({date:r.date.slice(0,10),cls:'hist-ms',text:'📦 issued — '+r.what.slice(0,110)});
-      else events.push({date:r.date.slice(0,10),cls:'hist-up',text:'◇ upcoming — '+r.what.slice(0,110)});
-    }else if(r.status==='upcoming'){
-      events.push({date:'TBD',cls:'hist-up',text:'◇ upcoming — '+r.what.slice(0,110)});
-    }
-  });
-  pkgItems.forEach(function(it){
-    var det=ITEM_DETAILS[it.id];
-    if(it.date)events.push({date:it.date,cls:'',text:'+ raised: '+it.title.slice(0,100)});
-    if(det&&det.updates)det.updates.forEach(function(u){
-      var bar=u.indexOf('|');var ds=bar>-1?u.slice(0,bar):'';var tx=bar>-1?u.slice(bar+1):u;
-      if(ds)events.push({date:ds,cls:'',text:it.title.slice(0,45)+': '+tx.slice(0,100)});
-    });
-    if(it.status==='completed'){
-      var dd=det&&det.updates&&det.updates.length?det.updates[det.updates.length-1].split('|')[0]:(it.date||'—');
-      events.push({date:dd,cls:'hist-done',text:'✓ resolved: '+it.title.slice(0,100)});
-    }
-  });
-  // sort desc; TBD (undated upcoming) pinned to the top
-  events.sort(function(a,b){
-    if(a.date==='TBD')return -1;if(b.date==='TBD')return 1;
-    return b.date<a.date?-1:b.date>a.date?1:0;
-  });
-  return events;
-}
 var histFilter={pkg:'',person:'',topic:''};
 var histShowAll=false;
 function buildHistoryView(){
@@ -2256,16 +2220,6 @@ function renderSessionData(d){
     d.programs.forEach(function(p){PROGRAM_COLORS[p.name]=p.color;PROGRAM_PKGS[p.name]=p.packages||[];PROGRAM_PACKAGES[p.name]=p.packages||[];});
     var capProg=document.getElementById('capProgram');
     if(capProg){capProg.innerHTML='';d.programs.forEach(function(p){var o=document.createElement('option');o.value=p.name;o.textContent=p.name;capProg.appendChild(o);});}
-    var pkgJumpSel=document.getElementById('pkgJump');
-    if(pkgJumpSel){
-      pkgJumpSel.innerHTML='<option value="">Jump to package\u2026</option>';
-      d.programs.forEach(function(p){
-        if(!p.packages||!p.packages.length)return;
-        var og=document.createElement('optgroup');og.label=p.name;
-        p.packages.forEach(function(pk){if(!pk)return;var o=document.createElement('option');o.value=p.name+'||'+pk;o.textContent=pk;og.appendChild(o);});
-        pkgJumpSel.appendChild(og);
-      });
-    }
   }
   if(d.meta){
     var pt=document.getElementById('pageTitle');if(pt&&d.meta.title)pt.textContent=d.meta.title;
