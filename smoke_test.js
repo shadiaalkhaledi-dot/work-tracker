@@ -373,6 +373,58 @@ function check(label, cond) {
   // 27. stats live inside the briefing now
   check("stats row folded into briefing", !!document.querySelector("#briefing .stats"));
 
+  // 28. My Day: pin from a card, row appears, reorder works, done syncs, export carries the plan
+  window.setView("program");
+  const pins = document.querySelectorAll("#programView .pin-btn");
+  check("pin buttons on cards", pins.length > 10);
+  const cardA = document.querySelector("#programView .item:not(.completed):not(.watch)");
+  const cardB = Array.from(document.querySelectorAll("#programView .item:not(.completed):not(.watch)")).find((c) => c !== cardA);
+  cardA.querySelector(".pin-btn").dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+  cardB.querySelector(".pin-btn").dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+  let mdRows = document.querySelectorAll("#myDaySec .my-day-row");
+  check("My Day shows the two picked rows", mdRows.length === 2);
+  check("pin button reflects on-state", cardA.querySelector(".pin-btn").classList.contains("pin-on"));
+  const firstTitle = mdRows[0].querySelector(".md-title").textContent;
+  mdRows[1].querySelector(".md-ctrls button").dispatchEvent(new window.MouseEvent("click", { bubbles: true })); // move #2 up
+  mdRows = document.querySelectorAll("#myDaySec .my-day-row");
+  check("reorder moves the row up", mdRows[0].querySelector(".md-title").textContent !== firstTitle);
+  // done from My Day syncs to the board's done-toggle + capture queue
+  const qBefore = JSON.parse(window.localStorage.getItem("wt-capture-queue") || "[]").length;
+  const mdCb = document.querySelectorAll("#myDaySec .my-day-row input[type=checkbox]")[0];
+  mdCb.checked = true; mdCb.dispatchEvent(new window.Event("change"));
+  const qAfter = JSON.parse(window.localStorage.getItem("wt-capture-queue") || "[]");
+  check("My Day done queues the completion", qAfter.length === qBefore + 1 && qAfter[qAfter.length-1].type === "complete");
+  check("My Day shows progress count", document.querySelector("#myDaySec .my-day-prog").textContent.indexOf("1/2") !== -1);
+  // export text carries the ordered plan
+  let copied = "";
+  window.navigator.clipboard = { writeText: (t) => { copied = t; return Promise.resolve(); } };
+  window.exportCaptures();
+  await new Promise((r) => setTimeout(r, 50));
+  check("check-in export includes My day plan", copied.indexOf("My day plan") !== -1 && copied.indexOf("1.") !== -1);
+
+  // 29. honest due stats: no 📅 dates in data → overdue shows an em-dash, sprint counts horizons
+  check("overdue stat honest when no due dates exist", document.getElementById("statOverdue").textContent === "\u2014");
+  check("sprint stat counts horizon-anchored items", parseInt(document.getElementById("statSprintEnd").textContent, 10) >= 1);
+
+  // 30. stats are clickable: blocking stat jumps to the status-grouped board
+  document.getElementById("statBlocking").closest(".stat").dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+  check("blocking stat opens status view", document.getElementById("statusView").style.display !== "none");
+
+  // 31. clone action buttons work now: '+ subtask' on a Threads-view clone opens inline capture
+  window.setView("topics");
+  const cloneBtn = Array.from(document.querySelectorAll("#topicsView .item-actions button")).find((b) => b.textContent === "+ subtask");
+  if (cloneBtn) {
+    cloneBtn.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+    check("clone '+ subtask' opens an inline capture form", !!document.querySelector("#topicsView .inline-capture"));
+    const cancel = document.querySelector("#topicsView .inline-capture .pcancel");
+    if (cancel) cancel.click();
+  } else {
+    check("found a clone '+ subtask' button in Threads view", false);
+  }
+  window.setView("program");
+  // cleanup my-day state
+  window.saveMyDay({date:null, ids:[]});
+
   if (errs.length) {
     console.log(`${errs.length} unexpected error(s):`);
     errs.forEach((e) => console.log(" - " + e));

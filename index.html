@@ -446,6 +446,29 @@
   .legend-box{margin:6px 0 0;}
   .item .item-title{cursor:pointer;}
   .item .item-title:hover{color:var(--teal);text-decoration:underline;text-decoration-color:var(--border);text-underline-offset:3px;}
+  /* ---- My day ---- */
+  .my-day{padding:13px 20px;}
+  .my-day-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:4px;}
+  .my-day .tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#b45309;}
+  .my-day-prog{font-size:12px;font-weight:700;color:var(--olive);}
+  .my-day-carry{font-size:11px;color:var(--faint);}
+  .my-day-clear{margin-left:auto;border:none;background:none;color:var(--faint);font-size:11px;cursor:pointer;font-family:inherit;}
+  .my-day-clear:hover{color:var(--terracotta);}
+  .my-day-hint{font-size:12.5px;color:var(--muted);}
+  .my-day-row{display:flex;align-items:baseline;gap:9px;padding:6px 4px;border-radius:8px;font-size:13.5px;}
+  .my-day-row:hover{background:var(--border-soft);}
+  .my-day-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--olive);align-self:center;}
+  .md-num{flex:0 0 auto;font-weight:800;color:#b45309;font-size:12px;min-width:18px;}
+  .md-title{flex:1;cursor:pointer;}
+  .md-title:hover{color:var(--teal);}
+  .md-who{flex:0 0 auto;color:var(--muted);font-size:11.5px;}
+  .md-ctrls{flex:0 0 auto;display:flex;gap:2px;opacity:.35;}
+  .my-day-row:hover .md-ctrls{opacity:1;}
+  .md-ctrls button{border:none;background:none;color:var(--muted);cursor:pointer;font-size:13px;padding:0 5px;font-family:inherit;}
+  .md-ctrls button:hover{color:var(--text);}
+  .my-day-row.md-done .md-title{text-decoration:line-through;color:var(--faint);}
+  .pin-btn.pin-on{color:#b45309;border-color:#f0dfc0;font-weight:700;}
+  .stat:hover{border-color:var(--teal);}
   /* ---- mobile pass ---- */
   @media (max-width:640px){
     .wrap{padding:20px 14px 56px;}
@@ -528,6 +551,7 @@
     <div class="stat"><div class="n" id="statOverdue">0</div><div class="l">overdue (yours)</div></div>
     <div class="stat"><div class="n" style="color:var(--teal)" id="statSprintEnd">—</div><div class="l" id="statSprintEndLabel">due soon</div></div>
   </div>
+  <div class="my-day" id="myDaySec"></div>
   <div class="today-focus" id="todayFocus">
     <span class="tag" id="todayTag">Today</span>
     <div class="tf-list" id="tfList"><span class="tf-empty">Computing…</span></div>
@@ -1042,6 +1066,9 @@ function renderItem(itemData){
   }
   more.appendChild(foot);
   var actRow=document.createElement('div');actRow.className='item-actions';
+  var pinB=document.createElement('button');pinB.type='button';pinB.className='pin-btn';
+  pinB.textContent='\u2606 my day';pinB.title='Add to My day \u2014 your ordered focus list at the top';
+  actRow.appendChild(pinB);
   [['subtask','+ subtask','The sub-step itself…'],['blocker','flag blocking',"Why it's blocking (optional)…"],['note','add note',"What happened / what's new…"]].forEach(function(a){
     var btn=document.createElement('button');btn.type='button';btn.textContent=a[1];
     btn.addEventListener('click',function(e){
@@ -1076,7 +1103,7 @@ function renderItem(itemData){
       var payload={type:'complete',program:itemData.program||'',pkg:itemData.pkg||'',itemRef:'',text:itemData.title.slice(0,200),ts:new Date().toISOString()};
       logComplete(payload);renderPendingRow(payload);
     }else{el.classList.remove('done-pending');restoreBadge(el);}
-    recalcCounts();buildFocusPanel();buildTodayFocus();
+    recalcCounts();buildFocusPanel();buildTodayFocus();buildMyDay();
   });
   el.appendChild(doneCb);
   if(itemData.pendingComplete){doneCb.checked=true;setBadgeComplete(el);}
@@ -1293,6 +1320,16 @@ function formatCounts(open,blocking,watch){var parts=[];if(open>0)parts.push(ope
 function getItemMainText(item){var clone=item.cloneNode(true);Array.prototype.slice.call(clone.querySelectorAll('.meta,.why,.badge,.done-toggle,.ctaglist,.taglist,.item-next,.subtask-list,.tl-toggle,.timeline-wrap,.action-pill,.pri-sel,.sec-row,.sec-label,.item-foot,.item-actions,.item-loc,.move-line,.card-brief,.card-collapse')).forEach(function(n){n.remove();});return clone.textContent.trim().replace(/\s+/g,' ');}
 function getItemLocation(item){var progEl=item.closest('.program');var nameEl=progEl?progEl.querySelector('.program-head .name'):null;var program=nameEl?nameEl.textContent.trim():'';var pkgEl=item.closest('.pkg');var pkg='';if(pkgEl){pkg=pkgEl.getAttribute('data-pkg-name')||'';if(!pkg){var sp=pkgEl.querySelector('summary > span:first-child');pkg=sp?sp.textContent.replace(/▸/g,'').trim():'';}}return{program:program,pkg:pkg};}
 
+var statClicksInit=false;
+function initStatClicks(){
+  if(statClicksInit)return;statClicksInit=true;
+  function wire(id,fn,tip){var el=document.getElementById(id);if(!el)return;var card=el.closest('.stat');if(!card)return;card.style.cursor='pointer';card.title=tip;card.addEventListener('click',fn);}
+  wire('statOutstanding',function(){clearAllFilters();setView('program');},'Open the full board');
+  wire('statBlocking',function(){setView('status');},'Board grouped by status \u2014 Blocking on top');
+  wire('statWatch',function(){setView('status');},'Board grouped by status \u2014 Watch at the bottom');
+  wire('statOverdue',function(){setView('upcoming');},'Upcoming \u2014 overdue first');
+  wire('statSprintEnd',function(){setView('program');var chip=document.getElementById('sprintChip');if(chip&&!chip.classList.contains('active'))toggleHorizonChip(chip);},'Board filtered to the sprint horizon');
+}
 function recalcCounts(){
   var grandOpen=0,grandBlocking=0,grandWatch=0;
   document.querySelectorAll('#programView .program').forEach(function(prog){
@@ -1304,9 +1341,11 @@ function recalcCounts(){
   var s0=document.getElementById('statOutstanding');var s1=document.getElementById('statBlocking');var s2=document.getElementById('statWatch');
   if(s0)s0.textContent=grandOpen+grandBlocking;if(s1)s1.textContent=grandBlocking;if(s2)s2.textContent=grandWatch;
   var sprintEndEl=document.getElementById('statSprintEnd');
-  if(sprintEndEl&&window.SPRINT_END_DATE){var sprintDate=new Date(window.SPRINT_END_DATE+'T23:59:59');var sprintCount=0;document.querySelectorAll('#programView .item').forEach(function(it){if(isDone(it))return;var due=it.getAttribute('data-due');if(due&&new Date(due+'T23:59:59')<=sprintDate)sprintCount++;});sprintEndEl.textContent=sprintCount;}
+  if(sprintEndEl&&window.SPRINT_END_DATE){var sprintDate=new Date(window.SPRINT_END_DATE+'T23:59:59');var sprintCount=0;document.querySelectorAll('#programView .item').forEach(function(it){if(isDone(it))return;var due=it.getAttribute('data-due');var hz=it.getAttribute('data-horizon');if((due&&new Date(due+'T23:59:59')<=sprintDate)||hz==='sprint')sprintCount++;});sprintEndEl.textContent=sprintCount;sprintEndEl.title='Everything anchored to the sprint end: items with a \ud83d\udcc5 due date before it, plus horizon: sprint items (watch included \u2014 they land with that submission)';}
   var overdueEl=document.getElementById('statOverdue');
-  if(overdueEl){var now=Date.now();var overdueCount=0;document.querySelectorAll('#programView .item').forEach(function(it){if(isDone(it))return;var due=it.getAttribute('data-due');if(due&&elCourtHasYou(it)&&new Date(due+'T23:59:59').getTime()<now)overdueCount++;});overdueEl.textContent=overdueCount;}
+  if(overdueEl){var now=Date.now();var overdueCount=0;var anyDue=false;document.querySelectorAll('#programView .item').forEach(function(it){if(isDone(it))return;var due=it.getAttribute('data-due');if(due)anyDue=true;if(due&&elCourtHasYou(it)&&new Date(due+'T23:59:59').getTime()<now)overdueCount++;});
+    if(!anyDue){overdueEl.textContent='\u2014';overdueEl.title='No open item carries a \ud83d\udcc5 due date right now \u2014 deadlines live in Milestones and in horizons. Ask Claude to backfill \ud83d\udcc5 dates at check-in if you want this counter alive.';}
+    else{overdueEl.textContent=overdueCount;overdueEl.title='Open items with a \ud83d\udcc5 due date in the past, in your court';}}
 }
 
 function computePriority(item){if(item.classList.contains('blocking'))return'high';var due=item.getAttribute('data-due');if(due){var days=Math.ceil((new Date(due+'T00:00:00').getTime()-Date.now())/86400000);if(days<=3)return'high';if(days<=10)return'med';return'low';}if((item.getAttribute('data-horizon')||'')==='today')return'high';return'low';}
@@ -1648,7 +1687,14 @@ function updateCaptureSummary(){
   var box=document.getElementById('captureBox');if(box&&n>0&&!box.dataset.userClosed)box.open=true;
 }
 function renderLocalQueue(){var q=readQueue();if(!q.length)return;var list=document.getElementById('pendingList');list.innerHTML='';q.forEach(function(p){renderPendingRow(p);});}
-function exportCaptures(){var q=readQueue();if(!q.length){setStatus('Nothing to copy yet.');return;}var lines=q.map(function(p){var loc=[p.program,p.pkg].filter(Boolean).join(' \u203a ');var ref=p.itemRef?(' [re: '+p.itemRef+']'):'';return '- ['+typeLabel(p.type)+'] '+(loc?loc+': ':'')+p.text+ref;});var out='Work Tracker captures \u2014 '+new Date().toLocaleDateString()+'\n'+lines.join('\n');if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(out).then(function(){setStatus('Copied '+q.length+' capture(s) \u2014 paste to Claude at check-in.');},function(){window.prompt('Copy these and paste to Claude:',out);});}else{window.prompt('Copy these and paste to Claude:',out);}}
+function exportCaptures(){var q=readQueue();var md=readMyDay();
+  if(!q.length&&!md.ids.length){setStatus('Nothing to copy yet.');return;}
+  var lines=q.map(function(p){var loc=[p.program,p.pkg].filter(Boolean).join(' \u203a ');var ref=p.itemRef?(' [re: '+p.itemRef+']'):'';return '- ['+typeLabel(p.type)+'] '+(loc?loc+': ':'')+p.text+ref;});
+  if(md.ids.length){
+    lines.push('');lines.push('My day plan ('+(md.date||'today')+'), in order:');
+    md.ids.forEach(function(id,i){var it=itemById(id);if(it)lines.push('  '+(i+1)+'. '+(myDayItemDone(id)?'[done] ':'')+it.title.slice(0,110));});
+  }
+  var out='Work Tracker captures \u2014 '+new Date().toLocaleDateString()+'\n'+lines.join('\n');if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(out).then(function(){setStatus('Copied '+q.length+' capture(s) \u2014 paste to Claude at check-in.');},function(){window.prompt('Copy these and paste to Claude:',out);});}else{window.prompt('Copy these and paste to Claude:',out);}}
 function clearCaptures(){if(!readQueue().length){setStatus('Queue already empty.');return;}if(window.confirm('Clear captured items? Only do this after copying them to Claude.')){localStorage.setItem(localQueueKey(),'[]');document.getElementById('pendingList').innerHTML='<span class="pending-empty">Nothing pending yet.</span>';refreshBoard();setStatus('Local queue cleared.');}}
 
 // ---- 2026-07-04 views: Court / Overview / History ----
@@ -2088,7 +2134,7 @@ function renderSessionData(d){
       var best=null;MILESTONES.forEach(function(m){if(m.next&&/^\d{4}-\d{2}-\d{2}$/.test(m.next.date)&&new Date(m.next.date).getTime()>=Date.now()&&(!best||m.next.date<best))best=m.next.date;});
       if(best){sprintEnd=best;d.meta.sprintEnd=best;d.meta.sprintEndLabel=new Date(best+'T00:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric'});}
     }
-    if(sprintEnd){window.SPRINT_END_DATE=sprintEnd;var sc=document.getElementById('sprintChip');if(sc&&d.meta.sprintEndLabel)sc.textContent='Before '+d.meta.sprintEndLabel;var ssl=document.getElementById('statSprintEndLabel');if(ssl&&d.meta.sprintEndLabel)ssl.textContent='due by '+d.meta.sprintEndLabel;}
+    if(sprintEnd){window.SPRINT_END_DATE=sprintEnd;var sc=document.getElementById('sprintChip');if(sc&&d.meta.sprintEndLabel)sc.textContent='Before '+d.meta.sprintEndLabel;var ssl=document.getElementById('statSprintEndLabel');if(ssl&&d.meta.sprintEndLabel)ssl.textContent='on the '+d.meta.sprintEndLabel+' sprint';}
     if(d.meta.generated){
       var ft=document.querySelector('footer');if(ft){var gEl=document.createElement('div');gEl.style.cssText='margin-top:6px;color:var(--faint);font-size:11.5px;';gEl.textContent='Data generated '+d.meta.generated;ft.appendChild(gEl);}
       var fc=document.getElementById('dataFreshness');
@@ -2211,7 +2257,7 @@ function toggleCardsExpanded(){document.body.classList.toggle('cards-expanded',d
 function init(){
   document.body.classList.add('priority-mode');
   buildMsStrip();
-  buildProgramView();recalcCounts();applyComputedPriorities();buildFocusPanel();buildTodayFocus();buildRadarPanel();buildDeltaStrip();updateTabCounts();refreshCapPkg();flushLocalQueue();loadPending();updateCaptureSummary();
+  buildProgramView();recalcCounts();applyComputedPriorities();buildFocusPanel();buildTodayFocus();buildRadarPanel();buildDeltaStrip();buildMyDay();refreshPins();updateTabCounts();refreshCapPkg();flushLocalQueue();loadPending();updateCaptureSummary();initStatClicks();
   var cbx=document.getElementById('captureBox');if(cbx)cbx.addEventListener('toggle',function(){if(!cbx.open)cbx.dataset.userClosed='1';});
 }
 var BASE_ITEMS=[],BASE_DETAILS={};
@@ -2422,6 +2468,108 @@ function eventRow(ev,inDrawer){
   return row;
 }
 
+// ---- My Day: you pick the tasks, you pick the order ----
+var MYDAY_KEY='wt-my-day';
+function readMyDay(){
+  try{var d=JSON.parse(localStorage.getItem(MYDAY_KEY)||'null')||{date:null,ids:[]};
+    d.ids=(d.ids||[]).filter(function(id){return !!itemById(id);});return d;
+  }catch(e){return{date:null,ids:[]};}
+}
+function saveMyDay(d){try{localStorage.setItem(MYDAY_KEY,JSON.stringify(d));}catch(e){}}
+function inMyDay(id){return readMyDay().ids.indexOf(id)!==-1;}
+function toggleMyDay(id){
+  var d=readMyDay();var i=d.ids.indexOf(id);
+  if(i===-1){d.ids.push(id);d.date=new Date().toISOString().slice(0,10);setStatus('Added to My day ('+d.ids.length+').');}
+  else{d.ids.splice(i,1);setStatus('Removed from My day.');}
+  saveMyDay(d);buildMyDay();refreshPins();
+}
+function moveMyDay(id,dir){
+  var d=readMyDay();var i=d.ids.indexOf(id);var j=i+dir;
+  if(i<0||j<0||j>=d.ids.length)return;
+  d.ids[i]=d.ids[j];d.ids[j]=id;saveMyDay(d);buildMyDay();
+}
+function myDayItemDone(id){
+  var el=document.querySelector('#programView .item[data-id="'+id+'"]');
+  if(el&&(el.classList.contains('done-pending')||el.classList.contains('completed')))return true;
+  var it=itemById(id);return !!(it&&(it.status==='completed'||it.pendingComplete));
+}
+function refreshPins(){
+  document.querySelectorAll('.pin-btn').forEach(function(b){
+    var item=b.closest('.item');var id=item?item.getAttribute('data-id'):null;if(!id)return;
+    var on=inMyDay(id);
+    b.textContent=on?'\u2605 my day':'\u2606 my day';
+    b.classList.toggle('pin-on',on);
+  });
+}
+function buildMyDay(){
+  var sec=document.getElementById('myDaySec');if(!sec)return;
+  var d=readMyDay();sec.innerHTML='';
+  var head=document.createElement('div');head.className='my-day-head';
+  var tag=document.createElement('span');tag.className='tag';tag.textContent='My day \u2014 your pick, your order';head.appendChild(tag);
+  if(d.ids.length){
+    var doneCt=d.ids.filter(myDayItemDone).length;
+    var prog=document.createElement('span');prog.className='my-day-prog';prog.textContent=doneCt+'/'+d.ids.length+' done';head.appendChild(prog);
+    var today=new Date().toISOString().slice(0,10);
+    if(d.date&&d.date<today){var carry=document.createElement('span');carry.className='my-day-carry';carry.textContent='picked '+d.date+' \u2014 carried over';head.appendChild(carry);}
+    var clr=document.createElement('button');clr.type='button';clr.className='my-day-clear';clr.textContent='clear';
+    clr.addEventListener('click',function(){saveMyDay({date:null,ids:[]});buildMyDay();refreshPins();setStatus('My day cleared.');});
+    head.appendChild(clr);
+  }
+  sec.appendChild(head);
+  if(!d.ids.length){
+    var hint=document.createElement('div');hint.className='my-day-hint';
+    hint.textContent='Nothing picked yet \u2014 press \u2606 my day on any card (or in its drawer) to stack today\u2019s focus here, in the order you\u2019ll do it.';
+    sec.appendChild(hint);return;
+  }
+  d.ids.forEach(function(id,idx){
+    var it=itemById(id);if(!it)return;
+    var done=myDayItemDone(id);
+    var row=document.createElement('div');row.className='my-day-row'+(done?' md-done':'');
+    var cb=document.createElement('input');cb.type='checkbox';cb.checked=done;cb.setAttribute('aria-label','Done: '+it.title.slice(0,60));
+    cb.addEventListener('change',function(e){
+      e.stopPropagation();
+      var orig=document.querySelector('#programView .item[data-id="'+id+'"] .done-toggle');
+      if(orig){orig.checked=cb.checked;orig.dispatchEvent(new Event('change'));}
+      buildMyDay();
+    });
+    row.appendChild(cb);
+    var num=document.createElement('span');num.className='md-num';num.textContent=(idx+1)+'.';row.appendChild(num);
+    if(it.action){var ap=document.createElement('span');ap.className='action-pill ap-'+it.action;ap.textContent=it.action;row.appendChild(ap);}
+    var t=document.createElement('span');t.className='md-title';t.textContent=it.title.slice(0,95);
+    t.addEventListener('click',function(){openDrawer(id);});row.appendChild(t);
+    var cc=courtList(it.court);
+    var who=document.createElement('span');who.className='md-who';who.textContent=courtHasYou(cc)?'':(cc.length?'waiting on '+cc[0]:'');row.appendChild(who);
+    var ctr=document.createElement('span');ctr.className='md-ctrls';
+    [['\u2191',-1],['\u2193',1]].forEach(function(a){
+      var b=document.createElement('button');b.type='button';b.textContent=a[0];b.title='Move '+(a[1]<0?'up':'down');
+      b.addEventListener('click',function(e){e.stopPropagation();moveMyDay(id,a[1]);});ctr.appendChild(b);
+    });
+    var x=document.createElement('button');x.type='button';x.textContent='\u00d7';x.title='Remove from My day';
+    x.addEventListener('click',function(e){e.stopPropagation();toggleMyDay(id);});ctr.appendChild(x);
+    row.appendChild(ctr);
+    sec.appendChild(row);
+  });
+}
+// pin buttons + clone action-buttons work everywhere via delegation
+document.addEventListener('click',function(e){
+  var pin=e.target.closest('.pin-btn');
+  if(pin){e.stopPropagation();var item=pin.closest('.item');var id=item?item.getAttribute('data-id'):null;if(id&&id.indexOf('pending-')!==0)toggleMyDay(id);return;}
+  var ab=e.target.closest('.item-actions button');
+  if(ab&&ab.closest('#statusView,#disciplineView,#topicsView,#courtView')){
+    // clones lose their listeners — rebuild the inline capture from data
+    var item2=ab.closest('.item');var id2=item2?item2.getAttribute('data-id'):null;var it2=id2?itemById(id2):null;
+    if(!it2)return;
+    var txt=ab.textContent;
+    var map={'+ subtask':['subtask','The sub-step itself\u2026'],'flag blocking':['blocker',"Why it's blocking (optional)\u2026"],'add note':["note","What happened / what's new\u2026"]};
+    var m=map[txt];if(!m)return;
+    openInlineCapture(ab.closest('.item-actions'),{
+      payloadType:m[0],program:it2.program,pkg:it2.pkg,itemRef:it2.title.slice(0,160),
+      placeholder:m[1],
+      onSaved:function(){refreshBoard();setStatus('Added to the card \u2014 copy for check-in to make it permanent.');}
+    });
+  }
+});
+
 // ---- chase drafts: from "should nudge" to "paste and send" ----
 function cleanUpdateText(t){return (t||'').replace(/\*\*/g,'').replace(/\s+/g,' ').trim();}
 function chaseTextFor(it){
@@ -2581,7 +2729,7 @@ function updateTabCounts(){
   var topicsNeedingAttn=Object.keys(byTopicTC).filter(function(k){return byTopicTC[k].some(function(it){return it.status==='blocking';});}).length;
   setCount('court',coming,false);setCount('upcoming',overdue,true);setCount('topics',topicsNeedingAttn,true);
 }
-function refreshBoard(){applyPendingOverlay();buildProgramView();recalcCounts();applyComputedPriorities();buildFocusPanel();buildTodayFocus();buildRadarPanel();updateTabCounts();setView(activeViewKey());}
+function refreshBoard(){applyPendingOverlay();buildProgramView();recalcCounts();applyComputedPriorities();buildFocusPanel();buildTodayFocus();buildRadarPanel();buildMyDay();updateTabCounts();setView(activeViewKey());refreshPins();}
 var RFI_PROGRAMS={'Concourse B (Onware)':{host:'Concourse B',system:'Onware'},'Centralized / PBS (Planner board)':{host:'Centralized / PBS',system:'Planner board'}};
 function boot(d){MILESTONES=d.milestones||[];STAKEHOLDERS=d.stakeholders||[];renderSessionData(d);
   BASE_ITEMS=(d.items||[]).map(function(it){var m=RFI_PROGRAMS[it.program];if(m){it.program=m.host;it.rfiSystem=m.system;}return it;});
