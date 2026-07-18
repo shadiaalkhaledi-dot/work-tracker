@@ -425,6 +425,57 @@ function check(label, cond) {
   // cleanup my-day state
   window.saveMyDay({date:null, ids:[]});
 
+  // 32. RFI register on Progress: table, aging sort, row opens drawer
+  window.setView("progress");
+  const regRows = document.querySelectorAll("#rfiRegView .rfi-reg-row");
+  check("RFI register renders rows", regRows.length >= 4);
+  const openRows = Array.from(regRows).filter((r) => !r.classList.contains("rr-closed"));
+  check("open RFIs sort before closed", regRows.length && !regRows[0].classList.contains("rr-closed"));
+  if (regRows[0]) {
+    regRows[0].dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+    check("register row opens the drawer", document.getElementById("drawerOverlay").style.display !== "none");
+    window.closeDrawer();
+  }
+
+  // 33. set-due: popover queues a due payload, board picks it up via overlay
+  window.setView("program");
+  const dueBtn = document.querySelector("#programView .item:not(.completed) .due-btn");
+  check("set-due button on cards", !!dueBtn);
+  if (dueBtn) {
+    const card = dueBtn.closest(".item");
+    const cardTitle = card.querySelector(".item-title").textContent;
+    dueBtn.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+    const pop = document.querySelector(".due-pop");
+    check("due popover opens", !!pop);
+    pop.querySelector("input[type=date]").value = "2030-01-02";
+    Array.from(pop.querySelectorAll("button")).find((b) => b.textContent === "Queue it").click();
+    const qDue = JSON.parse(window.localStorage.getItem("wt-capture-queue") || "[]");
+    check("due payload queued", qDue.some((p) => p.type === "due" && p.text === "2030-01-02"));
+    const cardAgain = Array.from(document.querySelectorAll("#programView .item")).find((c) => c.querySelector(".item-title") && c.querySelector(".item-title").textContent === cardTitle);
+    check("overlay applies the pending due to the board", !!(cardAgain && cardAgain.getAttribute("data-due") === "2030-01-02"));
+  }
+
+  // 34. email-the-queue exists and export text still builds
+  check("Email queue button exists", !!Array.from(document.querySelectorAll("#captureBox button")).find((b) => b.textContent === "Email queue"));
+  const exp = window.buildExportText();
+  check("export text builds with queue content", !!exp && exp.indexOf("Work Tracker captures") === 0);
+
+  // 35. toast undo: marking done offers undo; undo unchecks AND removes the phantom capture
+  const undoCard = Array.from(document.querySelectorAll("#programView .item:not(.completed):not(.done-pending)")).find((c) => c.querySelector(".done-toggle"));
+  if (undoCard) {
+    const cb = undoCard.querySelector(".done-toggle");
+    const title = undoCard.querySelector(".item-title").textContent.slice(0, 50);
+    cb.checked = true; cb.dispatchEvent(new window.Event("change"));
+    const undoBtn = Array.from(document.querySelectorAll("#toastWrap .toast-act")).pop();
+    check("done toast offers undo", !!undoBtn);
+    if (undoBtn) {
+      undoBtn.click();
+      check("undo unchecks the item", !cb.checked && !undoCard.classList.contains("done-pending"));
+      const qU = JSON.parse(window.localStorage.getItem("wt-capture-queue") || "[]");
+      check("undo removes the queued completion", !qU.some((p) => p.type === "complete" && p.text.indexOf(title) === 0));
+    }
+  }
+
   if (errs.length) {
     console.log(`${errs.length} unexpected error(s):`);
     errs.forEach((e) => console.log(" - " + e));

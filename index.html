@@ -469,6 +469,21 @@
   .my-day-row.md-done .md-title{text-decoration:line-through;color:var(--faint);}
   .pin-btn.pin-on{color:#b45309;border-color:#f0dfc0;font-weight:700;}
   .stat:hover{border-color:var(--teal);}
+  /* ---- RFI register + due popover + toast action ---- */
+  .rfi-reg{width:100%;border-collapse:collapse;font-size:12.5px;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  .rfi-reg th{text-align:left;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:9px 10px;border-bottom:1px solid var(--border);}
+  .rfi-reg td{padding:8px 10px;border-bottom:1px solid var(--border-soft);}
+  .rfi-reg-row{cursor:pointer;}
+  .rfi-reg-row:hover td{background:var(--border-soft);}
+  .rfi-reg-row.rr-closed td{color:var(--faint);}
+  .rr-title{font-weight:600;color:var(--text);}
+  .rr-state{font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;border-radius:8px;padding:1px 7px;background:var(--border-soft);color:var(--muted);}
+  .rr-state.rr-open{background:rgba(43,108,110,.12);color:var(--teal);}
+  .rr-state.rr-reopened{background:rgba(193,102,72,.14);color:var(--terracotta);}
+  .rr-age.rr-old{color:var(--terracotta);font-weight:800;}
+  .due-pop{margin:6px 0;}
+  .toast-act{margin-left:12px;border:1px solid rgba(255,255,255,.5);background:none;color:#fff;font-family:inherit;font-size:11.5px;font-weight:700;border-radius:7px;padding:2px 10px;cursor:pointer;}
+  .toast-act:hover{background:rgba(255,255,255,.16);}
   /* ---- mobile pass ---- */
   @media (max-width:640px){
     .wrap{padding:20px 14px 56px;}
@@ -535,7 +550,7 @@
     </details>
     <div class="pending-list" id="pendingList"><span class="pending-empty">Nothing pending yet.</span></div>
     <div style="font-size:11px;color:var(--faint);margin-top:6px;">This queue lives in <b>this browser on this machine</b> \u2014 captures made anywhere else won\u2019t appear here. Copy for check-in from the same browser you captured in.</div>
-    <div class="capture-row" style="justify-content:flex-end;gap:8px;margin-top:10px;"><button type="button" onclick="clearCaptures()" style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:5px 12px;font-size:12.5px;cursor:pointer;font-family:inherit;">Clear</button><button type="button" onclick="exportCaptures()">Copy for check-in</button></div>
+    <div class="capture-row" style="justify-content:flex-end;gap:8px;margin-top:10px;"><button type="button" onclick="clearCaptures()" style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:5px 12px;font-size:12.5px;cursor:pointer;font-family:inherit;">Clear</button><button type="button" onclick="emailQueue()" style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:5px 12px;font-size:12.5px;cursor:pointer;font-family:inherit;" title="On your phone? Mail the queue to yourself \u2014 the queue only lives in this browser">Email queue</button><button type="button" onclick="exportCaptures()">Copy for check-in</button></div>
   </details>
 
   <details class="voice"><summary style="cursor:pointer;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--teal);">What we sorted out — session notes</summary><div id="voiceBox"></div></details>
@@ -642,7 +657,7 @@
   <div id="topicsView" style="display:none"></div>
   <div id="courtView" style="display:none"></div>
   <div id="upcomingView" style="display:none"></div>
-  <div id="progressView" style="display:none"><div id="overviewView"></div><div id="milestonesView" style="margin-top:22px"></div></div>
+  <div id="progressView" style="display:none"><div id="overviewView"></div><div id="rfiRegView" style="margin-top:22px"></div><div id="milestonesView" style="margin-top:22px"></div></div>
   <div id="historyView" style="display:none"></div>
   <div id="guideView" style="display:none">
 
@@ -1069,6 +1084,9 @@ function renderItem(itemData){
   var pinB=document.createElement('button');pinB.type='button';pinB.className='pin-btn';
   pinB.textContent='\u2606 my day';pinB.title='Add to My day \u2014 your ordered focus list at the top';
   actRow.appendChild(pinB);
+  var dueB=document.createElement('button');dueB.type='button';dueB.className='due-btn';
+  dueB.textContent='set due';dueB.title='Queue a \ud83d\udcc5 due date \u2014 folds into the vault at check-in and wakes the overdue counter';
+  actRow.appendChild(dueB);
   [['subtask','+ subtask','The sub-step itself…'],['blocker','flag blocking',"Why it's blocking (optional)…"],['note','add note',"What happened / what's new…"]].forEach(function(a){
     var btn=document.createElement('button');btn.type='button';btn.textContent=a[1];
     btn.addEventListener('click',function(e){
@@ -1102,7 +1120,11 @@ function renderItem(itemData){
       el.classList.add('done-pending');setBadgeComplete(el);
       var payload={type:'complete',program:itemData.program||'',pkg:itemData.pkg||'',itemRef:'',text:itemData.title.slice(0,200),ts:new Date().toISOString()};
       logComplete(payload);renderPendingRow(payload);
-    }else{el.classList.remove('done-pending');restoreBadge(el);}
+      toast('Marked done: '+itemData.title.slice(0,50),'undo',function(){doneCb.checked=false;doneCb.dispatchEvent(new Event('change'));});
+    }else{
+      el.classList.remove('done-pending');restoreBadge(el);
+      removeQueued('complete','',itemData.title.slice(0,200));rebuildPendingList();
+    }
     recalcCounts();buildFocusPanel();buildTodayFocus();buildMyDay();
   });
   el.appendChild(doneCb);
@@ -1442,7 +1464,7 @@ function setView(view){
   if(showKey==='topics')buildTopicsView();
   if(showKey==='court')buildCourtView();
   if(showKey==='upcoming')buildUpcomingView();
-  if(showKey==='progress'){buildOverviewView();buildMilestonesView();}
+  if(showKey==='progress'){buildOverviewView();buildRfiRegister();buildMilestonesView();}
   if(showKey==='history')buildHistoryView();
   applySearchFilter();
 }
@@ -1562,13 +1584,19 @@ function onProgramHeadClick(e){var prog=e.currentTarget.closest('.program');if(p
 function toggleCollapseAll(){var collapse=document.getElementById('collapseAllToggle').checked;document.querySelectorAll('#programView>.program').forEach(function(p){p.classList.toggle('collapsed',collapse);});document.querySelectorAll('#programView details.pkg').forEach(function(d){d.open=!collapse;});}
 
 function setStatus(msg){var cs=document.getElementById('capStatus');if(cs)cs.textContent=msg;toast(msg);}
-function toast(msg){
+function toast(msg,actionLabel,actionFn){
   var w=document.getElementById('toastWrap');if(!w)return;
   while(w.children.length>=3)w.removeChild(w.firstChild);
   var t=document.createElement('div');t.className='toast';t.textContent=msg;
+  if(actionLabel&&actionFn){
+    var a=document.createElement('button');a.type='button';a.className='toast-act';a.textContent=actionLabel;
+    a.addEventListener('click',function(){actionFn();if(t.parentNode)t.parentNode.removeChild(t);});
+    t.appendChild(a);
+  }
   w.appendChild(t);
-  setTimeout(function(){t.classList.add('toast-out');},3200);
-  setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t);},3800);
+  var life=actionLabel?6000:3200;
+  setTimeout(function(){t.classList.add('toast-out');},life);
+  setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t);},life+600);
 }
 function localQueueKey(){return'wt-capture-queue';}
 function queueLocally(payload){try{var q=JSON.parse(localStorage.getItem(localQueueKey())||'[]');q.push(payload);localStorage.setItem(localQueueKey(),JSON.stringify(q));}catch(e){}}
@@ -1600,7 +1628,7 @@ function addCapture(){
   if(!API_URL||API_URL.indexOf('PASTE_')===0){queueLocally(payload);refreshBoard();setStatus('Added to the board ('+queueCount()+' pending). Click “Copy for check-in” to sync with Claude.');return;}
   sendToSheet(payload,function(ok){if(ok)setStatus('Saved to your tracker sheet — tell Claude to sync next session.');else{queueLocally(payload);setStatus('Could not reach the sheet — saved locally, will retry.');}});
 }
-function typeLabel(type){return type==='note'?'Note':type==='complete'?'Done':type==='blocker'?'Blocker':type==='watch'?'Watch':type==='subtask'?'Subtask':type==='stepdone'?'Step done':type==='court'?'Court \u2192':type==='topic'?'Topic \u2192':'New';}
+function typeLabel(type){return type==='note'?'Note':type==='complete'?'Done':type==='blocker'?'Blocker':type==='watch'?'Watch':type==='subtask'?'Subtask':type==='stepdone'?'Step done':type==='court'?'Court \u2192':type==='topic'?'Topic \u2192':type==='due'?'Due \u2192':'New';}
 function formatTs(ts){if(!ts)return'';var d=new Date(ts);if(isNaN(d.getTime()))return'';return d.toLocaleDateString(undefined,{month:'short',day:'numeric'})+' · '+d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});}
 
 function renderPendingRow(payload){updateCaptureSummary();var list=document.getElementById('pendingList');var empty=list.querySelector('.pending-empty');if(empty)empty.remove();var row=document.createElement('div');row.className='pending-row';renderPendingRowView(row,payload);list.appendChild(row);}
@@ -1654,6 +1682,7 @@ function renderPendingRowEdit(row,payload){
 }
 function loadPending(){if(!API_URL||API_URL.indexOf('PASTE_')===0){renderLocalQueue();return;}fetch(API_URL+'?action=pending').then(function(r){return r.json();}).then(function(rows){if(!rows||!rows.length)return;var list=document.getElementById('pendingList');list.innerHTML='';rows.forEach(function(row){renderPendingRow(row);});}).catch(function(){});}
 function removeQueued(type,itemRef,text){
+  // (complete payloads carry the title in .text with an empty itemRef)
   var q=readQueue();
   for(var i=q.length-1;i>=0;i--){if(q[i].type===type&&q[i].itemRef===itemRef&&(!text||q[i].text===text)){q.splice(i,1);break;}}
   try{localStorage.setItem(localQueueKey(),JSON.stringify(q));}catch(e){}
@@ -1687,14 +1716,27 @@ function updateCaptureSummary(){
   var box=document.getElementById('captureBox');if(box&&n>0&&!box.dataset.userClosed)box.open=true;
 }
 function renderLocalQueue(){var q=readQueue();if(!q.length)return;var list=document.getElementById('pendingList');list.innerHTML='';q.forEach(function(p){renderPendingRow(p);});}
-function exportCaptures(){var q=readQueue();var md=readMyDay();
-  if(!q.length&&!md.ids.length){setStatus('Nothing to copy yet.');return;}
+function buildExportText(){
+  var q=readQueue();var md=readMyDay();
+  if(!q.length&&!md.ids.length)return null;
   var lines=q.map(function(p){var loc=[p.program,p.pkg].filter(Boolean).join(' \u203a ');var ref=p.itemRef?(' [re: '+p.itemRef+']'):'';return '- ['+typeLabel(p.type)+'] '+(loc?loc+': ':'')+p.text+ref;});
   if(md.ids.length){
     lines.push('');lines.push('My day plan ('+(md.date||'today')+'), in order:');
     md.ids.forEach(function(id,i){var it=itemById(id);if(it)lines.push('  '+(i+1)+'. '+(myDayItemDone(id)?'[done] ':'')+it.title.slice(0,110));});
   }
-  var out='Work Tracker captures \u2014 '+new Date().toLocaleDateString()+'\n'+lines.join('\n');if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(out).then(function(){setStatus('Copied '+q.length+' capture(s) \u2014 paste to Claude at check-in.');},function(){window.prompt('Copy these and paste to Claude:',out);});}else{window.prompt('Copy these and paste to Claude:',out);}}
+  return 'Work Tracker captures \u2014 '+new Date().toLocaleDateString()+'\n'+lines.join('\n');
+}
+function emailQueue(){
+  var out=buildExportText();
+  if(!out){setStatus('Nothing to send yet.');return;}
+  if(out.length>1800){setStatus('Queue is long \u2014 mail apps truncate; use Copy for check-in instead.');return;}
+  window.location.href='mailto:salkhaledi@dialogdesign.ca?subject='+encodeURIComponent('Work Tracker captures \u2014 '+new Date().toISOString().slice(0,10))+'&body='+encodeURIComponent(out);
+  setStatus('Opening your mail app \u2014 send it to yourself, paste at check-in.');
+}
+function exportCaptures(){
+  var out=buildExportText();
+  if(!out){setStatus('Nothing to copy yet.');return;}
+  var q=readQueue();if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(out).then(function(){setStatus('Copied '+q.length+' capture(s) + plan \u2014 paste to Claude at check-in.');},function(){window.prompt('Copy these and paste to Claude:',out);});}else{window.prompt('Copy these and paste to Claude:',out);}}
 function clearCaptures(){if(!readQueue().length){setStatus('Queue already empty.');return;}if(window.confirm('Clear captured items? Only do this after copying them to Claude.')){localStorage.setItem(localQueueKey(),'[]');document.getElementById('pendingList').innerHTML='<span class="pending-empty">Nothing pending yet.</span>';refreshBoard();setStatus('Local queue cleared.');}}
 
 // ---- 2026-07-04 views: Court / Overview / History ----
@@ -1867,6 +1909,47 @@ function buildCourtView(){
     sectionHead(c,'Delegated — still my responsibility, they execute','var(--teal)');
     var dbox=document.createElement('div');delegated.forEach(function(it){dbox.appendChild(makeAltClone(it.id));});c.appendChild(dbox);
   }
+}
+
+function buildRfiRegister(){
+  var c=document.getElementById('rfiRegView');if(!c)return;c.innerHTML='';
+  var rfis=ITEMS.filter(function(it){return it.rfiSystem||it.cat==='rfi';});
+  if(!rfis.length)return;
+  sectionHead(c,'RFI register \u2014 aging first, because old RFIs become claims','var(--rfi)');
+  var rows=rfis.map(function(it){
+    var st=it.state||(it.status==='completed'?'closed':'open');
+    var isOpen=st!=='closed';
+    var raised=it.date||'';
+    var age=isOpen&&raised?Math.floor((Date.now()-new Date(raised+'T00:00:00').getTime())/86400000):null;
+    var ms=milestoneFor(it.pkg,it.program);
+    var closes=ms&&ms.phase?(ms.phase==='bid'?'Addendum':'PCN / SI'):'\u2014';
+    return{it:it,st:st,isOpen:isOpen,raised:raised,age:age,closes:closes};
+  });
+  rows.sort(function(a,b){
+    if(a.isOpen!==b.isOpen)return a.isOpen?-1:1;
+    if(a.isOpen)return (b.age||0)-(a.age||0);
+    return (b.raised||'')<(a.raised||'')?-1:1;
+  });
+  var tbl=document.createElement('table');tbl.className='rfi-reg';
+  tbl.innerHTML='<thead><tr><th>RFI</th><th>System</th><th>Package</th><th>State</th><th>Court</th><th>Raised</th><th>Age</th><th>Closes via</th></tr></thead>';
+  var tb=document.createElement('tbody');
+  rows.forEach(function(r){
+    var tr=document.createElement('tr');tr.className='rfi-reg-row'+(r.isOpen?'':' rr-closed');
+    var courtTxt=r.isOpen?(courtList(r.it.court).join(', ')||'\u2014'):'\u2014';
+    var ageTxt=r.age===null?'\u2014':r.age+'d';
+    var pkgShort=(r.it.pkg||'').replace(/Package /,'Pkg ').split('\u2014')[0].trim().slice(0,26);
+    tr.innerHTML='<td class="rr-title">'+escapeHtml(r.it.title.slice(0,72))+'</td>'+
+      '<td>'+escapeHtml(r.it.rfiSystem||'\u2014')+'</td>'+
+      '<td>'+escapeHtml(pkgShort)+'</td>'+
+      '<td><span class="rr-state rr-'+r.st+'">'+r.st+'</span></td>'+
+      '<td>'+escapeHtml(courtTxt)+'</td>'+
+      '<td>'+escapeHtml(r.raised||'\u2014')+'</td>'+
+      '<td class="rr-age'+(r.age!==null&&r.age>=10?' rr-old':'')+'">'+ageTxt+'</td>'+
+      '<td>'+r.closes+'</td>';
+    tr.addEventListener('click',function(){openDrawer(r.it.id);});
+    tb.appendChild(tr);
+  });
+  tbl.appendChild(tb);c.appendChild(tbl);
 }
 
 function buildMilestonesView(){
@@ -2274,6 +2357,8 @@ function applyPendingOverlay(){
       for(var c2=0;c2<items.length;c2++){if(items[c2].title.slice(0,60)===p.itemRef.slice(0,60)){items[c2].court=p.text.indexOf(',')>-1?p.text.split(',').map(function(x){return x.trim();}):p.text;break;}}
     }else if(p.type==='topic'&&p.itemRef){
       for(var tp2=0;tp2<items.length;tp2++){if(items[tp2].title.slice(0,60)===p.itemRef.slice(0,60)){items[tp2].topic=p.text;break;}}
+    }else if(p.type==='due'&&p.itemRef){
+      if(/^\d{4}-\d{2}-\d{2}$/.test(p.text)){for(var du2=0;du2<items.length;du2++){if(items[du2].title.slice(0,60)===p.itemRef.slice(0,60)){items[du2].due=p.text;break;}}}
     }else if(p.type==='stepdone'&&p.itemRef){
       for(var s2=0;s2<items.length;s2++){
         if(items[s2].title.slice(0,60)!==p.itemRef.slice(0,60))continue;
@@ -2551,9 +2636,31 @@ function buildMyDay(){
   });
 }
 // pin buttons + clone action-buttons work everywhere via delegation
+function openDuePopover(anchorRow,it){
+  var ex=document.querySelector('.due-pop');if(ex)ex.remove();
+  var pop=document.createElement('div');pop.className='inline-capture due-pop';
+  var lab=document.createElement('div');lab.style.cssText='font-size:11px;color:var(--muted);margin-bottom:5px;';lab.textContent='Due date for: '+it.title.slice(0,60);pop.appendChild(lab);
+  var row=document.createElement('div');row.className='pedit-row';
+  var inp=document.createElement('input');inp.type='date';inp.style.cssText='font-family:inherit;font-size:13px;padding:6px 9px;border:1px solid var(--border);border-radius:7px;';row.appendChild(inp);
+  var ok=document.createElement('button');ok.type='button';ok.textContent='Queue it';
+  ok.addEventListener('click',function(){
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(inp.value)){setStatus('Pick a date first.');return;}
+    var payload={type:'due',program:it.program||'',pkg:it.pkg||'',itemRef:it.title.slice(0,160),text:inp.value,ts:new Date().toISOString()};
+    queueLocally(payload);renderPendingRow(payload);pop.remove();
+    refreshBoard();setStatus('\ud83d\udcc5 '+inp.value+' queued \u2014 folds into the vault at check-in.');
+  });
+  row.appendChild(ok);
+  var cx=document.createElement('button');cx.type='button';cx.className='pcancel';cx.textContent='Cancel';
+  cx.addEventListener('click',function(){pop.remove();});row.appendChild(cx);
+  pop.appendChild(row);
+  anchorRow.parentNode.insertBefore(pop,anchorRow.nextSibling);
+  inp.focus();
+}
 document.addEventListener('click',function(e){
   var pin=e.target.closest('.pin-btn');
   if(pin){e.stopPropagation();var item=pin.closest('.item');var id=item?item.getAttribute('data-id'):null;if(id&&id.indexOf('pending-')!==0)toggleMyDay(id);return;}
+  var db=e.target.closest('.due-btn');
+  if(db){e.stopPropagation();var itemD=db.closest('.item');var idD=itemD?itemD.getAttribute('data-id'):null;var itD=idD?itemById(idD):null;if(itD)openDuePopover(db.closest('.item-actions'),itD);return;}
   var ab=e.target.closest('.item-actions button');
   if(ab&&ab.closest('#statusView,#disciplineView,#topicsView,#courtView')){
     // clones lose their listeners — rebuild the inline capture from data
