@@ -535,6 +535,50 @@ function check(label, cond) {
   check("g then c switches to Court", document.getElementById("courtView").style.display !== "none");
   window.setView("program");
 
+  // 40. RFI membership: cat:rfi tasks now live inside the black-edged RFI blocks
+  window.setView("program");
+  const rfiBlockItems = document.querySelectorAll("#programView .rfi-block .item").length;
+  check("RFI blocks gather cat:rfi tasks too (>=10 items)", rfiBlockItems >= 10);
+  check("stateless RFIs get a nudging state pill", !!document.querySelector("#programView .state-pill.state-missing"));
+  const mixedHead = Array.from(document.querySelectorAll("#programView .rfi-head")).find((h) => h.textContent.indexOf("Tasks") !== -1);
+  check("block header names Tasks when RFIs live there", !!mixedHead);
+
+  // 41. inherited deadlines: undated items ride their package's next submission
+  check("inherited-due chips render", document.querySelectorAll("#programView .inh-due").length > 0);
+  const inhCard = document.querySelector("#programView .item[data-due-inherited]");
+  check("data-due-inherited set on undated items", !!inhCard);
+  window.setView("upcoming");
+  check("Upcoming shows rides-pkg rows", Array.from(document.querySelectorAll("#upcomingView .hist-entry")).some((r) => r.textContent.indexOf("rides pkg date") !== -1));
+
+  // 42. milestones grouped by type on Progress
+  window.setView("progress");
+  const heads = document.querySelectorAll("#milestonesView .msg-head");
+  check("three milestone type groups render", heads.length === 3);
+  check("contract group holds the addenda", Array.from(heads).some((h) => h.textContent.indexOf("Contract") !== -1));
+
+  // 43. delegate button: opens the picker, queues a delegate payload, board reflects it
+  window.setView("program");
+  const dlgBtn = document.querySelector("#programView .item:not(.completed) .dlg-btn");
+  check("delegate button on cards", !!dlgBtn);
+  if (dlgBtn) {
+    dlgBtn.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+    const pop = document.querySelector(".dlg-pop");
+    check("delegate picker opens with stakeholders", !!pop && pop.querySelector("select").options.length > 5);
+    const sel = pop.querySelector("select");
+    sel.value = sel.options[1].value;
+    Array.from(pop.querySelectorAll("button")).find((b) => b.textContent === "Queue it").click();
+    const qD = JSON.parse(window.localStorage.getItem("wt-capture-queue") || "[]");
+    check("delegate payload queued", qD.some((p) => p.type === "delegate"));
+    check("board shows Delegated-to after overlay", Array.from(document.querySelectorAll("#programView .ctag")).some((c) => c.textContent.indexOf("Delegated to") !== -1));
+  }
+
+  // 44. blocking items show their reason inline
+  const blockCard = document.querySelector("#programView .item.blocking");
+  if (blockCard) {
+    const br = blockCard.querySelector(".block-reason");
+    check("blocking card carries a visible reason line", !!br && br.textContent.length > 10);
+  }
+
   if (errs.length) {
     console.log(`${errs.length} unexpected error(s):`);
     errs.forEach((e) => console.log(" - " + e));
