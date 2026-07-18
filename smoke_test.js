@@ -62,22 +62,53 @@ function check(label, cond) {
     errs.push("boot() threw: " + e.stack);
   }
 
-  // 1. every view renders without throwing
-  const views = ["program", "status", "discipline", "topics", "court", "upcoming", "milestones", "overview", "history", "guide"];
+  // 1. every view renders without throwing — including the new top-level names
+  // and the legacy aliases (old saved UI states may still carry them)
+  const views = ["board", "program", "status", "discipline", "topics", "court", "upcoming", "progress", "milestones", "overview", "history", "guide"];
   views.forEach((v) => {
     try { window.setView(v); } catch (e) { errs.push(`setView(${v}) threw: ` + e.stack); }
   });
 
-  // 2. Topics tab pulls its weight with a tab-count badge like Court/Upcoming
+  // 2. Threads group-by chip carries the attention count badge
   window.setView("program");
   window.updateTabCounts();
-  check("Topics tab-count badge exists", !!document.querySelector('#viewToggle button[data-view="topics"] .tab-count'));
+  check("Threads count badge exists on the group-by chip", !!document.querySelector('#boardModeToggle button[data-mode="topics"] .tab-count'));
+  check("board-mode toggle visible on Board view", document.getElementById("boardModeToggle").style.display !== "none");
 
-  // 3. Topics view nests Program -> Package -> Topic (not a flat cross-package list)
+  // 3. Threads view cuts ACROSS packages: thread cards with story-line summaries
   window.setView("topics");
-  const progGroups = document.querySelectorAll("#topicsView>.altgroup");
-  check("Topics view has program-level groups", progGroups.length > 0);
-  check("Topics view has an Untagged subhead somewhere", !!Array.from(document.querySelectorAll("#topicsView .topic-subhead")).find((s) => s.textContent.indexOf("Untagged") !== -1));
+  const threadEls = document.querySelectorAll("#topicsView details.thread");
+  check("Threads view has thread cards", threadEls.length > 0);
+  check("thread summary carries a state word", !!document.querySelector("#topicsView .th-state"));
+  const openUntagged = data.items.filter((i) => i.status !== "completed" && !i.topic).length;
+  if (openUntagged > 0) check("threads mention untagged items in a footnote", !!Array.from(document.querySelectorAll("#topicsView p.empty")).find((s) => s.textContent.indexOf("without a topic") !== -1));
+  const rfiThread = Array.from(threadEls).find((t) => t.querySelector(".item[data-state]"));
+  check("at least one thread contains an RFI item", !!rfiThread);
+  check("board-mode toggle hides on non-board views", (window.setView("court"), document.getElementById("boardModeToggle").style.display === "none"));
+
+  // 3b. Progress = Overview + Milestones merged
+  window.setView("progress");
+  check("Progress shows the overview rollup", document.getElementById("overviewView").children.length > 0);
+  check("Progress shows the milestones register", document.getElementById("milestonesView").children.length > 0);
+  check("legacy setView(milestones) lands on Progress", (window.setView("milestones"), document.querySelector('#viewToggle button[data-view="progress"]').classList.contains("active")));
+
+  // 3c. radar: quiet-too-long strip builds and groups
+  window.setView("program");
+  window.buildRadarPanel();
+  const radar = document.getElementById("radarPanel");
+  check("radar panel exists", !!radar);
+  if (radar.style.display !== "none") {
+    check("radar has a summary line", document.getElementById("radarSummary").textContent.length > 5);
+    check("radar rows have age chips", !!radar.querySelector(".radar-age"));
+    check("radar rows grouped under bucket labels", !!radar.querySelector(".radar-bucket"));
+  }
+
+  // 3d. delta: since-you-last-looked builds when a previous visit day exists
+  window.localStorage.setItem("wt-last-visit", JSON.stringify({prev: "2026-07-10", current: "2026-07-10"}));
+  window.buildDeltaStrip();
+  const delta = document.getElementById("deltaStrip");
+  check("delta strip renders rows for a returning visitor", delta.style.display !== "none" && !!delta.querySelector(".delta-row"));
+  check("delta rows carry new/moved/closed tags", !!delta.querySelector(".delta-tag"));
 
   // 4. card structure: badges in their own row, title in its own block
   window.setView("program");
@@ -205,6 +236,78 @@ function check(label, cond) {
         }
       }
     }
+  }
+
+  // 16. briefing block wraps the four attention widgets into one card
+  const briefing = document.getElementById("briefing");
+  check("briefing block exists", !!briefing);
+  ["todayFocus","focusPanel","deltaStrip","radarPanel"].forEach((id) => {
+    check("briefing contains #"+id, !!briefing.querySelector("#"+id));
+  });
+
+  // 17. context drawer: opens from a radar row, shows card + thread + merged timeline
+  window.buildRadarPanel();
+  const radarRow = document.querySelector("#radarList .radar-row");
+  if (radarRow) {
+    radarRow.click();
+    const overlay = document.getElementById("drawerOverlay");
+    check("drawer opens from a radar row", overlay.style.display !== "none");
+    check("drawer shows the full card", !!document.querySelector("#drawerBody .item.drawer-card"));
+    const openedId = document.getElementById("drawer").getAttribute("data-item");
+    const openedItem = data.items.find((i) => i.id === openedId);
+    if (openedItem && openedItem.topic) {
+      check("drawer shows merged thread timeline", !!document.querySelector("#drawerBody .ev-row"));
+    }
+    // sibling click pushes the back stack
+    const sib = document.querySelector("#drawerBody .drawer-sib");
+    if (sib) {
+      sib.click();
+      check("back button appears after drilling into a sibling", document.getElementById("drawerBack").style.display !== "none");
+      window.drawerBack();
+    }
+    // Esc closes
+    document.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    check("Esc closes the drawer", overlay.style.display === "none");
+  } else {
+    check("radar row exists to open drawer from", false);
+  }
+
+  // 18. clicking a card TITLE opens the drawer — including on clones in Threads view
+  window.setView("topics");
+  const cloneTitle = document.querySelector("#topicsView .item .item-title");
+  if (cloneTitle) {
+    cloneTitle.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+    check("title click on a thread clone opens drawer", document.getElementById("drawerOverlay").style.display !== "none");
+    window.closeDrawer();
+  }
+
+  // 19. nudge button: records a chase and resets the quiet clock
+  window.setView("program");
+  window.buildRadarPanel();
+  const nudge = document.querySelector("#radarList .nudge-btn");
+  if (nudge) {
+    const before = JSON.parse(window.localStorage.getItem("wt-capture-queue") || "[]").length;
+    nudge.click();
+    const q = JSON.parse(window.localStorage.getItem("wt-capture-queue") || "[]");
+    check("nudge queues a chase capture", q.length === before + 1 && q[q.length-1].text.indexOf("nudged") === 0);
+  } else {
+    check("nudge button present on a waiting radar row", false);
+  }
+
+  // 20. unified history: filters + day-grouped stream + drawer link
+  window.setView("history");
+  check("history has filter selects", document.querySelectorAll("#historyView .hist-filters select").length === 3);
+  check("history stream renders event rows", document.querySelectorAll("#historyView .ev-row").length > 10);
+  check("history stream has day headers", document.querySelectorAll("#historyView .ev-day").length > 3);
+  const topicSel = document.querySelectorAll("#historyView .hist-filters select")[2];
+  const allRows = document.querySelectorAll("#historyView .ev-row").length;
+  if (topicSel.options.length > 1) {
+    topicSel.value = topicSel.options[1].value;
+    topicSel.dispatchEvent(new window.Event("change"));
+    const filtered = document.querySelectorAll("#historyView .ev-row").length;
+    check("thread filter narrows the stream", filtered > 0 && filtered < allRows);
+    const evRow = document.querySelector("#historyView .ev-row[style*=pointer], #historyView .ev-row");
+    if (evRow) { evRow.click(); check("history event opens the drawer", document.getElementById("drawerOverlay").style.display !== "none"); window.closeDrawer(); }
   }
 
   if (errs.length) {
