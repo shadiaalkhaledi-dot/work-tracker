@@ -476,6 +476,65 @@ function check(label, cond) {
     }
   }
 
+  // 36. radar snooze: zzz opens choices, snoozing removes the row, shelf shows it, wake restores
+  window.setView("program");
+  window.buildRadarPanel();
+  const zzz = document.querySelector("#radarList .snooze-btn");
+  check("snooze button on radar rows", !!zzz);
+  if (zzz) {
+    const rowsBefore = document.querySelectorAll("#radarList .radar-row:not(.radar-snoozed)").length;
+    zzz.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+    const pop = document.querySelector(".snooze-pop");
+    check("snooze popover opens", !!pop);
+    Array.from(pop.querySelectorAll("button")).find((b) => b.textContent === "3 days").dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+    const rowsAfter = document.querySelectorAll("#radarList .radar-row:not(.radar-snoozed)").length;
+    check("snoozed row leaves the active radar", rowsAfter === rowsBefore - 1);
+    check("summary counts the snooze", document.getElementById("radarSummary").textContent.indexOf("snoozed") !== -1);
+    const wake = Array.from(document.querySelectorAll("#radarList .radar-snoozed button")).find((b) => b.textContent === "wake");
+    check("snoozed shelf offers wake", !!wake);
+    if (wake) {
+      wake.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+      check("wake restores the row", document.querySelectorAll("#radarList .radar-row:not(.radar-snoozed)").length === rowsBefore);
+    }
+  }
+
+  // 37. person drawer: who-owes-me name opens a person brief; back stack works from an item
+  window.setView("court");
+  const personName = document.querySelector("#courtView .altgroup-head .person-link");
+  check("who-owes-me names are clickable", !!personName);
+  if (personName) {
+    personName.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+    check("person drawer opens", document.getElementById("drawerOverlay").style.display !== "none");
+    check("person drawer shows the brief", document.getElementById("drawerBody").textContent.indexOf("They owe you") !== -1);
+    const sib = document.querySelector("#drawerBody .drawer-sib");
+    if (sib) {
+      sib.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+      check("drilling to an item from a person keeps the back stack", document.getElementById("drawerBack").style.display !== "none");
+      window.drawerBack();
+      check("back returns to the person brief", document.getElementById("drawerBody").textContent.indexOf("They owe you") !== -1);
+    }
+    window.closeDrawer();
+  }
+
+  // 38. flow strip renders weekly bars + verdict on Progress
+  window.setView("progress");
+  check("flow strip has weekly columns", document.querySelectorAll("#flowView .flow-col").length >= 2);
+  check("flow strip has a verdict line", !!document.querySelector("#flowView .flow-verdict"));
+
+  // 39. keyboard: j focuses a card, Enter opens drawer, g+c goes to Court
+  window.setView("program");
+  document.activeElement && document.activeElement.blur && document.activeElement.blur();
+  document.dispatchEvent(new window.KeyboardEvent("keydown", { key: "j", bubbles: true }));
+  const focd = document.querySelector(".kbd-focus");
+  check("j focuses the first visible card", !!focd);
+  document.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+  check("Enter opens the drawer for the focused card", document.getElementById("drawerOverlay").style.display !== "none");
+  window.closeDrawer();
+  document.dispatchEvent(new window.KeyboardEvent("keydown", { key: "g", bubbles: true }));
+  document.dispatchEvent(new window.KeyboardEvent("keydown", { key: "c", bubbles: true }));
+  check("g then c switches to Court", document.getElementById("courtView").style.display !== "none");
+  window.setView("program");
+
   if (errs.length) {
     console.log(`${errs.length} unexpected error(s):`);
     errs.forEach((e) => console.log(" - " + e));
