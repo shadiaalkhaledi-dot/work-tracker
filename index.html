@@ -475,6 +475,22 @@
   .my-day-clear{margin-left:auto;border:none;background:none;color:var(--faint);font-size:11px;cursor:pointer;font-family:inherit;}
   .my-day-clear:hover{color:var(--terracotta);}
   .my-day-hint{font-size:12.5px;color:var(--muted);}
+  .tf-row.tf-anchor{color:var(--faint);font-style:italic;}
+  .md-group{display:flex;align-items:baseline;gap:8px;font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:11px 4px 3px;border-top:1px solid var(--border-soft);margin-top:5px;}
+  .md-group:first-of-type{border-top:none;margin-top:0;}
+  .md-group.g-hard{color:#b45309;}
+  .md-group.g-gate{color:var(--teal);}
+  .md-group.g-none{color:var(--muted);}
+  .md-group .mdg-why{font-weight:600;letter-spacing:0;text-transform:none;color:var(--faint);font-size:10.5px;}
+  .md-prov{flex:0 0 auto;font-size:11px;width:12px;text-align:center;}
+  .md-prov.p-pick{color:#b45309;}
+  .md-prov.p-seed{color:var(--faint);}
+  .md-due{flex:0 0 auto;font-size:10.5px;font-weight:700;color:var(--muted);white-space:nowrap;}
+  .md-due.d-over{color:var(--rose);}
+  .md-due.d-soon{color:#b45309;}
+  .md-due.d-inh{font-weight:600;color:var(--faint);}
+  .md-seedinfo{font-size:11px;color:var(--faint);}
+  .md-reseed{border:none;background:none;color:#b45309;font-size:11px;cursor:pointer;font-family:inherit;text-decoration:underline;}
   .my-day-row{display:flex;align-items:baseline;gap:9px;padding:6px 4px;border-radius:8px;font-size:13.5px;}
   .my-day-row:hover{background:var(--border-soft);}
   .my-day-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--olive);align-self:center;}
@@ -1804,11 +1820,20 @@ function updateCaptureSummary(){
 function renderLocalQueue(){var q=readQueue();if(!q.length)return;var list=document.getElementById('pendingList');list.innerHTML='';q.forEach(function(p){renderPendingRow(p);});}
 function buildExportText(){
   var q=readQueue();var md=readMyDay();
-  if(!q.length&&!md.ids.length)return null;
+  if(!q.length&&!(md.order&&md.order.length))return null;
   var lines=q.map(function(p){var loc=[p.program,p.pkg].filter(Boolean).join(' \u203a ');var ref=p.itemRef?(' [re: '+p.itemRef+']'):'';return '- ['+typeLabel(p.type)+'] '+(loc?loc+': ':'')+p.text+ref;});
-  if(md.ids.length){
-    lines.push('');lines.push('My day plan ('+(md.date||'today')+'), in order:');
-    md.ids.forEach(function(id,i){var it=itemById(id);if(it)lines.push('  '+(i+1)+'. '+(myDayItemDone(id)?'[done] ':'')+it.title.slice(0,110));});
+  var seq=(typeof mdSeq==='function')?mdSeq():(md.order||[]);
+  if(seq.length){
+    lines.push('');lines.push('My day plan ('+(md.seededFrom||'today')+'), in order:');
+    var lastG=null;
+    seq.forEach(function(id,i){
+      var it=itemById(id);if(!it)return;
+      var g=mdGroupOf(it);
+      if(g!==lastG){lastG=g;lines.push('  -- '+MD_GROUPS[g].label+' ('+MD_GROUPS[g].why+') --');}
+      var ed=effectiveDue(it);
+      var when=ed?(ed.inherited?' (rides '+ed.date+')':' (due '+ed.date+')'):'';
+      lines.push('  '+(i+1)+'. '+(myDayItemDone(id)?'[done] ':'')+(md.picked[id]?'[mine] ':'')+it.title.slice(0,105)+when);
+    });
   }
   return 'Work Tracker captures \u2014 '+new Date().toLocaleDateString()+'\n'+lines.join('\n');
 }
@@ -2536,10 +2561,14 @@ function renderSessionData(d){
       }
     }
   }
+  window.TODAY_SEED_IDS=(d.today&&d.today.seedIds)||[];
+  window.META=d.meta||{};
   if(d.today&&d.today.items&&d.today.items.length){
     var tf=document.getElementById('tfList');
     if(tf){tf.innerHTML='';
-      d.today.items.forEach(function(t){
+      // every line that bound to an item now lives in My Day above; only the orphans show here
+      var orphans=d.today.items.filter(function(t){return !t.id;});
+      orphans.forEach(function(t){
         var row=document.createElement('div');row.className='tf-row';
         if(t.action){var ap2=document.createElement('span');ap2.className='action-pill ap-'+t.action;ap2.textContent=t.action;row.appendChild(ap2);}
         row.appendChild(document.createTextNode(t.text));
@@ -2548,7 +2577,13 @@ function renderSessionData(d){
         row.addEventListener('click',function(){var sb=document.getElementById('searchBox');if(sb){sb.value=t.text.split(/[\u2014:;,\u00b7]/)[0].split(' ').slice(0,4).join(' ');applySearchFilter();}});
         tf.appendChild(row);
       });
-      var tt2=document.getElementById('todayTag');if(tt2&&d.today.label)tt2.textContent='Today \u00b7 from check-in '+d.today.label;
+      if(!orphans.length){
+        var okRow=document.createElement('div');okRow.className='tf-row tf-anchor';
+        okRow.textContent=(d.today.label||'')+' \u2014 all '+d.today.items.length+' lines from this check-in are in My day above.';
+        tf.appendChild(okRow);
+      }
+      var tt2=document.getElementById('todayTag');
+      if(tt2)tt2.textContent=orphans.length?('From the check-in \u2014 '+orphans.length+' line(s) with no card yet'):'From the check-in \u2014 the plan';
       window.TODAY_FROM_VAULT=true;
     }
   }
@@ -2953,61 +2988,159 @@ function eventRow(ev,inDrawer){
   return row;
 }
 
-// ---- My Day: you pick the tasks, you pick the order ----
+// ---- My Day: one list. The check-in seeds it, you own it. ----
+// Two lists that don't know about each other is how a plan goes eight days stale without
+// anyone noticing. So: Claude's check-in proposal seeds this list, Shadi reorders and
+// removes freely, his edits always win, and a new check-in reseeds so it can't carry.
 var MYDAY_KEY='wt-my-day';
+function todaySeedIds(){return (window.TODAY_SEED_IDS||[]).filter(function(id){return !!itemById(id);});}
+function checkinStamp(){return (window.META&&window.META.generated)||'';}
 function readMyDay(){
-  try{var d=JSON.parse(localStorage.getItem(MYDAY_KEY)||'null')||{date:null,ids:[]};
-    d.ids=(d.ids||[]).filter(function(id){return !!itemById(id);});return d;
-  }catch(e){return{date:null,ids:[]};}
+  var d;
+  try{d=JSON.parse(localStorage.getItem(MYDAY_KEY)||'null');}catch(e){d=null;}
+  if(!d)d={v:2,seededFrom:null,order:[],picked:{},removed:{}};
+  if(d.v!==2){ // migrate the old {date,ids} shape — everything in it was hand-picked
+    var old=(d.ids||[]);var pk={};old.forEach(function(id){pk[id]=1;});
+    d={v:2,seededFrom:null,order:old.slice(),picked:pk,removed:{}};
+  }
+  d.order=(d.order||[]).filter(function(id){return !!itemById(id);});
+  d.picked=d.picked||{};d.removed=d.removed||{};
+  // back-compat for callers (and tests) that still read .ids/.date
+  d.ids=d.order;d.date=d.seededFrom;
+  return d;
 }
-function saveMyDay(d){try{localStorage.setItem(MYDAY_KEY,JSON.stringify(d));}catch(e){}}
-function inMyDay(id){return readMyDay().ids.indexOf(id)!==-1;}
+function saveMyDay(d){
+  if(d&&d.ids&&!d.order){ // legacy write, e.g. saveMyDay({date:null,ids:[]})
+    var legacy=d.ids.slice();var pk={};legacy.forEach(function(id){pk[id]=1;});
+    d={v:2,seededFrom:d.date||null,order:legacy,picked:pk,removed:{}};
+  }
+  try{localStorage.setItem(MYDAY_KEY,JSON.stringify({v:2,seededFrom:d.seededFrom||null,
+    order:d.order||[],picked:d.picked||{},removed:d.removed||{}}));}catch(e){}
+}
+function seedMyDay(force){
+  var d=readMyDay();var stamp=checkinStamp();var seeds=todaySeedIds();
+  if(!seeds.length)return d;
+  if(!force&&d.seededFrom===stamp)return d;
+  d.removed={};                       // a new check-in is a new plan; it may re-propose
+  seeds.forEach(function(id){if(d.order.indexOf(id)===-1)d.order.push(id);});
+  d.seededFrom=stamp;saveMyDay(d);return readMyDay();
+}
+function myDaySeedStale(){var d=readMyDay();return !!(todaySeedIds().length&&d.seededFrom!==checkinStamp());}
+function inMyDay(id){return readMyDay().order.indexOf(id)!==-1;}
 function toggleMyDay(id){
-  var d=readMyDay();var i=d.ids.indexOf(id);
-  if(i===-1){d.ids.push(id);d.date=new Date().toISOString().slice(0,10);setStatus('Added to My day ('+d.ids.length+').');}
-  else{d.ids.splice(i,1);setStatus('Removed from My day.');}
+  var d=readMyDay();var i=d.order.indexOf(id);
+  if(i===-1){d.order.push(id);d.picked[id]=1;delete d.removed[id];setStatus('Added to My day ('+d.order.length+').');}
+  else{d.order.splice(i,1);delete d.picked[id];d.removed[id]=1;setStatus('Removed from My day.');}
   saveMyDay(d);buildMyDay();refreshPins();
 }
-function moveMyDay(id,dir){
-  var d=readMyDay();var i=d.ids.indexOf(id);var j=i+dir;
-  if(i<0||j<0||j>=d.ids.length)return;
-  d.ids[i]=d.ids[j];d.ids[j]=id;saveMyDay(d);buildMyDay();
+// Three groups, by pressure rather than raw date: an external clock beats an inherited one,
+// and undated work still sorts on whether it gates the set. Order inside a group is yours.
+var MD_GROUPS={
+  now :{cls:'g-hard',label:'Now',           why:'overdue or due today'},
+  soon:{cls:'g-hard',label:'Next 48 hours', why:'someone else’s clock'},
+  set :{cls:'g-gate',label:'Gates the set', why:'dated later this stretch, or riding the package date'},
+  none:{cls:'g-none',label:'No date',       why:'parked, still yours'}
+};
+function mdGroupOf(it){
+  if(it.due){
+    var n=daysUntil(it.due);
+    if(n===null)return'set';
+    if(n<=0)return'now';
+    if(n<=2)return'soon';
+    return'set';
+  }
+  var ed=effectiveDue(it);
+  if(ed&&ed.inherited)return'set';
+  if(it.horizon==='today'||it.horizon==='sprint'||it.horizon==='week')return'set';
+  return'none';
 }
 function myDayItemDone(id){
   var el=document.querySelector('#programView .item[data-id="'+id+'"]');
   if(el&&(el.classList.contains('done-pending')||el.classList.contains('completed')))return true;
   var it=itemById(id);return !!(it&&(it.status==='completed'||it.pendingComplete));
 }
+function mdSeq(){ // rendered order: group order first, then the user's order inside it
+  var d=readMyDay();var keys=['now','soon','set','none'];var out=[];
+  keys.forEach(function(k){
+    d.order.forEach(function(id){var it=itemById(id);if(it&&mdGroupOf(it)===k)out.push(id);});
+  });
+  return out;
+}
+function moveMyDay(id,dir){
+  var seq=mdSeq();var si=seq.indexOf(id);if(si<0)return;
+  var it=itemById(id);var g=it?mdGroupOf(it):null;
+  var sj=si+dir;
+  while(sj>=0&&sj<seq.length){var o=itemById(seq[sj]);if(o&&mdGroupOf(o)===g)break;sj+=dir;}
+  if(sj<0||sj>=seq.length)return;                     // top/bottom of its group
+  var other=seq[sj];if(!other)return;
+  var d=readMyDay();var a=d.order.indexOf(id),b=d.order.indexOf(other);
+  if(a<0||b<0)return;
+  d.order[a]=other;d.order[b]=id;saveMyDay(d);buildMyDay();
+}
 function refreshPins(){
   document.querySelectorAll('.pin-btn').forEach(function(b){
     var item=b.closest('.item');var id=item?item.getAttribute('data-id'):null;if(!id)return;
     var on=inMyDay(id);
-    b.textContent=on?'\u2605 my day':'\u2606 my day';
+    b.textContent=on?'★ my day':'☆ my day';
     b.classList.toggle('pin-on',on);
   });
 }
+function mdDueChip(it){
+  var out={txt:'',cls:''};
+  var ed=effectiveDue(it);if(!ed)return out;
+  var n=daysUntil(ed.date);
+  if(ed.inherited){out.txt='↳ '+ed.date;out.cls='d-inh';return out;}
+  if(n===null)return out;
+  if(n<0){out.txt=Math.abs(n)+'d OVERDUE';out.cls='d-over';}
+  else if(n===0){out.txt='today';out.cls='d-soon';}
+  else if(n<=2){out.txt=ed.date.slice(5)+' · '+n+'d';out.cls='d-soon';}
+  else out.txt=ed.date.slice(5);
+  return out;
+}
 function buildMyDay(){
   var sec=document.getElementById('myDaySec');if(!sec)return;
+  seedMyDay(false);
   var d=readMyDay();sec.innerHTML='';
+  var seq=mdSeq();
   var head=document.createElement('div');head.className='my-day-head';
-  var tag=document.createElement('span');tag.className='tag';tag.textContent='My day \u2014 your pick, your order';head.appendChild(tag);
-  if(d.ids.length){
-    var doneCt=d.ids.filter(myDayItemDone).length;
-    var prog=document.createElement('span');prog.className='my-day-prog';prog.textContent=doneCt+'/'+d.ids.length+' done';head.appendChild(prog);
-    var today=new Date().toISOString().slice(0,10);
-    if(d.date&&d.date<today){var carry=document.createElement('span');carry.className='my-day-carry';carry.textContent='picked '+d.date+' \u2014 carried over';head.appendChild(carry);}
+  var tag=document.createElement('span');tag.className='tag';tag.textContent='My day — seeded by the check-in, yours to reorder';head.appendChild(tag);
+  if(seq.length){
+    var doneCt=seq.filter(myDayItemDone).length;
+    var prog=document.createElement('span');prog.className='my-day-prog';prog.textContent=doneCt+'/'+seq.length+' done';head.appendChild(prog);
+    var info=document.createElement('span');info.className='md-seedinfo';
+    info.textContent=d.seededFrom?('seeded '+d.seededFrom):'your picks only — no check-in seed yet';head.appendChild(info);
+    // auto-reseed already ran; this is the manual "undo my edits, give me the proposal again"
+    if(todaySeedIds().length){
+      var rs=document.createElement('button');rs.type='button';rs.className='md-reseed';
+      rs.textContent='re-take the check-in’s list';
+      rs.title='Restore every item the check-in proposed, including ones you removed';
+      rs.addEventListener('click',function(){seedMyDay(true);buildMyDay();refreshPins();setStatus('Re-took the check-in’s list.');});
+      head.appendChild(rs);
+    }
     var clr=document.createElement('button');clr.type='button';clr.className='my-day-clear';clr.textContent='clear';
-    clr.addEventListener('click',function(){saveMyDay({date:null,ids:[]});buildMyDay();refreshPins();setStatus('My day cleared.');});
+    clr.addEventListener('click',function(){
+      saveMyDay({v:2,seededFrom:checkinStamp(),order:[],picked:{},removed:{}});
+      buildMyDay();refreshPins();setStatus('My day cleared — the next check-in will reseed it.');});
     head.appendChild(clr);
   }
   sec.appendChild(head);
-  if(!d.ids.length){
+  if(!seq.length){
     var hint=document.createElement('div');hint.className='my-day-hint';
-    hint.textContent='Nothing picked yet \u2014 press \u2606 my day on any card (or in its drawer) to stack today\u2019s focus here, in the order you\u2019ll do it.';
+    hint.textContent='Nothing here — press ☆ my day on any card to stack your focus, or wait for the next check-in to seed it.';
     sec.appendChild(hint);return;
   }
-  d.ids.forEach(function(id,idx){
+  var shown=0,lastG=null;
+  seq.forEach(function(id){
     var it=itemById(id);if(!it)return;
+    var g=mdGroupOf(it);
+    if(g!==lastG){
+      lastG=g;var gm=MD_GROUPS[g];
+      var gh=document.createElement('div');gh.className='md-group '+gm.cls;
+      var gl=document.createElement('span');gl.textContent=gm.label;gh.appendChild(gl);
+      var gw=document.createElement('span');gw.className='mdg-why';gw.textContent='— '+gm.why;gh.appendChild(gw);
+      sec.appendChild(gh);
+    }
+    shown++;
     var done=myDayItemDone(id);
     var row=document.createElement('div');row.className='my-day-row'+(done?' md-done':'');
     var cb=document.createElement('input');cb.type='checkbox';cb.checked=done;cb.setAttribute('aria-label','Done: '+it.title.slice(0,60));
@@ -3018,18 +3151,24 @@ function buildMyDay(){
       buildMyDay();
     });
     row.appendChild(cb);
-    var num=document.createElement('span');num.className='md-num';num.textContent=(idx+1)+'.';row.appendChild(num);
+    var num=document.createElement('span');num.className='md-num';num.textContent=shown+'.';row.appendChild(num);
+    var prov=document.createElement('span');
+    var isPick=!!d.picked[id];
+    prov.className='md-prov '+(isPick?'p-pick':'p-seed');prov.textContent=isPick?'★':'◇';
+    prov.title=isPick?'You picked this':'Proposed at the check-in';row.appendChild(prov);
     if(it.action){var ap=document.createElement('span');ap.className='action-pill ap-'+it.action;ap.textContent=it.action;row.appendChild(ap);}
-    var t=document.createElement('span');t.className='md-title';t.textContent=it.title.slice(0,95);
-    t.addEventListener('click',function(){openDrawer(id);});row.appendChild(t);
+    var tt=document.createElement('span');tt.className='md-title';tt.textContent=it.title.slice(0,95);
+    tt.addEventListener('click',function(){openDrawer(id);});row.appendChild(tt);
+    var dc=mdDueChip(it);
+    if(dc.txt){var dd=document.createElement('span');dd.className='md-due '+dc.cls;dd.textContent=dc.txt;row.appendChild(dd);}
     var cc=courtList(it.court);
     var who=document.createElement('span');who.className='md-who';who.textContent=courtHasYou(cc)?'':(cc.length?'waiting on '+cc[0]:'');row.appendChild(who);
     var ctr=document.createElement('span');ctr.className='md-ctrls';
-    [['\u2191',-1],['\u2193',1]].forEach(function(a){
-      var b=document.createElement('button');b.type='button';b.textContent=a[0];b.title='Move '+(a[1]<0?'up':'down');
+    [['↑',-1],['↓',1]].forEach(function(a){
+      var b=document.createElement('button');b.type='button';b.textContent=a[0];b.title='Move '+(a[1]<0?'up':'down')+' within this group';
       b.addEventListener('click',function(e){e.stopPropagation();moveMyDay(id,a[1]);});ctr.appendChild(b);
     });
-    var x=document.createElement('button');x.type='button';x.textContent='\u00d7';x.title='Remove from My day';
+    var x=document.createElement('button');x.type='button';x.textContent='×';x.title='Remove from My day';
     x.addEventListener('click',function(e){e.stopPropagation();toggleMyDay(id);});ctr.appendChild(x);
     row.appendChild(ctr);
     sec.appendChild(row);
