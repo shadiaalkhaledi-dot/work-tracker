@@ -490,6 +490,35 @@
   .md-due.d-soon{color:#b45309;}
   .md-due.d-inh{font-weight:600;color:var(--faint);}
   .md-seedinfo{font-size:11px;color:var(--faint);}
+  .th-filters{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:2px 0 10px;}
+  .th-filters select{font-family:inherit;font-size:11.5px;padding:4px 7px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--text);}
+  .th-clear{border:none;background:none;color:var(--faint);font-size:11px;cursor:pointer;font-family:inherit;text-decoration:underline;}
+  .stage-sec{margin-top:16px;}
+  .stage-head{display:flex;align-items:baseline;gap:9px;padding:4px 2px 6px;border-bottom:1px solid var(--border-soft);}
+  .stage-n{font-size:17px;font-weight:800;}
+  .stage-lbl{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;}
+  .stage-why{font-size:10.5px;color:var(--faint);margin-left:auto;}
+  .s-waiting .stage-n,.s-waiting .stage-lbl{color:#b45309;}
+  .s-decided .stage-n,.s-decided .stage-lbl{color:var(--mauve);}
+  .s-drawing .stage-n,.s-drawing .stage-lbl{color:var(--teal);}
+  .s-queued .stage-n,.s-queued .stage-lbl{color:var(--gold);}
+  .s-issued .stage-n,.s-issued .stage-lbl{color:var(--muted);}
+  .thr{border:1px solid var(--border-soft);border-radius:7px;margin:8px 0;padding:0;}
+  .thr>summary{cursor:pointer;padding:9px 12px;list-style:none;}
+  .thr>summary::-webkit-details-marker{display:none;}
+  .thr-q{font-size:13.5px;font-weight:700;color:var(--text);}
+  .thr-q.unnamed{color:#b45309;font-style:italic;font-weight:600;}
+  .thr-meta{display:flex;gap:9px;flex-wrap:wrap;align-items:baseline;margin-top:3px;}
+  .thr-chip{font-size:10px;font-weight:700;border-radius:4px;padding:1px 6px;border:1px solid var(--border);color:var(--muted);}
+  .thr-chip.who{border-color:#b45309;color:#b45309;}
+  .thr-chip.due{border-color:var(--rose);color:var(--rose);}
+  .thr-chip.dec{border-color:var(--mauve);color:var(--mauve);}
+  .thr-slug{font-size:10px;color:var(--faint);margin-left:auto;}
+  .thr-body{padding:2px 12px 10px;}
+  .thr-dec{font-size:12px;padding:4px 0 4px 10px;border-left:2px solid var(--mauve);margin:4px 0;}
+  .thr-dec b{color:var(--mauve);font-weight:700;}
+  .loose-sec summary{cursor:pointer;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);padding:12px 2px 6px;}
+  .loose-row{display:flex;gap:9px;align-items:baseline;font-size:12px;padding:3px 2px;color:var(--muted);}
   .dec-grp{margin:12px 0 0;}
   .dec-grp-head{display:flex;align-items:baseline;gap:8px;border-left:3px solid var(--mauve);padding:3px 0 3px 9px;}
   .dec-grp-name{font-size:12.5px;font-weight:700;color:var(--text);}
@@ -688,7 +717,8 @@
 
   <div class="controls">
     <div class="control-group" id="viewToggle">
-      <button data-view="board" class="active" onclick="setView('board')">Board</button>
+      <button data-view="threads" class="active" onclick="setView('threads')" title="Threads — a question and everything it caused">Threads</button>
+      <button data-view="board" onclick="setView('board')">Board</button>
       <button data-view="court" onclick="setView('court')">Court</button>
       <button data-view="upcoming" onclick="setView('upcoming')">Upcoming</button>
       <button data-view="progress" onclick="setView('progress')">Progress</button>
@@ -756,6 +786,7 @@
   <div id="topicsView" style="display:none"></div>
   <div id="courtView" style="display:none"></div>
   <div id="upcomingView" style="display:none"></div>
+  <div id="threadsView" style="display:none"></div>
   <div id="progressView" style="display:none"><div id="flowView"></div><div id="overviewView"></div><div id="addRegView" style="margin-top:22px"></div><div id="rfiRegView" style="margin-top:22px"></div><div id="milestonesView" style="margin-top:22px"></div></div>
   <div id="historyView" style="display:none"></div>
   <div id="guideView" style="display:none">
@@ -892,6 +923,7 @@ var STATUS_GROUPS = [
   {key:'watch',label:'Watch',color:'var(--border)'}
 ];
 var VIEW_HEADINGS = {
+  threads:'Threads \u2014 a question and everything it caused',
   program:'Open items, by program',
   status:'Open items, by status',
   discipline:'Open items, by discipline',
@@ -903,8 +935,8 @@ var VIEW_HEADINGS = {
   guide:'How the tracker thinks — the journey of an item'
 };
 var activeHorizons = {}, activeActions = {};
-var MILESTONES = [], STAKEHOLDERS = [], DECISIONS = [];
-var VIEW_IDS = {program:'programView',status:'statusView',discipline:'disciplineView',topics:'topicsView',court:'courtView',upcoming:'upcomingView',progress:'progressView',history:'historyView',guide:'guideView'};
+var MILESTONES = [], STAKEHOLDERS = [], DECISIONS = [], THREADS = [];
+var VIEW_IDS = {threads:'threadsView',program:'programView',status:'statusView',discipline:'disciplineView',topics:'topicsView',court:'courtView',upcoming:'upcomingView',progress:'progressView',history:'historyView',guide:'guideView'};
 var VIEW_ALIASES = {milestones:'progress',overview:'progress'};
 var BOARD_MODES = ['program','status','discipline','topics'];
 var boardMode = 'program';
@@ -1384,6 +1416,131 @@ function buildDisciplineView(){
   if(!container.children.length){container.innerHTML='<p class="empty">Nothing to show.</p>';}applySearchFilter();
 }
 
+
+/* ---- The thread spine ----------------------------------------------------------------
+   Why threads and not items: 19% of items here were explicitly split from or merged into
+   another one, and the knuckle-bulkhead question alone spans 5 items over 26 days. The item
+   is the fragment; the thread is the unit. Why stage and not package/discipline/person:
+   86 of 137 items sit in one package, 36 of 54 open ones are architectural, and 15 of 22
+   people hold exactly one item — those axes collapse. Stage spreads, and it reads forward.  */
+var STAGE_ORDER=['waiting','decided','drawing','queued','issued'];
+var STAGE_WHY={
+  waiting:'somebody owes an answer — chase, or answer it yourself',
+  decided:'the call is made and nothing has been drawn yet',
+  drawing:'in the model, the schedule or a detail',
+  queued:'riding a package or an addendum',
+  issued:'settled — this is the history'
+};
+var thFilter={person:'',pkg:'',disc:''};
+function threadItems(th){return th.itemIds.map(itemById).filter(Boolean);}
+function threadMatches(th){
+  if(thFilter.person){
+    var hit=th.holders.indexOf(thFilter.person)!==-1
+      ||threadItems(th).some(function(i){return courtList(i.court).indexOf(thFilter.person)!==-1||i.ask===thFilter.person||i.then===thFilter.person||i.delegate===thFilter.person;});
+    if(!hit)return false;
+  }
+  if(thFilter.pkg&&th.packages.indexOf(thFilter.pkg)===-1)return false;
+  if(thFilter.disc){
+    if(!threadItems(th).some(function(i){return (i.disc||[]).indexOf(thFilter.disc)!==-1;}))return false;
+  }
+  return true;
+}
+function buildThreadSpine(){
+  var c=document.getElementById('threadsView');if(!c)return;c.innerHTML='';
+  if(!THREADS.length){c.innerHTML='<p class="empty">No threads in the data — add Threads.md to the generator.</p>';return;}
+  // filters: person, package, discipline are lenses on the spine, never homes of their own
+  var fb=document.createElement('div');fb.className='th-filters';
+  function sel(label,opts,key){
+    var s=document.createElement('select');
+    var o0=document.createElement('option');o0.value='';o0.textContent=label;s.appendChild(o0);
+    opts.forEach(function(o){var op=document.createElement('option');op.value=o;op.textContent=o;if(thFilter[key]===o)op.selected=true;s.appendChild(op);});
+    s.addEventListener('change',function(){thFilter[key]=s.value;buildThreadSpine();});
+    fb.appendChild(s);
+  }
+  var people={},pkgs={},discs={};
+  THREADS.forEach(function(th){
+    th.holders.forEach(function(h){if(h!=='You')people[h]=1;});
+    th.packages.forEach(function(p){pkgs[p]=1;});
+    threadItems(th).forEach(function(i){(i.disc||[]).forEach(function(dd){discs[dd]=1;});if(i.ask)people[i.ask]=1;});
+  });
+  sel('Anyone',Object.keys(people).sort(),'person');
+  sel('Any package',Object.keys(pkgs).sort(),'pkg');
+  sel('Any discipline',Object.keys(discs).sort(),'disc');
+  if(thFilter.person||thFilter.pkg||thFilter.disc){
+    var cl=document.createElement('button');cl.type='button';cl.className='th-clear';cl.textContent='clear lenses';
+    cl.addEventListener('click',function(){thFilter={person:'',pkg:'',disc:''};buildThreadSpine();});fb.appendChild(cl);
+  }
+  c.appendChild(fb);
+  var shown=THREADS.filter(threadMatches);
+  var real=shown.filter(function(t){return !t.loose;});
+  var loose=shown.filter(function(t){return t.loose;});
+  STAGE_ORDER.forEach(function(st){
+    var group=real.filter(function(t){return t.stage===st;});
+    if(!group.length)return;
+    var sec=document.createElement('div');sec.className='stage-sec s-'+st;
+    var h=document.createElement('div');h.className='stage-head';
+    var n=document.createElement('span');n.className='stage-n';n.textContent=group.length;h.appendChild(n);
+    var l=document.createElement('span');l.className='stage-lbl';l.textContent=group[0].stageLabel;h.appendChild(l);
+    var w=document.createElement('span');w.className='stage-why';w.textContent=STAGE_WHY[st];h.appendChild(w);
+    sec.appendChild(h);
+    group.forEach(function(th){sec.appendChild(threadCard(th));});
+    c.appendChild(sec);
+  });
+  if(loose.length){
+    var ls=document.createElement('details');ls.className='loose-sec';
+    // if the lens leaves nothing but loose ends, showing a collapsed heading reads as "nothing here"
+    if(!real.length||thFilter.person||thFilter.pkg||thFilter.disc)ls.open=true;
+    var lsum=document.createElement('summary');
+    lsum.textContent='Loose ends — '+loose.length+' one-off items that are not questions';
+    ls.appendChild(lsum);
+    loose.forEach(function(th){
+      var r=document.createElement('div');r.className='loose-row';
+      var t1=document.createElement('span');t1.textContent=(threadItems(th)[0]||{title:th.slug}).title.slice(0,86);
+      r.appendChild(t1);
+      var t2=document.createElement('span');t2.style.cssText='margin-left:auto;font-size:10px;color:var(--faint);';
+      t2.textContent=th.openCount?th.openCount+' open':'closed';r.appendChild(t2);
+      r.style.cursor='pointer';
+      r.addEventListener('click',function(){var it=threadItems(th)[0];if(it)openDrawer(it.id);});
+      ls.appendChild(r);
+    });
+    c.appendChild(ls);
+  }
+  if(!real.length&&!loose.length){
+    var e=document.createElement('p');e.className='empty';e.textContent='No thread matches those lenses.';c.appendChild(e);
+  }
+}
+function threadCard(th){
+  var d=document.createElement('details');d.className='thr';
+  if(th.stage==='waiting'||th.stage==='decided')d.open=true;
+  var s=document.createElement('summary');
+  var q=document.createElement('div');q.className='thr-q'+(th.question?'':' unnamed');
+  q.textContent=th.question||('Unnamed thread: '+th.slug+' — give it a question in Threads.md');
+  s.appendChild(q);
+  var m=document.createElement('div');m.className='thr-meta';
+  function chip(txt,cls,title){var x=document.createElement('span');x.className='thr-chip'+(cls?' '+cls:'');x.textContent=txt;if(title)x.title=title;m.appendChild(x);}
+  if(th.holders.length)chip('with '+th.holders.slice(0,2).join(', '),'who','Who holds it now');
+  else if(th['with'])chip('settles with '+th['with'],'who');
+  chip(th.openCount+' open / '+th.total,'', 'Items in this thread');
+  if(th.nextDue){
+    var n=daysUntil(th.nextDue);
+    chip(n!==null&&n<0?Math.abs(n)+'d overdue':'due '+th.nextDue,(n!==null&&n<=2)?'due':'');
+  }
+  if(th.decisions.length)chip(th.decisions.length+' decision'+(th.decisions.length!==1?'s':''),'dec','What this thread has settled');
+  if(th.lastMove)chip('moved '+th.lastMove,'');
+  var sl=document.createElement('span');sl.className='thr-slug';sl.textContent=th.slug;m.appendChild(sl);
+  s.appendChild(m);d.appendChild(s);
+  var body=document.createElement('div');body.className='thr-body';
+  th.decisions.forEach(function(x){
+    var r=document.createElement('div');r.className='thr-dec';
+    var b=document.createElement('b');b.textContent=x.date+' decided: ';r.appendChild(b);
+    r.appendChild(document.createTextNode(cleanUpdateText(x.text).slice(0,220)));
+    body.appendChild(r);
+  });
+  threadItems(th).forEach(function(i){body.appendChild(makeAltClone(i.id));});
+  d.appendChild(body);
+  return d;
+}
+
 function buildTopicsView(){
   // Threads: one story per topic, cutting ACROSS programs and packages —
   // tasks and RFIs with the same topic read as a single line first (the
@@ -1614,6 +1771,7 @@ function setView(view){
   var showKey=view==='board'?boardMode:view;
   Object.keys(VIEW_IDS).forEach(function(k){var elv=document.getElementById(VIEW_IDS[k]);if(elv)elv.style.display=k===showKey?'':'none';});
   var h=document.getElementById('viewHeading');if(h)h.childNodes[0].textContent=VIEW_HEADINGS[showKey]||'Open items';
+  if(showKey==='threads')buildThreadSpine();
   if(showKey==='status')buildStatusView();
   if(showKey==='discipline')buildDisciplineView();
   if(showKey==='topics')buildTopicsView();
@@ -2682,6 +2840,7 @@ function renderSessionData(d){
     }
   }
   DECISIONS=d.decisions||[];
+  THREADS=d.threads||[];
   window.TODAY_SEED_IDS=(d.today&&d.today.seedIds)||[];
   window.META=d.meta||{};
   if(d.today&&d.today.items&&d.today.items.length){
