@@ -490,6 +490,23 @@
   .md-due.d-soon{color:#b45309;}
   .md-due.d-inh{font-weight:600;color:var(--faint);}
   .md-seedinfo{font-size:11px;color:var(--faint);}
+  .my-day-row{align-items:flex-start;}
+  .md-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;}
+  .md-do{font-size:13.5px;color:var(--text);cursor:pointer;}
+  .md-do:hover{color:var(--teal);}
+  .md-ctx{font-size:10.5px;color:var(--faint);cursor:pointer;}
+  .md-ctx:hover{color:var(--muted);}
+  .md-ctx .mdc-lead{font-weight:700;letter-spacing:.04em;text-transform:uppercase;}
+  .my-day-row.md-wait{opacity:.92;}
+  .my-day-row.md-wait .md-do{color:var(--muted);}
+  .md-nudge{border:1px solid var(--gold);background:transparent;color:#b45309;border-radius:6px;font-size:10.5px;font-weight:700;padding:2px 7px;cursor:pointer;font-family:inherit;white-space:nowrap;}
+  .md-nudge:hover{background:#fff8ec;}
+  .md-nocb{width:16px;flex:0 0 auto;text-align:center;color:var(--faint);font-size:12px;align-self:center;}
+  .md-group.g-wait{color:var(--gold);}
+  .st-item{display:flex;align-items:baseline;gap:6px;}
+  .st-item .st-label{flex:1;}
+  .st-pin{border:none;background:none;color:var(--faint);cursor:pointer;font-size:11px;padding:0 4px;font-family:inherit;}
+  .st-pin:hover,.st-pin.on{color:#b45309;}
   .md-reseed{border:none;background:none;color:#b45309;font-size:11px;cursor:pointer;font-family:inherit;text-decoration:underline;}
   .my-day-row{display:flex;align-items:baseline;gap:9px;padding:6px 4px;border-radius:8px;font-size:13.5px;}
   .my-day-row:hover{background:var(--border-soft);}
@@ -1087,7 +1104,7 @@ function renderItem(itemData){
     var stCount=document.createElement('span');stCount.className='st-count';stCount.textContent=doneCt+'/'+det.subtasks.length+' done';stHead.appendChild(stCount);
     more.appendChild(stHead);
     var stList=document.createElement('div');stList.className='subtask-list';
-    det.subtasks.forEach(function(st){
+    det.subtasks.forEach(function(st,stIdx){
       var isDoneSt=st.indexOf('\u2713')===0;var label=isDoneSt?st.slice(1).trim():st;
       var stItem=document.createElement('div');stItem.className='st-item'+(isDoneSt?' st-done':'');
       var cb=document.createElement('input');cb.type='checkbox';cb.checked=isDoneSt;cb.setAttribute('aria-label',label.slice(0,100));
@@ -1101,7 +1118,17 @@ function renderItem(itemData){
         else{removeQueued('stepdone',payload.itemRef,payload.text);rebuildPendingList();}
       });
       var lbl=document.createElement('span');lbl.className='st-label';lbl.textContent=label;
-      stItem.appendChild(cb);stItem.appendChild(lbl);stList.appendChild(stItem);
+      stItem.appendChild(cb);stItem.appendChild(lbl);
+      // pin the step, not the item: often the step is the only part you can finish today
+      if(!isDoneSt){
+        var pin=document.createElement('button');pin.type='button';pin.className='st-pin';
+        var onPin=(typeof inMyDayStep==='function')&&inMyDayStep(itemData.id,stIdx);
+        pin.textContent=onPin?'\u2605':'\u2606';pin.classList.toggle('on',onPin);
+        pin.title=onPin?'Remove this step from My day':'Put just this step on My day';
+        pin.addEventListener('click',function(ev){ev.stopPropagation();toggleMyDayStep(itemData.id,stIdx);});
+        stItem.appendChild(pin);
+      }
+      stList.appendChild(stItem);
     });
     more.appendChild(stList);
   }
@@ -1924,7 +1951,7 @@ function askMatches(askVal,names){
   return false;
 }
 function askQuestionsFor(it){
-  var d=DETAILS[it.id]||{};var qs=(d.subtasks||[]).filter(function(s){return /^ask\b|\?\s*$|^confirm\b|^check\b/i.test(s)&&s.indexOf('\u2713')!==0;});
+  var d=ITEM_DETAILS[it.id]||{};var qs=(d.subtasks||[]).filter(function(s){return /^ask\b|\?\s*$|^confirm\b|^check\b/i.test(s)&&s.indexOf('\u2713')!==0;});
   if(!qs.length&&d.next)qs=[d.next];
   return qs;
 }
@@ -2993,7 +3020,26 @@ function eventRow(ev,inDrawer){
 // anyone noticing. So: Claude's check-in proposal seeds this list, Shadi reorders and
 // removes freely, his edits always win, and a new check-in reseeds so it can't carry.
 var MYDAY_KEY='wt-my-day';
+// A My Day entry is an item ("v1a2b3c4") or one step of it ("v1a2b3c4#2"). Whole items are
+// often not finishable today — the finishable thing is a step — so the list has to hold both.
+function mdParse(entry){
+  var s=String(entry||''),h=s.indexOf('#');
+  if(h===-1)return{id:s,step:null};
+  var n=parseInt(s.slice(h+1),10);
+  return{id:s.slice(0,h),step:isNaN(n)?null:n};
+}
+function mdStepText(id,n){
+  var d=ITEM_DETAILS[id];if(!d||!d.subtasks||n===null||n>=d.subtasks.length)return null;
+  var raw=d.subtasks[n];
+  return{done:raw.indexOf('\u2713')===0,label:(raw.indexOf('\u2713')===0?raw.slice(1):raw).trim()};
+}
+function mdEntryAlive(entry){
+  var e=mdParse(entry);if(!itemById(e.id))return false;
+  if(e.step===null)return true;
+  return !!mdStepText(e.id,e.step);
+}
 function todaySeedIds(){return (window.TODAY_SEED_IDS||[]).filter(function(id){return !!itemById(id);});}
+function mdIndexOfItem(order,id){for(var i=0;i<order.length;i++){if(mdParse(order[i]).id===id)return i;}return -1;}
 function checkinStamp(){return (window.META&&window.META.generated)||'';}
 function readMyDay(){
   var d;
@@ -3003,7 +3049,7 @@ function readMyDay(){
     var old=(d.ids||[]);var pk={};old.forEach(function(id){pk[id]=1;});
     d={v:2,seededFrom:null,order:old.slice(),picked:pk,removed:{}};
   }
-  d.order=(d.order||[]).filter(function(id){return !!itemById(id);});
+  d.order=(d.order||[]).filter(mdEntryAlive);
   d.picked=d.picked||{};d.removed=d.removed||{};
   // back-compat for callers (and tests) that still read .ids/.date
   d.ids=d.order;d.date=d.seededFrom;
@@ -3026,22 +3072,30 @@ function seedMyDay(force){
   d.seededFrom=stamp;saveMyDay(d);return readMyDay();
 }
 function myDaySeedStale(){var d=readMyDay();return !!(todaySeedIds().length&&d.seededFrom!==checkinStamp());}
-function inMyDay(id){return readMyDay().order.indexOf(id)!==-1;}
-function toggleMyDay(id){
-  var d=readMyDay();var i=d.order.indexOf(id);
-  if(i===-1){d.order.push(id);d.picked[id]=1;delete d.removed[id];setStatus('Added to My day ('+d.order.length+').');}
-  else{d.order.splice(i,1);delete d.picked[id];d.removed[id]=1;setStatus('Removed from My day.');}
+function inMyDay(id){return mdIndexOfItem(readMyDay().order,id)!==-1;}
+function toggleMyDay(entry){
+  var d=readMyDay();var i=d.order.indexOf(entry);
+  if(i===-1&&mdParse(entry).step===null)i=mdIndexOfItem(d.order,entry); // ☆ removes a pinned step too
+  if(i===-1){d.order.push(entry);d.picked[entry]=1;delete d.removed[entry];setStatus('Added to My day ('+d.order.length+').');}
+  else{var gone=d.order.splice(i,1)[0];delete d.picked[gone];d.removed[gone]=1;setStatus('Removed from My day.');}
   saveMyDay(d);buildMyDay();refreshPins();
 }
+function inMyDayStep(id,n){return readMyDay().order.indexOf(id+'#'+n)!==-1;}
+function toggleMyDayStep(id,n){toggleMyDay(id+'#'+n);}
 // Three groups, by pressure rather than raw date: an external clock beats an inherited one,
 // and undated work still sorts on whether it gates the set. Order inside a group is yours.
 var MD_GROUPS={
   now :{cls:'g-hard',label:'Now',           why:'overdue or due today'},
   soon:{cls:'g-hard',label:'Next 48 hours', why:'someone else’s clock'},
   set :{cls:'g-gate',label:'Gates the set', why:'dated later this stretch, or riding the package date'},
-  none:{cls:'g-none',label:'No date',       why:'parked, still yours'}
+  none:{cls:'g-none',label:'No date',       why:'parked, still yours'},
+  wait:{cls:'g-wait',label:'Waiting on someone', why:'nudge it — don’t try to tick it'}
 };
-function mdGroupOf(it){
+var MD_ORDER=['now','soon','set','none','wait'];
+// A row you can't finish shouldn't wear a checkbox. If the ball isn't yours and you haven't
+// pinned a step you can actually do, the row belongs in Waiting and offers a nudge instead.
+function mdGroupOf(it,stepIdx){
+  if(stepIdx===null&&!courtHasYou(it.court)&&courtList(it.court).length)return'wait';
   if(it.due){
     var n=daysUntil(it.due);
     if(n===null)return'set';
@@ -3059,18 +3113,22 @@ function myDayItemDone(id){
   if(el&&(el.classList.contains('done-pending')||el.classList.contains('completed')))return true;
   var it=itemById(id);return !!(it&&(it.status==='completed'||it.pendingComplete));
 }
+function mdGroupOfEntry(entry){
+  var e=mdParse(entry);var it=itemById(e.id);if(!it)return'none';
+  return mdGroupOf(it,e.step);
+}
 function mdSeq(){ // rendered order: group order first, then the user's order inside it
-  var d=readMyDay();var keys=['now','soon','set','none'];var out=[];
-  keys.forEach(function(k){
-    d.order.forEach(function(id){var it=itemById(id);if(it&&mdGroupOf(it)===k)out.push(id);});
+  var d=readMyDay();var out=[];
+  MD_ORDER.forEach(function(k){
+    d.order.forEach(function(en){if(mdGroupOfEntry(en)===k)out.push(en);});
   });
   return out;
 }
 function moveMyDay(id,dir){
   var seq=mdSeq();var si=seq.indexOf(id);if(si<0)return;
-  var it=itemById(id);var g=it?mdGroupOf(it):null;
+  var g=mdGroupOfEntry(id);
   var sj=si+dir;
-  while(sj>=0&&sj<seq.length){var o=itemById(seq[sj]);if(o&&mdGroupOf(o)===g)break;sj+=dir;}
+  while(sj>=0&&sj<seq.length){if(mdGroupOfEntry(seq[sj])===g)break;sj+=dir;}
   if(sj<0||sj>=seq.length)return;                     // top/bottom of its group
   var other=seq[sj];if(!other)return;
   var d=readMyDay();var a=d.order.indexOf(id),b=d.order.indexOf(other);
@@ -3105,8 +3163,13 @@ function buildMyDay(){
   var head=document.createElement('div');head.className='my-day-head';
   var tag=document.createElement('span');tag.className='tag';tag.textContent='My day — seeded by the check-in, yours to reorder';head.appendChild(tag);
   if(seq.length){
-    var doneCt=seq.filter(myDayItemDone).length;
-    var prog=document.createElement('span');prog.className='my-day-prog';prog.textContent=doneCt+'/'+seq.length+' done';head.appendChild(prog);
+    var mine=seq.filter(function(en){return mdGroupOfEntry(en)!=='wait';});
+    var doneCt=mine.filter(function(en){var e=mdParse(en);var s=e.step===null?null:mdStepText(e.id,e.step);
+      return s?s.done:myDayItemDone(e.id);}).length;
+    var prog=document.createElement('span');prog.className='my-day-prog';
+    prog.textContent=doneCt+'/'+mine.length+' done';
+    prog.title='Counts only what is yours to finish — '+(seq.length-mine.length)+' row(s) are waiting on someone else';
+    head.appendChild(prog);
     var info=document.createElement('span');info.className='md-seedinfo';
     info.textContent=d.seededFrom?('seeded '+d.seededFrom):'your picks only — no check-in seed yet';head.appendChild(info);
     // auto-reseed already ran; this is the manual "undo my edits, give me the proposal again"
@@ -3130,9 +3193,9 @@ function buildMyDay(){
     sec.appendChild(hint);return;
   }
   var shown=0,lastG=null;
-  seq.forEach(function(id){
-    var it=itemById(id);if(!it)return;
-    var g=mdGroupOf(it);
+  seq.forEach(function(entry){
+    var e=mdParse(entry);var it=itemById(e.id);if(!it)return;
+    var g=mdGroupOfEntry(entry);
     if(g!==lastG){
       lastG=g;var gm=MD_GROUPS[g];
       var gh=document.createElement('div');gh.className='md-group '+gm.cls;
@@ -3141,35 +3204,88 @@ function buildMyDay(){
       sec.appendChild(gh);
     }
     shown++;
-    var done=myDayItemDone(id);
-    var row=document.createElement('div');row.className='my-day-row'+(done?' md-done':'');
-    var cb=document.createElement('input');cb.type='checkbox';cb.checked=done;cb.setAttribute('aria-label','Done: '+it.title.slice(0,60));
-    cb.addEventListener('change',function(e){
-      e.stopPropagation();
-      var orig=document.querySelector('#programView .item[data-id="'+id+'"] .done-toggle');
-      if(orig){orig.checked=cb.checked;orig.dispatchEvent(new Event('change'));}
-      buildMyDay();
-    });
-    row.appendChild(cb);
+    var step=e.step===null?null:mdStepText(e.id,e.step);
+    var waiting=(g==='wait');
+    var done=step?step.done:myDayItemDone(e.id);
+    var row=document.createElement('div');row.className='my-day-row'+(done?' md-done':'')+(waiting?' md-wait':'');
+
+    if(waiting){
+      var nc=document.createElement('span');nc.className='md-nocb';nc.textContent='⏳';
+      nc.title='Not yours to finish — the ball is with '+courtList(it.court).join(', ');row.appendChild(nc);
+    }else{
+      var cb=document.createElement('input');cb.type='checkbox';cb.checked=done;
+      cb.setAttribute('aria-label','Done: '+(step?step.label:it.title).slice(0,60));
+      cb.addEventListener('change',function(ev){
+        ev.stopPropagation();
+        if(step){
+          // ticking a step advances the item; it does not close it
+          var payload={type:'stepdone',program:it.program||'',pkg:it.pkg||'',itemRef:it.title.slice(0,160),
+                       text:step.label.slice(0,160),ts:new Date().toISOString()};
+          if(cb.checked){queueLocally(payload);renderPendingRow(payload);setStatus('Step done — the item stays open.');}
+          else{removeQueued('stepdone',payload.itemRef,payload.text);rebuildPendingList();}
+          row.classList.toggle('md-done',cb.checked);refreshBoard();
+        }else{
+          var orig=document.querySelector('#programView .item[data-id="'+e.id+'"] .done-toggle');
+          if(orig){orig.checked=cb.checked;orig.dispatchEvent(new Event('change'));}
+          buildMyDay();
+        }
+      });
+      row.appendChild(cb);
+    }
+
     var num=document.createElement('span');num.className='md-num';num.textContent=shown+'.';row.appendChild(num);
     var prov=document.createElement('span');
-    var isPick=!!d.picked[id];
+    var isPick=!!d.picked[entry];
     prov.className='md-prov '+(isPick?'p-pick':'p-seed');prov.textContent=isPick?'★':'◇';
     prov.title=isPick?'You picked this':'Proposed at the check-in';row.appendChild(prov);
-    if(it.action){var ap=document.createElement('span');ap.className='action-pill ap-'+it.action;ap.textContent=it.action;row.appendChild(ap);}
-    var tt=document.createElement('span');tt.className='md-title';tt.textContent=it.title.slice(0,95);
-    tt.addEventListener('click',function(){openDrawer(id);});row.appendChild(tt);
+    if(it.action&&!step){var ap=document.createElement('span');ap.className='action-pill ap-'+it.action;ap.textContent=it.action;row.appendChild(ap);}
+
+    // the actionable line first, the item as context under it — so a row always says what to do
+    var body=document.createElement('div');body.className='md-body';
+    var det=ITEM_DETAILS[e.id]||{};
+    var doText, ctxLead, ctxText;
+    if(step){doText=step.label;ctxLead='step of';ctxText=it.title;}
+    else if(det.next){doText=det.next;ctxLead='next on';ctxText=it.title;}
+    else{doText=it.title;ctxLead='';ctxText='';}
+    var doEl=document.createElement('span');doEl.className='md-do md-title';doEl.textContent=doText.slice(0,120);
+    doEl.addEventListener('click',function(){openDrawer(e.id);});body.appendChild(doEl);
+    if(ctxText){
+      var ctx=document.createElement('span');ctx.className='md-ctx';
+      var cl=document.createElement('span');cl.className='mdc-lead';cl.textContent=ctxLead+' ';ctx.appendChild(cl);
+      ctx.appendChild(document.createTextNode(ctxText.slice(0,88)));
+      ctx.addEventListener('click',function(){openDrawer(e.id);});body.appendChild(ctx);
+    }
+    row.appendChild(body);
+
     var dc=mdDueChip(it);
     if(dc.txt){var dd=document.createElement('span');dd.className='md-due '+dc.cls;dd.textContent=dc.txt;row.appendChild(dd);}
+
     var cc=courtList(it.court);
-    var who=document.createElement('span');who.className='md-who';who.textContent=courtHasYou(cc)?'':(cc.length?'waiting on '+cc[0]:'');row.appendChild(who);
+    if(waiting){
+      var age=ageDaysOf(it);
+      var who=document.createElement('span');who.className='md-who';
+      who.textContent='waiting on '+cc[0]+(age!==null?' · '+age+'d quiet':'');row.appendChild(who);
+      var nb=document.createElement('button');nb.type='button';nb.className='md-nudge';nb.textContent='nudged ⚡';
+      nb.title='Log that you chased '+cc.join(', ')+' — folds in as a dated update at check-in';
+      nb.addEventListener('click',function(ev){
+        ev.stopPropagation();
+        var payload={type:'note',program:it.program||'',pkg:it.pkg||'',itemRef:it.title.slice(0,160),
+                     text:'nudged '+cc.join(', ')+' — chased from My day',ts:new Date().toISOString()};
+        queueLocally(payload);renderPendingRow(payload);setStatus('Nudge logged — court unchanged.');
+      });
+      row.appendChild(nb);
+    }else{
+      var who2=document.createElement('span');who2.className='md-who';
+      who2.textContent=courtHasYou(cc)?'':(cc.length?'with '+cc[0]:'');row.appendChild(who2);
+    }
+
     var ctr=document.createElement('span');ctr.className='md-ctrls';
     [['↑',-1],['↓',1]].forEach(function(a){
       var b=document.createElement('button');b.type='button';b.textContent=a[0];b.title='Move '+(a[1]<0?'up':'down')+' within this group';
-      b.addEventListener('click',function(e){e.stopPropagation();moveMyDay(id,a[1]);});ctr.appendChild(b);
+      b.addEventListener('click',function(ev){ev.stopPropagation();moveMyDay(entry,a[1]);});ctr.appendChild(b);
     });
     var x=document.createElement('button');x.type='button';x.textContent='×';x.title='Remove from My day';
-    x.addEventListener('click',function(e){e.stopPropagation();toggleMyDay(id);});ctr.appendChild(x);
+    x.addEventListener('click',function(ev){ev.stopPropagation();toggleMyDay(entry);});ctr.appendChild(x);
     row.appendChild(ctr);
     sec.appendChild(row);
   });
