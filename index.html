@@ -490,6 +490,27 @@
   .md-due.d-soon{color:#b45309;}
   .md-due.d-inh{font-weight:600;color:var(--faint);}
   .md-seedinfo{font-size:11px;color:var(--faint);}
+  .dec-grp{margin:12px 0 0;}
+  .dec-grp-head{display:flex;align-items:baseline;gap:8px;border-left:3px solid var(--mauve);padding:3px 0 3px 9px;}
+  .dec-grp-name{font-size:12.5px;font-weight:700;color:var(--text);}
+  .dec-grp-meta{font-size:10.5px;color:var(--faint);margin-left:auto;}
+  .dec-row{display:flex;gap:10px;padding:6px 0 6px 12px;border-bottom:1px dotted var(--border-soft);cursor:pointer;}
+  .dec-row:hover{background:var(--border-soft);}
+  .dec-date{flex:0 0 auto;font-size:10.5px;font-weight:700;color:var(--mauve);width:74px;}
+  .dec-body{flex:1;font-size:12.5px;color:var(--text);}
+  .dec-src{font-size:10.5px;color:var(--faint);}
+  .dec-item{font-size:10.5px;color:var(--muted);}
+  .settled{margin-top:6px;padding:6px 9px;border-left:3px solid var(--olive);background:var(--surface-2,transparent);font-size:12px;}
+  .settled .sec-label{color:var(--olive);}
+  .ev-settled{color:var(--olive);}
+  .ev-settled-missing{color:var(--faint);font-style:italic;}
+  .ask-blk{border:1px dashed #b45309;border-radius:7px;padding:9px 12px;margin:10px 0;}
+  .ask-blk-head{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#b45309;margin-bottom:4px;}
+  .ask-per{display:flex;gap:8px;align-items:baseline;padding:4px 0;border-top:1px dotted var(--border-soft);}
+  .ask-per-name{font-size:12px;font-weight:700;color:var(--text);cursor:pointer;min-width:120px;}
+  .ask-per-name:hover{color:#b45309;}
+  .ask-per-q{flex:1;font-size:11.5px;color:var(--muted);}
+  .brief-ask{font-size:11.5px;color:#b45309;cursor:pointer;text-decoration:underline;}
   .my-day-row{align-items:flex-start;}
   .md-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;}
   .md-do{font-size:13.5px;color:var(--text);cursor:pointer;}
@@ -882,7 +903,7 @@ var VIEW_HEADINGS = {
   guide:'How the tracker thinks — the journey of an item'
 };
 var activeHorizons = {}, activeActions = {};
-var MILESTONES = [], STAKEHOLDERS = [];
+var MILESTONES = [], STAKEHOLDERS = [], DECISIONS = [];
 var VIEW_IDS = {program:'programView',status:'statusView',discipline:'disciplineView',topics:'topicsView',court:'courtView',upcoming:'upcomingView',progress:'progressView',history:'historyView',guide:'guideView'};
 var VIEW_ALIASES = {milestones:'progress',overview:'progress'};
 var BOARD_MODES = ['program','status','discipline','topics'];
@@ -1089,6 +1110,11 @@ function renderItem(itemData){
     why.appendChild(wl);why.appendChild(document.createTextNode(itemData.why));more.appendChild(why);
   }
   var det=ITEM_DETAILS[itemData.id];
+  if(det&&det.settled){
+    var sw=document.createElement('div');sw.className='settled';
+    var sl=document.createElement('span');sl.className='sec-label';sl.textContent='Settled';sw.appendChild(sl);
+    sw.appendChild(document.createTextNode(det.settled));el.appendChild(sw);
+  }
   if(det&&det.next){
     var nxWrap=document.createElement('div');nxWrap.className='item-next';
     var nxLab=document.createElement('span');nxLab.className='sec-label';nxLab.textContent='Next';nxWrap.appendChild(nxLab);
@@ -2017,9 +2043,29 @@ function renderPersonBrief(box,label,names){
   box.appendChild(cp);
 }
 
+function askItems(){return ITEMS.filter(function(it){return it.status!=='completed'&&it.ask;});}
+function buildAskBlock(host){
+  var asks=askItems();if(!asks.length)return;
+  var box=document.createElement('div');box.className='ask-blk';
+  var h=document.createElement('div');h.className='ask-blk-head';
+  h.textContent='\u2691 Questions you owe \u2014 '+asks.length+' across '+Object.keys(asks.reduce(function(a,i){a[i.ask]=1;return a;},{})).length+' people';
+  box.appendChild(h);
+  var by={};asks.forEach(function(it){(by[it.ask]=by[it.ask]||[]).push(it);});
+  Object.keys(by).sort(function(a,b){return by[b].length-by[a].length;}).forEach(function(nm){
+    var r=document.createElement('div');r.className='ask-per';
+    var n=document.createElement('span');n.className='ask-per-name';n.textContent=nm+' ('+by[nm].length+')';
+    n.title='Open '+nm+'\u2019s brief \u2014 full agenda, copyable';
+    n.addEventListener('click',function(){openPersonDrawer(nm);});r.appendChild(n);
+    var q=document.createElement('span');q.className='ask-per-q';
+    q.textContent=by[nm].map(function(it){var qs=askQuestionsFor(it);return (qs[0]||it.title).replace(/^ASK [^\u2014-]+[\u2014-]\s*/i,'').slice(0,58);}).join(' \u00b7 ');
+    r.appendChild(q);box.appendChild(r);
+  });
+  host.appendChild(box);
+}
 function buildCourtView(){
   var c=document.getElementById('courtView');c.innerHTML='';
   var open=ITEMS.filter(function(it){return it.status!=='completed';});
+  buildAskBlock(c);
   buildPrepPanel(c,open);
   // Coming to my court — then:: You, ball currently elsewhere
   var coming=open.filter(function(it){return (it.then||'').indexOf('You')!==-1&&!courtHasYou(it.court);});
@@ -2481,20 +2527,67 @@ function histRow(ev){
 }
 var histFilter={pkg:'',person:'',topic:''};
 var histShowAll=false;
+
+/* ---- The decision record: what we know, grouped by thread. Never by date --- 184 of the
+   project's updates land on 19 days and six of those carry 10+, so a date-grouped history
+   shows when the check-in ran, not when the project moved. ---- */
+function decGroupKey(x){
+  if(x.topic)return 't:'+x.topic;
+  return 'p:'+((x.pkg||x.program||'General').split('—')[0].trim());
+}
+function decGroupLabel(k){
+  if(k.indexOf('t:')===0){
+    var s=k.slice(2);
+    return s.replace(/-/g,' ').replace(/\b\w/g,function(m){return m.toUpperCase();});
+  }
+  return k.slice(2).replace(/Package /,'Pkg ');
+}
+function buildDecisionRecord(c){
+  sectionHead(c,'Decision record — what we know, by thread','var(--mauve)');
+  var note=document.createElement('p');note.className='g-p';
+  note.style.cssText='font-size:11.5px;color:var(--muted);margin:2px 0 6px;';
+  if(!DECISIONS.length){
+    note.textContent='Nothing marked yet. In the vault, prefix the update that records a decision with **Decision:** and it lands here.';
+    c.appendChild(note);return;
+  }
+  note.textContent=DECISIONS.length+' decisions, grouped by the thread they belong to. This is knowledge, not labour — completions live in the stream below.';
+  c.appendChild(note);
+  var groups={},order=[];
+  DECISIONS.forEach(function(x){
+    var k=decGroupKey(x);
+    if(!groups[k]){groups[k]={items:[],newest:''};order.push(k);}
+    groups[k].items.push(x);
+    if(x.date>groups[k].newest)groups[k].newest=x.date;
+  });
+  order.sort(function(a,b){return groups[b].newest<groups[a].newest?-1:1;});
+  order.forEach(function(k){
+    var g=groups[k];
+    var wrap=document.createElement('div');wrap.className='dec-grp';
+    var h=document.createElement('div');h.className='dec-grp-head';
+    var nm=document.createElement('span');nm.className='dec-grp-name';nm.textContent=decGroupLabel(k);h.appendChild(nm);
+    var mt=document.createElement('span');mt.className='dec-grp-meta';
+    mt.textContent=g.items.length+' decision'+(g.items.length!==1?'s':'')+' · latest '+g.newest;
+    h.appendChild(mt);wrap.appendChild(h);
+    g.items.sort(function(a,b){return b.date<a.date?-1:1;});
+    g.items.forEach(function(x){
+      var r=document.createElement('div');r.className='dec-row';
+      var dt=document.createElement('span');dt.className='dec-date';dt.textContent=x.date;r.appendChild(dt);
+      var bd=document.createElement('div');bd.className='dec-body';
+      bd.appendChild(document.createTextNode(cleanUpdateText(x.text)));
+      var meta=document.createElement('div');
+      var im=document.createElement('span');im.className='dec-item';im.textContent=x.item.slice(0,70);meta.appendChild(im);
+      if(x.src){var sp=document.createElement('span');sp.className='dec-src';sp.textContent='  · '+x.src;meta.appendChild(sp);}
+      bd.appendChild(meta);r.appendChild(bd);
+      r.addEventListener('click',function(){openDrawer(x.itemId);});
+      wrap.appendChild(r);
+    });
+    c.appendChild(wrap);
+  });
+}
+
 function buildHistoryView(){
   var c=document.getElementById('historyView');c.innerHTML='';
-  // Decisions log (unchanged — the record of load-bearing calls)
-  sectionHead(c,'Decisions log \u2014 what \u00b7 who \u00b7 state','var(--mauve)');
-  var decisions=ITEMS.filter(function(it){return it.cat==='decisions';});
-  if(!decisions.length){var e0=document.createElement('p');e0.className='empty';e0.textContent='No decisions tracked.';c.appendChild(e0);}
-  decisions.forEach(function(it){
-    var det=ITEM_DETAILS[it.id];var last=det&&det.updates&&det.updates.length?det.updates[det.updates.length-1]:null;
-    var lastDate=last?last.split('|')[0]:(it.date||'');
-    var r=histRow({date:lastDate,cls:it.status==='completed'?'hist-done':'',
-      text:it.title.slice(0,110)+' \u2014 court: '+(courtList(it.court).join(' + ')||'\u2014')+(it.status==='completed'?' \u00b7 resolved':'')});
-    r.style.cursor='pointer';r.addEventListener('click',function(){openDrawer(it.id);});
-    c.appendChild(r);
-  });
+  buildDecisionRecord(c);
 
   // One stream — everything that happened, everywhere, newest first
   sectionHead(c,'Everything \u2014 one stream, newest first','var(--teal)');
@@ -2588,6 +2681,7 @@ function renderSessionData(d){
       }
     }
   }
+  DECISIONS=d.decisions||[];
   window.TODAY_SEED_IDS=(d.today&&d.today.seedIds)||[];
   window.META=d.meta||{};
   if(d.today&&d.today.items&&d.today.items.length){
@@ -2750,7 +2844,7 @@ function init(){
 var BASE_ITEMS=[],BASE_DETAILS={};
 function applyPendingOverlay(){
   var items=BASE_ITEMS.slice();
-  var details={};Object.keys(BASE_DETAILS).forEach(function(k){var d0=BASE_DETAILS[k];details[k]={next:d0.next||null,subtasks:(d0.subtasks||[]).slice(),updates:(d0.updates||[]).slice()};});
+  var details={};Object.keys(BASE_DETAILS).forEach(function(k){var d0=BASE_DETAILS[k];details[k]={next:d0.next||null,subtasks:(d0.subtasks||[]).slice(),updates:(d0.updates||[]).slice(),settled:d0.settled||null};});
   readQueue().forEach(function(p,i){
     var ds=(p.ts||'').slice(0,10)||new Date().toISOString().slice(0,10);
     if(p.type==='item'){
@@ -3008,6 +3102,14 @@ function eventRow(ev,inDrawer){
     body.appendChild(document.createTextNode(ev.itemTitle+' \u2014 '+ev.text.slice(0,120)));
   }else{
     body.appendChild(document.createTextNode((ev.kind==='raised'?'raised: ':'resolved: ')+ev.itemTitle.slice(0,100)));
+    // a closure is only worth reading if it says what it settled
+    if(ev.kind==='resolved'&&ev.itemId){
+      var sd=(ITEM_DETAILS[ev.itemId]||{}).settled;
+      if(sd){var st=document.createElement('span');st.className='ev-settled';
+        st.textContent=' \u2192 '+cleanUpdateText(sd).slice(0,150);body.appendChild(st);}
+      else{var sm=document.createElement('span');sm.className='ev-settled ev-settled-missing';
+        sm.textContent=' \u2192 nothing recorded';sm.title='Closed without a Settled line \u2014 add one at check-in';body.appendChild(sm);}
+    }
   }
   row.appendChild(body);
   if(!inDrawer&&ev.program){var loc=document.createElement('span');loc.className='floc';loc.textContent=ev.program;row.appendChild(loc);}
@@ -3185,6 +3287,13 @@ function buildMyDay(){
       saveMyDay({v:2,seededFrom:checkinStamp(),order:[],picked:{},removed:{}});
       buildMyDay();refreshPins();setStatus('My day cleared — the next check-in will reseed it.');});
     head.appendChild(clr);
+  }
+  if(typeof askItems==='function'&&askItems().length){
+    var al=document.createElement('span');al.className='brief-ask';
+    al.textContent='\u2691 '+askItems().length+' questions you owe people \u2014 see Court';
+    al.title='Every ask:: item, grouped by person';
+    al.addEventListener('click',function(){setView('court');});
+    head.appendChild(al);
   }
   sec.appendChild(head);
   if(!seq.length){
