@@ -559,6 +559,21 @@
   .st-pin:hover,.st-pin.on{color:#b45309;}
   .md-reseed{border:none;background:none;color:#b45309;font-size:11px;cursor:pointer;font-family:inherit;text-decoration:underline;}
   .my-day-row{display:flex;align-items:baseline;gap:9px;padding:6px 4px;border-radius:8px;font-size:13.5px;}
+  .md-ans-btn,.st-ans-btn{background:none;border:1px solid var(--border);color:#b45309;border-radius:6px;padding:2px 8px;font-size:11px;cursor:pointer;font-family:inherit;white-space:nowrap;}
+  .md-ans-btn:hover,.st-ans-btn:hover{border-color:#b45309;background:#fff8ec;}
+  .md-ans-btn.on,.st-ans-btn.on{background:#fff8ec;border-color:#b45309;}
+  .md-answered{font-size:11px;color:#b45309;border:1px dashed #b45309;border-radius:6px;padding:1px 7px;white-space:nowrap;}
+  .ans-form{border:1px dashed #b45309;border-radius:8px;padding:10px 12px;margin:2px 0 9px 34px;background:#fff8ec;}
+  .ans-form .ans-qh{font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#b45309;margin-bottom:3px;}
+  .ans-form .ans-qt{font-size:12.5px;color:var(--text);margin-bottom:8px;line-height:1.35;}
+  .ans-form textarea,.ans-form input{width:100%;box-sizing:border-box;font-family:inherit;font-size:13px;padding:7px 9px;border:1px solid var(--border);border-radius:7px;background:#fff;color:var(--text);}
+  .ans-form textarea{min-height:54px;resize:vertical;}
+  .ans-lab{font-size:11px;color:var(--muted);margin:8px 0 3px;}
+  .ans-note{font-size:10.5px;color:var(--muted);margin-top:6px;font-style:italic;}
+  .ans-acts{display:flex;gap:8px;justify-content:flex-end;margin-top:9px;}
+  .ans-acts button{font-family:inherit;font-size:12.5px;padding:5px 12px;border-radius:6px;cursor:pointer;border:1px solid var(--border);background:none;color:var(--muted);}
+  .ans-acts button.ans-go{background:#b45309;border-color:#b45309;color:#fff;font-weight:600;}
+  .ptype-answer{color:#b45309;border-color:#b45309;}
   .my-day-row:hover{background:var(--border-soft);}
   .my-day-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--olive);align-self:center;}
   .md-num{flex:0 0 auto;font-weight:800;color:#b45309;font-size:12px;min-width:18px;}
@@ -1185,6 +1200,22 @@ function renderItem(itemData){
         pin.title=onPin?'Remove this step from My day':'Put just this step on My day';
         pin.addEventListener('click',function(ev){ev.stopPropagation();toggleMyDayStep(itemData.id,stIdx);});
         stItem.appendChild(pin);
+        var sAns=document.createElement('button');sAns.type='button';sAns.className='st-ans-btn';sAns.textContent='✎';
+        sAns.title='Record the answer to this step';
+        (function(theCb,theLabel,theItem,theBtn){
+          theBtn.addEventListener('click',function(ev){
+            ev.stopPropagation();
+            var f=buildAnswerForm(stItem,theItem,theLabel,theLabel,function(){
+              theCb.checked=true;stItem.classList.add('st-done');
+              var ons=stList.querySelectorAll('.st-item.st-done').length;
+              stCount.textContent=ons+'/'+det.subtasks.length+' done';
+              var ds=dots.querySelectorAll('i');for(var k=0;k<ds.length;k++)ds[k].className=k<ons?'on':'';
+              if(theBtn.parentNode)theBtn.parentNode.removeChild(theBtn);
+            });
+            theBtn.classList.toggle('on',!!f);
+          });
+        })(cb,label,itemData,sAns);
+        stItem.appendChild(sAns);
       }
       stList.appendChild(stItem);
     });
@@ -1941,7 +1972,7 @@ function addCapture(){
   if(!API_URL||API_URL.indexOf('PASTE_')===0){queueLocally(payload);refreshBoard();setStatus('Added to the board ('+queueCount()+' pending). Click “Copy for check-in” to sync with Claude.');return;}
   sendToSheet(payload,function(ok){if(ok)setStatus('Saved to your tracker sheet — tell Claude to sync next session.');else{queueLocally(payload);setStatus('Could not reach the sheet — saved locally, will retry.');}});
 }
-function typeLabel(type){return type==='addendum'?'Addendum +':type==='unaddendum'?'Addendum \u2013':type==='note'?'Note':type==='complete'?'Done':type==='blocker'?'Blocker':type==='watch'?'Watch':type==='subtask'?'Subtask':type==='stepdone'?'Step done':type==='court'?'Court \u2192':type==='topic'?'Topic \u2192':type==='due'?'Due \u2192':type==='delegate'?'Delegate \u2192':'New';}
+function typeLabel(type){return type==='answer'?'Answered \u2192':type==='addendum'?'Addendum +':type==='unaddendum'?'Addendum \u2013':type==='note'?'Note':type==='complete'?'Done':type==='blocker'?'Blocker':type==='watch'?'Watch':type==='subtask'?'Subtask':type==='stepdone'?'Step done':type==='court'?'Court \u2192':type==='topic'?'Topic \u2192':type==='due'?'Due \u2192':type==='delegate'?'Delegate \u2192':'New';}
 function formatTs(ts){if(!ts)return'';var d=new Date(ts);if(isNaN(d.getTime()))return'';return d.toLocaleDateString(undefined,{month:'short',day:'numeric'})+' · '+d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});}
 
 function renderPendingRow(payload){updateCaptureSummary();var list=document.getElementById('pendingList');var empty=list.querySelector('.pending-empty');if(empty)empty.remove();var row=document.createElement('div');row.className='pending-row';renderPendingRowView(row,payload);list.appendChild(row);}
@@ -1950,7 +1981,14 @@ function renderPendingRowView(row,payload){
   var typeEl=document.createElement('span');typeEl.className='ptype ptype-'+payload.type;typeEl.textContent=typeLabel(payload.type);row.appendChild(typeEl);
   var body=document.createElement('span');body.className='pbody';var lp=[];if(payload.program)lp.push(payload.program);if(payload.pkg)lp.push(payload.pkg);
   var prefix=lp.length?'<strong>'+escapeHtml(lp.join(' › '))+':</strong> ':'';var txt;
-  if((payload.type==='note'||payload.type==='blocker'||payload.type==='watch'||payload.type==='subtask')&&payload.itemRef){var ref=payload.itemRef.length>60?payload.itemRef.slice(0,60)+'…':payload.itemRef;txt='<em>Re: '+escapeHtml(ref)+'</em> — '+escapeHtml(payload.text);}else{txt=escapeHtml(payload.text);}
+  if(payload.type==='answer'){
+    var aref=(payload.itemRef||'');aref=aref.length>52?aref.slice(0,52)+'…':aref;
+    var aq=(payload.stepRef||'');aq=aq.length>58?aq.slice(0,58)+'…':aq;
+    txt=(aq?'<em>Answers: '+escapeHtml(aq)+'</em> — ':(aref?'<em>Re: '+escapeHtml(aref)+'</em> — ':''))+escapeHtml(payload.text)
+        +(payload.next?' <span style="color:#b45309;">→ next: '+escapeHtml(payload.next)+'</span>':'')
+        +(aq&&aref?' <span style="color:var(--faint);">(on: '+escapeHtml(aref)+')</span>':'');
+  }
+  else if((payload.type==='note'||payload.type==='blocker'||payload.type==='watch'||payload.type==='subtask')&&payload.itemRef){var ref=payload.itemRef.length>60?payload.itemRef.slice(0,60)+'…':payload.itemRef;txt='<em>Re: '+escapeHtml(ref)+'</em> — '+escapeHtml(payload.text);}else{txt=escapeHtml(payload.text);}
   body.innerHTML=prefix+txt;row.appendChild(body);
   var when=document.createElement('span');when.className='pwhen';when.textContent=formatTs(payload.ts);row.appendChild(when);
   var editBtn=document.createElement('button');editBtn.type='button';editBtn.className='pedit';editBtn.textContent='Edit';editBtn.onclick=function(){renderPendingRowEdit(row,payload);};row.appendChild(editBtn);
@@ -2032,7 +2070,16 @@ function renderLocalQueue(){var q=readQueue();if(!q.length)return;var list=docum
 function buildExportText(){
   var q=readQueue();var md=readMyDay();
   if(!q.length&&!(md.order&&md.order.length))return null;
-  var lines=q.map(function(p){var loc=[p.program,p.pkg].filter(Boolean).join(' \u203a ');var ref=p.itemRef?(' [re: '+p.itemRef+']'):'';return '- ['+typeLabel(p.type)+'] '+(loc?loc+': ':'')+p.text+ref;});
+  var lines=q.map(function(p){
+    var loc=[p.program,p.pkg].filter(Boolean).join(' \u203a ');
+    var ref=p.itemRef?(' [re: '+p.itemRef+']'):'';
+    if(p.type==='answer'){
+      return '- [Answered \u2192] '+(loc?loc+': ':'')+p.text
+        +(p.stepRef?' [answers: '+p.stepRef+']':'')+ref
+        +(p.next?' [\u2192 next: '+p.next+']':'');
+    }
+    return '- ['+typeLabel(p.type)+'] '+(loc?loc+': ':'')+p.text+ref;
+  });
   var seq=(typeof mdSeq==='function')?mdSeq():(md.order||[]);
   if(seq.length){
     lines.push('');lines.push('My day plan ('+(md.seededFrom||'today')+'), in order:');
@@ -3547,6 +3594,24 @@ function buildMyDay(){
       who2.textContent=courtHasYou(cc)?'':(cc.length?'with '+cc[0]:'');row.appendChild(who2);
     }
 
+    // an answer can land on any row - the ones you are waiting on most of all
+    (function(){
+      var qText=step?step.label:(det.next||it.title);
+      var aBtn=document.createElement('button');aBtn.type='button';aBtn.className='md-ans-btn';aBtn.textContent='✎ answer';
+      aBtn.title=step?'Record the answer to this step - closes the step, records a decision, item stays open'
+                     :'Record an answer on this item - lands as a dated decision at check-in';
+      aBtn.addEventListener('click',function(ev){
+        ev.stopPropagation();
+        var f=buildAnswerForm(row,it,qText,step?step.label:'',function(){
+          var chip=document.createElement('span');chip.className='md-answered';chip.textContent='answered ✓';
+          if(aBtn.parentNode)aBtn.parentNode.replaceChild(chip,aBtn);
+          if(step){row.classList.add('md-done');var box=row.querySelector('input[type=checkbox]');if(box)box.checked=true;}
+        });
+        aBtn.classList.toggle('on',!!f);
+      });
+      row.appendChild(aBtn);
+    })();
+
     var ctr=document.createElement('span');ctr.className='md-ctrls';
     [['↑',-1],['↓',1]].forEach(function(a){
       var b=document.createElement('button');b.type='button';b.textContent=a[0];b.title='Move '+(a[1]<0?'up':'down')+' within this group';
@@ -3558,6 +3623,48 @@ function buildMyDay(){
     sec.appendChild(row);
   });
 }
+// ---- Recording an answer -------------------------------------------------
+// A question you asked gets answered somewhere other than this page - in a
+// meeting, on a call, in a corridor. This is where it lands so it survives:
+// the ASK step closes, the answer becomes a dated Decision on the item at
+// check-in, and the follow-on step gets named while you still remember it.
+function answerFormOpen(anchor){var n=anchor.nextSibling;return !!(n&&n.classList&&n.classList.contains('ans-form'));}
+function closeAnswerForm(anchor){var n=anchor.nextSibling;if(n&&n.classList&&n.classList.contains('ans-form'))n.parentNode.removeChild(n);}
+function buildAnswerForm(anchor,it,question,stepLabel,onRecorded){
+  if(answerFormOpen(anchor)){closeAnswerForm(anchor);return null;}
+  var f=document.createElement('div');f.className='ans-form';
+  var qh=document.createElement('div');qh.className='ans-qh';qh.textContent=stepLabel?'Answering this step':'Recording an answer on';f.appendChild(qh);
+  var qt=document.createElement('div');qt.className='ans-qt';qt.textContent=question;f.appendChild(qt);
+  var l1=document.createElement('div');l1.className='ans-lab';l1.textContent='What did they say?';f.appendChild(l1);
+  var ta=document.createElement('textarea');ta.className='ans-text';ta.placeholder='Their answer, in their words where it matters…';f.appendChild(ta);
+  var l2=document.createElement('div');l2.className='ans-lab';l2.textContent='→ What that means next (optional)';f.appendChild(l2);
+  var nx=document.createElement('input');nx.type='text';nx.className='ans-next';nx.placeholder='Leave blank and I’ll propose the follow-on step at check-in';f.appendChild(nx);
+  var nt=document.createElement('div');nt.className='ans-note';
+  nt.textContent=stepLabel?'Records as a decision on the item and closes this step. The item stays open.'
+                          :'Records as a decision on the item. The item stays open.';
+  f.appendChild(nt);
+  var acts=document.createElement('div');acts.className='ans-acts';
+  var cancel=document.createElement('button');cancel.type='button';cancel.textContent='Cancel';
+  cancel.addEventListener('click',function(ev){ev.stopPropagation();closeAnswerForm(anchor);});
+  var go=document.createElement('button');go.type='button';go.className='ans-go';go.textContent='Record answer';
+  go.addEventListener('click',function(ev){
+    ev.stopPropagation();
+    var a=ta.value.trim();if(!a){setStatus('Write the answer first — an empty answer records nothing.');return;}
+    var payload={type:'answer',program:it.program||'',pkg:it.pkg||'',
+                 itemRef:(it.title||'').slice(0,160),stepRef:(stepLabel||'').slice(0,160),
+                 next:nx.value.trim().slice(0,200),text:a.slice(0,600),ts:new Date().toISOString()};
+    queueLocally(payload);renderPendingRow(payload);
+    closeAnswerForm(anchor);
+    if(typeof onRecorded==='function')onRecorded(payload);
+    setStatus(stepLabel?'Answer recorded — the step closes at check-in, the item stays open.'
+                       :'Answer recorded — it lands as a dated decision on the item.');
+    refreshBoard();
+  });
+  acts.appendChild(cancel);acts.appendChild(go);f.appendChild(acts);
+  anchor.parentNode.insertBefore(f,anchor.nextSibling);
+  return f;
+}
+
 // pin buttons + clone action-buttons work everywhere via delegation
 function openDuePopover(anchorRow,it){
   var ex=document.querySelector('.due-pop');if(ex)ex.remove();
