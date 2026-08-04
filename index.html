@@ -2873,6 +2873,9 @@ function histRow(ev){
   return row;
 }
 var histFilter={pkg:'',person:'',topic:''};
+// Bumped by hand whenever index.html changes. Shown in the footer beside the data fingerprint so
+// a stale upload is visible at a glance instead of being inferred from a file size.
+var SITE_BUILD='2026-08-04.a';
 var histShowAll=false;
 
 /* ---- The decision record: what we know, grouped by thread. Never by date --- 184 of the
@@ -3035,7 +3038,15 @@ function renderSessionData(d){
     }
     if(sprintEnd){window.SPRINT_END_DATE=sprintEnd;var sc=document.getElementById('sprintChip');if(sc&&d.meta.sprintEndLabel)sc.textContent='Before '+d.meta.sprintEndLabel;var ssl=document.getElementById('statSprintEndLabel');if(ssl&&d.meta.sprintEndLabel)ssl.textContent='on the '+d.meta.sprintEndLabel+' sprint';}
     if(d.meta.generated){
-      var ft=document.querySelector('footer');if(ft){var gEl=document.createElement('div');gEl.style.cssText='margin-top:6px;color:var(--faint);font-size:11.5px;';gEl.textContent='Data generated '+d.meta.generated;ft.appendChild(gEl);}
+      var ft=document.querySelector('footer');if(ft){var gEl=document.createElement('div');gEl.style.cssText='margin-top:6px;color:var(--faint);font-size:11.5px;';
+        gEl.textContent='Data generated '+d.meta.generated
+          +(d.meta.build?'  \u00b7  data '+d.meta.build:'')
+          +(d.meta.itemCount?' ('+d.meta.itemCount+' items)':'')
+          +'  \u00b7  site '+SITE_BUILD;
+        gEl.title='Two independent stamps. "data" fingerprints data.enc.json and changes whenever the '
+          +'vault does; "site" is index.html\u2019s own version. If either does not match what the '
+          +'check-in told you, that file did not reach the repo \u2014 or the browser is serving a cached copy.';
+        ft.appendChild(gEl);}
       var fc=document.getElementById('dataFreshness');
       if(fc){
         var freshDays=Math.floor((Date.now()-new Date(d.meta.generated+'T00:00:00').getTime())/86400000);
