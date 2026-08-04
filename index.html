@@ -305,6 +305,23 @@
   .add-row .ar-t{flex:1;font-size:12.5px;cursor:pointer;}
   .add-row .ar-t:hover{text-decoration:underline;}
   .add-row .ar-who{font-size:10.5px;color:var(--muted);white-space:nowrap;}
+  .add-row .ar-imp{font-size:10px;font-weight:700;color:#b45309;white-space:nowrap;}
+  .add-row .ar-cond{font-size:9.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;
+    color:var(--muted);border:1px dashed var(--line);border-radius:3px;padding:0 4px;white-space:nowrap;}
+  .add-row.ar-conditional .ar-t{color:var(--muted);}
+  .add-filter{display:flex;align-items:center;gap:5px;margin:0 0 8px 2px;flex-wrap:wrap;}
+  .add-filter-lbl{font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-right:2px;}
+  .add-filter-b{font-size:10.5px;padding:1px 7px;border:1px solid var(--line);border-radius:9px;
+    background:transparent;color:var(--muted);cursor:pointer;}
+  .add-filter-b.on{background:var(--gold);border-color:var(--gold);color:#fff;font-weight:700;}
+  /* Whose scope a row belongs to. Ours takes the amber edge; everyone else is quiet but named. */
+  .add-scope{display:flex;align-items:baseline;gap:8px;margin:9px 0 3px;padding:0 0 2px 6px;
+    border-left:2px solid var(--line);}
+  .add-scope.ours{border-left-color:var(--gold);}
+  .add-scope .as-t{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);}
+  .add-scope.ours .as-t{color:var(--gold);}
+  .add-scope .as-n{font-size:9.5px;color:var(--muted);margin-left:auto;}
+  .add-row.add-none{font-size:11.5px;color:var(--muted);font-style:italic;}
   .ar-x{border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:12px;padding:0 3px;}
   .ar-x:hover{color:#b45309;}
   .add-actions{margin-top:7px;}
@@ -2412,6 +2429,25 @@ function buildFlowStrip(){
 
 
 /* ---- Addendum register: an addendum is a package of work, not a date with a footnote ---- */
+// An addendum issues as ONE instrument assembled from several consultants' scopes. DIALOG is
+// responsible for architecture, but Mike Torjan's dampers, Neil Dobie's hydronics and SMP's
+// electrical knock-on all ride the same document — and "whose items are still outstanding" is the
+// only question that matters in an addendum meeting. disc:: says what SUBJECT an item is; it cannot
+// tell DIALOG mechanical apart from Smith + Andersen mechanical. scope:: says whose scope it is.
+// Deliberately register-only — the Board stays exactly as it was.
+var SCOPE_LABELS={
+  'AR'    :{t:'Architectural \u2014 DIALOG',        d:'AR', ours:true},
+  'ME-DLG':{t:'Mechanical \u2014 DIALOG',           d:'ME'},
+  'ME-SA' :{t:'Mechanical \u2014 Smith + Andersen', d:'ME'},
+  'EL-SMP':{t:'Electrical \u2014 SMP',              d:'EL'},
+  'EL-DLG':{t:'Electrical \u2014 DIALOG',           d:'EL'},
+  'ST-DLG':{t:'Structural \u2014 DIALOG',           d:'ST'},
+  'ST-RJC':{t:'Structural \u2014 RJC',              d:'ST'},
+  'SIG'   :{t:'Signage \u2014 Entro',               d:'signage'}
+};
+var SCOPE_ORDER=['AR','ME-DLG','ME-SA','EL-DLG','EL-SMP','ST-DLG','ST-RJC','SIG'];
+function scopeInfo(k){return SCOPE_LABELS[k]||{t:(k||'Scope not set'),d:''};}
+var addDiscFilter='';
 // One addendum, one card. The contents come from `addendum::` tags and the date from a
 // Milestones row, and those two spell the same addendum differently — a tag says "TP5-A1"
 // where the milestone says "Addendum 1". Keying on the raw string drew two cards for one
@@ -2460,6 +2496,21 @@ function buildAddendumRegister(){
   });
   if(!order.length)return;
   sectionHead(c,'Addendum register — what each upcoming addendum actually carries','var(--gold)');
+  var discsPresent=[];
+  tagged.forEach(function(it){var dd=scopeInfo(it.scope).d;if(dd&&discsPresent.indexOf(dd)===-1)discsPresent.push(dd);});
+  if(discsPresent.length>1){   // a filter with one option is furniture
+    var fr=document.createElement('div');fr.className='add-filter';
+    var flb=document.createElement('span');flb.className='add-filter-lbl';flb.textContent='discipline';fr.appendChild(flb);
+    [''].concat(discsPresent).forEach(function(dd){
+      var fb=document.createElement('button');fb.type='button';
+      fb.className='add-filter-b'+(addDiscFilter===dd?' on':'');
+      fb.textContent=dd||'all';
+      fb.title=dd?('Show only '+dd+' scopes'):'Show every consultant';
+      fb.addEventListener('click',function(){addDiscFilter=dd;buildAddendumRegister();});
+      fr.appendChild(fb);
+    });
+    c.appendChild(fr);
+  }
   var note=document.createElement('p');note.className='g-p';
   note.style.cssText='font-size:11.5px;color:var(--muted);margin:2px 0 4px;';
   note.textContent='Dates live in Milestones; contents live here. Add or drop an item and it queues as a capture — Claude folds it into the vault at the next check-in.';
@@ -2487,19 +2538,53 @@ function buildAddendumRegister(){
     var cnt=document.createElement('span');cnt.className='add-card-count';
     var openN=g.items.filter(function(i){return i.status!=='completed';}).length;
     var condN=g.items.filter(function(i){return i.cond;}).length;
+    var scopeBits=[];
+    SCOPE_ORDER.concat(['_none']).forEach(function(sk){
+      var mm=g.items.filter(function(i){return (i.scope||'_none')===sk;}).length;
+      if(mm)scopeBits.push(mm+' '+(sk==='_none'?'unscoped':sk));
+    });
     // Counting conditional work alongside committed work makes an addendum look bigger than it is,
     // which is how a date moves for reasons that were never going to happen.
     cnt.textContent=g.items.length?(g.items.length+' item'+(g.items.length!==1?'s':'')
       +(openN!==g.items.length?' · '+openN+' open':'')
-      +(condN?' · '+condN+' conditional':'')):'empty — nothing tagged to it yet';
+      +(condN?' \u00b7 '+condN+' conditional':'')
+      +(scopeBits.length>1?'  \u00b7  '+scopeBits.join(' / '):'')):'empty — nothing tagged to it yet';
     head.appendChild(cnt);
     card.appendChild(head);
     g.items.sort(function(a,b){return (a.status==='completed'?1:0)-(b.status==='completed'?1:0);});
-    g.items.forEach(function(it){
+    // Rows grouped by whose scope they are, ours first. A single-scope addendum gets no headers,
+    // so the grouping appears exactly when it earns the space.
+    var byScope={},scopeKeys=[];
+    g.items.forEach(function(it){var k=it.scope||'_none';if(!byScope[k]){byScope[k]=[];scopeKeys.push(k);}byScope[k].push(it);});
+    scopeKeys.sort(function(a,b){
+      var ia=SCOPE_ORDER.indexOf(a),ib=SCOPE_ORDER.indexOf(b);
+      if(ia===-1)ia=98;if(ib===-1)ib=98;if(a==='_none')ia=99;if(b==='_none')ib=99;return ia-ib;});
+    var showHeaders=scopeKeys.length>1,shown=0;
+    scopeKeys.forEach(function(sk){
+      var inf=scopeInfo(sk==='_none'?'':sk);
+      if(addDiscFilter&&inf.d!==addDiscFilter)return;
+      var rows=byScope[sk];shown+=rows.length;
+      if(showHeaders){
+        var sh=document.createElement('div');sh.className='add-scope'+(inf.ours?' ours':'');
+        var sht=document.createElement('span');sht.className='as-t';
+        sht.textContent=sk==='_none'?'Scope not set':inf.t;
+        if(sk==='_none')sht.title='No scope:: tag \u2014 cannot be attributed to a consultant';
+        sh.appendChild(sht);
+        var shn=document.createElement('span');shn.className='as-n';
+        shn.textContent=rows.length+(inf.ours?' \u00b7 ours':'');
+        sh.appendChild(shn);card.appendChild(sh);
+      }
+      rows.forEach(function(it){
       var r=document.createElement('div');r.className='add-row';
       var dot=document.createElement('span');dot.className='sib-dot sd-'+(it.status||'open');r.appendChild(dot);
+      if(it.impact==='high'){var im=document.createElement('span');im.className='ar-imp';im.textContent='\u2605';
+        im.title='High impact \u2014 flagged from a named signal, not a guess';r.appendChild(im);}
       var ti=document.createElement('span');ti.className='ar-t';ti.textContent=it.title.slice(0,96);
       ti.addEventListener('click',function(){openDrawer(it.id);});r.appendChild(ti);
+      if(it.cond){r.classList.add('ar-conditional');
+        var cd=document.createElement('span');cd.className='ar-cond';cd.textContent='if asked';
+        cd.title='Conditional \u2014 this only happens if someone raises it. On the register so it cannot surprise you, not because it is committed work.';
+        r.appendChild(cd);}
       var who=document.createElement('span');who.className='ar-who';
       who.textContent=(it.status==='completed'?'done':(courtList(it.court).join(', ')||'—'))+(it.twin?' · +RFI twin':'');r.appendChild(who);
       var x=document.createElement('button');x.type='button';x.className='ar-x';x.textContent='✕';
@@ -2514,7 +2599,13 @@ function buildAddendumRegister(){
       });
       r.appendChild(x);
       card.appendChild(r);
+      });
     });
+    if(!shown&&addDiscFilter){
+      var nores=document.createElement('div');nores.className='add-row add-none';
+      nores.textContent='Nothing in this addendum is '+addDiscFilter+' scope.';
+      card.appendChild(nores);
+    }
     var act=document.createElement('div');act.className='add-actions';
     var addBtn=document.createElement('button');addBtn.type='button';addBtn.className='hist-more';
     addBtn.textContent='+ add an item to Addendum '+g.num;
@@ -2887,7 +2978,21 @@ function buildHistoryView(){
   var evs=eventsFor(scope,{milestones:!histFilter.person&&!histFilter.topic});
   if(histFilter.pkg)evs=evs.filter(function(ev){return ev.kind!=='milestone'||ev.pkg.indexOf(histFilter.pkg.split('\u2014')[0].trim().slice(0,10))!==-1;});
   if(!evs.length){var e1=document.createElement('p');e1.className='empty';e1.textContent='Nothing recorded for this filter yet.';c.appendChild(e1);return;}
+  // A flat 120-event cap on a date-sorted stream means one busy check-in buries everything else.
+  // The 2026-08-03 session wrote ~60 dated updates in a day and pushed every CLOSURE off the first
+  // page — a history tab showing only notes is not a history. So the cap is per-type: notes can
+  // crowd each other, but they cannot crowd out resolutions, decisions or raises.
   var cap=histShowAll?evs.length:120;
+  if(!histShowAll&&evs.length>cap){
+    var perType={},keep=[],spill=[];
+    evs.forEach(function(e){
+      var k=e.kind||'note';var n=(perType[k]=(perType[k]||0)+1);
+      (n<=40?keep:spill).push(e);
+    });
+    evs=keep.concat(spill).slice(0,cap);
+    // keep the stream in date order after the per-type pass
+    evs.sort(function(a,b){return (b.date||'').localeCompare(a.date||'')||0;});
+  }
   var lastDay=null;
   evs.slice(0,cap).forEach(function(ev){
     if(ev.date!==lastDay){lastDay=ev.date;
