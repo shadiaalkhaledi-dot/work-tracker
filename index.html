@@ -3462,7 +3462,19 @@ function seedMyDay(force){
   if(!force&&d.seededFrom===stamp)return d;
   d.removed={};                       // a new check-in is a new plan; it may re-propose
   var pruned=mdPruneCompleted(d);     // ...and it may have closed half of the last one
+  // Last check-in's proposals are not this check-in's plan. Anything Shadi picked himself stays —
+  // d.picked is exactly that record — but a row that only got here because a previous check-in
+  // seeded it, and which this one no longer proposes, has to go. Otherwise narrowing the seed
+  // achieves nothing: a five-item plan lands on top of the last fifteen and reads as twenty.
+  var stale=0;
+  d.order=d.order.filter(function(entry){
+    if(d.picked[entry])return true;                  // his own star — never touch it
+    if(seeds.indexOf(entry)!==-1)return true;        // proposed again this time
+    if(mdParse(entry).step!==null)return true;       // a pinned step is a deliberate act
+    stale++;return false;
+  });
   seeds.forEach(function(id){if(d.order.indexOf(id)===-1)d.order.push(id);});
+  if(stale)window.MD_STALE=(window.MD_STALE||0)+stale;
   d.seededFrom=stamp;saveMyDay(d);
   if(pruned)window.MD_PRUNED=(window.MD_PRUNED||0)+pruned;
   return readMyDay();
@@ -3574,6 +3586,12 @@ function buildMyDay(){
       pr.textContent='· '+window.MD_PRUNED+' closed by the check-in, cleared';
       pr.title='These were finished in the vault, so they came off the plan rather than sitting here ticked';
       head.appendChild(pr);
+    }
+    if(window.MD_STALE){
+      var stl=document.createElement('span');stl.className='md-seedinfo';
+      stl.textContent='· '+window.MD_STALE+' from the last plan, dropped';
+      stl.title='Proposed by a previous check-in and not by this one. Anything you starred yourself was kept — use “re-take the check-in’s list” to get a proposal back.';
+      head.appendChild(stl);
     }
     // auto-reseed already ran; this is the manual "undo my edits, give me the proposal again"
     if(todaySeedIds().length){
