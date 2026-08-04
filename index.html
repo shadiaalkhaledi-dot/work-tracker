@@ -2383,10 +2383,16 @@ function buildFlowStrip(){
 
 
 /* ---- Addendum register: an addendum is a package of work, not a date with a footnote ---- */
-function addKey(pkg,num){return (pkgNum(pkg)||pkg||'?')+'|'+num;}
+// One addendum, one card. The contents come from `addendum::` tags and the date from a
+// Milestones row, and those two spell the same addendum differently — a tag says "TP5-A1"
+// where the milestone says "Addendum 1". Keying on the raw string drew two cards for one
+// instrument: an empty one from the milestone and a full one from the tags. Normalise once,
+// here, so any future spelling lands on the same key.
+function addNum(num){return String(num==null?'':num).toLowerCase().replace(/^tp[\d.]*-a/,'').replace(/^0+(?=\w)/,'');}
+function addKey(pkg,num){return (pkgNum(pkg)||pkg||'?')+'|'+addNum(num);}
 function addendumDateFor(pkgName,num){
   var ms=milestoneFor(pkgName,'');if(!ms)return null;
-  var want=String(num).toLowerCase().replace(/^tp\d[\.\d]*-a/,'');
+  var want=addNum(num);
   for(var i=0;i<(ms.rows||[]).length;i++){
     var w=(ms.rows[i].what||'').toLowerCase();
     var m=/addendum\s*0?(\w+)/.exec(w);
@@ -2400,7 +2406,7 @@ function buildAddendumRegister(){
   var groups={},order=[];
   tagged.forEach(function(it){
     var k=addKey(it.pkg,it.addendum);
-    if(!groups[k]){groups[k]={pkg:it.pkg,program:it.program,num:it.addendum,items:[],seen:{}};order.push(k);}
+    if(!groups[k]){groups[k]={pkg:it.pkg,program:it.program,num:addNum(it.addendum),items:[],seen:{}};order.push(k);}
     var g=groups[k];
     // twins (a task and its RFI entry share a topic) are one line of work, not two
     if(it.topic&&g.seen[it.topic]){var prev=g.seen[it.topic];prev.twin=(prev.twin||0)+1;return;}
@@ -2413,8 +2419,8 @@ function buildAddendumRegister(){
       if(r.status!=='upcoming')return;
       var mm=/addendum\s*0?(\w+)/i.exec(r.what||'');if(!mm)return;
       var pkgLabel=(m.package||'').split('[')[0].trim();
-      var k=addKey(pkgLabel,mm[1].replace(/^0+/,''));
-      if(!groups[k]){groups[k]={pkg:pkgLabel,program:'',num:mm[1].replace(/^0+/,''),items:[]};order.push(k);}
+      var k=addKey(pkgLabel,mm[1]);
+      if(!groups[k]){groups[k]={pkg:pkgLabel,program:'',num:addNum(mm[1]),items:[]};order.push(k);}
     });
   });
   if(!order.length)return;
@@ -2445,7 +2451,12 @@ function buildAddendumRegister(){
     head.appendChild(dt);
     var cnt=document.createElement('span');cnt.className='add-card-count';
     var openN=g.items.filter(function(i){return i.status!=='completed';}).length;
-    cnt.textContent=g.items.length?(g.items.length+' item'+(g.items.length!==1?'s':'')+(openN!==g.items.length?' · '+openN+' open':'')):'empty — nothing tagged to it yet';
+    var condN=g.items.filter(function(i){return i.cond;}).length;
+    // Counting conditional work alongside committed work makes an addendum look bigger than it is,
+    // which is how a date moves for reasons that were never going to happen.
+    cnt.textContent=g.items.length?(g.items.length+' item'+(g.items.length!==1?'s':'')
+      +(openN!==g.items.length?' · '+openN+' open':'')
+      +(condN?' · '+condN+' conditional':'')):'empty — nothing tagged to it yet';
     head.appendChild(cnt);
     card.appendChild(head);
     g.items.sort(function(a,b){return (a.status==='completed'?1:0)-(b.status==='completed'?1:0);});
@@ -2893,24 +2904,37 @@ function renderSessionData(d){
   if(d.today&&d.today.items&&d.today.items.length){
     var tf=document.getElementById('tfList');
     if(tf){tf.innerHTML='';
-      // every line that bound to an item now lives in My Day above; only the orphans show here
-      var orphans=d.today.items.filter(function(t){return !t.id;});
-      orphans.forEach(function(t){
+      // A check-in writes two things in one block: the day's plan and the brief of what it found.
+      // Whatever seeded My Day is already above, so this card carries the remainder \u2014 the lines
+      // that matter but aren't today's work. Previously only orphans showed here, which meant a
+      // bound-but-not-seeded line appeared nowhere at all.
+      var seeded={};(d.today.seedIds||[]).forEach(function(id){seeded[id]=1;});
+      var rest=d.today.items.filter(function(t){return !t.id||!seeded[t.id];});
+      var orphanCt=0;
+      rest.forEach(function(t){
         var row=document.createElement('div');row.className='tf-row';
         if(t.action){var ap2=document.createElement('span');ap2.className='action-pill ap-'+t.action;ap2.textContent=t.action;row.appendChild(ap2);}
         row.appendChild(document.createTextNode(t.text));
         if(t.done)row.classList.add('tf-done');
-        row.title='Click to find on the board';
-        row.addEventListener('click',function(){var sb=document.getElementById('searchBox');if(sb){sb.value=t.text.split(/[\u2014:;,\u00b7]/)[0].split(' ').slice(0,4).join(' ');applySearchFilter();}});
+        if(t.id){ // has a card \u2014 go straight to it
+          row.title='Not on today\u2019s plan \u2014 click to open the item';
+          row.addEventListener('click',function(){openDrawer(t.id);});
+        }else{     // no card yet \u2014 fall back to search
+          orphanCt++;row.classList.add('tf-orphan');
+          row.title='No card for this yet \u2014 click to find it on the board';
+          row.addEventListener('click',function(){var sb=document.getElementById('searchBox');if(sb){sb.value=t.text.split(/[\u2014:;,\u00b7]/)[0].split(' ').slice(0,4).join(' ');applySearchFilter();}});
+        }
         tf.appendChild(row);
       });
-      if(!orphans.length){
+      if(!rest.length){
         var okRow=document.createElement('div');okRow.className='tf-row tf-anchor';
         okRow.textContent=(d.today.label||'')+' \u2014 all '+d.today.items.length+' lines from this check-in are in My day above.';
         tf.appendChild(okRow);
       }
       var tt2=document.getElementById('todayTag');
-      if(tt2)tt2.textContent=orphans.length?('From the check-in \u2014 '+orphans.length+' line(s) with no card yet'):'From the check-in \u2014 the plan';
+      if(tt2)tt2.textContent=!rest.length?'From the check-in \u2014 the plan'
+        :(orphanCt?('Also from the check-in \u2014 '+rest.length+' line(s), '+orphanCt+' with no card yet')
+                  :('Also from the check-in \u2014 '+rest.length+' line(s) worth knowing, not today\u2019s work'));
       window.TODAY_FROM_VAULT=true;
     }
   }
@@ -3371,13 +3395,29 @@ function saveMyDay(d){
   try{localStorage.setItem(MYDAY_KEY,JSON.stringify({v:2,seededFrom:d.seededFrom||null,
     order:d.order||[],picked:d.picked||{},removed:d.removed||{}}));}catch(e){}
 }
+// Work the check-in closed has no business sitting on the plan. Pruned only at reseed, never
+// mid-day: something you tick off yourself should stay visible, struck through, until the next
+// check-in — that's the satisfying part. But an item the vault now records as done is finished
+// history, and leaving it here is how a fresh plan opens looking like a week-old one.
+function mdPruneCompleted(d){
+  var dropped=0;
+  d.order=d.order.filter(function(entry){
+    var it=itemById(mdParse(entry).id);
+    if(it&&it.status==='completed'){dropped++;delete d.picked[entry];delete d.removed[entry];return false;}
+    return true;
+  });
+  return dropped;
+}
 function seedMyDay(force){
   var d=readMyDay();var stamp=checkinStamp();var seeds=todaySeedIds();
   if(!seeds.length)return d;
   if(!force&&d.seededFrom===stamp)return d;
   d.removed={};                       // a new check-in is a new plan; it may re-propose
+  var pruned=mdPruneCompleted(d);     // ...and it may have closed half of the last one
   seeds.forEach(function(id){if(d.order.indexOf(id)===-1)d.order.push(id);});
-  d.seededFrom=stamp;saveMyDay(d);return readMyDay();
+  d.seededFrom=stamp;saveMyDay(d);
+  if(pruned)window.MD_PRUNED=(window.MD_PRUNED||0)+pruned;
+  return readMyDay();
 }
 function myDaySeedStale(){var d=readMyDay();return !!(todaySeedIds().length&&d.seededFrom!==checkinStamp());}
 function inMyDay(id){return mdIndexOfItem(readMyDay().order,id)!==-1;}
@@ -3480,6 +3520,13 @@ function buildMyDay(){
     head.appendChild(prog);
     var info=document.createElement('span');info.className='md-seedinfo';
     info.textContent=d.seededFrom?('seeded '+d.seededFrom):'your picks only — no check-in seed yet';head.appendChild(info);
+    // Say what was taken away. A list that quietly shrinks is a list you stop trusting.
+    if(window.MD_PRUNED){
+      var pr=document.createElement('span');pr.className='md-seedinfo';
+      pr.textContent='· '+window.MD_PRUNED+' closed by the check-in, cleared';
+      pr.title='These were finished in the vault, so they came off the plan rather than sitting here ticked';
+      head.appendChild(pr);
+    }
     // auto-reseed already ran; this is the manual "undo my edits, give me the proposal again"
     if(todaySeedIds().length){
       var rs=document.createElement('button');rs.type='button';rs.className='md-reseed';
