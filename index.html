@@ -958,6 +958,13 @@ var boardMode = 'program';
 var morningActive = false;
 function courtList(v){return Array.isArray(v)?v:(v?String(v).split(',').map(function(x){return x.trim();}).filter(Boolean):[]);}
 function courtHasYou(v){return courtList(v).indexOf('You')!==-1;}
+// 'Today' is a local calendar day, not a UTC instant. new Date().toISOString().slice(0,10) rolls
+// over at 18:00 in Calgary, so every evening the board silently moved a day ahead of itself:
+// tomorrow's work filed under Today, today's work filed under Overdue, and the Upcoming tab badge
+// jumping with no change in the data. Same trap in reverse for a local Date passed to toISOString.
+function isoDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function isoToday(){return isoDate(new Date());}
+function isoDaysFromNow(n){return isoDate(new Date(Date.now()+n*86400000));}
 function elCourtHasYou(el){return courtHasYou(el.getAttribute('data-court')||'');}
 
 function escapeHtml(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
@@ -1710,8 +1717,13 @@ function recalcCounts(){
 function computePriority(item){
   if(item.classList.contains('blocking'))return'high';
   var due=item.getAttribute('data-due');
-  if(due){var days=Math.ceil((new Date(due+'T00:00:00').getTime()-Date.now())/86400000);if(days<=3)return'high';if(days<=10)return'med';return'low';}
-  if((item.getAttribute('data-horizon')||'')==='today')return'high';
+  var hz=(item.getAttribute('data-horizon')||'');
+  // An explicit date outranks an inherited one, but it must not silence horizon:today. Re-dating an
+  // item to a distant addendum without changing its horizon used to drop it straight to 'low' — the
+  // lowest tier, excluded from the Focus panel — which is the opposite of what the flag means.
+  if(due){var days=Math.ceil((new Date(due+'T00:00:00').getTime()-Date.now())/86400000);
+    if(days<=3)return'high';if(days<=10)return'med';return hz==='today'?'med':'low';}
+  if(hz==='today')return'high';
   // no explicit date: inherit the package's next submission, capped at med —
   // package pressure is real but shouldn't scream like an item's own deadline
   var inhDate=item.getAttribute('data-due-inherited');
@@ -2099,7 +2111,7 @@ function emailQueue(){
   var out=buildExportText();
   if(!out){setStatus('Nothing to send yet.');return;}
   if(out.length>1800){setStatus('Queue is long \u2014 mail apps truncate; use Copy for check-in instead.');return;}
-  window.location.href='mailto:salkhaledi@dialogdesign.ca?subject='+encodeURIComponent('Work Tracker captures \u2014 '+new Date().toISOString().slice(0,10))+'&body='+encodeURIComponent(out);
+  window.location.href='mailto:salkhaledi@dialogdesign.ca?subject='+encodeURIComponent('Work Tracker captures \u2014 '+isoToday())+'&body='+encodeURIComponent(out);
   setStatus('Opening your mail app \u2014 send it to yourself, paste at check-in.');
 }
 function exportCaptures(){
@@ -2196,7 +2208,7 @@ function renderPersonBrief(box,label,names){
   var deleg=open.filter(function(it){return names.indexOf(it.delegate||'')!==-1;});
   var involved={};theyOwe.concat(youOwe).concat(deleg).forEach(function(it){involved[it.id]=it;});
   var invItems=Object.keys(involved).map(function(k){return involved[k];});
-  var weekAgo=new Date(Date.now()-7*86400000).toISOString().slice(0,10);
+  var weekAgo=isoDaysFromNow(-7);
   var recent=eventsFor(invItems).filter(function(ev){return ev.date>=weekAgo&&ev.kind==='update';}).slice(0,8);
   function prepSec(title,items,fmt){
     var h=document.createElement('div');h.className='drawer-h';h.style.marginTop='12px';h.textContent=title;box.appendChild(h);
@@ -2233,7 +2245,7 @@ function renderPersonBrief(box,label,names){
   }
   var cp=document.createElement('button');cp.type='button';cp.className='hist-more';cp.textContent='copy agenda for '+label;
   cp.addEventListener('click',function(){
-    var L=['Agenda \u2014 '+label+' \u2014 '+new Date().toISOString().slice(0,10)];
+    var L=['Agenda \u2014 '+label+' \u2014 '+isoToday()];
     if(asks.length){L.push('');L.push('ASK THEM ('+asks.length+'):');asks.forEach(function(it){var qs=askQuestionsFor(it);(qs.length?qs:[it.title]).forEach(function(q){L.push('- '+q.slice(0,120));});});}
     L.push('');L.push('They owe me ('+theyOwe.length+'):');
     theyOwe.forEach(function(it){var a=ageDaysOf(it);L.push('- '+(it.status==='blocking'?'[BLOCKING] ':'')+it.title.slice(0,95)+(a!==null?' ('+a+'d)':''));});
@@ -2281,7 +2293,12 @@ function buildCourtView(){
   sectionHead(c,'Who owes me — per-person chase list','var(--terracotta)');
   var byPerson={};
   open.forEach(function(it){
-    var cl=courtList(it.court);if(!cl.length||courtHasYou(it))return;
+    // courtHasYou(it) — an ITEM, not a court — made this guard always false: String(item) is
+    // "[object Object]", which never contains 'You'. So every one of Shadi's own open items was
+    // rendered as a person who owes him something, and because groups sort by count descending,
+    // a fake 'You (29 items)' group sat above the real chase targets in the one view whose entire
+    // job is 'who do I chase today'.
+    var cl=courtList(it.court);if(!cl.length||courtHasYou(it.court))return;
     cl.forEach(function(name,idx){(byPerson[name]=byPerson[name]||[]).push({it:it,bottleneck:idx===0});});
   });
   var names=Object.keys(byPerson).sort(function(a,b){return byPerson[b].length-byPerson[a].length;});
@@ -2351,7 +2368,7 @@ function buildCourtView(){
 function buildFlowStrip(){
   var c=document.getElementById('flowView');if(!c)return;c.innerHTML='';
   var evs=eventsFor(ITEMS);
-  function weekStart(dd){var dt=new Date(dd+'T00:00:00');if(isNaN(dt.getTime()))return null;var day=(dt.getDay()+6)%7;dt.setDate(dt.getDate()-day);return dt.toISOString().slice(0,10);}
+  function weekStart(dd){var dt=new Date(dd+'T00:00:00');if(isNaN(dt.getTime()))return null;var day=(dt.getDay()+6)%7;dt.setDate(dt.getDate()-day);return isoDate(dt);}
   var weeks={};
   evs.forEach(function(ev){
     if(ev.kind!=='raised'&&ev.kind!=='resolved')return;
@@ -2408,9 +2425,15 @@ function buildAddendumRegister(){
     var k=addKey(it.pkg,it.addendum);
     if(!groups[k]){groups[k]={pkg:it.pkg,program:it.program,num:addNum(it.addendum),items:[],seen:{}};order.push(k);}
     var g=groups[k];
-    // twins (a task and its RFI entry share a topic) are one line of work, not two
-    if(it.topic&&g.seen[it.topic]){var prev=g.seen[it.topic];prev.twin=(prev.twin||0)+1;return;}
-    if(it.topic)g.seen[it.topic]=it;
+    // A task and its RFI-register entry share a topic and are one line of work. But so are six
+    // unrelated items that all ride the same addendum — and collapsing those hid four owed PCL
+    // responses (RFI-PC-16/-18/-19/-21) behind a "+5 RFI twin" suffix on a card that then claimed
+    // "2 items" while eight were tagged to it. A twin is specifically one line from RFIs.md paired
+    // with one from Tasks.md, so require that they come from different files.
+    if(it.topic&&g.seen[it.topic]&&(!!g.seen[it.topic].rfiSystem)!==(!!it.rfiSystem)){
+      var prev=g.seen[it.topic];prev.twin=(prev.twin||0)+1;return;
+    }
+    if(it.topic&&!g.seen[it.topic])g.seen[it.topic]=it;
     g.items.push(it);
   });
   // milestone-declared addenda with no items yet still deserve a card — an empty addendum is a question
@@ -2634,7 +2657,7 @@ function buildMilestonesView(){
 
 function buildUpcomingView(){
   var c=document.getElementById('upcomingView');c.innerHTML='';
-  var today=new Date().toISOString().slice(0,10);
+  var today=isoToday();
   var evts=[];
   ITEMS.forEach(function(it){
     if(it.status==='completed')return;
@@ -2694,7 +2717,12 @@ function buildOverviewView(){
     var head=document.createElement('div');head.className='altgroup-head';head.style.borderLeftColor=color;
     var nm=document.createElement('span');nm.className='name';nm.style.color=color;nm.textContent=progName;head.appendChild(nm);
     c.appendChild(head);
-    var pkgs=PROGRAM_PKGS[progName]&&PROGRAM_PKGS[progName].length?PROGRAM_PKGS[progName]:[''];
+    // programs[].packages is hand-maintained and drifts from the names items actually use, so the
+    // Board appends what it finds (see buildProgramView) and this rollup did not. Result: Package 6
+    // — which has a firm 2026-08-14 submission — had no card here at all. Union both sources.
+    var pkgs=(PROGRAM_PKGS[progName]||[]).slice();
+    progItems.forEach(function(it){if(pkgs.indexOf(it.pkg)===-1)pkgs.push(it.pkg);});
+    if(!pkgs.length)pkgs=[''];
     pkgs.forEach(function(pkgName){
       var pkgItems=progItems.filter(function(it){return it.pkg===pkgName;});
       if(!pkgItems.length)return;
@@ -2881,7 +2909,11 @@ function renderSessionData(d){
     var tt=document.getElementById('todayTag');if(tt&&d.meta.sessionDate)tt.textContent='Today — '+d.meta.sessionDate;
     var sprintEnd=d.meta.sprintEnd;
     if(!sprintEnd||new Date(sprintEnd+'T23:59:59').getTime()<Date.now()){
-      var best=null;MILESTONES.forEach(function(m){if(m.next&&/^\d{4}-\d{2}-\d{2}$/.test(m.next.date)&&new Date(m.next.date).getTime()>=Date.now()&&(!best||m.next.date<best))best=m.next.date;});
+      // new Date('YYYY-MM-DD') is UTC midnight — 18:00 the PREVIOUS local day at UTC-6 — so a milestone
+      // dated today was never eligible and one dated tomorrow dropped out after 18:00. Compare as strings
+      // against the local calendar day instead; the line above already does it this way.
+      var tISO=isoToday();
+      var best=null;MILESTONES.forEach(function(m){if(m.next&&/^\d{4}-\d{2}-\d{2}$/.test(m.next.date)&&m.next.date>=tISO&&(!best||m.next.date<best))best=m.next.date;});
       if(best){sprintEnd=best;d.meta.sprintEnd=best;d.meta.sprintEndLabel=new Date(best+'T00:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric'});}
     }
     if(sprintEnd){window.SPRINT_END_DATE=sprintEnd;var sc=document.getElementById('sprintChip');if(sc&&d.meta.sprintEndLabel)sc.textContent='Before '+d.meta.sprintEndLabel;var ssl=document.getElementById('statSprintEndLabel');if(ssl&&d.meta.sprintEndLabel)ssl.textContent='on the '+d.meta.sprintEndLabel+' sprint';}
@@ -3073,10 +3105,14 @@ function init(){
 }
 var BASE_ITEMS=[],BASE_DETAILS={};
 function applyPendingOverlay(){
-  var items=BASE_ITEMS.slice();
+  // .slice() copies the array and shares every object in it, so the overlay's writes (pendingComplete,
+  // due, court, topic, delegate) landed on the base items permanently. Deleting or undoing a capture
+  // then left the board showing work as done with nothing queued to close it. details is already
+  // deep-copied below; items have to be too.
+  var items=BASE_ITEMS.map(function(o){return Object.assign({},o);});
   var details={};Object.keys(BASE_DETAILS).forEach(function(k){var d0=BASE_DETAILS[k];details[k]={next:d0.next||null,subtasks:(d0.subtasks||[]).slice(),updates:(d0.updates||[]).slice(),settled:d0.settled||null};});
   readQueue().forEach(function(p,i){
-    var ds=(p.ts||'').slice(0,10)||new Date().toISOString().slice(0,10);
+    var ds=(p.ts||'').slice(0,10)||isoToday();
     if(p.type==='item'){
       var id='pending-'+i;
       items.push({id:id,title:p.text,status:'open',program:p.program||'',pkg:p.pkg||'',pendingLocal:true});
@@ -3135,7 +3171,7 @@ function openSnoozePopover(row,id){
   var ex=document.querySelector('.snooze-pop');if(ex)ex.remove();
   var pop=document.createElement('div');pop.className='inline-capture snooze-pop';
   var lab=document.createElement('span');lab.style.cssText='font-size:11px;color:var(--muted);margin-right:8px;';lab.textContent='Quiet until\u2026';pop.appendChild(lab);
-  function until(days){var d=new Date(Date.now()+days*86400000);return d.toISOString().slice(0,10);}
+  function until(days){return isoDaysFromNow(days);}
   [['3 days',3],['1 week',7],['2 weeks',14]].forEach(function(o){
     var b=document.createElement('button');b.type='button';b.textContent=o[0];
     b.addEventListener('click',function(e){e.stopPropagation();pop.remove();snoozeItem(id,until(o[1]));});
@@ -3143,7 +3179,7 @@ function openSnoozePopover(row,id){
   });
   var inp=document.createElement('input');inp.type='date';inp.style.cssText='font-family:inherit;font-size:12px;padding:4px 7px;border:1px solid var(--border);border-radius:7px;margin-left:4px;';
   inp.addEventListener('click',function(e){e.stopPropagation();});
-  inp.addEventListener('change',function(e){e.stopPropagation();if(/^\d{4}-\d{2}-\d{2}$/.test(inp.value)&&inp.value>new Date().toISOString().slice(0,10)){pop.remove();snoozeItem(id,inp.value);}});
+  inp.addEventListener('change',function(e){e.stopPropagation();if(/^\d{4}-\d{2}-\d{2}$/.test(inp.value)&&inp.value>isoToday()){pop.remove();snoozeItem(id,inp.value);}});
   pop.appendChild(inp);
   var cx=document.createElement('button');cx.type='button';cx.className='pcancel';cx.textContent='\u00d7';
   cx.addEventListener('click',function(e){e.stopPropagation();pop.remove();});pop.appendChild(cx);
@@ -3155,7 +3191,7 @@ function openSnoozePopover(row,id){
 function buildRadarPanel(){
   var panel=document.getElementById('radarPanel');if(!panel)return;
   var list=document.getElementById('radarList');list.innerHTML='';
-  var todaySn=new Date().toISOString().slice(0,10);
+  var todaySn=isoToday();
   var sn=readSnoozes();var snChanged=false;
   Object.keys(sn).forEach(function(k){var it0=itemById(k);if(!it0||it0.status==='completed'||sn[k]<=todaySn){delete sn[k];snChanged=true;}});
   if(snChanged)saveSnoozes(sn);
@@ -3245,7 +3281,7 @@ function buildRadarPanel(){
 var LAST_VISIT_KEY='wt-last-visit';
 function buildDeltaStrip(){
   var strip=document.getElementById('deltaStrip');if(!strip)return;
-  var todayIso=new Date().toISOString().slice(0,10);
+  var todayIso=isoToday();
   var st=null;
   try{st=JSON.parse(localStorage.getItem(LAST_VISIT_KEY)||'null');}catch(e){}
   if(typeof st==='string')st={prev:null,current:st};
@@ -3814,8 +3850,8 @@ function mkCopyChaseBtn(it,cls){
 
 // ---- week summary: the Friday rollup, one click ----
 function weekSummaryText(){
-  var weekAgo=new Date(Date.now()-6*86400000).toISOString().slice(0,10);
-  var today=new Date().toISOString().slice(0,10);
+  var weekAgo=isoDaysFromNow(-6);
+  var today=isoToday();
   var evs=eventsFor(ITEMS,{milestones:true}).filter(function(ev){return ev.date>=weekAgo;});
   var closed={},movedIds={},msDone=[];
   evs.forEach(function(ev){
@@ -3951,8 +3987,11 @@ function activeViewKey(){var b=document.querySelector('#viewToggle button.active
 function updateTabCounts(){
   var open=ITEMS.filter(function(it){return it.status!=='completed';});
   var coming=open.filter(function(it){return (it.then||'').indexOf('You')!==-1&&!courtHasYou(it.court);}).length;
-  var today=new Date().toISOString().slice(0,10);
-  var overdue=open.filter(function(it){return it.due&&it.due<today;}).length;
+  var today=isoToday();
+  // The Overdue stat card counts only your court and ignores pending completions; this badge did
+  // neither, so the two numbers on one screen disagreed — and the louder, warn-styled one was the
+  // wrong one. Same definition now.
+  var overdue=open.filter(function(it){return it.due&&it.due<today&&courtHasYou(it.court)&&!it.pendingComplete;}).length;
   function setCount(view,n,warn){
     var b=document.querySelector('#viewToggle button[data-view="'+view+'"]')||document.querySelector('#boardModeToggle button[data-mode="'+view+'"]');if(!b)return;
     var span=b.querySelector('.tab-count');
