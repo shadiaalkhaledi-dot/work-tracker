@@ -2875,7 +2875,7 @@ function histRow(ev){
 var histFilter={pkg:'',person:'',topic:''};
 // Bumped by hand whenever index.html changes. Shown in the footer beside the data fingerprint so
 // a stale upload is visible at a glance instead of being inferred from a file size.
-var SITE_BUILD='2026-08-04.a';
+var SITE_BUILD='2026-08-04.b';
 var histShowAll=false;
 
 /* ---- The decision record: what we know, grouped by thread. Never by date --- 184 of the
@@ -3536,7 +3536,13 @@ function mdEntryAlive(entry){
 }
 function todaySeedIds(){return (window.TODAY_SEED_IDS||[]).filter(function(id){return !!itemById(id);});}
 function mdIndexOfItem(order,id){for(var i=0;i<order.length;i++){if(mdParse(order[i]).id===id)return i;}return -1;}
-function checkinStamp(){return (window.META&&window.META.generated)||'';}
+// The reseed key. This was META.generated — a DATE — which meant every build on the same day
+// shared one stamp, so after the first upload of the day seedMyDay() returned early and never ran
+// again: no reseed, no completed-prune, no stale-seed drop. On 2026-08-04 there were eight builds
+// and My Day kept the first one's list, closed items and all. META.build is a content fingerprint
+// and changes whenever the vault does, which is what a "new plan" actually means. Falls back to
+// generated for data written before the fingerprint existed.
+function checkinStamp(){var m=window.META||{};return m.build||m.generated||'';}
 function readMyDay(){
   var d;
   try{d=JSON.parse(localStorage.getItem(MYDAY_KEY)||'null');}catch(e){d=null;}
@@ -3695,7 +3701,9 @@ function buildMyDay(){
     prog.title='Counts only what is yours to finish — '+(seq.length-mine.length)+' row(s) are waiting on someone else';
     head.appendChild(prog);
     var info=document.createElement('span');info.className='md-seedinfo';
-    info.textContent=d.seededFrom?('seeded '+d.seededFrom):'your picks only — no check-in seed yet';head.appendChild(info);
+    info.textContent=d.seededFrom?('seeded '+d.seededFrom):'your picks only — no check-in seed yet';
+    info.title='The check-in build this list was seeded from. It is a content fingerprint, not a date — '
+      +'two check-ins on the same day are two different plans.';head.appendChild(info);
     // Say what was taken away. A list that quietly shrinks is a list you stop trusting.
     if(window.MD_PRUNED){
       var pr=document.createElement('span');pr.className='md-seedinfo';
