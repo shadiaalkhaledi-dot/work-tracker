@@ -512,6 +512,8 @@
   .thr-chip{font-size:10px;font-weight:700;border-radius:4px;padding:1px 6px;border:1px solid var(--border);color:var(--muted);}
   .thr-chip.who{border-color:#b45309;color:#b45309;}
   .thr-chip.due{border-color:var(--rose);color:var(--rose);}
+  .thr-chip.pk{color:var(--text);}
+  .thr-chip.pk.cross{border-style:dashed;font-weight:700;}
   .thr-chip.dec{border-color:var(--mauve);color:var(--mauve);}
   .thr-slug{font-size:10px;color:var(--faint);margin-left:auto;}
   .thr-body{padding:2px 12px 10px;}
@@ -1559,6 +1561,16 @@ function threadCard(th){
   if(th.holders.length)chip('with '+th.holders.slice(0,2).join(', '),'who','Who holds it now');
   else if(th['with'])chip('settles with '+th['with'],'who');
   chip(th.openCount+' open / '+th.total,'', 'Items in this thread');
+  // A thread card said who holds it, how many items and when it moved — but never WHERE. On a board
+  // where "which package" decides which instrument the work rides and which date it answers to, that
+  // is the one thing you cannot infer from the rest of the card. Cross-package threads get both names,
+  // because a thread split across packages is a different management problem from one that isn't.
+  var tpk=[];threadItems(th).forEach(function(it){
+    var short=String(it.pkg||'').split('\u2014')[0].trim();
+    if(short&&tpk.indexOf(short)===-1)tpk.push(short);
+  });
+  if(tpk.length===1)chip('\u2302 '+tpk[0],'pk','Where this thread lives');
+  else if(tpk.length>1)chip('\u2302 '+tpk.join(' + '),'pk cross','Cross-package — this thread is split, so it answers to more than one date');
   if(th.nextDue){
     var n=daysUntil(th.nextDue);
     chip(n!==null&&n<0?Math.abs(n)+'d overdue':'due '+th.nextDue,(n!==null&&n<=2)?'due':'');
