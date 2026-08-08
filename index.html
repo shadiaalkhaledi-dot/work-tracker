@@ -682,16 +682,46 @@
     .stat .n{font-size:19px;}
     .pri-sel{max-width:none;}
   }
+
+  /* --- D1 shell: the tabs used to sit below ten always-on panels, so reaching
+     them meant scrolling past your own morning on every visit. --- */
+  .topbar{position:sticky;top:0;z-index:60;background:var(--bg);
+    border-bottom:1px solid var(--rule);margin:0 0 14px;padding:9px 0 8px;}
+  .topbar-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+  .topbar .brand{font-weight:700;font-size:13px;letter-spacing:.02em;white-space:nowrap;}
+  .topbar .brand small{font-weight:400;color:var(--muted);}
+  .topbar-spacer{flex:1 1 auto;}
+  .topbar #viewToggle{margin:0;}
+  /* filters stay in flow, one row under the header — moving them buys nothing
+     and the search box carries its own handler. */
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <div class="masthead">
-    <p class="eyebrow">Work tracker · briefing <span id="dataFreshness" class="freshness-chip"></span></p>
+  <header class="topbar">
+    <div class="topbar-row">
+      <span class="brand">Work Tracker <small id="dataFreshness" class="freshness-chip"></small></span>
+      <div class="control-group" id="viewToggle">
+        <button data-view="now" class="active" onclick="setView('now')" title="Now — the plan, what moved, what has gone quiet">Now</button>
+        <button data-view="threads" onclick="setView('threads')" title="Threads — a question and everything it caused">Threads</button>
+        <button data-view="board" onclick="setView('board')">Board</button>
+        <button data-view="court" onclick="setView('court')">Court</button>
+        <button data-view="upcoming" onclick="setView('upcoming')">Upcoming</button>
+        <button data-view="progress" onclick="setView('progress')">Progress</button>
+        <button data-view="history" onclick="setView('history')">History</button>
+        <button data-view="guide" class="guide-btn" onclick="setView('guide')" title="Guide — how the tracker thinks">?</button>
+      </div>
+      <span class="topbar-spacer"></span>
+    </div>
+  </header>
+
+  <div class="masthead" id="nowMasthead">
     <h1 id="pageTitle">Work Tracker</h1>
     <p class="lede" id="pageLede"></p>
   </div>
+
+  <div id="nowView">
 
   <details class="capture" id="captureBox">
     <summary class="cap-summary"><span class="tag">Check-in queue</span><span class="cap-sum-note" id="capSumNote">nothing pending</span><span class="cap-sum-hint">everything you add here waits until you copy it to Claude</span></summary>
@@ -722,7 +752,7 @@
   <div class="briefing" id="briefing">
   <div class="stats">
     <div class="stat"><div class="n" id="statOutstanding">—</div><div class="l">outstanding items</div></div>
-    <div class="stat"><div class="n" id="statBlocking" style="color:var(--terracotta)">—</div><div class="l">blocking</div></div>
+    <div class="stat"><div class="n" id="statBlocking" style="color:var(--terracotta)">—</div><div class="l">needs you</div></div>
     <div class="stat"><div class="n" id="statWatch" style="color:var(--muted)">—</div><div class="l">watch only</div></div>
     <div class="stat"><div class="n" id="statOverdue">0</div><div class="l">overdue (yours)</div></div>
     <div class="stat"><div class="n" style="color:var(--teal)" id="statSprintEnd">—</div><div class="l" id="statSprintEndLabel">due soon</div></div>
@@ -734,31 +764,23 @@
   </div>
 
   <details class="focus" id="focusPanel" open>
-    <summary class="tag">Blocking &amp; urgent</summary>
-    <div class="focus-list" id="focusList"><span class="focus-empty">Nothing urgent right now.</span></div>
+    <summary class="tag">Needs you now</summary>
+    <div class="focus-list" id="focusList"><span class="focus-empty">Nothing needs you right now.</span></div>
   </details>
 
   <details class="radar delta" id="deltaStrip" style="display:none" open>
-    <summary><span class="tag">Since you last looked</span><span class="radar-sum" id="deltaHead"></span></summary>
+    <summary><span class="tag">What moved</span><span class="radar-sum" id="deltaHead"></span></summary>
     <div class="radar-list" id="deltaList"></div>
   </details>
 
   <details class="radar" id="radarPanel" style="display:none">
-    <summary><span class="tag">Quiet too long</span><span class="radar-sum" id="radarSummary"></span></summary>
+    <summary><span class="tag">Gone quiet</span><span class="radar-sum" id="radarSummary"></span></summary>
     <div class="radar-list" id="radarList"></div>
   </details>
   </div>
+  </div><!-- /nowView -->
 
   <div class="controls">
-    <div class="control-group" id="viewToggle">
-      <button data-view="threads" class="active" onclick="setView('threads')" title="Threads — a question and everything it caused">Threads</button>
-      <button data-view="board" onclick="setView('board')">Board</button>
-      <button data-view="court" onclick="setView('court')">Court</button>
-      <button data-view="upcoming" onclick="setView('upcoming')">Upcoming</button>
-      <button data-view="progress" onclick="setView('progress')">Progress</button>
-      <button data-view="history" onclick="setView('history')">History</button>
-      <button data-view="guide" class="guide-btn" onclick="setView('guide')" title="Guide — how the tracker thinks">?</button>
-    </div>
     <div class="control-group" id="boardModeToggle" title="Group the board by…">
       <button data-mode="program" class="active" onclick="setBoardMode('program')">Program</button>
       <button data-mode="status" onclick="setBoardMode('status')">Status</button>
@@ -957,6 +979,7 @@ var STATUS_GROUPS = [
   {key:'watch',label:'Watch',color:'var(--border)'}
 ];
 var VIEW_HEADINGS = {
+  now:'Now \u2014 the plan, what moved, and what has gone quiet',
   threads:'Threads \u2014 a question and everything it caused',
   program:'Open items, by program',
   status:'Open items, by status',
@@ -970,7 +993,7 @@ var VIEW_HEADINGS = {
 };
 var activeHorizons = {}, activeActions = {};
 var MILESTONES = [], STAKEHOLDERS = [], DECISIONS = [], THREADS = [];
-var VIEW_IDS = {threads:'threadsView',program:'programView',status:'statusView',discipline:'disciplineView',topics:'topicsView',court:'courtView',upcoming:'upcomingView',progress:'progressView',history:'historyView',guide:'guideView'};
+var VIEW_IDS = {now:'nowView',threads:'threadsView',program:'programView',status:'statusView',discipline:'disciplineView',topics:'topicsView',court:'courtView',upcoming:'upcomingView',progress:'progressView',history:'historyView',guide:'guideView'};
 var VIEW_ALIASES = {milestones:'progress',overview:'progress'};
 var BOARD_MODES = ['program','status','discipline','topics'];
 var boardMode = 'program';
@@ -1778,7 +1801,7 @@ function buildFocusPanel(){
   rows.sort(function(a,b){var pa=priRank[a.pri]!==undefined?priRank[a.pri]:1;var pb=priRank[b.pri]!==undefined?priRank[b.pri]:1;if(pa!==pb)return pa-pb;var ra=reasonRank[a.reasons[0].code]!==undefined?reasonRank[a.reasons[0].code]:3;var rb=reasonRank[b.reasons[0].code]!==undefined?reasonRank[b.reasons[0].code]:3;if(ra!==rb)return ra-rb;var da=a.due?new Date(a.due).getTime():Infinity;var db=b.due?new Date(b.due).getTime():Infinity;return da-db;});
   rows=rows.slice(0,8);
   var list=document.getElementById('focusList');list.innerHTML='';
-  if(!rows.length){list.innerHTML='<span class="focus-empty">Nothing urgent right now.</span>';return;}
+  if(!rows.length){list.innerHTML='<span class="focus-empty">Nothing needs you right now.</span>';return;}
   rows.forEach(function(r){
     var row=document.createElement('div');row.className='focus-row';var code=r.reasons[0].code;var iconClass=code==='block'?'fi-block':code==='due'?'fi-due':'fi-decide';var loc=getItemLocation(r.item);
     var icon=document.createElement('span');icon.className='why-icon '+iconClass;icon.textContent=r.reasons.map(function(x){return x.label;}).join(' + ');
@@ -1843,6 +1866,10 @@ function setView(view){
   var showKey=view==='board'?boardMode:view;
   Object.keys(VIEW_IDS).forEach(function(k){var elv=document.getElementById(VIEW_IDS[k]);if(elv)elv.style.display=k===showKey?'':'none';});
   var h=document.getElementById('viewHeading');if(h)h.childNodes[0].textContent=VIEW_HEADINGS[showKey]||'Open items';
+  // Now carries the masthead and its own panels; every other view starts at the top of the page.
+  document.body.classList.toggle('view-now',showKey==='now');
+  var mh=document.getElementById('nowMasthead');if(mh)mh.style.display=showKey==='now'?'':'none';
+  if(h)h.style.display=showKey==='now'?'none':'';
   if(showKey==='threads')buildThreadSpine();
   if(showKey==='status')buildStatusView();
   if(showKey==='discipline')buildDisciplineView();
@@ -2233,7 +2260,23 @@ function renderPersonBrief(box,label,names){
   var asks=open.filter(function(it){return askMatches(it.ask,names);});
   var theyOwe=open.filter(function(it){return inNames(courtList(it.court));});
   theyOwe.sort(function(a,b){return (ageDaysOf(b)||0)-(ageDaysOf(a)||0);});
-  var youOwe=open.filter(function(it){return courtHasYou(it.court)&&(names.indexOf(it.then||'')!==-1||inNames(courtList(it.court)));});
+  // You owe them when you must answer them or hand something to them -- not merely because you
+  // have a question out to them. `ask::` is additive: asking Anthony something is not the same as
+  // owing Anthony something. An item can still be both (PCN1 is a question you must also confirm
+  // in writing), and that is correct -- it just has to earn the second listing.
+  var youOwe=open.filter(function(it){
+    if(!courtHasYou(it.court))return false;
+    // `then:: X` is routing -- it records where the item goes next, not that you owe X something.
+    // A debt needs an actual handover: you must answer them (`action:: respond`) or send them
+    // something (an open SEND/ISSUE/PROVIDE step). Asking Clive a question is not owing Clive.
+    var d=ITEM_DETAILS[it.id]||{};
+    var hands=(d.subtasks||[]).some(function(st){
+      return st.indexOf('\u2713')!==0&&/^(SEND|GIVE|TELL|NOTIFY|ISSUE|PROVIDE|REPLY)\b/i.test(st);});
+    if(it.action==='respond'||hands){
+      if(names.indexOf(it.then||'')!==-1||askMatches(it.ask,names)||inNames(courtList(it.court)))return true;
+    }
+    return inNames(courtList(it.court));
+  });
   var deleg=open.filter(function(it){return names.indexOf(it.delegate||'')!==-1;});
   var involved={};theyOwe.concat(youOwe).concat(deleg).forEach(function(it){involved[it.id]=it;});
   var invItems=Object.keys(involved).map(function(k){return involved[k];});
@@ -2246,6 +2289,13 @@ function renderPersonBrief(box,label,names){
       var r=document.createElement('div');r.className='drawer-sib'+(it.status==='blocking'?' prep-block':'');
       var dot=document.createElement('span');dot.className='sib-dot sd-'+(it.status||'open');r.appendChild(dot);
       var t=document.createElement('span');t.className='sib-title';t.textContent=it.title.slice(0,85);r.appendChild(t);
+      // Which project a row belongs to is the first thing you need when you are looking at a
+      // person: the same name shows up across Concourse B, Centralized and TBB, and an agenda
+      // that mixes them silently is how the Con B send closed the Centralized ask.
+      var proj=(it.pkg||it.program||'');
+      if(proj){var pc=document.createElement('span');pc.className='thr-chip';
+        pc.textContent=proj.replace(/Package /,'Pkg ').split('\u2014')[0].trim().slice(0,22);
+        pc.title=(it.program||'')+(it.pkg?' \u203a '+it.pkg:'');r.appendChild(pc);}
       var w=document.createElement('span');w.className='sib-who';w.textContent=fmt(it);r.appendChild(w);
       r.addEventListener('click',function(){openDrawer(it.id);});
       box.appendChild(r);
