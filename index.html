@@ -921,7 +921,6 @@
     <label class="control-toggle"><input type="checkbox" id="collapseAllToggle" onchange="toggleCollapseAll()"> Collapse sections</label>
     <label class="control-toggle"><input type="checkbox" id="cardsExpToggle" onchange="toggleCardsExpanded()"> Expand cards</label>
     <label class="control-toggle"><input type="checkbox" id="urgencyToggle" checked onchange="toggleUrgencyColors()"> Urgency edges</label>
-    <label class="control-toggle" title="Personal items — 1-1s, career, process. Never in a shared build."><input type="checkbox" id="hidePrivateToggle" onchange="toggleHidePrivate()"> Hide personal</label>
     <label class="control-toggle"><input type="checkbox" id="showCompletedToggle" onchange="toggleShowCompleted()"> Show completed</label>
     <button class="btn-mycourt" id="morningBtn" onclick="toggleMorningPreset()" title="Preset \u2014 mine, plus anything due, overdue or high-priority" title="Preset — mine, plus anything due, overdue or high">Morning</button>
     <button class="btn-mycourt" id="myCourtBtn" onclick="toggleMyCourtFilter()" style="display:none">Mine</button>
@@ -2002,12 +2001,16 @@ function buildTopicsView(){
     looseT.sort(function(a,b){return (b.openCt>0?1:0)-(a.openCt>0?1:0);});
     looseT.forEach(function(th){
       var r=document.createElement('div');r.className='lp-row';
+      // the live one, not items[0] — a loose end with one closed and one open item was showing
+      // the closed one, which is the opposite of the thing you still have to do
+      var lead=th.items.filter(function(x){return x.status!=='completed';})[0]||th.items[0];
+      if(lead)r.setAttribute('data-id',lead.id);
       var t1=document.createElement('span');
-      t1.textContent=(th.items[0]||{title:th.key}).title.slice(0,92);
+      t1.textContent=(lead||{title:th.key}).title.slice(0,92);
       r.appendChild(t1);
       var t2=document.createElement('span');t2.className='lp-n';
       t2.textContent=th.openCt?th.openCt+' open':'closed';r.appendChild(t2);
-      r.addEventListener('click',function(){if(th.items[0])openDrawer(th.items[0].id);});
+      r.addEventListener('click',function(){if(lead)openDrawer(lead.id);});
       lp.appendChild(r);
     });
     container.appendChild(lp);
@@ -2477,11 +2480,9 @@ function buildPackageView(){
 window.addEventListener('hashchange',routeFromHash);
 
 function setBoardMode(mode){if(BOARD_MODES.indexOf(mode)===-1)return;boardMode=mode;setView('board');}
-function toggleHidePrivate(){
-  var on=document.getElementById('hidePrivateToggle').checked;
-  document.body.classList.toggle('hide-private',on);
-  applySearchFilter();
-}
+// The 'Hide personal' toggle was removed: zero items carry `private::` today, and the value of
+// the flag is the PERSONAL badge and the export exclusion, not a checkbox on an already-crowded
+// control row. The CSS hook stays, so a future view can hide them without new plumbing.
 function toggleMorningPreset(){
   morningActive=!morningActive;
   document.getElementById('morningBtn').classList.toggle('active',morningActive);
@@ -2540,6 +2541,47 @@ function applySearchFilter(){
       for(var v3=0;v3<all3.length;v3++){if(all3[v3].style.display!=='none'&&!all3[v3].classList.contains('completed'))vis3++;}
       fc2.textContent='filtered \u2014 showing '+vis3;
     }
+  })();
+  // Rows that are not .item cards — RFI table rows and loose ends — filtered on the same
+  // attributes, by looking their item up rather than duplicating the predicate.
+  Array.prototype.slice.call(activeView.querySelectorAll('[data-id].rfi-reg-row,[data-id].lp-row'))
+    .forEach(function(row){
+      var it=itemById(row.getAttribute('data-id'));
+      if(!it){row.style.display='';return;}
+      var ok=(!term||(row.textContent||'').toLowerCase().indexOf(term)!==-1)
+        &&(!myCourtOnly||(it.agency==='mine'))
+        &&(!hasActiveHorizons()||!!activeHorizons[it.horizon||''])
+        &&(!hasActiveActions()||!!activeActions[it.action||''])
+        &&(!hasActiveAgency()||!!activeAgency[it.agency||''])
+        &&(!hasActiveImpact()||!!activeImpact[it.impact||''])
+        &&(!morningActive||(it.agency==='mine'&&((it.horizon==='today')||(it.due&&it.due<isoToday())||it.priority==='high')));
+      row.style.display=ok?'':'none';
+    });
+  // A heading that outlives its contents is why a filter reads as broken: the items go, the
+  // scaffolding stays, and the page still looks full. Walk each view in order and hide any
+  // header with nothing visible between it and the next one. Generic, so a view added later
+  // inherits it rather than needing its own case.
+  (function(){
+    var HEAD='altgroup-head pkgsub rfib-pkg msg-head'.split(' ');
+    function isHead(el){for(var i=0;i<HEAD.length;i++)if(el.classList.contains(HEAD[i]))return true;return false;}
+    function tidy(root){
+      var kids=Array.prototype.slice.call(root.children),pending=[],anyVisible=false;
+      function flush(){pending.forEach(function(h){h.style.display=anyVisible?'':'none';});}
+      kids.forEach(function(el){
+        if(isHead(el)){flush();pending=[el];anyVisible=false;return;}
+        if(!pending.length)return;
+        if(el.style.display==='none')return;
+        var cards=el.classList.contains('item')?[el]
+          :Array.prototype.slice.call(el.querySelectorAll('.item,[data-id]'));
+        if(!cards.length){anyVisible=anyVisible||el.offsetParent!==null||true;return;}
+        if(cards.some(function(c){return c.style.display!=='none';}))anyVisible=true;
+        else if(el.classList.contains('thread')||el.classList.contains('pkg'))el.style.display='none';
+      });
+      flush();
+    }
+    if(hasFilter)tidy(activeView);
+    else Array.prototype.slice.call(activeView.querySelectorAll('.'+HEAD.join(',.')))
+      .forEach(function(h){h.style.display='';});
   })();
   var h2=document.getElementById('viewHeading');
   if(h2){var old=h2.querySelector('.filter-count');if(old)old.remove();var oldClear=h2.querySelector('.filter-clear');if(oldClear)oldClear.remove();
@@ -3420,6 +3462,7 @@ function rfiTableEl(rows,hidePkg){
   var tb=document.createElement('tbody');
   rows.forEach(function(r){
     var tr=document.createElement('tr');tr.className='rfi-reg-row'+(r.isOpen?'':' rr-closed');
+    tr.setAttribute('data-id',r.it.id);   // so the filter row can reach a table row too
     var courtTxt=r.isOpen?(courtList(r.it.court).join(', ')||'\u2014'):'\u2014';
     var ageTxt=r.age===null?'\u2014':r.age+'d';
     var pkgShort=(r.it.pkg||'').replace(/Package /,'Pkg ').split('\u2014')[0].trim().slice(0,26);
@@ -3709,7 +3752,7 @@ function renderSessionData(d){
   }
   if(d.meta){
     var pt=document.getElementById('pageTitle');if(pt&&d.meta.title)pt.textContent=d.meta.title;
-    var pl=document.getElementById('pageLede');if(pl&&d.meta.lede)pl.textContent=d.meta.lede;
+    var pl=document.getElementById('pageLede');if(pl&&d.meta.lede)mdInline(pl,d.meta.lede);
     var tt=document.getElementById('todayTag');if(tt&&d.meta.sessionDate)tt.textContent='Today — '+d.meta.sessionDate;
     var sprintEnd=d.meta.sprintEnd;
     if(!sprintEnd||new Date(sprintEnd+'T23:59:59').getTime()<Date.now()){
@@ -3785,15 +3828,26 @@ function renderSessionData(d){
   if(d.voice&&d.voice.length){
     var vb=document.getElementById('voiceBox');
     if(vb){d.voice.forEach(function(e){
-      var h=document.createElement('h4');h.textContent=e.h4;vb.appendChild(h);
+      var h=document.createElement('h4');mdInline(h,e.h4);vb.appendChild(h);
       if(e.items&&e.items.length){
         var ul=document.createElement('ul');ul.className='voice-list';
-        e.items.forEach(function(li){var it=document.createElement('li');it.textContent=li;ul.appendChild(it);});
+        e.items.forEach(function(li){var it=document.createElement('li');mdInline(it,li);ul.appendChild(it);});
         vb.appendChild(ul);
-      }else{var p=document.createElement('p');p.textContent=e.p;vb.appendChild(p);}
+      }else{var p=document.createElement('p');mdInline(p,e.p);vb.appendChild(p);}
     });}
   }
   renderCompleted(d);
+}
+// Hand-authored prose (the lede, session notes, closure lines) is written as markdown in the
+// vault. Escape first, then apply the markup — this text comes from data.json and building HTML
+// from it unescaped would let a stray '<' in a note break the page.
+function mdInline(el,text){
+  var safe=escapeHtml(String(text==null?'':text));
+  safe=safe.replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>')
+           .replace(/(^|[\s(])\*([^*\n]+)\*(?=[\s).,;:!?]|$)/g,'$1<i>$2</i>')
+           .replace(/`([^`]+)`/g,'<code>$1</code>');
+  el.innerHTML=safe;
+  return el;
 }
 function renderCompleted(d){
   var cs=document.getElementById('completedSection');if(!cs)return;cs.innerHTML='';
@@ -3805,7 +3859,7 @@ function renderCompleted(d){
 function appendTalkGroup(container,grp){
   var tg=document.createElement('div');tg.className='talk-group';tg.style.setProperty('--accent',grp.accent||'var(--mauve)');
   var h3=document.createElement('h3');h3.style.color=grp.h3color||grp.accent||'var(--mauve)';h3.textContent=grp.h3;tg.appendChild(h3);
-  (grp.items||[]).forEach(function(item){var h4=document.createElement('h4');h4.textContent=item.h4;tg.appendChild(h4);var p=document.createElement('p');p.textContent=item.p;tg.appendChild(p);});
+  (grp.items||[]).forEach(function(item){var h4=document.createElement('h4');mdInline(h4,item.h4);tg.appendChild(h4);var p=document.createElement('p');mdInline(p,item.p);tg.appendChild(p);});
   container.appendChild(tg);
 }
 
