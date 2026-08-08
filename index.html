@@ -572,6 +572,7 @@
   .md-nudge:hover{background:#fff8ec;}
   .md-nocb{width:16px;flex:0 0 auto;text-align:center;color:var(--faint);font-size:12px;align-self:center;}
   .md-group.g-wait{color:var(--gold);}
+  .md-group.g-share{color:var(--gold);}
   .st-item{display:flex;align-items:baseline;gap:6px;}
   .st-item .st-label{flex:1;}
   .st-pin{border:none;background:none;color:var(--faint);cursor:pointer;font-size:11px;padding:0 4px;font-family:inherit;}
@@ -792,7 +793,7 @@
     <label class="control-toggle"><input type="checkbox" id="urgencyToggle" checked onchange="toggleUrgencyColors()"> Urgency edges</label>
     <label class="control-toggle"><input type="checkbox" id="showCompletedToggle" onchange="toggleShowCompleted()"> Show completed</label>
     <button class="btn-mycourt" id="morningBtn" onclick="toggleMorningPreset()" title="Today + overdue + blocking, in my court — applied within the full board">Morning</button>
-    <button class="btn-mycourt" id="myCourtBtn" onclick="toggleMyCourtFilter()">My court</button>
+    <button class="btn-mycourt" id="myCourtBtn" onclick="toggleMyCourtFilter()" title="Whose move: mine — derived from the next unchecked step">Mine</button>
     <div class="searchbox">
       <input type="text" id="searchBox" placeholder="Find anything…  ( / )" aria-label="Find anything" oninput="onSearchInput()" autocomplete="off">
       <div class="palette" id="palette" style="display:none"></div>
@@ -844,61 +845,59 @@
   <div id="upcomingView" style="display:none"></div>
   <div id="threadsView" style="display:none"></div>
   <div id="progressView" style="display:none"><div id="flowView"></div><div id="overviewView"></div><div id="addRegView" style="margin-top:22px"></div><div id="rfiRegView" style="margin-top:22px"></div><div id="milestonesView" style="margin-top:22px"></div></div>
-  <div id="historyView" style="display:none"></div>
+  <div id="historyView" style="display:none"><div id="completedSection"></div></div>
   <div id="guideView" style="display:none">
 
     <div class="g-sec"><div class="g-h">1 · The journey of an item</div>
       <div class="g-flow">
         <span class="g-box">Something happens<br><small>meeting · Teams · email · site "+ item"</small></span><span class="g-arr">→</span>
-        <span class="g-box">Check-in with Claude<br><small>folded into the vault with tags, source named</small></span><span class="g-arr">→</span>
-        <span class="g-box">Lands here as a card<br><small>one home: Program → Package</small></span><span class="g-arr">→</span>
-        <span class="g-box">The ball moves<br><small>court advances along <b>then →</b> chains</small></span><span class="g-arr">→</span>
-        <span class="g-box g-done">Done<br><small>dated resolution → History + Friday rollup</small></span>
+        <span class="g-box">Check-in with Claude<br><small>folded into the vault, source named</small></span><span class="g-arr">→</span>
+        <span class="g-box">Lands as a card<br><small>one home: Program → Package · one question: its thread</small></span><span class="g-arr">→</span>
+        <span class="g-box">A step gets ticked<br><small><b>agency</b> recomputes · the thread's stage follows</small></span><span class="g-arr">→</span>
+        <span class="g-box g-done">Done<br><small>✅ Settled → History</small></span>
       </div>
-      <p class="g-p">One item = one workstream. If a card keeps getting messy, it's usually two items — Claude proposes the split at check-in.</p>
+      <p class="g-p">One item = one workstream. <b>Nothing about whose turn it is ever gets typed</b> — tick a step and the item moves itself. That is why it can't go stale.</p>
     </div>
 
     <div class="g-sec"><div class="g-h">2 · One home, many lenses</div>
-      <p class="g-p">Every item lives in exactly <b>one place</b> (Program → Package — the filing cabinet). Everything else is a <b>lens</b> — an independent dial you can filter by, cutting across all programs at once:</p>
+      <p class="g-p">Every item lives in exactly <b>one place</b> (Program → Package) and belongs to exactly <b>one question</b> (its thread). Everything else is a <b>lens</b> — a dial that cuts across all programs at once:</p>
       <table class="g-tbl">
-        <tr><td><b>court</b></td><td>whose move is it <i>right now</i> — a person or You; can be a short list (first name = the bottleneck)</td></tr>
-        <tr><td><b>then →</b></td><td>who the ball goes to next — powers "coming to my court"</td></tr>
-        <tr><td><b>delegate</b></td><td>still <i>your</i> responsibility, they execute — stays in your accountability view</td></tr>
-        <tr><td><b>horizon</b></td><td>today · week · sprint (until the package's next submission) · watch (no clock)</td></tr>
-        <tr><td><b>action</b></td><td>the <i>mode</i> of work, from the Next line's verb: model · review · coordinate · respond (you owe an answer) · chase (you want theirs) · admin</td></tr>
+        <tr><td><b>agency</b></td><td><i>derived, never written.</i> Whose turn it is — <b>mine</b> (do it) · <b>shared</b> (check in) · <b>theirs</b> (chase). Read from the next unchecked step: <code>WAIT …</code> means theirs, any other verb means yours</td></tr>
+        <tr><td><b>court</b></td><td>who the item is <i>with</i> — the counterparty. Stable and relational. It does <b>not</b> claim whose turn it is</td></tr>
+        <tr><td><b>ask →</b></td><td>an unanswered question out to someone. Additive — it never moves the item</td></tr>
+        <tr><td><b>then →</b></td><td>who it goes to once your part is finished — the handoff, not the current holder</td></tr>
+        <tr><td><b>with</b></td><td>they execute, <i>accountability stays yours</i>. Sets agency to <b>shared</b> — the ball bounces, so the move is check in, not chase</td></tr>
+        <tr><td><b>horizon</b></td><td>today · week · sprint (rides the package's next submission) · <b>watch</b> (deliberately unclocked — this is what exempts an item from the date and staleness checks)</td></tr>
+        <tr><td><b>impact</b></td><td><i>why</i> it matters, not how much: critical-path · cost · safety · ripple · decision · visibility. Absent means normal</td></tr>
+        <tr><td><b>action</b></td><td>the kind of work: model · review · coordinate · admin</td></tr>
         <tr><td><b>discipline</b></td><td>what trade the item is <i>about</i> — the subject, nothing else</td></tr>
-        <tr><td><b>category</b></td><td>what kind of thing it is: decisions · meetings · coordination · documentation · drawings · rfi. Rule: action = how you work, category = what it is — never overlap</td></tr>
+        <tr><td><b>category</b></td><td>what kind of thing it is: decisions · meetings · coordination · documentation · drawings · rfi</td></tr>
       </table>
     </div>
 
     <div class="g-sec"><div class="g-h">3 · How a card earns its look</div>
-      <p class="g-p"><b>Urgency is computed, never hand-set</b> — it becomes the edge <i>thickness</i>:</p>
-      <div class="g-flow">
-        <span class="g-box g-warm">overdue</span><span class="g-arr">or</span>
-        <span class="g-box g-warm">blocking</span><span class="g-arr">or</span>
-        <span class="g-box g-warm">due ≤ 3d / today</span><span class="g-arr">→</span>
-        <span class="g-box"><b>thick edge</b> — act now</span>
-      </div>
-      <div class="g-flow">
-        <span class="g-box">due within 10 days</span><span class="g-arr">→</span><span class="g-box"><b>medium edge</b> — it thickens as the date approaches</span>
-      </div>
-      <div class="g-flow">
-        <span class="g-box">no date</span><span class="g-arr">→</span><span class="g-box"><b>hairline</b> — no clock</span>
-      </div>
-      <p class="g-p"><b>Importance (★ HIGH)</b> is separate and rare. Claude proposes it only from a named signal — critical path · cost · safety/code · cross-package ripple · a decision others wait on · owner (YYC) visibility. No signal, no star. Urgent×important together pick your <b>Today five</b>, always plus 1–2 important-not-urgent items so strategic work isn't buried.</p>
+      <p class="g-p"><b>Priority is computed, never hand-set</b> — urgency crossed with importance, worked out when the data is generated:</p>
+      <table class="g-tbl g-quad">
+        <tr><td></td><td><b>normal</b></td><td><b>carries an impact signal</b></td></tr>
+        <tr><td><b>due ≤ 3 days, or picked for today</b></td><td class="g-warm2">high</td><td class="g-warm2">high</td></tr>
+        <tr><td><b>due ≤ 10 days, or rides a submission ≤ 10 days</b></td><td>med</td><td class="g-warm2">high</td></tr>
+        <tr><td><b>no clock</b></td><td>low</td><td>med</td></tr>
+      </table>
+      <p class="g-p">An impact signal <b>lifts one tier</b> rather than overriding — so important-and-not-urgent stops being invisible without shouting as loudly as a deadline that has already arrived.</p>
     </div>
 
-    <div class="g-sec"><div class="g-h">4 · Court × blocking = your verb</div>
+    <div class="g-sec"><div class="g-h">4 · Whose move × why it matters = your verb</div>
       <table class="g-tbl g-quad">
-        <tr><td></td><td><b>ball is yours</b></td><td><b>ball is theirs</b></td></tr>
-        <tr><td><b>blocking</b></td><td class="g-warm2">DO — drop other things</td><td class="g-warm2">CHASE — push the person named</td></tr>
-        <tr><td><b>not blocking</b></td><td>QUEUE — schedule it</td><td>WAIT — watch, don't nag yet</td></tr>
+        <tr><td></td><td><b>mine</b></td><td><b>shared</b></td><td><b>theirs</b></td></tr>
+        <tr><td><b>carries impact</b></td><td class="g-warm2">DO — drop other things</td><td class="g-warm2">CHECK IN — it's gating</td><td class="g-warm2">CHASE — push the person named</td></tr>
+        <tr><td><b>normal</b></td><td>do it</td><td>check in</td><td>chase once it's quiet</td></tr>
       </table>
-      <p class="g-p">The colored line under each title says this in words: <span style="color:var(--terracotta);font-weight:700;">Blocking · waiting on YYC</span> vs <span style="color:var(--teal);font-weight:700;">on You</span>.</p>
+      <p class="g-p">Shared work goes quiet differently — someone on your side of the table is usually <b>stuck, not slow</b> — so it flags after <b>3 days</b> rather than the 5 used for a chase.</p>
+      <p class="g-p">When something sits in someone else's court, the card says <b>what you are waiting for and how long</b>. That is derived too, read from the open <code>WAIT …</code> step, the Next line, or an outstanding ask — you don't fill in a field.</p>
     </div>
 
     <div class="g-sec"><div class="g-h">5 · "Coordinating with" — the derived lens</div>
-      <p class="g-p">The <b>Discipline</b> filter shows what an item is <i>about</i>. "Coordinating with" answers a different question: <b>whose hat is the ball under?</b> It's never tagged — it's derived: the item's court names a person → Stakeholders.md says what hat they wear → the item lands in that group. Use it to batch conversations: before the mechanical call, open Court → "Coordinating with → Mechanical" and everything waiting on a mechanical person is one list.</p>
+      <p class="g-p">The <b>Discipline</b> filter shows what an item is <i>about</i>. "Coordinating with" answers a different question: <b>whose hat is the ball under?</b> It's never tagged — the item's court names a person or a firm → Stakeholders says what hat they wear → the item lands in that group. Use it to batch conversations: before the mechanical call, everything waiting on a mechanical person is one list.</p>
       <div class="g-flow">
         <span class="g-box">item: court = Greg Pink</span><span class="g-arr">→</span>
         <span class="g-box">Stakeholders: Greg = EL · SMP</span><span class="g-arr">→</span>
@@ -913,14 +912,14 @@
         <span class="g-box">reopened<br><small>if unsettled — rev .0 → .1</small></span><span class="g-arr">→</span>
         <span class="g-box g-done">closed<br><small>scope/cost change → PCN or SI</small></span>
       </div>
-      <p class="g-p"><b>Addenda</b> get the same treatment as RFIs: the <b>date</b> lives in Milestones, the <b>contents</b> live in the addendum register on the Progress tab — one card per upcoming addendum, every item tagged <code>addendum::</code> gathered under it. You can add or drop items from that card; both queue as captures and fold into the vault at check-in.</p>
-      <p class="g-p">RFIs live inside their package (the black-edged block) and in the RFI Log register on the Progress tab. Concourse B's run in Onware, Centralized's on the Planner board. <b>The package's phase decides the closing instrument:</b> in <b>bid</b> the answer rides an Addendum; after IFC (<b>construction</b>) a scope/cost answer closes via PCN or SI — the chip on each package header says which world you're in.</p>
+      <p class="g-p">This is the RFI's <b>own</b> lifecycle and it runs <i>alongside</i> whether the item is still live, not instead of it — an RFI can be <b>answered</b> and still leave you work to do.</p>
+      <p class="g-p"><b>Addenda</b> get the same treatment: the <b>date</b> lives in Milestones, the <b>contents</b> in the addendum register on the Progress tab — one card per upcoming addendum, every item tagged <code>addendum::</code> gathered under it.</p>
+      <p class="g-p">RFIs live inside their package and in the RFI Log register. Concourse B's run in Onware, Centralized's on the Planner board. <b>The package's phase decides the closing instrument:</b> in <b>bid</b> the answer rides an Addendum; after IFC (<b>construction</b>) a scope/cost answer closes via PCN or SI — the chip on each package header says which world you're in.</p>
     </div>
 
     <p class="g-p" style="color:var(--faint);">Source of truth for all of this: the Obsidian vault. This page just renders it — the daily check-in with Claude is where things change.</p>
   </div>
 
-  <div id="completedSection"></div>
 
   <div class="toast-wrap" id="toastWrap"></div>
 
@@ -1008,6 +1007,10 @@ function isoDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2
 function isoToday(){return isoDate(new Date());}
 function isoDaysFromNow(n){return isoDate(new Date(Date.now()+n*86400000));}
 function elCourtHasYou(el){return courtHasYou(el.getAttribute('data-court')||'');}
+// agency is whose TURN it is (derived from the next unchecked step); court is who the item is
+// WITH. They come apart constantly, so nothing that asks "is this mine to move" may read court.
+function elAgency(el){return el.getAttribute('data-agency')||'';}
+function elIsMine(el){var a=elAgency(el);return a?a==='mine':elCourtHasYou(el);}
 
 function escapeHtml(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
 function makeBadge(cls,text){var b=document.createElement('span');b.className='badge '+cls;b.textContent=text;return b;}
@@ -1155,6 +1158,7 @@ function renderItem(itemData){
   if(itemData.topic)el.setAttribute('data-topic',itemData.topic);
   el.setAttribute('data-disc',(itemData.disc||[]).join(' '));
   el.setAttribute('data-court',courtList(itemData.court).join(', '));
+  if(itemData.agency)el.setAttribute('data-agency',itemData.agency);
   if(itemData.then)el.setAttribute('data-then',itemData.then);
   if(itemData.impact)el.setAttribute('data-impact',itemData.impact);
   if(itemData.state)el.setAttribute('data-state',itemData.state);
@@ -1906,7 +1910,7 @@ function applySearchFilter(){
   document.getElementById('searchClear').style.display=term?'':'none';
   var activeView=null;Object.keys(VIEW_IDS).some(function(k){var v=document.getElementById(VIEW_IDS[k]);if(v&&v.style.display!=='none'){activeView=v;return true;}return false;});
   if(!activeView)activeView=document.getElementById('programView');
-  Array.prototype.slice.call(activeView.querySelectorAll('.item')).forEach(function(it){var text=it.textContent.toLowerCase();var matchTerm=!term||text.indexOf(term)!==-1;var matchCourt=!myCourtOnly||elCourtHasYou(it);var matchHorizon=!hasActiveHorizons()||!!activeHorizons[it.getAttribute('data-horizon')||''];var matchAction=!hasActiveActions()||!!activeActions[it.getAttribute('data-action')||''];var matchMorning=!morningActive||(elCourtHasYou(it)&&((it.getAttribute('data-horizon')||'')==='today'||it.classList.contains('blocking')||isOverdueEl(it)));it.style.display=(matchTerm&&matchCourt&&matchHorizon&&matchAction&&matchMorning)?'':'none';});
+  Array.prototype.slice.call(activeView.querySelectorAll('.item')).forEach(function(it){var text=it.textContent.toLowerCase();var matchTerm=!term||text.indexOf(term)!==-1;var matchCourt=!myCourtOnly||elIsMine(it);var matchHorizon=!hasActiveHorizons()||!!activeHorizons[it.getAttribute('data-horizon')||''];var matchAction=!hasActiveActions()||!!activeActions[it.getAttribute('data-action')||''];var matchMorning=!morningActive||(elIsMine(it)&&((it.getAttribute('data-horizon')||'')==='today'||isOverdueEl(it)||(it.getAttribute('data-priority')||'')==='high'));it.style.display=(matchTerm&&matchCourt&&matchHorizon&&matchAction&&matchMorning)?'':'none';});
   var h2=document.getElementById('viewHeading');
   if(h2){var old=h2.querySelector('.filter-count');if(old)old.remove();var oldClear=h2.querySelector('.filter-clear');if(oldClear)oldClear.remove();
     if(hasFilter){var all2=activeView.querySelectorAll('.item');var vis2=0;for(var v2=0;v2<all2.length;v2++){if(all2[v2].style.display!=='none'&&!all2[v2].classList.contains('completed'))vis2++;}
@@ -2315,7 +2319,7 @@ function renderPersonBrief(box,label,names){
       box.appendChild(r);
     });
   }
-  prepSec('They owe you ('+theyOwe.length+')',theyOwe,function(it){var a=ageDaysOf(it);return (it.status==='blocking'?'BLOCKING \u00b7 ':'')+(a!==null?a+'d quiet':'');});
+  prepSec('They owe you ('+theyOwe.length+')',theyOwe,function(it){var a=ageDaysOf(it);var sig=it.impact&&it.impact!=='high'?it.impact.toUpperCase()+' \u00b7 ':'';return sig+(a!==null?a+'d quiet':'');});
   prepSec('You owe them ('+youOwe.length+')',youOwe,function(it){return it.due?'due '+it.due:(it.horizon||'');});
   if(deleg.length)prepSec('Delegated to them \u2014 still yours ('+deleg.length+')',deleg,function(it){var a=ageDaysOf(it);return a!==null?a+'d':'';});
   if(recent.length){
@@ -3669,13 +3673,18 @@ var MD_GROUPS={
   soon:{cls:'g-hard',label:'Next 48 hours', why:'someone else’s clock'},
   set :{cls:'g-gate',label:'Gates the set', why:'dated later this stretch, or riding the package date'},
   none:{cls:'g-none',label:'No date',       why:'parked, still yours'},
+  share:{cls:'g-share',label:'Carrying with someone', why:'check in — it bounces back'},
   wait:{cls:'g-wait',label:'Waiting on someone', why:'nudge it — don’t try to tick it'}
 };
-var MD_ORDER=['now','soon','set','none','wait'];
+var MD_ORDER=['now','soon','set','none','share','wait'];
 // A row you can't finish shouldn't wear a checkbox. If the ball isn't yours and you haven't
 // pinned a step you can actually do, the row belongs in Waiting and offers a nudge instead.
 function mdGroupOf(it,stepIdx){
-  if(stepIdx===null&&!courtHasYou(it.court)&&courtList(it.court).length)return'wait';
+  if(stepIdx===null){
+    var ag=it.agency||(courtHasYou(it.court)||!courtList(it.court).length?'mine':'theirs');
+    if(ag==='theirs')return'wait';
+    if(ag==='shared')return'share';
+  }
   if(it.due){
     var n=daysUntil(it.due);
     if(n===null)return'set';
