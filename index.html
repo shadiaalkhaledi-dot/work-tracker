@@ -811,8 +811,6 @@
     <button class="fchip fa-model" data-action="model" onclick="toggleActionChip(this)">Model</button>
     <button class="fchip fa-review" data-action="review" onclick="toggleActionChip(this)">Review</button>
     <button class="fchip fa-coordinate" data-action="coordinate" onclick="toggleActionChip(this)">Coordinate</button>
-    <button class="fchip fa-respond" data-action="respond" onclick="toggleActionChip(this)">Respond</button>
-    <button class="fchip fa-chase" data-action="chase" onclick="toggleActionChip(this)">Chase</button>
     <button class="fchip fa-admin" data-action="admin" onclick="toggleActionChip(this)">Admin</button>
   </div>
 
@@ -897,7 +895,7 @@
     </div>
 
     <div class="g-sec"><div class="g-h">5 · "Coordinating with" — the derived lens</div>
-      <p class="g-p">The <b>Discipline</b> filter shows what an item is <i>about</i>. "Coordinating with" answers a different question: <b>whose hat is the ball under?</b> It's never tagged — the item's court names a person or a firm → Stakeholders says what hat they wear → the item lands in that group. Use it to batch conversations: before the mechanical call, everything waiting on a mechanical person is one list.</p>
+      <p class="g-p">The <b>Discipline</b> filter shows what an item is <i>about</i>. "Coordinating with" answers a different question: <b>which discipline is this item with?</b> It's never tagged — the item's <b>court</b> names a person or a firm → Stakeholders says what hat they wear → the item lands in that group. This is about the <i>counterparty</i>, not whose turn it is — that is <b>agency</b>, and an item can be yours to move while still sitting with Mechanical. Use it to batch conversations: before the mechanical call, everything with a mechanical counterparty is one list.</p>
       <div class="g-flow">
         <span class="g-box">item: court = Greg Pink</span><span class="g-arr">→</span>
         <span class="g-box">Stakeholders: Greg = EL · SMP</span><span class="g-arr">→</span>
@@ -991,7 +989,7 @@ var VIEW_HEADINGS = {
   guide:'How the tracker thinks — the journey of an item'
 };
 var activeHorizons = {}, activeActions = {};
-var MILESTONES = [], STAKEHOLDERS = [], DECISIONS = [], THREADS = [];
+var MILESTONES = [], STAKEHOLDERS = [], DECISIONS = [], THREADS = [], ORGANISATIONS = [];
 var VIEW_IDS = {now:'nowView',threads:'threadsView',program:'programView',status:'statusView',discipline:'disciplineView',topics:'topicsView',court:'courtView',upcoming:'upcomingView',progress:'progressView',history:'historyView',guide:'guideView'};
 var VIEW_ALIASES = {milestones:'progress',overview:'progress'};
 var BOARD_MODES = ['program','status','discipline','topics'];
@@ -1159,6 +1157,8 @@ function renderItem(itemData){
   el.setAttribute('data-disc',(itemData.disc||[]).join(' '));
   el.setAttribute('data-court',courtList(itemData.court).join(', '));
   if(itemData.agency)el.setAttribute('data-agency',itemData.agency);
+  if(itemData.priority)el.setAttribute('data-priority',itemData.priority);
+  if(itemData.impact)el.setAttribute('data-impact',itemData.impact);
   if(itemData.then)el.setAttribute('data-then',itemData.then);
   if(itemData.impact)el.setAttribute('data-impact',itemData.impact);
   if(itemData.state)el.setAttribute('data-state',itemData.state);
@@ -1441,7 +1441,7 @@ function buildProgramView(){
         parent.appendChild(blk);
       }
       if(!pkgName){var box=document.createElement('div');box.className='pkg';box.style.padding='6px 0';taskItems.forEach(function(item){box.appendChild(renderItem(item));});appendRfiBlock(box);progEl.appendChild(box);return;}
-      var hasUrgent=all.some(function(it){return it.status==='blocking'||it.horizon==='today'||it.horizon==='sprint';});
+      var hasUrgent=all.some(function(it){return it.priority==='high'||it.horizon==='today'||it.horizon==='sprint';});
       var det=document.createElement('details');det.className='pkg';det.open=hasUrgent;det.setAttribute('data-pkg-name',pkgName);
       var summ=document.createElement('summary');
       var sLabel=document.createElement('span');
@@ -1786,7 +1786,8 @@ function computePriority(item){
   if(inhDate&&!item.classList.contains('watch')){var d2=Math.ceil((new Date(inhDate+'T00:00:00').getTime()-Date.now())/86400000);if(d2<=10)return'med';}
   return'low';
 }
-function applyComputedPriorities(){document.querySelectorAll('#programView .item').forEach(function(item){item.setAttribute('data-pri-computed',computePriority(item));});}
+function priorityOf(item){return item.getAttribute('data-priority')||computePriority(item);}
+function applyComputedPriorities(){document.querySelectorAll('#programView .item').forEach(function(item){item.setAttribute('data-pri-computed',priorityOf(item));});}
 
 function setBadgeComplete(item){var row=item.querySelector(':scope>.item-badges');var existing=row?row.querySelector('.badge'):item.querySelector(':scope>.badge');if(item.dataset.origBadge===undefined)item.dataset.origBadge=existing?existing.outerHTML:'';if(existing)existing.outerHTML='<span class="badge c">C</span>';else{var b=makeBadge('c','C');if(row){row.insertBefore(b,row.firstChild);row.style.marginBottom='5px';}else item.insertBefore(b,item.firstChild);}}
 function restoreBadge(item){if(item.dataset.origBadge===undefined)return;var row=item.querySelector(':scope>.item-badges');var current=row?row.querySelector('.badge.c'):item.querySelector(':scope>.badge.c');if(!current)return;if(item.dataset.origBadge)current.outerHTML=item.dataset.origBadge;else current.remove();if(row&&!row.children.length)row.style.marginBottom='0';}
@@ -1796,9 +1797,11 @@ function buildFocusPanel(){
   items.forEach(function(item){
     if(isDone(item))return;
     var due=item.getAttribute('data-due');var cat=item.getAttribute('data-cat');var court=item.getAttribute('data-court');var reasons=[];
-    if(item.classList.contains('blocking'))reasons.push({code:'block',label:'BLOCKING'});
+    var imp=item.getAttribute('data-impact')||'';
+    if(imp&&imp!=='high')reasons.push({code:'block',label:imp.toUpperCase()});
+    else if(item.classList.contains('blocking'))reasons.push({code:'block',label:'BLOCKING'});
     if(due){var days=Math.ceil((new Date(due+'T00:00:00').getTime()-Date.now())/86400000);if(days<=7)reasons.push({code:'due',label:days<0?'OVERDUE '+(-days)+'d':days===0?'DUE TODAY':'DUE IN '+days+'d'});}
-    if(cat==='decisions'&&courtHasYou(court)&&!item.classList.contains('blocking'))reasons.push({code:'decide',label:'DECISION'});
+    if(cat==='decisions'&&elIsMine(item)&&!item.getAttribute('data-impact'))reasons.push({code:'decide',label:'DECISION'});
     if(reasons.length){var pri=item.getAttribute('data-pri-computed');rows.push({item:item,pri:pri,due:due,reasons:reasons});}
   });
   var priRank={high:0,med:1,low:2};var reasonRank={block:0,due:1,decide:2};
@@ -2402,9 +2405,12 @@ function buildCourtView(){
     byPerson[name].forEach(function(entry){grp.appendChild(makeAltClone(entry.it.id));});
     c.appendChild(grp);
   });
-  // Coordinating with — counterpart discipline, derived from who holds the ball
+  // Coordinating with — counterpart discipline, derived from the COURT (who the item is with).
+  // Not agency: an item can be yours to move and still sit with Mechanical.
   var HAT_LABELS={AR:'Architectural',ST:'Structural',ME:'Mechanical',EL:'Electrical',FP:'Fire Protection',ID:'Interior Design',signage:'Signage',security:'Security',safety:'Life-Safety',owner:'Owner (YYC)',GC:'Contractor (PCL)',PM:'Project Management',CA:'Contract Admin',BIM:'BIM',QA:'QA/QC',AV:'AV',acoustics:'Acoustics',hardware:'Door Hardware',spec:'Specifications',envelope:'Envelope'};
-  var ORG_HATS={'YYC':'owner','Haptic':'AR','K-Studio':'ID','PCL':'GC','Entro':'signage','S+A':'ME','SMP':'EL','RJC':'ST','VW Mason':'AV','BKL':'acoustics','Tillicum':'hardware'};
+  // The roster lives in the vault (Stakeholders → data.organisations, 15 typed orgs).
+  // This used to be a hardcoded second roster in the HTML that drifted from it.
+  var ORG_HATS={};(ORGANISATIONS||[]).forEach(function(o){if(o.name&&o.disc)ORG_HATS[o.name]=o.disc;});
   function hatFor(name){
     for(var hi=0;hi<STAKEHOLDERS.length;hi++){if(STAKEHOLDERS[hi].name===name)return STAKEHOLDERS[hi].disc;}
     var nl=name.toLowerCase();
@@ -4218,7 +4224,7 @@ function updateTabCounts(){
 }
 function refreshBoard(){applyPendingOverlay();buildProgramView();recalcCounts();applyComputedPriorities();buildFocusPanel();buildTodayFocus();buildRadarPanel();buildMyDay();updateTabCounts();setView(activeViewKey());refreshPins();}
 var RFI_PROGRAMS={'Concourse B (Onware)':{host:'Concourse B',system:'Onware'},'Centralized / PBS (Planner board)':{host:'Centralized / PBS',system:'Planner board'}};
-function boot(d){MILESTONES=d.milestones||[];STAKEHOLDERS=d.stakeholders||[];renderSessionData(d);
+function boot(d){MILESTONES=d.milestones||[];STAKEHOLDERS=d.stakeholders||[];ORGANISATIONS=d.organisations||[];renderSessionData(d);
   BASE_ITEMS=(d.items||[]).map(function(it){var m=RFI_PROGRAMS[it.program];if(m){it.program=m.host;it.rfiSystem=m.system;}return it;});
   BASE_DETAILS=d.details||{};applyPendingOverlay();init();restoreUiState();}
 
