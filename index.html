@@ -304,6 +304,8 @@
   .state-pill{text-transform:uppercase;letter-spacing:.04em;font-weight:700;}
   /* what is actually expected back, and since when — the half of retired `blocking` worth keeping */
   .ml-for{color:var(--muted);}
+  .badge.priv{background:transparent;border:1px dashed var(--taupe);color:var(--taupe);font-weight:600;}
+  body.hide-private .item.is-private{display:none !important;}
   .dec-fold{margin:2px 0 14px;}
   .dec-fold>summary{cursor:pointer;font-size:12px;font-weight:650;color:var(--mauve);
     list-style:none;padding:4px 0;}
@@ -919,6 +921,7 @@
     <label class="control-toggle"><input type="checkbox" id="collapseAllToggle" onchange="toggleCollapseAll()"> Collapse sections</label>
     <label class="control-toggle"><input type="checkbox" id="cardsExpToggle" onchange="toggleCardsExpanded()"> Expand cards</label>
     <label class="control-toggle"><input type="checkbox" id="urgencyToggle" checked onchange="toggleUrgencyColors()"> Urgency edges</label>
+    <label class="control-toggle" title="Personal items — 1-1s, career, process. Never in a shared build."><input type="checkbox" id="hidePrivateToggle" onchange="toggleHidePrivate()"> Hide personal</label>
     <label class="control-toggle"><input type="checkbox" id="showCompletedToggle" onchange="toggleShowCompleted()"> Show completed</label>
     <button class="btn-mycourt" id="morningBtn" onclick="toggleMorningPreset()" title="Preset \u2014 mine, plus anything due, overdue or high-priority" title="Preset — mine, plus anything due, overdue or high">Morning</button>
     <button class="btn-mycourt" id="myCourtBtn" onclick="toggleMyCourtFilter()" style="display:none">Mine</button>
@@ -1430,7 +1433,8 @@ function renderItem(itemData){
   if(itemData.priority)el.setAttribute('data-priority',itemData.priority);
   if(itemData.impact)el.setAttribute('data-impact',itemData.impact);
   if(itemData.then)el.setAttribute('data-then',itemData.then);
-  if(itemData.impact)el.setAttribute('data-impact',itemData.impact);
+  if(itemData.impactSource)el.setAttribute('data-impact-src',itemData.impactSource);
+  if(itemData.private){el.setAttribute('data-private','1');el.classList.add('is-private');}
   if(itemData.state)el.setAttribute('data-state',itemData.state);
   el.setAttribute('data-horizon',itemData.horizon||'');
   el.setAttribute('data-action',itemData.action||'');
@@ -1449,6 +1453,11 @@ function renderItem(itemData){
   if(itemData.status==='blocking'&&!itemData.impact)badgeRow.appendChild(makeBadge('p','NEEDS A SIGNAL'));
   else if(itemData.status==='unverified')badgeRow.appendChild(makeBadge('u','UNVERIFIED'));
   else if(itemData.status==='watch')badgeRow.appendChild(makeBadge('w','WATCH'));
+  if(itemData.private){
+    var pb=makeBadge('priv','PERSONAL');
+    pb.title='Yours, not the project\u2019s. Excluded from any shared handover build and from the copy-for-check-in text.';
+    badgeRow.appendChild(pb);
+  }
   if(itemData.impact){
     var impB=makeBadge('i',impactLabel(itemData.impact));
     if(itemData.impactSource==='derived')impB.classList.add('imp-derived');
@@ -2468,6 +2477,11 @@ function buildPackageView(){
 window.addEventListener('hashchange',routeFromHash);
 
 function setBoardMode(mode){if(BOARD_MODES.indexOf(mode)===-1)return;boardMode=mode;setView('board');}
+function toggleHidePrivate(){
+  var on=document.getElementById('hidePrivateToggle').checked;
+  document.body.classList.toggle('hide-private',on);
+  applySearchFilter();
+}
 function toggleMorningPreset(){
   morningActive=!morningActive;
   document.getElementById('morningBtn').classList.toggle('active',morningActive);
@@ -2755,6 +2769,9 @@ function updateCaptureSummary(){
   var box=document.getElementById('captureBox');if(box&&n>0&&!box.dataset.userClosed)box.open=true;
 }
 function renderLocalQueue(){var q=readQueue();if(!q.length)return;var list=document.getElementById('pendingList');list.innerHTML='';q.forEach(function(p){renderPendingRow(p);});}
+// Private items never reach the clipboard. The risk with `private::` is paste, not
+// display — this text is the one thing on the site that routinely goes somewhere else.
+function exportableItems(){return ITEMS.filter(function(it){return !it.private;});}
 function buildExportText(){
   var q=readQueue();var md=readMyDay();
   if(!q.length&&!(md.order&&md.order.length))return null;
