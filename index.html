@@ -304,6 +304,9 @@
   .state-pill{text-transform:uppercase;letter-spacing:.04em;font-weight:700;}
   /* what is actually expected back, and since when — the half of retired `blocking` worth keeping */
   .ml-for{color:var(--muted);}
+  /* execution sits with them, accountability stays yours — the move is CHECK IN, not chase */
+  .ml-with{display:inline-block;font-size:10.5px;font-weight:700;color:var(--gold);
+    background:rgba(191,155,74,.14);border-radius:9px;padding:1px 8px;margin-right:6px;}
   .ml-for b{color:var(--text);font-weight:600;}
   .ml-since{color:var(--faint);}
   .add-threads{display:flex;flex-wrap:wrap;gap:5px;align-items:baseline;
@@ -634,6 +637,15 @@
   .settled{margin-top:6px;padding:6px 9px;border-left:3px solid var(--olive);background:var(--surface-2,transparent);font-size:12px;}
   .settled .sec-label{color:var(--olive);}
   .ev-settled{color:var(--olive);}
+  .ev-decision .ev-body{color:var(--text);}
+  .ek-decision{color:var(--gold);font-weight:700;}
+  .ev-decision .ev-dec-tag{color:var(--gold);font-weight:700;font-size:10px;letter-spacing:.05em;margin-right:5px;}
+  .ek-upcoming{color:var(--teal);}
+  .ev-upcoming .ev-body{color:var(--teal);}
+  /* the line between what happened and what is coming — the site had both and drew neither */
+  .ev-nowline{display:flex;align-items:center;gap:9px;margin:14px 0 6px;
+    font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--terracotta);}
+  .ev-nowline::before,.ev-nowline::after{content:'';flex:1;height:1px;background:var(--terracotta);opacity:.45;}
   .ev-settled-missing{color:var(--faint);font-style:italic;}
   .ask-blk{border:1px dashed #b45309;border-radius:7px;padding:9px 12px;margin:10px 0;}
   .ask-blk-head{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#b45309;margin-bottom:4px;}
@@ -857,7 +869,7 @@
   </div>
   </div><!-- /nowView -->
 
-  <div class="controls">
+  <div class="controls" id="boardControls">
     <div class="control-group" id="boardModeToggle" title="Group the board by…">
       <button data-mode="program" class="active" onclick="setBoardMode('program')">Program</button>
       <button data-mode="status" onclick="setBoardMode('status')">Status</button>
@@ -869,7 +881,7 @@
     <label class="control-toggle"><input type="checkbox" id="cardsExpToggle" onchange="toggleCardsExpanded()"> Expand cards</label>
     <label class="control-toggle"><input type="checkbox" id="urgencyToggle" checked onchange="toggleUrgencyColors()"> Urgency edges</label>
     <label class="control-toggle"><input type="checkbox" id="showCompletedToggle" onchange="toggleShowCompleted()"> Show completed</label>
-    <button class="btn-mycourt" id="morningBtn" onclick="toggleMorningPreset()" title="Today + overdue + blocking, in my court — applied within the full board" title="Preset — mine, plus anything due, overdue or high">Morning</button>
+    <button class="btn-mycourt" id="morningBtn" onclick="toggleMorningPreset()" title="Preset \u2014 mine, plus anything due, overdue or high-priority" title="Preset — mine, plus anything due, overdue or high">Morning</button>
     <button class="btn-mycourt" id="myCourtBtn" onclick="toggleMyCourtFilter()" style="display:none">Mine</button>
     <div class="searchbox">
       <input type="text" id="searchBox" placeholder="Find anything…  ( / )" aria-label="Find anything" oninput="onSearchInput()" autocomplete="off">
@@ -878,7 +890,7 @@
     <button class="search-clear" id="searchClear" onclick="clearSearch()">Clear</button>
   </div>
 
-  <div class="filter-bar">
+  <div class="filter-bar" id="filterBar">
     <span class="filter-grp">
     <span class="filter-label">Whose move:</span>
     <button class="fchip fg-mine" data-agency="mine" onclick="toggleAgencyChip(this)" title="Next unchecked step is yours — do it">Mine</button>
@@ -921,8 +933,8 @@
 
   <div style="padding:8px 2px 2px;line-height:1.9;font-size:12px;color:var(--muted);">
       <b style="color:var(--text);">Where</b> — section headers carry the program's identity color: <span style="color:var(--mauve);font-weight:700;">Concourse B</span> · <span style="color:var(--sage);font-weight:700;">Centralized / PBS</span> · <span style="color:var(--taupe);font-weight:700;">Cross-program</span>. <span style="color:var(--rfi);font-weight:700;">Black-edged blocks</span> = the RFI sub-system inside a package.<br>
-      <b style="color:var(--text);">Whose move / state</b> — the line under each title: <span style="color:var(--terracotta);font-weight:700;">terracotta = blocking</span> · <span style="color:var(--teal);font-weight:700;">teal = on you</span> · <span style="color:var(--muted);font-weight:700;">grey = waiting on someone / watch</span>.<br>
-      <b style="color:var(--text);">The card's left edge carries two things at once</b> — its <b>color</b> is the state (<span style="color:var(--terracotta);font-weight:700;">terracotta = blocking</span> · <span style="color:var(--teal);font-weight:700;">teal = open</span> · grey dashed = watch), and its <b>thickness</b> is derived urgency: thick = act now (overdue / blocking / due today) · medium = dated soon · hairline = no clock. Same logic in lists: items get thick edges, dated history/timeline rows get thin ones.<br>
+      <b style="color:var(--text);">Whose move / state</b> — the line under each title: <span style="color:var(--terracotta);font-weight:700;">terracotta = needs you now</span> · <span style="color:var(--teal);font-weight:700;">teal = on you</span> · <span style="color:var(--muted);font-weight:700;">grey = waiting on someone / watch</span>.<br>
+      <b style="color:var(--text);">The card's left edge carries two things at once</b> — its <b>color</b> is the state (<span style="color:var(--terracotta);font-weight:700;">terracotta = needs you now</span> · <span style="color:var(--teal);font-weight:700;">teal = open</span> · grey dashed = watch), and its <b>thickness</b> is derived urgency: thick = act now (overdue / high / due today) · medium = dated soon · hairline = no clock. Same logic in lists: items get thick edges, dated history/timeline rows get thin ones.<br>
       <b style="color:var(--text);">Attention</b> — <span style="color:#f59e0b;font-weight:700;">amber</span> always means "look at this": ★ HIGH impact, PENDING captures, date-TBD submissions, the Morning preset.<br>
       <b style="color:var(--text);">Action pills</b> — colored for recognition, matching the filter chips above (<span style="color:var(--teal);font-weight:700;">model</span> · <span style="color:var(--mauve);font-weight:700;">review</span> · <span style="color:var(--taupe);font-weight:700;">coordinate</span> · <span style="color:rgb(94,138,158);font-weight:700;">respond</span> · <span style="color:var(--terracotta);font-weight:700;">chase</span> · <span style="color:var(--olive);font-weight:700;">admin</span>) — the word is the meaning, the color just speeds it up. Category tags stay neutral.
     </div>
@@ -1037,7 +1049,7 @@
 
   <footer>
     This page reads from data.json each session — update that file each check-in, this HTML shell never changes.<br>
-    Badges: <span class="badge p">BLOCKING</span> holding up others/critical path · <span class="badge w">WATCH</span> not actionable, keeping an eye · <span class="badge i">★ HIGH</span> project-significant (impact) · <span class="badge n">NEW</span> since last check-in · <span class="badge pend">PENDING</span> captured here, not yet in the vault · <span class="badge c">C</span> completed today.<br>
+    Badges: <span class="badge p">NEEDS A SIGNAL</span> still marked with the retired <code>blocking</code> — give it an <code>impact::</code> · <span class="badge w">WATCH</span> not actionable, keeping an eye · <span class="badge i">★ HIGH</span> project-significant (impact) · <span class="badge n">NEW</span> since last check-in · <span class="badge pend">PENDING</span> captured here, not yet in the vault · <span class="badge c">C</span> completed today.<br>
     <strong>To update items:</strong> edit data.json only — items, details, voice, completed, programs. The HTML shell (this file) never needs to change.
   </footer>
 
@@ -1073,12 +1085,15 @@ function topicLabel(slug){
     return w.charAt(0).toUpperCase()+w.slice(1);
   }).join(' ');
 }
+// `blocking` is retired and no longer a bucket. Two vault items still carry it; they are
+// normalised into Open rather than having their group deleted — deleting it would drop them out
+// of this view entirely, which is how items disappear without anyone noticing.
 var STATUS_GROUPS = [
-  {key:'blocking',label:'Blocking',color:'var(--terracotta)'},
   {key:'unverified',label:'Unverified',color:'var(--gold)'},
   {key:'open',label:'Open',color:'var(--teal)'},
   {key:'watch',label:'Watch',color:'var(--border)'}
 ];
+function statusBucket(it){var s=it&&it.status;return s==='blocking'?'open':s;}
 var VIEW_HEADINGS = {
   now:'Now \u2014 the plan, what moved, and what has gone quiet',
   program:'Open items, by program',
@@ -1204,6 +1219,8 @@ function addendumLabel(it){
   }
   return a;
 }
+// `with::` is the preferred spelling; `delegate::` still parses. One reader for both.
+function itemData_with(it){return (it&&(it['with']||it.delegate))||'';}
 function buildMoveLine(it,el){
   var cl=courtList(it.court);var mine=courtHasYou(it.court);
   var line=document.createElement('div');line.className='move-line';
@@ -1212,6 +1229,16 @@ function buildMoveLine(it,el){
   // are named in Health; the site stops repeating the dead word regardless.
   var prefix=it.status==='watch'?'Watch \u00b7 ':'';
   line.classList.add(mine?'ml-you':'ml-wait');
+  // `with:: X` — X is doing it, you still answer for it. This used to sit in the meta footer as
+  // "X executes", smaller than the step count, on the one kind of item where the person IS the
+  // point. It leads the move line now, because the prompt it implies (check in) is about them.
+  var _with=itemData_with(it);
+  if(_with){
+    var wp=document.createElement('span');wp.className='ml-with';
+    wp.textContent='with '+_with;
+    wp.title=_with+' is executing \u2014 accountability stays yours. The move is CHECK IN, not chase.';
+    line.appendChild(wp);
+  }
   line.appendChild(document.createTextNode(prefix+(mine?'on ':'waiting on ')));
   var b=document.createElement('b');b.className='court-name';b.textContent=cl.join(' + ')||'\u2014';
   b.title='Click to change who has the ball (discipline \u2192 person)';
@@ -1325,7 +1352,12 @@ function renderItem(itemData){
   el.appendChild(badgeRow);
   var titleEl=document.createElement('div');titleEl.className='item-title';titleEl.textContent=itemData.title;el.appendChild(titleEl);
   el.appendChild(buildMoveLine(itemData,el));
-  if(itemData.status==='blocking'){
+  // Why is this sitting where it is? The move line already says it for the 12 items that carry a
+  // derived `waitingFor`. This box is for the ones that DON'T — it shows the latest update as the
+  // best available answer and says outright that no expectation was recorded, which is the prompt
+  // to write a `WAIT <who> — <what>` step. Driven by agency, not by the retired status.
+  var _notMine=itemData.agency==='theirs'||itemData.agency==='shared';
+  if(_notMine&&!itemData.waitingFor){
     var detB=ITEM_DETAILS[itemData.id];
     var reason='';
     if(detB&&detB.updates&&detB.updates.length){
@@ -1337,8 +1369,9 @@ function renderItem(itemData){
     }
     if(!reason&&itemData.why)reason=itemData.why;
     var br=document.createElement('div');br.className='block-reason';
+    br.title='Nothing records WHAT is expected back. Write it as a WAIT <who> \u2014 <what> step and this becomes a real waiting reason.';
     if(reason){
-      br.innerHTML='<span class="br-label">Blocked \u2014 latest:</span> '+escapeHtml(reason.length>160?reason.slice(0,160)+'\u2026':reason);
+      br.innerHTML='<span class="br-label">No expectation recorded \u2014 latest:</span> '+escapeHtml(reason.length>160?reason.slice(0,160)+'\u2026':reason);
     }else{
       br.className+=' br-missing';
       br.textContent='Blocking \u2014 but no reason recorded. Add a note, or it gets asked at check-in.';
@@ -1519,7 +1552,7 @@ function renderItem(itemData){
   if(det&&det.subtasks&&det.subtasks.length){var dn=det.subtasks.filter(function(st){return st.indexOf('\u2713')===0;}).length;bits.push(dn+'/'+det.subtasks.length+' steps');}
   if(det&&det.updates&&det.updates.length)bits.push(det.updates.length+' update'+(det.updates.length!==1?'s':''));
   if(itemData.why)bits.push('why');
-  if(itemData.delegate)bits.push(itemData.delegate+' executes');
+  // moved to the move line — it was the smallest text on the card that mattered most
   if(itemData.topic)bits.push('#'+topicLabel(itemData.topic));
   if(itemData.pkg)bits.push('\u2302 '+itemData.pkg.split('\u2014')[0].trim());
   brief.textContent=(bits.length?bits.join(' \u00b7 ')+' ':'')+'\u25be details';
@@ -1637,7 +1670,7 @@ function buildStatusView(){
     var t=tallyData(progItems);var gcounts=document.createElement('span');gcounts.className='counts';gcounts.textContent=formatCounts(t.open,t.blocking,t.watch);
     gh.appendChild(gname);gh.appendChild(gcounts);progEl.appendChild(gh);
     STATUS_GROUPS.forEach(function(group){
-      var groupItems=progItems.filter(function(it){return it.status===group.key;});if(!groupItems.length)return;
+      var groupItems=progItems.filter(function(it){return statusBucket(it)===group.key;});if(!groupItems.length)return;
       groupItems=sortItemData(groupItems);
       var subHead=document.createElement('div');subHead.style.cssText='font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:'+group.color+';padding:6px 13px 2px;margin-top:4px;';subHead.textContent=group.label;progEl.appendChild(subHead);
       var box=document.createElement('div');box.style.padding='2px 0 4px';groupItems.forEach(function(item){box.appendChild(makeAltClone(item.id));});progEl.appendChild(box);
@@ -1882,10 +1915,11 @@ function sortItemData(arr){
     var da=a.date?new Date(a.date+'T00:00:00').getTime():0;var db=b.date?new Date(b.date+'T00:00:00').getTime():0;return db-da;
   });
 }
-function tallyData(arr){var open=0,blocking=0,watch=0;arr.forEach(function(it){if(it.status==='completed')return;if(it.status==='blocking')blocking++;else if(it.status==='watch')watch++;else open++;});return{open:open,blocking:blocking,watch:watch};}
+function tallyData(arr){var open=0,blocking=0,watch=0;arr.forEach(function(it){if(it.status==='completed')return;if(it.status==='watch')watch++;else open++;});return{open:open,blocking:blocking,watch:watch};}
 function tallyDom(items){var open=0,blocking=0,watch=0;items.forEach(function(it){if(isDone(it))return;if(it.classList.contains('blocking'))blocking++;else if(it.classList.contains('watch'))watch++;else open++;});return{open:open,blocking:blocking,watch:watch};}
 function isDone(item){return item.classList.contains('done-pending')||item.classList.contains('completed');}
-function formatCounts(open,blocking,watch){var parts=[];if(open>0)parts.push(open+' open');if(blocking>0)parts.push(blocking+' blocking');if(watch>0)parts.push(watch+' watch');return parts.length?parts.join(' · '):'0 open';}
+// no 'N blocking' — the word is retired. Open absorbs it; why it matters is `impact::`.
+function formatCounts(open,blocking,watch){var parts=[];if(open>0)parts.push(open+' open');if(watch>0)parts.push(watch+' watch');return parts.length?parts.join(' · '):'0 open';}
 function getItemMainText(item){var clone=item.cloneNode(true);Array.prototype.slice.call(clone.querySelectorAll('.meta,.why,.badge,.done-toggle,.ctaglist,.taglist,.item-next,.subtask-list,.tl-toggle,.timeline-wrap,.action-pill,.pri-sel,.sec-row,.sec-label,.item-foot,.item-actions,.item-loc,.move-line,.card-brief,.card-collapse')).forEach(function(n){n.remove();});return clone.textContent.trim().replace(/\s+/g,' ');}
 function getItemLocation(item){var progEl=item.closest('.program');var nameEl=progEl?progEl.querySelector('.program-head .name'):null;var program=nameEl?nameEl.textContent.trim():'';var pkgEl=item.closest('.pkg');var pkg='';if(pkgEl){pkg=pkgEl.getAttribute('data-pkg-name')||'';if(!pkg){var sp=pkgEl.querySelector('summary > span:first-child');pkg=sp?sp.textContent.replace(/▸/g,'').trim():'';}}return{program:program,pkg:pkg};}
 
@@ -1946,7 +1980,10 @@ function buildFocusPanel(){
     var due=item.getAttribute('data-due');var cat=item.getAttribute('data-cat');var court=item.getAttribute('data-court');var reasons=[];
     var imp=item.getAttribute('data-impact')||'';
     if(imp&&imp!=='high')reasons.push({code:'block',label:imp.toUpperCase()});
-    else if(item.classList.contains('blocking'))reasons.push({code:'block',label:'BLOCKING'});
+    // was 'BLOCKING'. The reason chips ARE the vocabulary (Stage D §D2), so they must speak
+    // the current one: why it matters is `impact::`, and an unsignalled legacy flag says so.
+    else if(item.getAttribute('data-impact'))reasons.push({code:'imp',label:'IMPACT '+item.getAttribute('data-impact').toUpperCase()});
+    else if(item.classList.contains('blocking'))reasons.push({code:'block',label:'NEEDS A SIGNAL'});
     if(due){var days=Math.ceil((new Date(due+'T00:00:00').getTime()-Date.now())/86400000);if(days<=7)reasons.push({code:'due',label:days<0?'OVERDUE '+(-days)+'d':days===0?'DUE TODAY':'DUE IN '+days+'d'});}
     if(cat==='decisions'&&elIsMine(item)&&!item.getAttribute('data-impact'))reasons.push({code:'decide',label:'DECISION'});
     if(reasons.length){var pri=item.getAttribute('data-pri-computed');rows.push({item:item,pri:pri,due:due,reasons:reasons});}
@@ -2017,6 +2054,15 @@ function setView(view){
   document.querySelectorAll('#viewToggle button').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-view')===view);});
   document.querySelectorAll('#boardModeToggle button').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-mode')===boardMode);});
   var bmt=document.getElementById('boardModeToggle');if(bmt)bmt.style.display=view==='board'?'':'none';
+  // The controls and the filter row act on `.item` cards, and only the board and Court render any.
+  // Everywhere else they were decoration you could still click — and a chip armed from a view with
+  // nothing to filter is how a filter gets left on invisibly.
+  var _filterable=(view==='board'||view==='court');
+  ['boardControls','filterBar'].forEach(function(fid){
+    var fe=document.getElementById(fid);if(fe)fe.style.display=_filterable?'':'none';
+  });
+  // leaving a view must not leave its filter armed behind you
+  if(!_filterable&&typeof hasFilter!=='undefined'){}
   var showKey=view==='board'?boardMode:view;
   Object.keys(VIEW_IDS).forEach(function(k){var elv=document.getElementById(VIEW_IDS[k]);if(elv)elv.style.display=k===showKey?'':'none';});
   var h=document.getElementById('viewHeading');if(h)h.childNodes[0].textContent=VIEW_HEADINGS[showKey]||'Open items';
@@ -2033,6 +2079,11 @@ function setView(view){
   if(showKey==='history'){buildFlowStrip();buildHistoryView();renderCompleted(LAST_DATA);}
   buildImpactChips();
   applySearchFilter();
+}
+// Reachable from the palette and the keyboard even when the row is hidden.
+function clearFiltersIfHidden(){
+  var fb=document.getElementById('filterBar');
+  if(fb&&fb.style.display==='none')clearAllFilters();
 }
 var regTab='add';
 // Three registers stacked in one scroll meant reaching RFIs by scrolling past every addendum.
@@ -2528,7 +2579,7 @@ function renderPersonBrief(box,label,names){
     var L=['Agenda \u2014 '+label+' \u2014 '+isoToday()];
     if(asks.length){L.push('');L.push('ASK THEM ('+asks.length+'):');asks.forEach(function(it){var qs=askQuestionsFor(it);(qs.length?qs:[it.title]).forEach(function(q){L.push('- '+q.slice(0,120));});});}
     L.push('');L.push('They owe me ('+theyOwe.length+'):');
-    theyOwe.forEach(function(it){var a=ageDaysOf(it);L.push('- '+(it.status==='blocking'?'[BLOCKING] ':'')+it.title.slice(0,95)+(a!==null?' ('+a+'d)':''));});
+    theyOwe.forEach(function(it){var a=ageDaysOf(it);L.push('- '+(it.impact?'['+String(it.impact).toUpperCase()+'] ':'')+it.title.slice(0,95)+(a!==null?' ('+a+'d)':''));});
     if(!theyOwe.length)L.push('- (none)');
     L.push('');L.push('I owe them ('+youOwe.length+'):');
     youOwe.forEach(function(it){L.push('- '+it.title.slice(0,95)+(it.due?' (due '+it.due+')':''));});
@@ -3229,14 +3280,20 @@ function buildHistoryView(){
     var perType={},keep=[],spill=[];
     evs.forEach(function(e){
       var k=e.kind||'note';var n=(perType[k]=(perType[k]||0)+1);
-      (n<=40?keep:spill).push(e);
+      (n<=40?keep:spill).push(e);   // per-kind, so decisions/upcoming cannot be buried
     });
     evs=keep.concat(spill).slice(0,cap);
     // keep the stream in date order after the per-type pass
     evs.sort(function(a,b){return (b.date||'').localeCompare(a.date||'')||0;});
   }
-  var lastDay=null;
+  var lastDay=null,nowDrawn=false,_iso=isoToday();
   evs.slice(0,cap).forEach(function(ev){
+    // the stream is newest-first, so everything above this rule has not happened yet
+    if(!nowDrawn&&ev.date<=_iso){
+      nowDrawn=true;
+      var nl=document.createElement('div');nl.className='ev-nowline';nl.textContent='today';
+      c.appendChild(nl);
+    }
     if(ev.date!==lastDay){lastDay=ev.date;
       var dh=document.createElement('div');dh.className='ev-day';
       var dd=new Date(ev.date+'T00:00:00');
@@ -3571,7 +3628,8 @@ function buildRadarPanel(){
     var whyBits=[];
     if(r.bucket==='waiting'||r.bucket==='rfi'){if(r.court.length)whyBits.push('court: '+r.court.join(', '));}
     if(r.bucket==='rfi')whyBits.push('RFI '+(r.it.state||'open'));
-    if(r.it.status==='blocking')whyBits.push('BLOCKING');
+    if(r.it.impact)whyBits.push('IMPACT '+String(r.it.impact).toUpperCase());
+    else if(r.it.status==='blocking')whyBits.push('NEEDS A SIGNAL');
     if(r.it.due)whyBits.push('due '+r.it.due);
     if(whyBits.length){var why=document.createElement('span');why.className='radar-why';why.textContent=whyBits.join(' \u00b7 ');row.appendChild(why);}
     var loc=document.createElement('span');loc.className='floc';loc.textContent=r.it.program||'';row.appendChild(loc);
@@ -3661,10 +3719,26 @@ function eventsFor(items,opts){
       if(/^\d{4}-\d{2}-\d{2}$/.test(dd))events.push({date:dd,kind:'resolved',itemId:it.id,itemTitle:it.title,program:it.program||'',pkg:it.pkg||'',topic:it.topic||'',court:courtList(it.court),text:'resolved'});
     }
   });
+  // A decision is knowledge AND something that happened on a day. It keeps its grouped block
+  // (that block is the "what do we know" surface) and also lands in the stream at its date.
+  if(opts.decisions!==false){
+    DECISIONS.forEach(function(x){
+      if(!/^\d{4}-\d{2}-\d{2}/.test(x.date||''))return;
+      events.push({date:x.date.slice(0,10),kind:'decision',itemId:x.itemId||null,
+        itemTitle:x.item||'',program:x.program||'',pkg:x.pkg||'',topic:x.topic||'',court:[],text:x.text||''});
+    });
+  }
   if(opts.milestones){
     MILESTONES.forEach(function(m){(m.rows||[]).forEach(function(r){
-      if(r.status==='submitted'&&/^\d{4}-\d{2}-\d{2}/.test(r.date))
-        events.push({date:r.date.slice(0,10),kind:'milestone',itemId:null,itemTitle:m.package.split('[')[0].trim(),program:'',pkg:m.package,topic:'',court:[],text:r.what});
+      if(!/^\d{4}-\d{2}-\d{2}/.test(r.date||''))return;
+      var pkgName=m.package.split('[')[0].trim();
+      if(r.status==='submitted')
+        events.push({date:r.date.slice(0,10),kind:'milestone',itemId:null,itemTitle:pkgName,program:'',pkg:m.package,topic:'',court:[],text:r.what});
+      else
+        // The forward axis. `opts.milestones` used to emit submitted rows only, so no timeline
+        // anywhere ran past today — and with the Schedule tab gone this is the only place the
+        // next submission appears in date order.
+        events.push({date:r.date.slice(0,10),kind:'upcoming',itemId:null,itemTitle:pkgName,program:'',pkg:m.package,topic:'',court:[],text:r.what});
     });});
   }
   events.sort(function(a,b){return b.date<a.date?-1:b.date>a.date?1:0;});
@@ -3674,9 +3748,21 @@ function eventRow(ev,inDrawer){
   var row=document.createElement('div');row.className='ev-row ev-'+ev.kind;
   var d=document.createElement('span');d.className='ev-date';d.textContent=ev.date;row.appendChild(d);
   var k=document.createElement('span');k.className='ev-kind ek-'+ev.kind;
-  k.textContent=ev.kind==='raised'?'+':ev.kind==='resolved'?'\u2713':ev.kind==='milestone'?'\ud83d\udce6':'\u00b7';row.appendChild(k);
+  k.textContent=ev.kind==='raised'?'+':ev.kind==='resolved'?'\u2713':ev.kind==='milestone'?'\ud83d\udce6'
+    :ev.kind==='upcoming'?'\u25c7':ev.kind==='decision'?'\u2605':'\u00b7';row.appendChild(k);
   var body=document.createElement('span');body.className='ev-body';
-  if(ev.kind==='update'){
+  if(ev.kind==='decision'){
+    var dt=document.createElement('span');dt.className='ev-dec-tag';dt.textContent='DECIDED';body.appendChild(dt);
+    if(ev.itemTitle){var di=document.createElement('b');di.className='ev-item';di.textContent=ev.itemTitle.slice(0,58);body.appendChild(di);
+      body.appendChild(document.createTextNode(' \u2014 '));}
+    body.appendChild(document.createTextNode(cleanUpdateText(ev.text).slice(0,190)));
+  }else if(ev.kind==='upcoming'){
+    var un=daysUntil(ev.date);
+    body.appendChild(document.createTextNode(ev.itemTitle+' \u2014 '+String(ev.text).replace(/\u2190[^\u00b7]*$/,'').slice(0,110)));
+    var uc=document.createElement('b');uc.style.marginLeft='6px';
+    uc.textContent=un===null?'':un<0?'('+(-un)+'d over)':un===0?'(today)':'(in '+un+'d)';
+    body.appendChild(uc);
+  }else if(ev.kind==='update'){
     var tl=document.createElement('b');tl.className='ev-item';tl.textContent=ev.itemTitle.slice(0,60);body.appendChild(tl);
     body.appendChild(document.createTextNode(' \u2014 '+ev.text.slice(0,180)));
   }else if(ev.kind==='milestone'){
