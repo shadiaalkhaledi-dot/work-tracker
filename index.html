@@ -304,6 +304,15 @@
   .state-pill{text-transform:uppercase;letter-spacing:.04em;font-weight:700;}
   /* what is actually expected back, and since when — the half of retired `blocking` worth keeping */
   .ml-for{color:var(--muted);}
+  .dec-fold{margin:2px 0 14px;}
+  .dec-fold>summary{cursor:pointer;font-size:12px;font-weight:650;color:var(--mauve);
+    list-style:none;padding:4px 0;}
+  .dec-fold>summary::-webkit-details-marker{display:none;}
+  .dec-fold>summary::after{content:' \25b8';color:var(--faint);}
+  .dec-fold[open]>summary::after{content:' \25be';}
+  .imp-key{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:12px;margin:6px 0 2px;}
+  .imp-key dt{font-weight:700;color:var(--gold);white-space:nowrap;}
+  .imp-key dd{margin:0;color:var(--muted);}
   .pkl{cursor:pointer;border-bottom:1px dotted currentColor;}
   .pkl:hover{color:var(--teal);}
   .pkgpage-head{border-left:4px solid var(--gold);padding:6px 0 8px 12px;margin-bottom:10px;}
@@ -990,7 +999,14 @@
     <div id="regPaneRfi" style="display:none"><div class="sec-lead">RFIs — aging first, because old RFIs become claims</div><div id="rfiRegView"></div></div>
     <div id="regPanePkg" style="display:none"><div class="sec-lead">Packages — where each one stands</div><div id="overviewView"></div></div>
   </div>
-  <div id="historyView" style="display:none"><div id="flowView"></div><div id="historyStream"></div><div id="completedSection"></div></div>
+  <div id="historyView" style="display:none">
+    <div class="regtabs" id="histTabs">
+      <button type="button" data-hist="all" class="active" onclick="setHistTab('all')">Everything</button>
+      <button type="button" data-hist="dec" onclick="setHistTab('dec')">Decisions</button>
+    </div>
+    <div id="histPaneAll"><div id="flowView"></div><div id="historyStream"></div><div id="completedSection"></div></div>
+    <div id="histPaneDec" style="display:none"></div>
+  </div>
   <div id="guideView" style="display:none">
 
     <div class="g-sec"><div class="g-h">1 · The journey of an item</div>
@@ -1041,7 +1057,32 @@
       <p class="g-p">When something sits in someone else's court, the card says <b>what you are waiting for and how long</b>. That is derived too, read from the open <code>WAIT …</code> step, the Next line, or an outstanding ask — you don't fill in a field.</p>
     </div>
 
-    <div class="g-sec"><div class="g-h">5 · "Coordinating with" — the derived lens</div>
+    <div class="g-sec"><div class="g-h">5 · Matters — why something jumps the queue</div>
+      <p class="g-p"><b>One job:</b> a signal lifts an item one priority tier. It is not a topic —
+      <code>cat::</code> and <code>disc::</code> already say what a thing is. It is the reason this
+      should come first when its date does not say so. <b>Absent is normal</b>, and the common case.</p>
+      <dl class="imp-key">
+        <dt>issued-wrong</dt><dd>The drawings are already out and they are wrong. Someone is pricing or building from them — rework or claim exposure.</dd>
+        <dt>code</dt><dd>Code, AHJ or life-safety. Externally adjudicated, and not tradeable against schedule.</dd>
+        <dt>cost</dt><dd>Money moves if this changes or slips — a PCN, an SI, or a claim.</dd>
+        <dt>decision</dt><dd>A fork other work is waiting behind. Until it is made, the work cannot start.</dd>
+        <dt>unrecorded</dt><dd>Agreed, but it exists nowhere on paper. Decays the longer it goes unwritten.</dd>
+        <dt>owner-facing</dt><dd>YYC or SteerCo has seen this, or will. Their expectation is set by it.</dd>
+      </dl>
+      <p class="g-p"><b>The first four are read automatically</b> from the item&rsquo;s own words, like
+      <code>agency</code> and <code>waitingFor</code> — you never type them, and a derived badge
+      renders <i>outlined</i> so you can tell it from one you declared. Writing an explicit
+      <code>impact::</code> in the vault always wins. <code>decision</code> and
+      <code>owner-facing</code> are declared only: the text does not settle them, and a guessed
+      reason reads as a fact.</p>
+      <p class="g-p"><b>Retired:</b> <code>critical-path</code> (PCL owns the schedule — you cannot
+      verify it from here, and what it really meant now lives in <i>waiting for</i> and the
+      thread&rsquo;s <i>blocks</i>), <code>ripple</code> (true of 30 of 58 open items, so it ranked
+      nothing) and <code>safety</code> (it read as site safety; the real category is
+      <code>code</code>).</p>
+    </div>
+
+    <div class="g-sec"><div class="g-h">6 · "Coordinating with" — the derived lens</div>
       <p class="g-p">The <b>Discipline</b> filter shows what an item is <i>about</i>. "Coordinating with" answers a different question: <b>which discipline is this item with?</b> It's never tagged — the item's <b>court</b> names a person or a firm → Stakeholders says what hat they wear → the item lands in that group. This is about the <i>counterparty</i>, not whose turn it is — that is <b>agency</b>, and an item can be yours to move while still sitting with Mechanical. Use it to batch conversations: before the mechanical call, everything with a mechanical counterparty is one list.</p>
       <div class="g-flow">
         <span class="g-box">item: court = Greg Pink</span><span class="g-arr">→</span>
@@ -1050,7 +1091,7 @@
       </div>
     </div>
 
-    <div class="g-sec"><div class="g-h">6 · RFIs — their own little machine</div>
+    <div class="g-sec"><div class="g-h">7 · RFIs — their own little machine</div>
       <div class="g-flow">
         <span class="g-box">open<br><small>contractor raises</small></span><span class="g-arr">→</span>
         <span class="g-box">answered<br><small>design responds</small></span><span class="g-arr">→</span>
@@ -2155,7 +2196,7 @@ function setView(view){
   if(showKey==='package')buildPackageView();
   if(showKey==='court')buildCourtView();
   if(showKey==='registers'){buildOverviewView();buildAddendumRegister();buildRfiRegister();setRegTab(regTab);}
-  if(showKey==='history'){buildFlowStrip();buildHistoryView();renderCompleted(LAST_DATA);}
+  if(showKey==='history'){buildFlowStrip();buildHistoryView();renderCompleted(LAST_DATA);setHistTab(histTab);}
   buildImpactChips();
   applySearchFilter();
   writeHash(hashFor(view,boardMode));
@@ -2164,6 +2205,25 @@ function setView(view){
 function clearFiltersIfHidden(){
   var fb=document.getElementById('filterBar');
   if(fb&&fb.style.display==='none')clearAllFilters();
+}
+var histTab='all';
+// What happened, and what we know: two different questions, so two surfaces. The decision record
+// used to sit ON TOP of the stream — 25 groups deep — which is why History looked unchanged after
+// the timeline gained decisions, upcoming submissions and a today rule.
+function setHistTab(k){
+  histTab=k;
+  var panes={all:'histPaneAll',dec:'histPaneDec'};
+  Object.keys(panes).forEach(function(kk){
+    var el=document.getElementById(panes[kk]);if(el)el.style.display=kk===k?'':'none';
+  });
+  var tabs=document.getElementById('histTabs');
+  if(tabs)tabs.querySelectorAll('button').forEach(function(b){
+    b.classList.toggle('active',b.getAttribute('data-hist')===k);
+  });
+  if(k==='dec'){
+    var host=document.getElementById('histPaneDec');
+    if(host){host.innerHTML='';buildDecisionRecord(host);}
+  }
 }
 var regTab='add';
 // Three registers stacked in one scroll meant reaching RFIs by scrolling past every addendum.
@@ -3490,15 +3550,19 @@ function decGroupLabel(k){
   }
   return k.slice(2).replace(/Package /,'Pkg ');
 }
-function buildDecisionRecord(c){
-  sectionHead(c,'Decision record — what we know, by thread','var(--mauve)');
+function buildDecisionRecord(host){
+  // Its own sub-tab now. Every one of these also appears in the stream at its date, so the
+  // record and the timeline can never disagree.
+  var c=document.createElement('div');
+  host.appendChild(c);
+  sectionHead(c,'Decision record \u2014 what we know, by thread','var(--mauve)');
   var note=document.createElement('p');note.className='g-p';
   note.style.cssText='font-size:11.5px;color:var(--muted);margin:2px 0 6px;';
   if(!DECISIONS.length){
     note.textContent='Nothing marked yet. In the vault, prefix the update that records a decision with **Decision:** and it lands here.';
     c.appendChild(note);return;
   }
-  note.textContent=DECISIONS.length+' decisions, grouped by the thread they belong to. This is knowledge, not labour — completions live in the stream below.';
+  note.textContent='Knowledge, not labour. Each one also appears in the timeline below at its date, so the record and the stream agree.';
   c.appendChild(note);
   var groups={},order=[];
   DECISIONS.forEach(function(x){
@@ -3535,10 +3599,9 @@ function buildDecisionRecord(c){
 
 function buildHistoryView(){
   var c=document.getElementById('historyStream');c.innerHTML='';
-  buildDecisionRecord(c);
 
-  // One stream — everything that happened, everywhere, newest first
-  sectionHead(c,'Everything \u2014 one stream, newest first','var(--teal)');
+  // One stream — everything that happened, everywhere, newest first, running through today
+  sectionHead(c,'Everything \u2014 one stream, past \u2192 today \u2192 next submission','var(--teal)');
   var fb=document.createElement('div');fb.className='hist-filters';
   function mkSel(label,opts,key){
     var sel=document.createElement('select');
