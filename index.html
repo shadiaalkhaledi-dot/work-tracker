@@ -304,6 +304,16 @@
   .state-pill{text-transform:uppercase;letter-spacing:.04em;font-weight:700;}
   /* what is actually expected back, and since when — the half of retired `blocking` worth keeping */
   .ml-for{color:var(--muted);}
+  /* a name is a door — every one of them, everywhere */
+  .pnl{cursor:pointer;border-bottom:1px dotted currentColor;}
+  .pnl:hover{color:var(--teal);}
+  .court-edit{cursor:pointer;font-size:10px;color:var(--faint);margin-left:4px;opacity:.7;}
+  .court-edit:hover{opacity:1;color:var(--teal);}
+  .person-back{font-size:11px;color:var(--muted);cursor:pointer;margin-bottom:6px;display:inline-block;}
+  .person-back:hover{color:var(--teal);}
+  /* derived reads as outline, declared as filled — you can see which you typed */
+  .badge.i.imp-derived{background:transparent;border:1px dashed var(--gold);color:var(--gold);font-weight:600;}
+  .badge.i.imp-legacy{background:transparent;border:1px dashed var(--faint);color:var(--muted);}
   /* execution sits with them, accountability stays yours — the move is CHECK IN, not chase */
   .ml-with{display:inline-block;font-size:10.5px;font-weight:700;color:var(--gold);
     background:rgba(191,155,74,.14);border-radius:9px;padding:1px 8px;margin-right:6px;}
@@ -796,7 +806,7 @@
       <div class="control-group" id="viewToggle">
         <button data-view="now" class="active" onclick="setView('now')" title="Now — the plan, what moved, what has gone quiet">Now</button>
         <button data-view="board" onclick="setView('board')">Board</button>
-        <button data-view="court" onclick="setView('court')">Court</button>
+        <button data-view="court" onclick="setView('court')" title="People — the roster, and what each person owes or is owed">People</button>
         <button data-view="registers" onclick="setView('registers')" title="Registers — addenda and RFIs">Registers</button>
         <button data-view="history" onclick="setView('history')">History</button>
         <button data-view="guide" class="guide-btn" onclick="setView('guide')" title="Guide — how the tracker thinks">?</button>
@@ -1088,6 +1098,26 @@ function topicLabel(slug){
 // `blocking` is retired and no longer a bucket. Two vault items still carry it; they are
 // normalised into Open rather than having their group deleted — deleting it would drop them out
 // of this view entirely, which is how items disappear without anyone noticing.
+// What each impact signal MEANS. One definition, used by the badge, the filter chip and the
+// ranked list — a signal nobody can define is how `impact:: high` stopped meaning anything.
+var IMPACT_MEANING = {
+  'issued-wrong':'The drawings are already out and they are wrong. Someone is pricing or building from them — rework or claim exposure.',
+  'code':'Code, AHJ or life-safety. Externally adjudicated and not negotiable.',
+  'cost':'Money moves if this changes or slips — a PCN, an SI, or a claim.',
+  'decision':'A fork other work is waiting behind. Until it is made, the work cannot start.',
+  'unrecorded':'Agreed, but it exists nowhere on paper. Decays the longer it goes unwritten.',
+  'owner-facing':'YYC or SteerCo has seen this, or will. Their expectation is set by it.',
+  'high':'Legacy flag with no reason attached — it sorts like nothing and explains nothing. Replace it with one of the six.'
+};
+function impactLabel(v){return v==='high'?'\u2605 UNSIGNALLED':'\u2605 '+String(v).toUpperCase();}
+function impactTitle(it){
+  var v=it&&it.impact;if(!v)return '';
+  var m=IMPACT_MEANING[v]||'';
+  var s=it.impactSource==='derived'
+    ? '\n\nRead from this item\u2019s own words. Override it with an explicit impact:: in the vault.'
+    : it.impactSource==='legacy' ? '' : '\n\nDeclared in the vault.';
+  return 'Why this jumps the queue \u2014 '+v+'\n'+m+s;
+}
 var STATUS_GROUPS = [
   {key:'unverified',label:'Unverified',color:'var(--gold)'},
   {key:'open',label:'Open',color:'var(--teal)'},
@@ -1101,7 +1131,7 @@ var VIEW_HEADINGS = {
   status:'Open items, by status',
   discipline:'Open items, by discipline',
   topics:'Threads — one story per topic, across packages',
-  court:'The court — whose move is it?',
+  court:'People — who holds what, and what you owe them',
   registers:'Registers — addenda and RFIs',
   history:'What happened so far',
   guide:'How the tracker thinks — the journey of an item'
@@ -1111,7 +1141,7 @@ var MILESTONES = [], STAKEHOLDERS = [], DECISIONS = [], THREADS = [], ORGANISATI
 var VIEW_IDS = {now:'nowView',program:'programView',status:'statusView',discipline:'disciplineView',topics:'topicsView',rfis:'rfiBoardView',court:'courtView',registers:'registersView',history:'historyView',guide:'guideView'};
 // Schedule is gone: its ten forward rows sit on the Board's package sub-heads and the Now
 // strip, its 24 submitted rows were already in the History stream. Old names still resolve.
-var VIEW_ALIASES = {milestones:'registers',overview:'registers',progress:'registers',upcoming:'now',schedule:'registers',threads:'topics',registers2:'registers'};
+var VIEW_ALIASES = {people:'court',milestones:'registers',overview:'registers',progress:'registers',upcoming:'now',schedule:'registers',threads:'topics',registers2:'registers'};
 var BOARD_MODES = ['program','status','discipline','topics','rfis'];
 var boardMode = 'program';
 var morningActive = false;
@@ -1235,15 +1265,25 @@ function buildMoveLine(it,el){
   var _with=itemData_with(it);
   if(_with){
     var wp=document.createElement('span');wp.className='ml-with';
-    wp.textContent='with '+_with;
+    wp.appendChild(document.createTextNode('with '));wp.appendChild(personLink(_with));
     wp.title=_with+' is executing \u2014 accountability stays yours. The move is CHECK IN, not chase.';
     line.appendChild(wp);
   }
   line.appendChild(document.createTextNode(prefix+(mine?'on ':'waiting on ')));
-  var b=document.createElement('b');b.className='court-name';b.textContent=cl.join(' + ')||'\u2014';
-  b.title='Click to change who has the ball (discipline \u2192 person)';
-  b.addEventListener('click',function(e){e.stopPropagation();openCourtEditor(el,b);});
+  // Each name is its own link. Reassigning moves to the pencil, because the common gesture on
+  // a person's name is "show me them", not "give this to someone else".
+  var b=document.createElement('b');b.className='court-name';
+  if(cl.length){
+    cl.forEach(function(nm,ix){
+      if(ix)b.appendChild(document.createTextNode(' + '));
+      b.appendChild(personLink(nm));
+    });
+  }else{b.textContent='\u2014';}
   line.appendChild(b);
+  var ce=document.createElement('span');ce.className='court-edit';ce.textContent='\u270e';
+  ce.title='Change who has the ball (discipline \u2192 person)';
+  ce.addEventListener('click',function(e){e.stopPropagation();openCourtEditor(el,b);});
+  line.appendChild(ce);
   // WHAT is expected back. Derived by the generator from the open `WAIT <who> — <what>` step, the
   // Next: line, or `ask::` — 12 of 16 items already said it, nobody typed a new field. Without
   // this the card names a person and leaves you to remember why, which is the thing that made
@@ -1269,7 +1309,8 @@ function buildMoveLine(it,el){
     line.appendChild(dueSp);
   }
   if(it.then){
-    var t=document.createElement('span');t.className='then-tag';t.textContent='then \u2192 '+it.then;
+    var t=document.createElement('span');t.className='then-tag';
+    t.appendChild(document.createTextNode('then \u2192 '));t.appendChild(personLink(it.then));
     t.title='Where the ball goes next \u2014 Claude advances court along this chain at check-in';
     line.appendChild(t);
   }
@@ -1345,7 +1386,13 @@ function renderItem(itemData){
   if(itemData.status==='blocking'&&!itemData.impact)badgeRow.appendChild(makeBadge('p','NEEDS A SIGNAL'));
   else if(itemData.status==='unverified')badgeRow.appendChild(makeBadge('u','UNVERIFIED'));
   else if(itemData.status==='watch')badgeRow.appendChild(makeBadge('w','WATCH'));
-  if(itemData.impact==='high')badgeRow.appendChild(makeBadge('i','\u2605 HIGH'));
+  if(itemData.impact){
+    var impB=makeBadge('i',impactLabel(itemData.impact));
+    if(itemData.impactSource==='derived')impB.classList.add('imp-derived');
+    if(itemData.impactSource==='legacy'||itemData.impact==='high')impB.classList.add('imp-legacy');
+    impB.title=impactTitle(itemData);
+    badgeRow.appendChild(impB);
+  }
   if(itemData.pendingLocal)badgeRow.appendChild(makeBadge('pend','PENDING'));
   else if(itemData.isNew)badgeRow.appendChild(makeBadge('n','NEW'));
   if(badgeRow.children.length)badgeRow.style.marginBottom='5px';
@@ -1982,7 +2029,8 @@ function buildFocusPanel(){
     if(imp&&imp!=='high')reasons.push({code:'block',label:imp.toUpperCase()});
     // was 'BLOCKING'. The reason chips ARE the vocabulary (Stage D §D2), so they must speak
     // the current one: why it matters is `impact::`, and an unsignalled legacy flag says so.
-    else if(item.getAttribute('data-impact'))reasons.push({code:'imp',label:'IMPACT '+item.getAttribute('data-impact').toUpperCase()});
+    else if(item.getAttribute('data-impact'))reasons.push({code:'imp',
+      label:item.getAttribute('data-impact')==='high'?'UNSIGNALLED':item.getAttribute('data-impact').toUpperCase()});
     else if(item.classList.contains('blocking'))reasons.push({code:'block',label:'NEEDS A SIGNAL'});
     if(due){var days=Math.ceil((new Date(due+'T00:00:00').getTime()-Date.now())/86400000);if(days<=7)reasons.push({code:'due',label:days<0?'OVERDUE '+(-days)+'d':days===0?'DUE TODAY':'DUE IN '+days+'d'});}
     if(cat==='decisions'&&elIsMine(item)&&!item.getAttribute('data-impact'))reasons.push({code:'decide',label:'DECISION'});
@@ -2079,6 +2127,7 @@ function setView(view){
   if(showKey==='history'){buildFlowStrip();buildHistoryView();renderCompleted(LAST_DATA);}
   buildImpactChips();
   applySearchFilter();
+  writeHash(hashFor(view,boardMode));
 }
 // Reachable from the palette and the keyboard even when the row is hidden.
 function clearFiltersIfHidden(){
@@ -2100,6 +2149,98 @@ function setRegTab(k){
   });
   applySearchFilter();
 }
+// A person's name, anywhere on the site, is a link to everything about them. `You` is not a
+// destination — it is you.
+function personLink(name,cls){
+  var s=document.createElement('span');
+  s.textContent=name;
+  if(!name||name==='You'){return s;}
+  s.className='pnl'+(cls?' '+cls:'');
+  s.title='Open everything with '+name;
+  s.addEventListener('click',function(e){e.stopPropagation();openPerson(name);});
+  return s;
+}
+function openPerson(name){
+  prepChoice='p:'+name;
+  setView('court');
+  writeHash('#/person/'+encodeURIComponent(name));
+  var v=document.getElementById('courtView');
+  if(v&&v.scrollIntoView)v.scrollIntoView({block:'start'});
+}
+
+// ---- addressability: one view at a time, each with a URL you can send ----------------------
+// The only window.location use in this file used to be a mailto:. Nothing was linkable and Back
+// did nothing, because nothing ever wrote the URL.
+// A timer-based guard latches: two setView calls in one tick leave it true and every hash write
+// after the first is silently dropped. Guard on the ECHO instead — remember the hash we wrote and
+// ignore exactly that one when it comes back — plus a synchronous flag while we apply a route.
+var _selfHash=null,_applying=false;
+var BOARD_MODE_ROUTES={program:'board',status:'board/status',discipline:'board/discipline',
+                       topics:'board/topics',rfis:'board/rfis'};
+
+function hashFor(view,mode){
+  if(view==='board')return '#/'+(BOARD_MODE_ROUTES[mode||boardMode]||'board');
+  return '#/'+view;
+}
+function writeHash(h){
+  if(_applying)return;                       // a route is being applied; do not fight it
+  if(window.location.hash===h)return;
+  _selfHash=h;
+  try{window.location.hash=h;}catch(e){}
+}
+function routeFromHash(){
+  var cur=String(window.location.hash||'');
+  if(_selfHash===cur){_selfHash=null;return;}   // the echo of our own write
+  _selfHash=null;
+  var raw=cur.replace(/^#\/?/,'');
+  var parts=raw.split('/').filter(Boolean);
+  _applying=true;
+  try{
+    if(!parts.length){setView('now');return;}
+    var head=parts[0],rest=parts.slice(1).join('/');
+    if(head==='item'&&rest){
+      if(!document.querySelector('#programView .item[data-id="'+rest+'"]'))setView('board');
+      openDrawer(rest);
+    }else if(head==='thread'&&rest){
+      jumpToThread(rest);
+    }else if(head==='person'&&rest){
+      prepChoice='p:'+decodeURIComponent(rest);
+      setView('court');
+    }else if(head==='package'&&rest){
+      openPackage(decodeURIComponent(rest));
+    }else if(head==='board'){
+      var m=rest||'program';
+      if(BOARD_MODES.indexOf(m)!==-1)boardMode=m;
+      setView('board');
+    }else{
+      // legacy names resolve through VIEW_ALIASES; anything unknown lands on Now rather than
+      // hiding every view, which is what a bad key used to do
+      var v=VIEW_ALIASES[head]||head;
+      var known=!!VIEW_IDS[v]||BOARD_MODES.indexOf(v)!==-1;
+      setView(known?v:'now');
+    }
+  }finally{
+    _applying=false;
+    // record where we ended up, so the view we just applied owns the address
+    _selfHash=window.location.hash;
+  }
+}
+// Filter the board to one package — the addressable half of a package page.
+function openPackage(pkg){
+  setView('board');setBoardMode('program');
+  var target=null;
+  document.querySelectorAll('#programView details.pkg[data-pkg-name]').forEach(function(el){
+    var n=el.getAttribute('data-pkg-name')||'';
+    if(!target&&(n===pkg||n.toLowerCase().indexOf(String(pkg).toLowerCase())===0))target=el;
+  });
+  if(!target)return;
+  target.open=true;
+  if(target.scrollIntoView)target.scrollIntoView({block:'start'});
+  target.classList.add('kbd-focus');
+  setTimeout(function(){target.classList.remove('kbd-focus');},1600);
+}
+window.addEventListener('hashchange',routeFromHash);
+
 function setBoardMode(mode){if(BOARD_MODES.indexOf(mode)===-1)return;boardMode=mode;setView('board');}
 function toggleMorningPreset(){
   morningActive=!morningActive;
@@ -2123,8 +2264,9 @@ function buildImpactChips(){
   if(!keys.length){var n=document.createElement('span');n.className='filter-none';n.textContent='none flagged';host.appendChild(n);return;}
   keys.forEach(function(k){
     var b=document.createElement('button');b.type='button';b.className='fchip fi-'+k;b.setAttribute('data-imp',k);
-    b.textContent=(k==='high'?'high (unsignalled)':k)+' '+seen[k];
-    b.title=k==='high'?'Legacy flag — needs a real signal in the vault':'impact:: '+k;
+    b.textContent=(k==='high'?'unsignalled':k)+' '+seen[k];
+    b.title=(IMPACT_MEANING[k]||('impact:: '+k))
+      +(k==='high'?'':'\n\nFilters the board to items that jump the queue for this reason.');
     b.addEventListener('click',function(){toggleImpactChip(b);});host.appendChild(b);
   });
 }
@@ -2465,7 +2607,7 @@ function prepNamesFor(choice){
 }
 function buildPrepPanel(container,open){
   var box=document.createElement('div');box.className='prep-box';
-  var head=document.createElement('div');head.className='drawer-h';head.textContent='Prep for a conversation \u2014 pick a person or org, get the agenda';box.appendChild(head);
+  var head=document.createElement('div');head.className='drawer-h';head.textContent='Prep for a conversation \u2014 pick a person or org, or click any name anywhere on the site';box.appendChild(head);
   var row=document.createElement('div');row.className='hist-filters';
   var sel=document.createElement('select');
   var o0=document.createElement('option');o0.value='';o0.textContent='Who are you talking to\u2026';sel.appendChild(o0);
@@ -3525,6 +3667,8 @@ function toggleCardsExpanded(){document.body.classList.toggle('cards-expanded',d
 function init(){
   document.body.classList.add('priority-mode');
   buildMsStrip();
+  // honour the address the page was opened at, once the views exist
+  try{routeFromHash();}catch(e){}
   buildProgramView();recalcCounts();applyComputedPriorities();buildFocusPanel();buildTodayFocus();buildRadarPanel();buildDeltaStrip();buildMyDay();refreshPins();updateTabCounts();refreshCapPkg();flushLocalQueue();loadPending();updateCaptureSummary();initStatClicks();
   var cbx=document.getElementById('captureBox');if(cbx)cbx.addEventListener('toggle',function(){if(!cbx.open)cbx.dataset.userClosed='1';});
 }
@@ -4320,6 +4464,7 @@ function weekSummaryText(){
 var drawerStack=[];
 function itemById(id){for(var i=0;i<ITEMS.length;i++)if(ITEMS[i].id===id)return ITEMS[i];return null;}
 function openDrawer(id,fromBack){
+  writeHash('#/item/'+id);
   var it=itemById(id);if(!it)return;
   if(!fromBack){
     var cur=document.getElementById('drawer').getAttribute('data-key');
@@ -4405,7 +4550,10 @@ function drawerBack(){
   if(prev){if(prev.indexOf('p:')===0)openPersonDrawer(prev.slice(2),true);else openDrawer(prev,true);}
   document.getElementById('drawerBack').style.display=drawerStack.length?'':'none';
 }
-function closeDrawer(){var d=document.getElementById('drawer');document.getElementById('drawerOverlay').style.display='none';d.removeAttribute('data-item');d.removeAttribute('data-key');document.body.classList.remove('drawer-open');drawerStack=[];}
+function closeDrawer(){
+  // back to the view underneath, not to a dead #/item/... address
+  if(String(window.location.hash||'').indexOf('#/item/')===0)writeHash(hashFor(activeViewKey(),boardMode));
+  var d=document.getElementById('drawer');document.getElementById('drawerOverlay').style.display='none';d.removeAttribute('data-item');d.removeAttribute('data-key');document.body.classList.remove('drawer-open');drawerStack=[];}
 document.addEventListener('keydown',function(e){
   if(e.key!=='Escape')return;
   var pal=document.getElementById('palette');
