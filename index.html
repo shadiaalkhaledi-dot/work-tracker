@@ -304,6 +304,26 @@
   .state-pill{text-transform:uppercase;letter-spacing:.04em;font-weight:700;}
   /* what is actually expected back, and since when — the half of retired `blocking` worth keeping */
   .ml-for{color:var(--muted);}
+  .pkl{cursor:pointer;border-bottom:1px dotted currentColor;}
+  .pkl:hover{color:var(--teal);}
+  .pkgpage-head{border-left:4px solid var(--gold);padding:6px 0 8px 12px;margin-bottom:10px;}
+  .pkgpage-head h2{margin:0 0 3px;font-size:19px;letter-spacing:-.01em;}
+  .pkgpage-sub{font-size:12px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap;align-items:baseline;}
+  .pkgpage-sub b{color:var(--text);}
+  .pp-cols{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start;}
+  .pp-col{flex:1 1 300px;min-width:280px;}
+  .pp-ms{display:flex;gap:8px;align-items:baseline;font-size:12px;padding:3px 0;
+    border-bottom:1px dotted var(--faint);}
+  .pp-ms .d{font-variant-numeric:tabular-nums;color:var(--muted);min-width:78px;}
+  .pp-ms.done .d{color:var(--faint);}
+  .pp-ms .cd{margin-left:auto;font-weight:700;font-size:10.5px;color:var(--muted);}
+  .pp-ms .cd.soon{color:var(--terracotta);}
+  .pp-thread{display:flex;gap:8px;align-items:baseline;font-size:12px;padding:3px 0;cursor:pointer;
+    border-bottom:1px dotted var(--faint);}
+  .pp-thread:hover{background:rgba(0,0,0,.03);}
+  .pp-thread .st{font-size:10px;text-transform:uppercase;letter-spacing:.04em;}
+  .pp-thread .n{margin-left:auto;font-size:10px;color:var(--faint);}
+  .pp-empty{font-size:11.5px;color:var(--faint);font-style:italic;padding:4px 0;}
   /* a name is a door — every one of them, everywhere */
   .pnl{cursor:pointer;border-bottom:1px dotted currentColor;}
   .pnl:hover{color:var(--teal);}
@@ -959,6 +979,7 @@
   <div id="courtView" style="display:none"></div>
 
   <div id="rfiBoardView" style="display:none"></div>
+  <div id="packageView" style="display:none"></div>
   <div id="registersView" style="display:none">
     <div class="regtabs" id="regTabs">
       <button type="button" data-reg="add" class="active" onclick="setRegTab('add')">Addenda</button>
@@ -1132,13 +1153,14 @@ var VIEW_HEADINGS = {
   discipline:'Open items, by discipline',
   topics:'Threads — one story per topic, across packages',
   court:'People — who holds what, and what you owe them',
+  package:'One package — its dates, questions, work and history',
   registers:'Registers — addenda and RFIs',
   history:'What happened so far',
   guide:'How the tracker thinks — the journey of an item'
 };
 var activeHorizons = {}, activeActions = {}, activeAgency = {}, activeImpact = {};
 var MILESTONES = [], STAKEHOLDERS = [], DECISIONS = [], THREADS = [], ORGANISATIONS = [];
-var VIEW_IDS = {now:'nowView',program:'programView',status:'statusView',discipline:'disciplineView',topics:'topicsView',rfis:'rfiBoardView',court:'courtView',registers:'registersView',history:'historyView',guide:'guideView'};
+var VIEW_IDS = {now:'nowView',program:'programView',status:'statusView',discipline:'disciplineView',topics:'topicsView',rfis:'rfiBoardView',package:'packageView',court:'courtView',registers:'registersView',history:'historyView',guide:'guideView'};
 // Schedule is gone: its ten forward rows sit on the Board's package sub-heads and the Now
 // strip, its 24 submitted rows were already in the History stream. Old names still resolve.
 var VIEW_ALIASES = {people:'court',milestones:'registers',overview:'registers',progress:'registers',upcoming:'now',schedule:'registers',threads:'topics',registers2:'registers'};
@@ -1601,8 +1623,13 @@ function renderItem(itemData){
   if(itemData.why)bits.push('why');
   // moved to the move line — it was the smallest text on the card that mattered most
   if(itemData.topic)bits.push('#'+topicLabel(itemData.topic));
-  if(itemData.pkg)bits.push('\u2302 '+itemData.pkg.split('\u2014')[0].trim());
-  brief.textContent=(bits.length?bits.join(' \u00b7 ')+' ':'')+'\u25be details';
+  // the package chip is rendered separately below so it can be a link
+  brief.textContent=(bits.length?bits.join(' \u00b7 ')+' ':'');
+  if(itemData.pkg){
+    brief.appendChild(packageLink(itemData.pkg,'\u2302 '+itemData.pkg.split('\u2014')[0].trim()));
+    brief.appendChild(document.createTextNode(' \u00b7 '));
+  }
+  brief.appendChild(document.createTextNode('\u25be details'));
   el.appendChild(brief);
   el.appendChild(more);
   var doneCb=document.createElement('input');doneCb.type='checkbox';doneCb.className='done-toggle';
@@ -1694,7 +1721,9 @@ function buildProgramView(){
       var summ=document.createElement('summary');
       var sLabel=document.createElement('span');
       var msP=milestoneFor(pkgName,progName);
-      sLabel.innerHTML=escapeHtml(pkgName)+(msP&&msP.phase?' '+phaseChip(msP.phase):'')+' <span class="chev">▸</span>';
+      sLabel.appendChild(packageLink(pkgName));
+      if(msP&&msP.phase)sLabel.insertAdjacentHTML('beforeend',' '+phaseChip(msP.phase));
+      sLabel.insertAdjacentHTML('beforeend',' <span class="chev">▸</span>');
       var pcounts=document.createElement('span');pcounts.className='pcounts';pcounts.textContent='— open';
       summ.appendChild(sLabel);summ.appendChild(pcounts);summ.appendChild(makeAddItemBtn(progName,pkgName));det.appendChild(summ);
       taskItems.forEach(function(item){det.appendChild(renderItem(item));});
@@ -1860,7 +1889,8 @@ function buildTopicsView(){
     var color=PROGRAM_COLORS[progName]||'var(--gold)';
     h.style.borderLeftColor=cross?'var(--faint)':color;
     var nm=document.createElement('span');nm.className='pks-name';
-    nm.textContent=cross?'Across packages':(pkgName||'Unfiled');
+    if(cross||!pkgName){nm.textContent=cross?'Across packages':'Unfiled';}
+    else{nm.appendChild(packageLink(pkgName));}
     if(!cross)nm.style.color=color;
     h.appendChild(nm);
     if(!cross&&pkgName){
@@ -2105,7 +2135,7 @@ function setView(view){
   // The controls and the filter row act on `.item` cards, and only the board and Court render any.
   // Everywhere else they were decoration you could still click — and a chip armed from a view with
   // nothing to filter is how a filter gets left on invisibly.
-  var _filterable=(view==='board'||view==='court');
+  var _filterable=(view==='board'||view==='court'||view==='package');
   ['boardControls','filterBar'].forEach(function(fid){
     var fe=document.getElementById(fid);if(fe)fe.style.display=_filterable?'':'none';
   });
@@ -2122,6 +2152,7 @@ function setView(view){
   if(showKey==='discipline')buildDisciplineView();
   if(showKey==='topics')buildTopicsView();
   if(showKey==='rfis')buildRfiBoardView();
+  if(showKey==='package')buildPackageView();
   if(showKey==='court')buildCourtView();
   if(showKey==='registers'){buildOverviewView();buildAddendumRegister();buildRfiRegister();setRegTab(regTab);}
   if(showKey==='history'){buildFlowStrip();buildHistoryView();renderCompleted(LAST_DATA);}
@@ -2226,18 +2257,153 @@ function routeFromHash(){
   }
 }
 // Filter the board to one package — the addressable half of a package page.
+var currentPackage='';
+// A package name, anywhere, is a door to its page.
+function packageLink(pkg,text){
+  var s=document.createElement('span');
+  s.textContent=text||pkg;
+  if(!pkg)return s;
+  s.className='pkl';
+  s.title='Open everything about '+pkg;
+  s.addEventListener('click',function(e){e.stopPropagation();openPackage(pkg);});
+  return s;
+}
+function resolvePackage(pkg){
+  // tolerate a short form ("Package 5") or a key from an address
+  var all={};ITEMS.forEach(function(it){if(it.pkg)all[it.pkg]=1;});
+  var names=Object.keys(all);
+  if(all[pkg])return pkg;
+  var lower=String(pkg||'').toLowerCase();
+  for(var i=0;i<names.length;i++){if(names[i].toLowerCase()===lower)return names[i];}
+  for(var j=0;j<names.length;j++){if(names[j].toLowerCase().indexOf(lower)===0)return names[j];}
+  return pkg;
+}
 function openPackage(pkg){
-  setView('board');setBoardMode('program');
-  var target=null;
-  document.querySelectorAll('#programView details.pkg[data-pkg-name]').forEach(function(el){
-    var n=el.getAttribute('data-pkg-name')||'';
-    if(!target&&(n===pkg||n.toLowerCase().indexOf(String(pkg).toLowerCase())===0))target=el;
+  currentPackage=resolvePackage(pkg);
+  setView('package');
+  writeHash('#/package/'+encodeURIComponent(currentPackage));
+}
+function buildPackageView(){
+  var c=document.getElementById('packageView');if(!c)return;c.innerHTML='';
+  var pkg=currentPackage;
+  if(!pkg){c.innerHTML='<p class="empty">No package selected.</p>';return;}
+  var items=ITEMS.filter(function(it){return it.pkg===pkg;});
+  var open=items.filter(function(it){return it.status!=='completed';});
+  var prog=(items[0]||{}).program||'';
+  var ms=milestoneFor(pkg,prog);
+
+  // ---- header: what it is, and the one date that governs it -------------------------------
+  var head=document.createElement('div');head.className='pkgpage-head';
+  var h2=document.createElement('h2');h2.innerHTML=escapeHtml(pkg)+(ms&&ms.phase?' '+phaseChip(ms.phase):'');
+  head.appendChild(h2);
+  var sub=document.createElement('div');sub.className='pkgpage-sub';
+  function bit(html){var s=document.createElement('span');s.innerHTML=html;sub.appendChild(s);}
+  if(prog)bit('<b>'+escapeHtml(prog)+'</b>');
+  bit('<b>'+open.length+'</b> open of '+items.length);
+  if(ms&&ms.next&&!/no submission dates/i.test(ms.next.what||'')){
+    var dated=/^\d{4}-\d{2}-\d{2}/.test(ms.next.date||'');
+    var dd=dated?daysUntil(ms.next.date.slice(0,10)):null;
+    bit('next submission <b>'+escapeHtml(dated?ms.next.date.slice(0,10):'TBD')+'</b>'
+        +(dd===null?'':' \u00b7 '+(dd<0?(-dd)+'d over':dd===0?'today':'in '+dd+'d')));
+  }
+  head.appendChild(sub);
+  var back=document.createElement('span');back.className='person-back';back.textContent='\u2039 back to the board';
+  back.addEventListener('click',function(){setView('board');});
+  head.appendChild(back);
+  c.appendChild(head);
+
+  var cols=document.createElement('div');cols.className='pp-cols';
+  var left=document.createElement('div');left.className='pp-col';
+  var right=document.createElement('div');right.className='pp-col';
+  cols.appendChild(left);cols.appendChild(right);c.appendChild(cols);
+
+  // ---- submissions -------------------------------------------------------------------------
+  sectionHead(left,'Submissions','var(--mauve)');
+  var rows=(ms&&ms.rows||[]).filter(function(r){return !/no submission dates/i.test(r.what||'');});
+  if(!rows.length){var e0=document.createElement('div');e0.className='pp-empty';
+    e0.textContent='No milestone rows for this package in Milestones.md.';left.appendChild(e0);}
+  rows.forEach(function(r){
+    var done=r.status==='submitted';
+    var row=document.createElement('div');row.className='pp-ms'+(done?' done':'');
+    var dated=/^\d{4}-\d{2}-\d{2}/.test(r.date||'');
+    var dsp=document.createElement('span');dsp.className='d';
+    dsp.textContent=(dated?r.date.slice(0,10):'TBD');row.appendChild(dsp);
+    var mk=document.createElement('span');mk.textContent=done?'\u2713':'\u25c7';row.appendChild(mk);
+    var wt=document.createElement('span');wt.textContent=String(r.what||'').replace(/\u2190[^\u00b7]*$/,'').slice(0,90);
+    row.appendChild(wt);
+    if(!done){
+      var d2=dated?daysUntil(r.date.slice(0,10)):null;
+      var cd=document.createElement('span');cd.className='cd'+(d2!==null&&d2<=7?' soon':'');
+      cd.textContent=d2===null?'date TBD':d2<0?(-d2)+'d over':d2===0?'today':'in '+d2+'d';
+      row.appendChild(cd);
+    }
+    left.appendChild(row);
   });
-  if(!target)return;
-  target.open=true;
-  if(target.scrollIntoView)target.scrollIntoView({block:'start'});
-  target.classList.add('kbd-focus');
-  setTimeout(function(){target.classList.remove('kbd-focus');},1600);
+
+  // ---- addenda, and what rides each --------------------------------------------------------
+  sectionHead(left,'Addenda \u2014 what rides each','var(--gold)');
+  var byAdd={},addOrder=[];
+  items.forEach(function(it){
+    if(!it.addendum)return;
+    var k=String(it.addendum);
+    if(!byAdd[k]){byAdd[k]=[];addOrder.push(k);}
+    byAdd[k].push(it);
+  });
+  if(!addOrder.length){var e1=document.createElement('div');e1.className='pp-empty';
+    e1.textContent='Nothing tagged to an addendum in this package yet.';left.appendChild(e1);}
+  addOrder.forEach(function(k){
+    var arr=byAdd[k],openN=arr.filter(function(i){return i.status!=='completed';}).length;
+    var r2=addendumDateFor(pkg,k);
+    var row=document.createElement('div');row.className='pp-ms';
+    var dsp=document.createElement('span');dsp.className='d';
+    dsp.textContent=(r2&&/^\d{4}-\d{2}-\d{2}/.test(r2.date||''))?r2.date.slice(0,10):'TBD';
+    row.appendChild(dsp);
+    var mk=document.createElement('span');mk.textContent='\u25c7';row.appendChild(mk);
+    var nm=document.createElement('b');nm.textContent=addendumLabel({addendum:k,pkg:pkg});row.appendChild(nm);
+    var ct=document.createElement('span');ct.className='cd';
+    ct.textContent=arr.length+' item'+(arr.length!==1?'s':'')+(openN?' \u00b7 '+openN+' open':'');
+    row.appendChild(ct);
+    left.appendChild(row);
+  });
+
+  // ---- the questions in this package -------------------------------------------------------
+  sectionHead(right,'Questions','var(--teal)');
+  var COURT_COLOR={yours:'var(--teal)',theirs:'var(--taupe)',shared:'var(--gold)',split:'var(--terracotta)'};
+  var ths=THREADS.filter(function(t){
+    return t.openCount>0&&(t.packages||[]).indexOf(pkg)!==-1;
+  });
+  var RANK={waiting:0,decided:1,drawing:2,queued:3,issued:4};
+  ths.sort(function(a,b){return (RANK[a.stage]||9)-(RANK[b.stage]||9);});
+  if(!ths.length){var e2=document.createElement('div');e2.className='pp-empty';
+    e2.textContent='No live questions filed to this package.';right.appendChild(e2);}
+  ths.forEach(function(t){
+    var row=document.createElement('div');row.className='pp-thread';
+    var q=document.createElement('span');q.textContent=t.question||topicLabel(t.slug);row.appendChild(q);
+    var st=document.createElement('span');st.className='st';st.style.color=COURT_COLOR[t.court]||'var(--muted)';
+    st.textContent=t.court||t.stage;row.appendChild(st);
+    var n=document.createElement('span');n.className='n';n.textContent=t.openCount+' open';row.appendChild(n);
+    row.addEventListener('click',function(){jumpToThread(t.slug);});
+    right.appendChild(row);
+  });
+
+  // ---- the work ----------------------------------------------------------------------------
+  sectionHead(c,'Open work \u2014 '+open.length+' item'+(open.length!==1?'s':''),'var(--terracotta)');
+  if(!open.length){var e3=document.createElement('p');e3.className='empty';
+    e3.textContent='Nothing open in this package.';c.appendChild(e3);}
+  sortItemData(open).forEach(function(it){c.appendChild(makeAltClone(it.id));});
+
+  // ---- history: the same stream, filtered to this package -----------------------------------
+  sectionHead(c,'History','var(--muted)');
+  var evs=eventsFor(items,{milestones:false,decisions:true}).slice(0,40);
+  if(!evs.length){var e4=document.createElement('div');e4.className='pp-empty';
+    e4.textContent='Nothing recorded yet.';c.appendChild(e4);}
+  var lastD=null;
+  evs.forEach(function(ev){
+    if(ev.date!==lastD){lastD=ev.date;
+      var dh=document.createElement('div');dh.className='ev-day';dh.textContent=ev.date;c.appendChild(dh);}
+    c.appendChild(eventRow(ev,false));
+  });
+  applySearchFilter();
 }
 window.addEventListener('hashchange',routeFromHash);
 
