@@ -449,6 +449,8 @@
   .hist-filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0 4px;}
   .hist-filters select{font-family:inherit;font-size:12px;padding:5px 8px;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--text);max-width:220px;}
   .hist-more{border:1px solid var(--border);background:none;color:var(--muted);font-family:inherit;font-size:12px;border-radius:8px;padding:6px 14px;cursor:pointer;margin:10px 0;}
+  .sec-lead{font-size:15px;font-weight:650;color:var(--text);margin:26px 0 6px;padding-bottom:5px;border-bottom:1px solid var(--border);}
+  .sec-lead:first-child{margin-top:4px;}
   .ms-chip.risk{border-color:var(--terracotta);}
   .risk-flag{color:var(--terracotta);font-weight:800;font-size:10px;}
   .prep-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin:6px 0 16px;}
@@ -624,11 +626,6 @@
   .due-pop{margin:6px 0;}
   .toast-act{margin-left:12px;border:1px solid rgba(255,255,255,.5);background:none;color:#fff;font-family:inherit;font-size:11.5px;font-weight:700;border-radius:7px;padding:2px 10px;cursor:pointer;}
   .toast-act:hover{background:rgba(255,255,255,.16);}
-  .radar-snoozed{opacity:.55;}
-  .radar-snoozed:hover{opacity:1;}
-  .snooze-pop{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:4px 0 6px;}
-  .snooze-pop button{font-family:inherit;font-size:11.5px;border:1px solid var(--border);background:#fff;color:var(--text);border-radius:7px;padding:4px 10px;cursor:pointer;}
-  .snooze-pop button:hover{border-color:#f59e0b;color:#b45309;}
   .kbd-focus{outline:2px solid var(--teal);outline-offset:2px;}
   .drawer-person-head{font-size:16px;margin:2px 0 12px;}
   .drawer-person-head .dp-at{color:var(--teal);font-weight:800;}
@@ -853,8 +850,15 @@
   <div id="courtView" style="display:none"></div>
 
   <div id="threadsView" style="display:none"></div>
-  <div id="scheduleView" style="display:none"><div id="upcomingView"></div><div id="overviewView" style="margin-top:22px"></div><div id="milestonesView" style="margin-top:22px"></div></div>
-  <div id="registersView" style="display:none"><div id="addRegView"></div><div id="rfiRegView" style="margin-top:22px"></div></div>
+  <div id="scheduleView" style="display:none">
+    <div class="sec-lead">Dated work — everything with a clock on it</div><div id="upcomingView"></div>
+    <div class="sec-lead">Submissions — every milestone, by type</div><div id="milestonesView"></div>
+  </div>
+  <div id="registersView" style="display:none">
+    <div class="sec-lead">Packages — where each one stands</div><div id="overviewView"></div>
+    <div class="sec-lead">Addenda — what rides each one</div><div id="addRegView"></div>
+    <div class="sec-lead">RFIs — aging first, because old RFIs become claims</div><div id="rfiRegView"></div>
+  </div>
   <div id="historyView" style="display:none"><div id="flowView"></div><div id="historyStream"></div><div id="completedSection"></div></div>
   <div id="guideView" style="display:none">
 
@@ -1327,7 +1331,7 @@ function renderItem(itemData){
   tagWrap.appendChild(catPill);
   if(itemData.state){var statePill=document.createElement('span');statePill.className='pill2 state-pill';statePill.textContent='RFI: '+itemData.state;tagWrap.appendChild(statePill);}
   else if(itemData.cat==='rfi'&&itemData.status!=='completed'){var statePill0=document.createElement('span');statePill0.className='pill2 state-pill state-missing';statePill0.textContent='RFI: state?';statePill0.title='This item is an RFI but carries no state \u2014 gets open/answered/reopened/closed at check-in';tagWrap.appendChild(statePill0);}
-  if(itemData.addendum){var addPill=document.createElement('span');addPill.className='pill2 state-pill addendum-pill';addPill.textContent='Addendum '+itemData.addendum;tagWrap.appendChild(addPill);}
+  if(itemData.addendum){var addPill=document.createElement('span');addPill.className='pill2 state-pill addendum-pill';addPill.textContent='Rides '+String(itemData.addendum).replace(/^TP(\d[\d.]*)-A(\w+)$/,'TP$1 Add $2');addPill.title='This item rides '+itemData.addendum+' — the instrument, whatever the title calls it';badgeRow.appendChild(addPill);}
   if(itemData.ask){var askPill=document.createElement('span');askPill.className='pill2 state-pill ask-pill';askPill.textContent='ask '+itemData.ask;askPill.title='A question you owe '+itemData.ask+' \u2014 it shows up in their drawer and in Court \u203a prep';tagWrap.appendChild(askPill);}
   var topicPill=document.createElement('span');
   topicPill.className='pill2 topic-pill'+(itemData.topic?'':' topic-pill-empty');
@@ -1894,8 +1898,8 @@ function setView(view){
   if(showKey==='discipline')buildDisciplineView();
   if(showKey==='topics')buildTopicsView();
   if(showKey==='court')buildCourtView();
-  if(showKey==='schedule'){buildUpcomingView();buildOverviewView();buildMilestonesView();}
-  if(showKey==='registers'){buildAddendumRegister();buildRfiRegister();}
+  if(showKey==='schedule'){buildUpcomingView();buildMilestonesView();}
+  if(showKey==='registers'){buildOverviewView();buildAddendumRegister();buildRfiRegister();}
   if(showKey==='history'){buildFlowStrip();buildHistoryView();renderCompleted(LAST_DATA);}
   buildImpactChips();
   applySearchFilter();
@@ -3378,45 +3382,11 @@ function lastMoveDate(it){
 }
 function ageDaysOf(it){var lm=lastMoveDate(it);if(!lm)return null;return Math.floor((Date.now()-new Date(lm+'T00:00:00').getTime())/86400000);}
 
-// ---- radar snooze: "I know — quiet until <date>" without losing it ----
-var SNOOZE_KEY='wt-radar-snooze';
-function readSnoozes(){try{return JSON.parse(localStorage.getItem(SNOOZE_KEY)||'{}');}catch(e){return{};}}
-function saveSnoozes(m){try{localStorage.setItem(SNOOZE_KEY,JSON.stringify(m));}catch(e){}}
-function snoozeItem(id,untilIso){
-  var m=readSnoozes();m[id]=untilIso;saveSnoozes(m);buildRadarPanel();
-  var it=itemById(id);
-  toast('Snoozed until '+untilIso+': '+(it?it.title.slice(0,45):''),'undo',function(){var m2=readSnoozes();delete m2[id];saveSnoozes(m2);buildRadarPanel();});
-}
-function wakeItem(id){var m=readSnoozes();delete m[id];saveSnoozes(m);buildRadarPanel();setStatus('Back on the radar.');}
-function openSnoozePopover(row,id){
-  var ex=document.querySelector('.snooze-pop');if(ex)ex.remove();
-  var pop=document.createElement('div');pop.className='inline-capture snooze-pop';
-  var lab=document.createElement('span');lab.style.cssText='font-size:11px;color:var(--muted);margin-right:8px;';lab.textContent='Quiet until\u2026';pop.appendChild(lab);
-  function until(days){return isoDaysFromNow(days);}
-  [['3 days',3],['1 week',7],['2 weeks',14]].forEach(function(o){
-    var b=document.createElement('button');b.type='button';b.textContent=o[0];
-    b.addEventListener('click',function(e){e.stopPropagation();pop.remove();snoozeItem(id,until(o[1]));});
-    pop.appendChild(b);
-  });
-  var inp=document.createElement('input');inp.type='date';inp.style.cssText='font-family:inherit;font-size:12px;padding:4px 7px;border:1px solid var(--border);border-radius:7px;margin-left:4px;';
-  inp.addEventListener('click',function(e){e.stopPropagation();});
-  inp.addEventListener('change',function(e){e.stopPropagation();if(/^\d{4}-\d{2}-\d{2}$/.test(inp.value)&&inp.value>isoToday()){pop.remove();snoozeItem(id,inp.value);}});
-  pop.appendChild(inp);
-  var cx=document.createElement('button');cx.type='button';cx.className='pcancel';cx.textContent='\u00d7';
-  cx.addEventListener('click',function(e){e.stopPropagation();pop.remove();});pop.appendChild(cx);
-  pop.addEventListener('click',function(e){e.stopPropagation();});
-  row.parentNode.insertBefore(pop,row.nextSibling);
-}
-
-// ---- radar: "quiet too long" — the stuff slipping in the background ----
 function buildRadarPanel(){
   var panel=document.getElementById('radarPanel');if(!panel)return;
   var list=document.getElementById('radarList');list.innerHTML='';
   var todaySn=isoToday();
-  var sn=readSnoozes();var snChanged=false;
-  Object.keys(sn).forEach(function(k){var it0=itemById(k);if(!it0||it0.status==='completed'||sn[k]<=todaySn){delete sn[k];snChanged=true;}});
-  if(snChanged)saveSnoozes(sn);
-  var rows=[];var snoozed=[];
+  var rows=[];
   ITEMS.forEach(function(it){
     if(it.status==='completed'||it.pendingComplete||it.pendingLocal)return;
     var age=ageDaysOf(it);
@@ -3425,11 +3395,10 @@ function buildRadarPanel(){
     var cl=courtList(it.court);
     var ag=it.agency||(courtHasYou(cl)?'mine':(cl.length?'theirs':''));
     var bucket=it.rfiSystem?'rfi':isWatch?'watch':ag==='shared'?'shared':(ag==='theirs'&&cl.length)?'waiting':ag==='mine'?'yours':cl.length?'waiting':'nocourt';
-    if(sn[it.id]){snoozed.push({it:it,age:age,until:sn[it.id]});return;}
     rows.push({it:it,age:age,bucket:bucket,court:cl});
   });
   var dataAge=window.DATA_AGE_DAYS||0;
-  if(!rows.length&&!snoozed.length&&dataAge<3){panel.style.display='none';return;}
+  if(!rows.length&&dataAge<3){panel.style.display='none';return;}
   panel.style.display='';
   if(dataAge>=3){
     var warn=document.createElement('div');warn.className='radar-stale-warn';
@@ -3448,7 +3417,6 @@ function buildRadarPanel(){
   if(counts.nocourt)sumBits.push(counts.nocourt+' no court set');
   if(counts.watch)sumBits.push(counts.watch+' watch aging');
   var sumTxt=rows.length+' with no movement'+(sumBits.length?' \u2014 '+sumBits.join(' \u00b7 '):'');
-  if(snoozed.length)sumTxt+=' \u00b7 '+snoozed.length+' snoozed';
   document.getElementById('radarSummary').textContent=sumTxt;
   var LABELS={shared:'Carrying with someone \u2014 quiet (3d+), usually stuck rather than slow',waiting:'Gone quiet on them \u2014 chase (5d+)',yours:'Gone quiet on you \u2014 idle (5d+)',rfi:'RFIs \u2014 no update (5d+)',nocourt:'No court set \u2014 ball unclear',watch:'Watch \u2014 aging (14d+)'};
   var lastBucket=null;
@@ -3476,28 +3444,9 @@ function buildRadarPanel(){
       });
       row.appendChild(nb);
     }
-    var zz=document.createElement('button');zz.type='button';zz.className='nudge-btn snooze-btn';zz.textContent='zzz';
-    zz.title='Snooze \u2014 off the radar until a date you pick; it wakes itself';
-    zz.addEventListener('click',function(e){e.stopPropagation();openSnoozePopover(row,r.it.id);});
-    row.appendChild(zz);
     row.addEventListener('click',function(){openDrawer(r.it.id);});
     list.appendChild(row);
   });
-  if(snoozed.length){
-    snoozed.sort(function(a,b){return a.until<b.until?-1:1;});
-    var sh=document.createElement('div');sh.className='radar-bucket';sh.textContent='Snoozed \u2014 wake themselves on their date';list.appendChild(sh);
-    snoozed.forEach(function(r){
-      var row=document.createElement('div');row.className='radar-row radar-snoozed';
-      var agec=document.createElement('span');agec.className='radar-age';agec.textContent=r.age+'d';row.appendChild(agec);
-      var t=document.createElement('span');t.className='radar-title';t.textContent=r.it.title.length>96?r.it.title.slice(0,96)+'\u2026':r.it.title;row.appendChild(t);
-      var un=document.createElement('span');un.className='radar-why';un.textContent='until '+r.until;row.appendChild(un);
-      var wk=document.createElement('button');wk.type='button';wk.className='nudge-btn';wk.textContent='wake';
-      wk.addEventListener('click',function(e){e.stopPropagation();wakeItem(r.it.id);});
-      row.appendChild(wk);
-      row.addEventListener('click',function(){openDrawer(r.it.id);});
-      list.appendChild(row);
-    });
-  }
 }
 
 // ---- delta: "since you last looked" — greets you with what changed ----
