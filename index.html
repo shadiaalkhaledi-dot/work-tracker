@@ -384,6 +384,8 @@
   .radar-title{flex:1 1 auto;color:var(--text);min-width:180px;}
   .radar-why{flex:0 1 auto;color:var(--muted);font-size:11.5px;}
   .radar .floc{flex:0 0 auto;color:var(--faint);font-size:11.5px;}
+  .focus-lead{border-left:3px solid var(--terracotta);background:var(--card);padding-left:13px;}
+  .focus-lead>summary .tag{font-size:13px;letter-spacing:.02em;}
   .radar.delta{background:var(--card);border-color:var(--border);border-left-color:var(--teal);}
   .radar.delta .tag,.radar.delta .radar-sum{color:var(--teal);}
   .delta-tag{flex:0 0 auto;font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;border-radius:8px;padding:1px 7px;}
@@ -708,8 +710,8 @@
         <button data-view="threads" onclick="setView('threads')" title="Threads — a question and everything it caused">Threads</button>
         <button data-view="board" onclick="setView('board')">Board</button>
         <button data-view="court" onclick="setView('court')">Court</button>
-        <button data-view="upcoming" onclick="setView('upcoming')">Upcoming</button>
-        <button data-view="progress" onclick="setView('progress')">Progress</button>
+        <button data-view="schedule" onclick="setView('schedule')" title="Schedule — what is coming, and what rides each submission">Schedule</button>
+        <button data-view="registers" onclick="setView('registers')" title="Registers — addenda and RFIs">Registers</button>
         <button data-view="history" onclick="setView('history')">History</button>
         <button data-view="guide" class="guide-btn" onclick="setView('guide')" title="Guide — how the tracker thinks">?</button>
       </div>
@@ -764,12 +766,12 @@
     <div class="tf-list" id="tfList"><span class="tf-empty">Computing…</span></div>
   </div>
 
-  <details class="focus" id="focusPanel" open>
+  <details class="focus focus-lead" id="focusPanel" open>
     <summary class="tag">Needs you now</summary>
     <div class="focus-list" id="focusList"><span class="focus-empty">Nothing needs you right now.</span></div>
   </details>
 
-  <details class="radar delta" id="deltaStrip" style="display:none" open>
+  <details class="radar delta" id="deltaStrip" style="display:none">
     <summary><span class="tag">What moved</span><span class="radar-sum" id="deltaHead"></span></summary>
     <div class="radar-list" id="deltaList"></div>
   </details>
@@ -792,8 +794,8 @@
     <label class="control-toggle"><input type="checkbox" id="cardsExpToggle" onchange="toggleCardsExpanded()"> Expand cards</label>
     <label class="control-toggle"><input type="checkbox" id="urgencyToggle" checked onchange="toggleUrgencyColors()"> Urgency edges</label>
     <label class="control-toggle"><input type="checkbox" id="showCompletedToggle" onchange="toggleShowCompleted()"> Show completed</label>
-    <button class="btn-mycourt" id="morningBtn" onclick="toggleMorningPreset()" title="Today + overdue + blocking, in my court — applied within the full board">Morning</button>
-    <button class="btn-mycourt" id="myCourtBtn" onclick="toggleMyCourtFilter()" title="Whose move: mine — derived from the next unchecked step">Mine</button>
+    <button class="btn-mycourt" id="morningBtn" onclick="toggleMorningPreset()" title="Today + overdue + blocking, in my court — applied within the full board" title="Preset — mine, plus anything due, overdue or high">Morning</button>
+    <button class="btn-mycourt" id="myCourtBtn" onclick="toggleMyCourtFilter()" style="display:none">Mine</button>
     <div class="searchbox">
       <input type="text" id="searchBox" placeholder="Find anything…  ( / )" aria-label="Find anything" oninput="onSearchInput()" autocomplete="off">
       <div class="palette" id="palette" style="display:none"></div>
@@ -802,12 +804,21 @@
   </div>
 
   <div class="filter-bar">
-    <span class="filter-label">Horizon:</span>
-    <button class="fchip fh-today" data-horizon="today" onclick="toggleHorizonChip(this)">Today</button>
-    <button class="fchip fh-sprint" data-horizon="sprint" id="sprintChip" onclick="toggleHorizonChip(this)">Before —</button>
-    <button class="fchip fh-week" data-horizon="week" onclick="toggleHorizonChip(this)">This Week</button>
+    <span class="filter-label">Whose move:</span>
+    <button class="fchip fg-mine" data-agency="mine" onclick="toggleAgencyChip(this)" title="Next unchecked step is yours — do it">Mine</button>
+    <button class="fchip fg-shared" data-agency="shared" onclick="toggleAgencyChip(this)" title="Someone is on it and you are still in it — check in">Shared</button>
+    <button class="fchip fg-theirs" data-agency="theirs" onclick="toggleAgencyChip(this)" title="Next step is WAIT — chase">Theirs</button>
     <div class="filter-sep"></div>
-    <span class="filter-label">Action:</span>
+    <span class="filter-label">When:</span>
+    <button class="fchip fh-today" data-horizon="today" onclick="toggleHorizonChip(this)">Today</button>
+    <button class="fchip fh-week" data-horizon="week" onclick="toggleHorizonChip(this)">This week</button>
+    <button class="fchip fh-sprint" data-horizon="sprint" id="sprintChip" onclick="toggleHorizonChip(this)" title="Rides its package's next submission">Rides a set</button>
+    <button class="fchip fh-watch" data-horizon="watch" onclick="toggleHorizonChip(this)" title="Deliberately unclocked">No clock</button>
+    <div class="filter-sep"></div>
+    <span class="filter-label">Matters:</span>
+    <span id="impactChips"></span>
+    <div class="filter-sep"></div>
+    <span class="filter-label">Kind:</span>
     <button class="fchip fa-model" data-action="model" onclick="toggleActionChip(this)">Model</button>
     <button class="fchip fa-review" data-action="review" onclick="toggleActionChip(this)">Review</button>
     <button class="fchip fa-coordinate" data-action="coordinate" onclick="toggleActionChip(this)">Coordinate</button>
@@ -840,10 +851,11 @@
   <div id="disciplineView" style="display:none"></div>
   <div id="topicsView" style="display:none"></div>
   <div id="courtView" style="display:none"></div>
-  <div id="upcomingView" style="display:none"></div>
+
   <div id="threadsView" style="display:none"></div>
-  <div id="progressView" style="display:none"><div id="flowView"></div><div id="overviewView"></div><div id="addRegView" style="margin-top:22px"></div><div id="rfiRegView" style="margin-top:22px"></div><div id="milestonesView" style="margin-top:22px"></div></div>
-  <div id="historyView" style="display:none"><div id="completedSection"></div></div>
+  <div id="scheduleView" style="display:none"><div id="upcomingView"></div><div id="overviewView" style="margin-top:22px"></div><div id="milestonesView" style="margin-top:22px"></div></div>
+  <div id="registersView" style="display:none"><div id="addRegView"></div><div id="rfiRegView" style="margin-top:22px"></div></div>
+  <div id="historyView" style="display:none"><div id="flowView"></div><div id="historyStream"></div><div id="completedSection"></div></div>
   <div id="guideView" style="display:none">
 
     <div class="g-sec"><div class="g-h">1 · The journey of an item</div>
@@ -983,15 +995,15 @@ var VIEW_HEADINGS = {
   discipline:'Open items, by discipline',
   topics:'Threads — one story per topic, across packages',
   court:'The court — whose move is it?',
-  upcoming:'Upcoming — everything with a date on it',
-  progress:'Progress — package rollup, then every submission',
+  schedule:'Schedule — what is coming, and what rides each submission',
+  registers:'Registers — addenda and RFIs',
   history:'What happened so far',
   guide:'How the tracker thinks — the journey of an item'
 };
-var activeHorizons = {}, activeActions = {};
+var activeHorizons = {}, activeActions = {}, activeAgency = {}, activeImpact = {};
 var MILESTONES = [], STAKEHOLDERS = [], DECISIONS = [], THREADS = [], ORGANISATIONS = [];
-var VIEW_IDS = {now:'nowView',threads:'threadsView',program:'programView',status:'statusView',discipline:'disciplineView',topics:'topicsView',court:'courtView',upcoming:'upcomingView',progress:'progressView',history:'historyView',guide:'guideView'};
-var VIEW_ALIASES = {milestones:'progress',overview:'progress'};
+var VIEW_IDS = {now:'nowView',threads:'threadsView',program:'programView',status:'statusView',discipline:'disciplineView',topics:'topicsView',court:'courtView',schedule:'scheduleView',registers:'registersView',history:'historyView',guide:'guideView'};
+var VIEW_ALIASES = {milestones:'schedule',overview:'schedule',progress:'schedule',upcoming:'schedule',registers2:'registers'};
 var BOARD_MODES = ['program','status','discipline','topics'];
 var boardMode = 'program';
 var morningActive = false;
@@ -1882,9 +1894,10 @@ function setView(view){
   if(showKey==='discipline')buildDisciplineView();
   if(showKey==='topics')buildTopicsView();
   if(showKey==='court')buildCourtView();
-  if(showKey==='upcoming')buildUpcomingView();
-  if(showKey==='progress'){buildFlowStrip();buildOverviewView();buildAddendumRegister();buildRfiRegister();buildMilestonesView();}
-  if(showKey==='history')buildHistoryView();
+  if(showKey==='schedule'){buildUpcomingView();buildOverviewView();buildMilestonesView();}
+  if(showKey==='registers'){buildAddendumRegister();buildRfiRegister();}
+  if(showKey==='history'){buildFlowStrip();buildHistoryView();renderCompleted(LAST_DATA);}
+  buildImpactChips();
   applySearchFilter();
 }
 function setBoardMode(mode){if(BOARD_MODES.indexOf(mode)===-1)return;boardMode=mode;setView('board');}
@@ -1897,6 +1910,24 @@ function isOverdueEl(it){var due=it.getAttribute('data-due');if(!due)return fals
 
 function toggleHorizonChip(btn){var h=btn.getAttribute('data-horizon');if(activeHorizons[h]){delete activeHorizons[h];btn.classList.remove('active');}else{activeHorizons[h]=true;btn.classList.add('active');}applySearchFilter();}
 function toggleActionChip(btn){var a=btn.getAttribute('data-action');if(activeActions[a]){delete activeActions[a];btn.classList.remove('active');}else{activeActions[a]=true;btn.classList.add('active');}applySearchFilter();}
+function toggleAgencyChip(btn){var v=btn.getAttribute('data-agency');if(activeAgency[v]){delete activeAgency[v];btn.classList.remove('active');}else{activeAgency[v]=true;btn.classList.add('active');}applySearchFilter();}
+function toggleImpactChip(btn){var v=btn.getAttribute('data-imp');if(activeImpact[v]){delete activeImpact[v];btn.classList.remove('active');}else{activeImpact[v]=true;btn.classList.add('active');}applySearchFilter();}
+function hasActiveAgency(){return Object.keys(activeAgency).length>0;}
+function hasActiveImpact(){return Object.keys(activeImpact).length>0;}
+// Matters is built from the signals actually present. Today every flagged item still carries the
+// legacy bare 'high', so this renders one chip; as the vault re-derives them the six appear.
+function buildImpactChips(){
+  var host=document.getElementById('impactChips');if(!host)return;host.innerHTML='';
+  var seen={};ITEMS.forEach(function(it){if(it.status!=='completed'&&it.impact)seen[it.impact]=(seen[it.impact]||0)+1;});
+  var keys=Object.keys(seen).sort();
+  if(!keys.length){var n=document.createElement('span');n.className='filter-none';n.textContent='none flagged';host.appendChild(n);return;}
+  keys.forEach(function(k){
+    var b=document.createElement('button');b.type='button';b.className='fchip fi-'+k;b.setAttribute('data-imp',k);
+    b.textContent=(k==='high'?'high (unsignalled)':k)+' '+seen[k];
+    b.title=k==='high'?'Legacy flag — needs a real signal in the vault':'impact:: '+k;
+    b.addEventListener('click',function(){toggleImpactChip(b);});host.appendChild(b);
+  });
+}
 function hasActiveHorizons(){return Object.keys(activeHorizons).length>0;}
 function hasActiveActions(){return Object.keys(activeActions).length>0;}
 
@@ -1905,15 +1936,17 @@ function clearAllFilters(){
   document.getElementById('myCourtBtn').classList.remove('active');
   if(morningActive){morningActive=false;document.getElementById('morningBtn').classList.remove('active');}
   activeHorizons={};document.querySelectorAll('.fchip[data-horizon]').forEach(function(b){b.classList.remove('active');});
+  activeAgency={};document.querySelectorAll('.fchip[data-agency]').forEach(function(b){b.classList.remove('active');});
+  activeImpact={};document.querySelectorAll('.fchip[data-imp]').forEach(function(b){b.classList.remove('active');});
   activeActions={};document.querySelectorAll('.fchip[data-action]').forEach(function(b){b.classList.remove('active');});
   applySearchFilter();
 }
 function applySearchFilter(){
-  var term=document.getElementById('searchBox').value.trim().toLowerCase();var myCourtOnly=document.getElementById('myCourtBtn').classList.contains('active');var hasFilter=term||myCourtOnly||morningActive||hasActiveHorizons()||hasActiveActions();
+  var term=document.getElementById('searchBox').value.trim().toLowerCase();var myCourtOnly=document.getElementById('myCourtBtn').classList.contains('active');var hasFilter=term||myCourtOnly||morningActive||hasActiveHorizons()||hasActiveActions()||hasActiveAgency()||hasActiveImpact();
   document.getElementById('searchClear').style.display=term?'':'none';
   var activeView=null;Object.keys(VIEW_IDS).some(function(k){var v=document.getElementById(VIEW_IDS[k]);if(v&&v.style.display!=='none'){activeView=v;return true;}return false;});
   if(!activeView)activeView=document.getElementById('programView');
-  Array.prototype.slice.call(activeView.querySelectorAll('.item')).forEach(function(it){var text=it.textContent.toLowerCase();var matchTerm=!term||text.indexOf(term)!==-1;var matchCourt=!myCourtOnly||elIsMine(it);var matchHorizon=!hasActiveHorizons()||!!activeHorizons[it.getAttribute('data-horizon')||''];var matchAction=!hasActiveActions()||!!activeActions[it.getAttribute('data-action')||''];var matchMorning=!morningActive||(elIsMine(it)&&((it.getAttribute('data-horizon')||'')==='today'||isOverdueEl(it)||(it.getAttribute('data-priority')||'')==='high'));it.style.display=(matchTerm&&matchCourt&&matchHorizon&&matchAction&&matchMorning)?'':'none';});
+  Array.prototype.slice.call(activeView.querySelectorAll('.item')).forEach(function(it){var text=it.textContent.toLowerCase();var matchTerm=!term||text.indexOf(term)!==-1;var matchCourt=!myCourtOnly||elIsMine(it);var matchHorizon=!hasActiveHorizons()||!!activeHorizons[it.getAttribute('data-horizon')||''];var matchAction=!hasActiveActions()||!!activeActions[it.getAttribute('data-action')||''];var matchAgency=!hasActiveAgency()||!!activeAgency[it.getAttribute('data-agency')||''];var matchImpact=!hasActiveImpact()||!!activeImpact[it.getAttribute('data-impact')||''];var matchMorning=!morningActive||(elIsMine(it)&&((it.getAttribute('data-horizon')||'')==='today'||isOverdueEl(it)||(it.getAttribute('data-priority')||'')==='high'));it.style.display=(matchTerm&&matchCourt&&matchHorizon&&matchAction&&matchAgency&&matchImpact&&matchMorning)?'':'none';});
   var h2=document.getElementById('viewHeading');
   if(h2){var old=h2.querySelector('.filter-count');if(old)old.remove();var oldClear=h2.querySelector('.filter-clear');if(oldClear)oldClear.remove();
     if(hasFilter){var all2=activeView.querySelectorAll('.item');var vis2=0;for(var v2=0;v2<all2.length;v2++){if(all2[v2].style.display!=='none'&&!all2[v2].classList.contains('completed'))vis2++;}
@@ -2996,7 +3029,7 @@ function buildDecisionRecord(c){
 }
 
 function buildHistoryView(){
-  var c=document.getElementById('historyView');c.innerHTML='';
+  var c=document.getElementById('historyStream');c.innerHTML='';
   buildDecisionRecord(c);
 
   // One stream — everything that happened, everywhere, newest first
@@ -3390,7 +3423,8 @@ function buildRadarPanel(){
     var isWatch=it.status==='watch';
     if(age===null||age<(isWatch?14:5))return;
     var cl=courtList(it.court);
-    var bucket=it.rfiSystem?'rfi':isWatch?'watch':courtHasYou(cl)?'yours':cl.length?'waiting':'nocourt';
+    var ag=it.agency||(courtHasYou(cl)?'mine':(cl.length?'theirs':''));
+    var bucket=it.rfiSystem?'rfi':isWatch?'watch':ag==='shared'?'shared':(ag==='theirs'&&cl.length)?'waiting':ag==='mine'?'yours':cl.length?'waiting':'nocourt';
     if(sn[it.id]){snoozed.push({it:it,age:age,until:sn[it.id]});return;}
     rows.push({it:it,age:age,bucket:bucket,court:cl});
   });
@@ -3403,10 +3437,11 @@ function buildRadarPanel(){
     list.appendChild(warn);
     if(!rows.length){document.getElementById('radarSummary').textContent='board '+dataAge+'d old';return;}
   }
-  var order={waiting:0,yours:1,rfi:2,nocourt:3,watch:4};
+  var order={shared:0,waiting:1,yours:2,rfi:3,nocourt:4,watch:5};
   rows.sort(function(a,b){if(order[a.bucket]!==order[b.bucket])return order[a.bucket]-order[b.bucket];return b.age-a.age;});
-  var counts={waiting:0,yours:0,rfi:0,nocourt:0,watch:0};rows.forEach(function(r){counts[r.bucket]++;});
+  var counts={shared:0,waiting:0,yours:0,rfi:0,nocourt:0,watch:0};rows.forEach(function(r){counts[r.bucket]++;});
   var sumBits=[];
+  if(counts.shared)sumBits.push(counts.shared+' carried with someone');
   if(counts.waiting)sumBits.push(counts.waiting+' waiting on others');
   if(counts.yours)sumBits.push(counts.yours+' in your court');
   if(counts.rfi)sumBits.push(counts.rfi+' RFI'+(counts.rfi!==1?'s':''));
@@ -3415,7 +3450,7 @@ function buildRadarPanel(){
   var sumTxt=rows.length+' with no movement'+(sumBits.length?' \u2014 '+sumBits.join(' \u00b7 '):'');
   if(snoozed.length)sumTxt+=' \u00b7 '+snoozed.length+' snoozed';
   document.getElementById('radarSummary').textContent=sumTxt;
-  var LABELS={waiting:'Waiting on someone \u2014 gone quiet (5d+)',yours:'In your court \u2014 idle (5d+)',rfi:'RFIs \u2014 no update (5d+)',nocourt:'No court set \u2014 ball unclear',watch:'Watch \u2014 aging (14d+)'};
+  var LABELS={shared:'Carrying with someone \u2014 quiet (3d+), usually stuck rather than slow',waiting:'Gone quiet on them \u2014 chase (5d+)',yours:'Gone quiet on you \u2014 idle (5d+)',rfi:'RFIs \u2014 no update (5d+)',nocourt:'No court set \u2014 ball unclear',watch:'Watch \u2014 aging (14d+)'};
   var lastBucket=null;
   rows.forEach(function(r){
     if(r.bucket!==lastBucket){lastBucket=r.bucket;var h=document.createElement('div');h.className='radar-bucket';h.textContent=LABELS[r.bucket];list.appendChild(h);}
@@ -4224,9 +4259,10 @@ function updateTabCounts(){
 }
 function refreshBoard(){applyPendingOverlay();buildProgramView();recalcCounts();applyComputedPriorities();buildFocusPanel();buildTodayFocus();buildRadarPanel();buildMyDay();updateTabCounts();setView(activeViewKey());refreshPins();}
 var RFI_PROGRAMS={'Concourse B (Onware)':{host:'Concourse B',system:'Onware'},'Centralized / PBS (Planner board)':{host:'Centralized / PBS',system:'Planner board'}};
-function boot(d){MILESTONES=d.milestones||[];STAKEHOLDERS=d.stakeholders||[];ORGANISATIONS=d.organisations||[];renderSessionData(d);
+var LAST_DATA={};
+function boot(d){LAST_DATA=d;MILESTONES=d.milestones||[];STAKEHOLDERS=d.stakeholders||[];ORGANISATIONS=d.organisations||[];renderSessionData(d);
   BASE_ITEMS=(d.items||[]).map(function(it){var m=RFI_PROGRAMS[it.program];if(m){it.program=m.host;it.rfiSystem=m.system;}return it;});
-  BASE_DETAILS=d.details||{};applyPendingOverlay();init();restoreUiState();}
+  BASE_DETAILS=d.details||{};applyPendingOverlay();init();buildImpactChips();restoreUiState();}
 
 // ---- encrypted data (data.enc.json) — password gate ----
 var GATE_PASS_KEY='wt-gate-pass';
