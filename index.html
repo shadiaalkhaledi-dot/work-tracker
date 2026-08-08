@@ -72,7 +72,7 @@
   .action-pill.ap-review{background:rgba(168,118,142,.15);color:var(--mauve);}
   .action-pill.ap-coordinate{background:rgba(150,134,118,.15);color:var(--taupe);}
   .action-pill.ap-respond{background:rgba(94,138,158,.15);color:rgb(94,138,158);}
-  .action-pill.ap-chase{background:rgba(176,122,100,.15);color:var(--terracotta);}
+  /* ap-chase retired: `chase` is `agency: theirs` restated, and the move line already says it */
   .action-pill.ap-admin{background:rgba(150,148,96,.15);color:var(--olive);}
   .item-next{display:flex;align-items:baseline;gap:6px;margin-top:6px;font-size:12px;color:var(--sage);line-height:1.45;}
   .item-next::before{content:'→';flex-shrink:0;font-size:11px;color:var(--faint);}
@@ -159,7 +159,20 @@
   .filter-sep{width:1px;height:18px;background:var(--border);margin:0 6px;flex-shrink:0;}
   .fchip{font-family:inherit;font-size:11.5px;font-weight:600;border:1px solid var(--border);background:none;color:var(--muted);padding:4px 11px;border-radius:20px;cursor:pointer;transition:all .12s;white-space:nowrap;}
   .fchip:hover{border-color:var(--faint);color:var(--text);}
-  .fchip.active{color:#fff;border-color:transparent;}
+  /* A default background, so an active chip can never render white-on-transparent. Five chips
+     did exactly that -- fg-mine, fg-shared, fg-theirs, fh-watch, fi-high -- and an invisible
+     filter is worse than no filter: it hides work and gives no clue why. Variants override this
+     for meaning; the fallback exists so a NEW chip cannot reintroduce the bug. */
+  .fchip.active{color:#fff;border-color:transparent;background:var(--muted);}
+  /* Whose move — the same three colours the thread rows use, so the vocabulary reads the same
+     wherever agency appears. */
+  .fchip.fg-mine.active{background:var(--teal);}
+  .fchip.fg-shared.active{background:var(--gold);}
+  .fchip.fg-theirs.active{background:var(--taupe);}
+  .fchip.fh-watch.active{background:var(--sage);}
+  .fchip[data-imp].active{background:var(--terracotta);}
+  /* label + its chips wrap as one unit — "Matters:" was ending a line with its chip on the next */
+  .filter-grp{display:inline-flex;align-items:baseline;gap:6px;flex-wrap:wrap;}
   .fchip.fh-today.active{background:var(--terracotta);}
   .fchip.fh-sprint.active{background:var(--mauve);}
   .fchip.fh-week.active{background:var(--teal);}
@@ -289,6 +302,10 @@
   .g-quad td{border:1px solid var(--border);padding:7px 10px;text-align:center;}
   .g-quad .g-warm2{color:var(--terracotta);font-weight:700;}
   .state-pill{text-transform:uppercase;letter-spacing:.04em;font-weight:700;}
+  /* what is actually expected back, and since when — the half of retired `blocking` worth keeping */
+  .ml-for{color:var(--muted);}
+  .ml-for b{color:var(--text);font-weight:600;}
+  .ml-since{color:var(--faint);}
   .add-threads{display:flex;flex-wrap:wrap;gap:5px;align-items:baseline;
     margin:4px 0 8px;padding:6px 0 7px;border-bottom:1px dotted var(--faint);}
   .add-threads .at-lbl{font-size:10.5px;color:var(--muted);font-weight:650;margin-right:2px;}
@@ -349,7 +366,9 @@
     font-size:12px;border-bottom:1px dotted var(--faint);cursor:pointer;}
   .loose-plain .lp-row:hover{background:rgba(0,0,0,.03);}
   .loose-plain .lp-n{margin-left:auto;font-size:10px;color:var(--faint);}
-  .addendum-pill{color:var(--gold);border:1px solid var(--gold);background:transparent;}
+  /* a filing fact, not a warning — it should not compete with the badges that are */
+  .addendum-pill{color:var(--gold);border:1px solid transparent;
+    background:rgba(191,155,74,.12);text-transform:none;letter-spacing:0;font-weight:600;}
   .ask-pill{color:#b45309;border:1px dashed #b45309;background:transparent;}
   .ask-row{display:flex;align-items:baseline;gap:8px;padding:5px 2px;border-bottom:1px dotted var(--border-soft);cursor:pointer;}
   .ask-row:hover{background:var(--border-soft);}
@@ -860,25 +879,33 @@
   </div>
 
   <div class="filter-bar">
+    <span class="filter-grp">
     <span class="filter-label">Whose move:</span>
     <button class="fchip fg-mine" data-agency="mine" onclick="toggleAgencyChip(this)" title="Next unchecked step is yours — do it">Mine</button>
     <button class="fchip fg-shared" data-agency="shared" onclick="toggleAgencyChip(this)" title="Someone is on it and you are still in it — check in">Shared</button>
     <button class="fchip fg-theirs" data-agency="theirs" onclick="toggleAgencyChip(this)" title="Next step is WAIT — chase">Theirs</button>
+    </span>
     <div class="filter-sep"></div>
+    <span class="filter-grp">
     <span class="filter-label">When:</span>
     <button class="fchip fh-today" data-horizon="today" onclick="toggleHorizonChip(this)">Today</button>
     <button class="fchip fh-week" data-horizon="week" onclick="toggleHorizonChip(this)">This week</button>
     <button class="fchip fh-sprint" data-horizon="sprint" id="sprintChip" onclick="toggleHorizonChip(this)" title="Rides its package's next submission">Rides a set</button>
     <button class="fchip fh-watch" data-horizon="watch" onclick="toggleHorizonChip(this)" title="Deliberately unclocked">No clock</button>
+    </span>
     <div class="filter-sep"></div>
+    <span class="filter-grp">
     <span class="filter-label">Matters:</span>
     <span id="impactChips"></span>
+    </span>
     <div class="filter-sep"></div>
+    <span class="filter-grp">
     <span class="filter-label">Kind:</span>
     <button class="fchip fa-model" data-action="model" onclick="toggleActionChip(this)">Model</button>
     <button class="fchip fa-review" data-action="review" onclick="toggleActionChip(this)">Review</button>
     <button class="fchip fa-coordinate" data-action="coordinate" onclick="toggleActionChip(this)">Coordinate</button>
     <button class="fchip fa-admin" data-action="admin" onclick="toggleActionChip(this)">Admin</button>
+    </span>
     <span id="filterStatus"><span class="fs-count" id="filterStatusCount"></span><button type="button" class="fs-clear" onclick="clearAllFilters()" title="Reset search, Morning, and every chip">clear filters</button></span>
   </div>
 
@@ -1164,16 +1191,50 @@ function openTopicEditor(itemData,pillEl){
   pillEl.replaceWith(wrap);sel.focus();
 }
 
+// One spelling for an instrument, everywhere. `TP5-A1` and a bare `5` are the same kind of
+// thing said two ways; only the first was ever formatted.
+function addendumLabel(it){
+  var a=String(it.addendum||'').trim();
+  if(!a)return '';
+  var m=/^TP(\d[\d.]*)-A(\w+)$/i.exec(a);
+  if(m)return 'Pkg '+m[1]+' Add '+m[2];
+  if(/^\w+$/.test(a)){
+    var pn=pkgNum(it.pkg||'');
+    return pn?('Pkg '+pn+' Add '+a):('Add '+a);
+  }
+  return a;
+}
 function buildMoveLine(it,el){
   var cl=courtList(it.court);var mine=courtHasYou(it.court);
   var line=document.createElement('div');line.className='move-line';
-  var prefix=it.status==='blocking'?'Blocking \u00b7 ':it.status==='watch'?'Watch \u00b7 ':'';
-  line.classList.add(it.status==='blocking'?'ml-block':(mine?'ml-you':'ml-wait'));
+  // `blocking` is retired: whose move reads from the steps, why it matters is `impact::`,
+  // what it holds up is the thread's `blocks` column. Two vault items still carry it and
+  // are named in Health; the site stops repeating the dead word regardless.
+  var prefix=it.status==='watch'?'Watch \u00b7 ':'';
+  line.classList.add(mine?'ml-you':'ml-wait');
   line.appendChild(document.createTextNode(prefix+(mine?'on ':'waiting on ')));
   var b=document.createElement('b');b.className='court-name';b.textContent=cl.join(' + ')||'\u2014';
   b.title='Click to change who has the ball (discipline \u2192 person)';
   b.addEventListener('click',function(e){e.stopPropagation();openCourtEditor(el,b);});
   line.appendChild(b);
+  // WHAT is expected back. Derived by the generator from the open `WAIT <who> — <what>` step, the
+  // Next: line, or `ask::` — 12 of 16 items already said it, nobody typed a new field. Without
+  // this the card names a person and leaves you to remember why, which is the thing that made
+  // `blocking` feel necessary in the first place.
+  if(it.waitingFor&&!mine){
+    var wf=document.createElement('span');wf.className='ml-for';
+    wf.appendChild(document.createTextNode(' for '));
+    var wb=document.createElement('b');wb.textContent=String(it.waitingFor).slice(0,90);
+    wb.title=String(it.waitingFor);wf.appendChild(wb);
+    line.appendChild(wf);
+    if(it.waitingSince){
+      var ws=document.createElement('span');ws.className='ml-since';
+      var wd=daysUntil(it.waitingSince);
+      ws.textContent=' \u00b7 since '+it.waitingSince+(wd===null?'':' ('+Math.abs(wd)+'d)');
+      ws.title='How long it has sat with them — measured from when the expectation was set';
+      wf.appendChild(ws);
+    }
+  }
   if(it.due){
     var d=daysUntil(it.due);
     var dueSp=document.createElement('span');dueSp.className='ml-due'+(d!==null&&d<0?' over':'');
@@ -1250,8 +1311,11 @@ function renderItem(itemData){
   if(itemData.delegate)el.setAttribute('data-delegate',itemData.delegate);
   if(itemData.pri)el.setAttribute('data-pri',itemData.pri);
   var badgeRow=document.createElement('div');badgeRow.className='item-badges';
-  if(itemData.action){var pill=document.createElement('span');pill.className='action-pill ap-'+itemData.action;pill.textContent=itemData.action;badgeRow.appendChild(pill);}
-  if(itemData.status==='blocking')badgeRow.appendChild(makeBadge('p','BLOCKING'));
+  // `chase` is not a kind of work — it is whose move it is, and the move line says that already.
+  // 5 live items carry it: 4 already derive as `theirs`, 1 as `shared`, none as `mine`.
+  if(itemData.action&&itemData.action!=='chase'){var pill=document.createElement('span');pill.className='action-pill ap-'+itemData.action;pill.textContent=itemData.action;badgeRow.appendChild(pill);}
+  // was BLOCKING — now says why it matters, which is what the flag was standing in for
+  if(itemData.status==='blocking'&&!itemData.impact)badgeRow.appendChild(makeBadge('p','NEEDS A SIGNAL'));
   else if(itemData.status==='unverified')badgeRow.appendChild(makeBadge('u','UNVERIFIED'));
   else if(itemData.status==='watch')badgeRow.appendChild(makeBadge('w','WATCH'));
   if(itemData.impact==='high')badgeRow.appendChild(makeBadge('i','\u2605 HIGH'));
@@ -1393,7 +1457,15 @@ function renderItem(itemData){
   tagWrap.appendChild(catPill);
   if(itemData.state){var statePill=document.createElement('span');statePill.className='pill2 state-pill';statePill.textContent='RFI: '+itemData.state;tagWrap.appendChild(statePill);}
   else if(itemData.cat==='rfi'&&itemData.status!=='completed'){var statePill0=document.createElement('span');statePill0.className='pill2 state-pill state-missing';statePill0.textContent='RFI: state?';statePill0.title='This item is an RFI but carries no state \u2014 gets open/answered/reopened/closed at check-in';tagWrap.appendChild(statePill0);}
-  if(itemData.addendum){var addPill=document.createElement('span');addPill.className='pill2 state-pill addendum-pill';addPill.textContent='Rides '+String(itemData.addendum).replace(/^TP(\d[\d.]*)-A(\w+)$/,'TP$1 Add $2');addPill.title='This item rides '+itemData.addendum+' — the instrument, whatever the title calls it';badgeRow.appendChild(addPill);}
+  if(itemData.addendum){
+    // Name the instrument in full. A bare "5" means Addendum 5 OF THIS ITEM'S PACKAGE, and the
+    // chip used to render it as "RIDES 5" — a number with no package and no document.
+    var addPill=document.createElement('span');addPill.className='pill2 state-pill addendum-pill';
+    addPill.textContent='in '+addendumLabel(itemData);
+    addPill.title='This work issues inside '+addendumLabel(itemData)
+      +' \u2014 the instrument, whatever the title calls it.\nSeparate from the due date: this is WHICH document carries it.';
+    badgeRow.appendChild(addPill);
+  }
   if(itemData.ask){var askPill=document.createElement('span');askPill.className='pill2 state-pill ask-pill';askPill.textContent='ask '+itemData.ask;askPill.title='A question you owe '+itemData.ask+' \u2014 it shows up in their drawer and in Court \u203a prep';tagWrap.appendChild(askPill);}
   var topicPill=document.createElement('span');
   topicPill.className='pill2 topic-pill'+(itemData.topic?'':' topic-pill-empty');
