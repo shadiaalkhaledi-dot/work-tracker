@@ -1194,6 +1194,51 @@ select.pl-in{cursor:pointer}
 .gate-go:hover{border-color:var(--gold);color:var(--gold)}
 .gate-ok{font-size:12.5px;color:var(--muted);display:block}
 .pl-new{border-color:var(--sage)!important;background:rgba(120,148,104,.08)}
+/* the line is the thing you read — give it the width. It was inheriting a grid cell. */
+.pl-line{display:grid!important;grid-template-columns:52px minmax(0,1fr) auto;gap:8px;
+  align-items:start;margin:2px 0 14px;width:100%}
+.pl-line-t{width:100%;min-width:0;min-height:44px;max-height:none;
+  font:12.5px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;padding:7px 10px}
+.pl-wrap{width:100%}
+/* --- a placement is a card in three bands: the drawing, the view on it, what changes ------ */
+.pl-card{border:1px solid var(--border);border-radius:10px;padding:0 0 8px;margin:0 0 12px;
+  background:var(--card);overflow:hidden}
+.pl-g{display:grid;gap:10px;padding:9px 12px;align-items:end;position:relative}
+.pl-g+.pl-g{border-top:1px solid var(--border-soft)}
+.pl-g1{grid-template-columns:152px minmax(0,1fr) 26px;background:rgba(181,144,66,.045)}
+.pl-g2{grid-template-columns:minmax(0,1fr) 80px 230px}
+.pl-g3{grid-template-columns:200px minmax(0,1fr)}
+.pl-cell{display:flex;flex-direction:column;gap:3px;min-width:0}
+.pl-cell label{font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl-cell .pl-in{width:100%;min-width:0;flex:0 0 auto}
+.pl-in{font:inherit;font-size:12.5px;padding:6px 9px;border-radius:6px;border:1px solid var(--border);
+  background:#fff;color:var(--text)}
+.pl-in:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 2px rgba(181,144,66,.16)}
+.pl-sheetcell{display:contents}
+.pl-sheet{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:600}
+.pl-sheetname{font-size:12.5px;color:var(--text)}
+.pl-act{cursor:pointer}
+.pl-x{align-self:end;margin-bottom:5px;font:inherit;font-size:12px;border:none;background:none;
+  color:var(--faint);cursor:pointer;padding:4px}
+.pl-x:hover{color:var(--rose)}
+.pl-line{display:grid;grid-template-columns:50px minmax(0,1fr) auto;gap:9px;align-items:start;
+  padding:9px 12px 2px;border-top:1px dashed var(--border);margin:0}
+.pl-line-g{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:var(--gold);padding-top:8px}
+.pl-line-t{width:100%;min-width:0;min-height:46px;max-height:none;resize:vertical;
+  font:12.5px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;padding:8px 10px;
+  border:1px solid var(--border);border-radius:6px;background:rgba(181,144,66,.05);color:var(--text)}
+.pl-line-t:focus{outline:none;border-color:var(--gold);background:#fff}
+.pl-line.edited .pl-line-t{border-color:var(--gold);background:rgba(181,144,66,.11)}
+.pl-line.empty .pl-line-t{color:var(--faint);font-style:italic}
+.pl-revert{margin-top:9px}
+.pl-add{padding-top:2px}
+@media(max-width:920px){
+  .pl-g1{grid-template-columns:minmax(0,1fr) 26px}
+  .pl-g2,.pl-g3{grid-template-columns:1fr}
+  .pl-line{grid-template-columns:1fr}
+  .pl-line-g{padding-top:0}
+}
 </style>
 </head>
 <body>
@@ -6625,23 +6670,31 @@ function placementEditor(it){
     +'A sheet can appear more than once — that is two details on the same drawing.</span>';
   wrap.appendChild(head);
 
-  var cols=document.createElement('div');cols.className='pl-row pl-cols';
-  ['Drawing no. / name','View name','View no.','Room or item  (optional)','Action','What changes','']
-   .forEach(function(t){
-    var c=document.createElement('span');c.textContent=t;cols.appendChild(c);});
-  wrap.appendChild(cols);
+
 
   function commit(){savePlacements(it,list,true);refreshRowLines(it,wrap,list);}
   function commitHard(){savePlacements(it,list);}
   list.forEach(function(pl,ix){
-    var r=document.createElement('div');r.className='pl-row';
+    // A placement is a small card in three bands: which DRAWING, which VIEW on it, and what
+    // HAPPENS there. Drawing names run to 60 characters and view names to 45 — they were never
+    // going to share one row with five other fields.
+    var r=document.createElement('div');r.className='pl-card';
+    var g1=document.createElement('div');g1.className='pl-g pl-g1';
+    var g2=document.createElement('div');g2.className='pl-g pl-g2';
+    var g3=document.createElement('div');g3.className='pl-g pl-g3';
+    function cell(label,hint){
+      var c=document.createElement('span');c.className='pl-cell';
+      var l=document.createElement('label');l.textContent=label;if(hint)l.title=hint;
+      c.appendChild(l);return c;
+    }
     function inp(key,ph,cls,opts){
       var el;
       if(opts){
         // A dropdown of view TYPES could not express "DOOR SCHEDULE - BASIC DOORS", which is what
         // Addendum 1 §4.2 actually writes. So it is a free field with the common ones offered.
         el=document.createElement('input');el.type='text';el.className='pl-in '+(cls||'');
-        el.value=pl[key]||'';el.placeholder='type it, or pick';el.setAttribute('list','viewTypeList');
+        el.value=pl[key]||'';el.placeholder='type it, or pick';
+        el.setAttribute('list','viewList-'+ix);
         el.title='Pick a common one or type the view exactly as the drawing names it — '
           +'"DOOR SCHEDULE - BASIC DOORS", "ENLARGED PLAN — WASHROOMS". What you type is what the line says.';
         el.addEventListener('input',function(){pl[key]=el.value.trim();refreshRowLines(it,wrap,list);});
@@ -6662,9 +6715,12 @@ function placementEditor(it){
           if(e.key==='Enter'){pl[key]=el.value.trim();commit();el.blur();}});
         el.addEventListener('blur',function(){pl[key]=el.value.trim();commit();});
       }
-      r.appendChild(el);return el;
+      return el;
     }
     // number on top, name beneath — typed once per drawing and shared by every line on it
+    var cNo=cell('Drawing no.','The drawing number. Start typing and the project list offers the rest.');
+    var cNm=cell('Drawing name','As the title block has it. It prints in the §4 heading AND in the '
+      +'List of Attachments, so it is typed once per drawing and reused on every line.');
     var shWrap=document.createElement('span');shWrap.className='pl-sheetcell';
     var shNo=document.createElement('input');shNo.type='text';shNo.className='pl-in pl-sheet';
     shNo.value=pl.sheet||'';shNo.placeholder='A5.31.21';shNo.title='The drawing number.';
@@ -6688,7 +6744,7 @@ function placementEditor(it){
     shNo.addEventListener('input',function(){pl.sheet=shNo.value.trim();
       var reg=sheetNameFor(key,pl.sheet,it.pkg);
       if(reg)shNm.value=reg;                     // the register knows it — stop typing
-      markSheet();refreshRowLines(it,wrap,list);});
+      markSheet();fillViews();refreshRowLines(it,wrap,list);});
     shNo.addEventListener('keydown',function(e){e.stopPropagation();
       if(e.key==='Enter'){pl.sheet=shNo.value.trim();commit();shNo.blur();}});
     shNo.addEventListener('blur',function(){pl.sheet=shNo.value.trim();commit();});
@@ -6701,28 +6757,58 @@ function placementEditor(it){
       if(sameValue(v,reg)){supersede(function(o){return o.type==='sheetname'&&o.addendum===key
         &&String(o.sheet||'').toUpperCase()===String(pl.sheet||'').toUpperCase();});return;}
       if(sheetNameFor(key,pl.sheet,it.pkg)!==v)setSheetName(key,pl.sheet,v);});
-    shWrap.appendChild(shNo);shWrap.appendChild(shNm);
-    r.appendChild(shWrap);
-    inp('view','','pl-view',VIEW_TYPES);
-    inp('no','1  ·  1A  ·  20','pl-no');
+    cNo.appendChild(shNo);cNm.appendChild(shNm);
+    g1.appendChild(cNo);g1.appendChild(cNm);
+    var cView=cell('View name','What the viewport is called on the sheet. Pick a drawing first and '
+      +'this offers the views actually on it, from the Revit export.');
+    var vEl=inp('view','','pl-view',VIEW_TYPES);cView.appendChild(vEl);
+    // A per-row datalist, because the offer depends on which drawing this line is on.
+    var vdl=document.createElement('datalist');vdl.id='viewList-'+ix;
+    var fillViews=function(){
+      vdl.innerHTML='';
+      var on=viewsOn(it.pkg,pl.sheet);
+      var names=on.map(function(x){return x[0];});
+      on.forEach(function(x){
+        var o=document.createElement('option');o.value=x[0];
+        if(x[1]==='raw')o.label='untitled viewport — this is its Revit name';
+        vdl.appendChild(o);});
+      VIEW_TYPES.filter(Boolean).forEach(function(t){
+        if(names.indexOf(t)>-1)return;
+        var o=document.createElement('option');o.value=t;o.label='generic';vdl.appendChild(o);});
+      var raw=on.filter(function(x){return x[1]==='raw';}).length;
+      vEl.placeholder=on.length?(on.length+' view'+(on.length!==1?'s':'')+' on this drawing'
+                                 +(raw?' · '+raw+' untitled':''))
+                               :'type it, or pick';
+      vEl.title=on.length
+        ? on.length+' view(s) are on '+pl.sheet+', from the Revit export. Title on Sheet where it '
+          +'is filled in, the view name where it is not.'
+        : 'Type the view exactly as the drawing names it. Pick a drawing first and this offers what '
+          +'is actually on it.';
+    };
+    fillViews();cView.appendChild(vdl);g2.appendChild(cView);
+    var cVno=cell('View no.','The number in the viewport bubble — the 1 in "PLAN 1/A42.31.10".');
+    cVno.appendChild(inp('no','1','pl-no'));g2.appendChild(cVno);
     // The issued sets write a room as NAME + NUMBER exactly as the drawing labels it —
     // 'UTILITY CORRIDOR A58T01', 'EXEC WC NW.2.074.F', 'TEAM STORE NW.1.022' — or an element in
     // place of one: 'Door A59R01.1', 'Doors P58M01, P58R01'. Blank is normal: leave it out when
     // the change is to the whole view.
-    var rin=inp('room','e.g. TEAM STORE NW.1.022','pl-room');
+    var cRoom=cell('Room or item','Optional');
+    var rin=inp('room','TEAM STORE NW.1.022','pl-room');
+    cRoom.appendChild(rin);g2.appendChild(cRoom);
     rin.title='Optional. The room as the drawing labels it — name AND number — or an element '
       +'instead (Door A59R01.1). Leave blank when the change is to the whole view.';
     // Choosing a verb writes the skeleton of the sentence into the text field and puts the cursor
     // at the end of it. You finish the sentence; you never start one from nothing.
+    var cAct=cell('Action','The verb, from the issued addenda. Picking one writes the sentence pattern.');
     var asel=document.createElement('select');asel.className='pl-in pl-act';
     PL_ACTIONS.forEach(function(a){
       var o=document.createElement('option');o.value=a.k;o.textContent=a.label;
       if(a.hint)o.title=a.hint;
       if(plActionOf(pl)===a.k)o.selected=true;
       asel.appendChild(o);});
-    asel.title='The verb, from the issued addenda. Picking one writes the sentence pattern for you.';
-    r.appendChild(asel);
-    var tin=inp('text','finish the sentence','pl-text');
+    cAct.appendChild(asel);g3.appendChild(cAct);
+    var cTxt=cell('What changes','Finish the sentence the action started.');
+    var tin=inp('text','finish the sentence','pl-text');cTxt.appendChild(tin);g3.appendChild(cTxt);
     asel.addEventListener('change',function(){
       var a=PL_ACTIONS.filter(function(x){return x.k===asel.value;})[0];
       if(!a||!a.k)return;
@@ -6741,11 +6827,12 @@ function placementEditor(it){
     x.title='Remove this placement';
     x.addEventListener('click',function(e){e.stopPropagation();
       list.splice(ix,1);commitHard();});
-    r.appendChild(x);
+    g1.appendChild(x);
+    r.appendChild(g1);r.appendChild(g2);r.appendChild(g3);
     wrap.appendChild(r);
 
     // the line, editable, right under the row that produces it
-    var lw=document.createElement('div');lw.className='pl-line';
+    var lw=document.createElement('div');lw.className='pl-line';r.appendChild(lw);
     var lg=document.createElement('span');lg.className='pl-line-g';
     lg.textContent=(ADD_NUMBERING==='plain'?(ix+1)+'.':'4.x.'+(ix+1));
     lw.appendChild(lg);
@@ -6771,7 +6858,6 @@ function placementEditor(it){
       rv.addEventListener('click',function(e){e.stopPropagation();pl.override='';commit();});
       lw.appendChild(rv);
     }
-    wrap.appendChild(lw);
   });
 
   var addRow=document.createElement('div');addRow.className='pl-add';
@@ -6949,6 +7035,17 @@ function drawingsFor(pkg){
   var n=pkgNum(pkg);
   if(n){for(var k in d){if(pkgNum(k)===n)return d[k];}}
   return {};
+}
+// Which views are actually on a drawing, from the Revit export. Keyed by package NUMBER because
+// the export says 'PACKAGE 4.2' and the vault says 'Package 4.2 — Arrivals + Penthouse'.
+function viewsOn(pkg,no){
+  var v=(window.LAST_DATA&&LAST_DATA.views)||{};
+  if(!no)return [];
+  var k=String(no).toUpperCase(),n=pkgNum(pkg);
+  var hit=(n&&v[n]&&v[n][k])||null;
+  // a line may legitimately point at another package's sheet; do not dead-end on it
+  if(!hit)for(var p in v){if(v[p][k]){hit=v[p][k];break;}}
+  return (hit||[]).map(function(x){return (typeof x==='string')?[x,'sheet']:x;});
 }
 function knownSheet(pkg,no){
   if(!no)return null;
