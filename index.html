@@ -3224,6 +3224,10 @@ function queueLocally(payload,body){
   if(!payload.ts)payload.ts=new Date().toISOString();
   var q=readLocalQueue();q.push(payload);writeLocalQueue(q);
   syncPush([payload],body?[{id:payload.id,body:body}]:null);
+  // Only record it as sent if there was somewhere to send it. Marking it regardless made work done
+  // BEFORE sharing was switched on look already-delivered, and the backlog then skipped exactly the
+  // ops it exists to rescue.
+  if(SYNC.on)markSent([payload.id]);
 }
 function flushLocalQueue(){if(!API_URL||API_URL.indexOf('PASTE_')===0)return;try{var q=readLocalQueue();if(!q.length)return;var remaining=[];q.forEach(function(payload){sendToSheet(payload,function(ok){if(!ok)remaining.push(payload);});});localStorage.setItem(localQueueKey(),JSON.stringify(remaining));}catch(e){}}
 function sendToSheet(payload,cb){fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}).then(function(r){return r.json();}).then(function(){if(cb)cb(true);}).catch(function(){if(cb)cb(false);});}
@@ -3392,6 +3396,7 @@ function syncConfigure(d){
   try{var over=JSON.parse(localStorage.getItem('wt-sync-override')||'null');if(over&&over.url)cfg=over;}catch(e){}
   if(!cfg||!cfg.url){SYNC.on=false;renderSyncChip();return;}
   SYNC.url=cfg.url;SYNC.key=cfg.key||'';SYNC.room=cfg.room||'work-tracker';SYNC.on=true;
+  syncBacklog();
   syncPull(true);
   if(SYNC.timer)clearInterval(SYNC.timer);
   // 8s while you are looking at it. A hidden tab does not poll — two people leaving this open
@@ -3399,6 +3404,32 @@ function syncConfigure(d){
   SYNC.timer=setInterval(function(){if(!document.hidden)syncPull();},8000);
   document.addEventListener('visibilitychange',function(){if(!document.hidden)syncPull();});
   renderSyncChip();
+}
+// Everything captured before the store existed is sitting in this browser and has never been sent.
+// Pushing it once, on the first configure, is the difference between "sharing works from now on"
+// and "sharing works, and the picture you added an hour ago is still invisible to everyone".
+// The store dedupes by op id and the client filters its own ops back out, so this is safe to
+// repeat — it runs on every load and costs one POST when there is nothing new.
+function markSent(ids){
+  try{var sn=JSON.parse(localStorage.getItem('wt-sync-sent')||'{}')||{};
+      ids.forEach(function(i){sn[i]=1;});
+      localStorage.setItem('wt-sync-sent',JSON.stringify(sn));}catch(e){}
+}
+function syncBacklog(){
+  if(!SYNC.on||typeof fetch!=='function')return;
+  var sent={};
+  try{sent=JSON.parse(localStorage.getItem('wt-sync-sent')||'{}')||{};}catch(e){}
+  var q=readLocalQueue().filter(function(o){return o&&o.id&&!sent[o.id];});
+  if(!q.length)return;
+  // an image op is useless without its thumbnail, so those go up together
+  var imgs=q.filter(function(o){return o.type==='image'&&o.imgKey;});
+  Promise.all(imgs.map(function(o){
+    return imgGet(o.imgKey).then(function(b){return b?{id:o.id,body:b}:null;});
+  })).then(function(bodies){
+    syncPush(q,bodies.filter(Boolean));
+    markSent(q.map(function(o){return o.id;}));
+    setStatus(q.length+' earlier change'+(q.length!==1?'s':'')+' sent to the shared board.');
+  });
 }
 function syncHeaders(){var h={'Content-Type':'text/plain'};if(SYNC.key)h['x-wt-key']=SYNC.key;return h;}
 function syncPull(first){
