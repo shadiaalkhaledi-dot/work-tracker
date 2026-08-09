@@ -140,7 +140,98 @@
   .pedit-row input[type=text]{flex:1;min-width:140px;}
   .pedit-row button{font-family:inherit;font-size:12px;font-weight:600;border-radius:6px;padding:6px 12px;cursor:pointer;border:none;background:var(--text);color:#fff;}
   .pedit-row button.pcancel{background:none;border:1px solid var(--border);color:var(--muted);}
-  /* --- the addendum workbench ------------------------------------------------------------ */
+  .sh-imgs{display:flex;flex-direction:column;gap:5px;margin:8px 0 4px}
+.sh-imgs-l{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.sh-thumbs{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
+.sh-thumb{position:relative;display:inline-block;line-height:0}
+.sh-thumb img{max-width:150px;max-height:110px;border-radius:6px;border:1px solid var(--line);cursor:zoom-in;display:block}
+.sh-thumb.pending img{border-color:var(--gold)}
+.sh-thumb.loading{width:150px;height:80px;border:1px dashed var(--line);border-radius:6px}
+.sh-thumb.missing{border-style:dotted}
+.thumb-x{position:absolute;top:3px;right:3px;font:inherit;font-size:10px;line-height:1;
+  border:none;border-radius:4px;background:rgba(0,0,0,.6);color:#fff;cursor:pointer;padding:2px 5px}
+.thumb-x:hover{background:#b4544a}
+.thumb-b{position:absolute;bottom:3px;left:3px;font-size:9px;letter-spacing:.04em;text-transform:uppercase;
+  background:var(--gold);color:#12100c;border-radius:3px;padding:1px 5px;font-weight:700;line-height:1.4}
+.img-drop{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  min-width:112px;height:80px;border:1px dashed var(--line);border-radius:6px;background:transparent;
+  color:var(--muted);cursor:pointer;font:inherit;font-size:12px;line-height:1.3}
+.img-drop small{font-size:9.5px;opacity:.75;letter-spacing:.03em}
+.img-drop:hover,.img-drop.over{border-color:var(--gold);color:var(--gold);background:rgba(245,158,11,.06)}
+.sh-f-sheets{flex:1 1 100%;align-items:flex-start;flex-direction:column;gap:4px}
+.sh-chips{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.sh-sheetchip{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;padding:2px 4px 2px 8px;
+  border:1px solid var(--line);border-radius:6px;background:rgba(245,158,11,.06)}
+.sh-sheetchip b{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);font-weight:700}
+.sh-sheetchip button{font:inherit;font-size:10px;border:none;background:none;color:var(--muted);cursor:pointer;padding:0 2px}
+.sh-sheetchip button:hover{color:#b4544a}
+.sh-nosheet{font-size:11.5px;color:#c07a4a;font-style:italic}
+.sh-preview{margin:8px 0 10px;padding:9px 11px;border-left:2px solid var(--gold);
+  background:rgba(245,158,11,.05);border-radius:0 6px 6px 0}
+.sh-preview-h{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.sh-preview-l{font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap;
+  color:var(--fg);margin-bottom:6px}
+.sh-preview-x,.sh-preview-a{font-size:11px;color:var(--muted);margin-top:4px}
+.sh-preview-a{color:var(--gold);opacity:.85}
+.sh-note-f{display:flex;flex-direction:column;gap:3px;flex:1 1 320px;min-width:260px}
+.sh-note-f label{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold)}
+.sh-note-in{width:100%;resize:vertical;font:inherit;font-size:12.5px;line-height:1.45;padding:6px 9px}
+.hintline{font-size:10.5px;color:#c07a4a}
+.untag-box{border:1px solid #6a5a3a;border-radius:7px;padding:9px 11px;margin:6px 0 10px;
+  background:rgba(245,158,11,.05)}
+.untag-h{font-size:11.5px;color:var(--gold);margin-bottom:6px}
+.untag-r{display:flex;align-items:center;gap:5px;padding:3px 0;flex-wrap:wrap}
+.untag-t{font-size:12px;flex:1 1 auto;color:var(--muted)}
+.untag-b{font:inherit;font-size:10.5px;font-weight:600;padding:1px 8px;border-radius:5px;
+  border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
+.untag-b:hover{border-color:var(--gold);color:var(--gold)}
+.wu-hand{width:100%;min-height:160px;resize:vertical;font:12.5px/1.55 ui-monospace,Menlo,monospace;
+  padding:10px;border-radius:7px;border:1px solid var(--line);background:#0d0b08;color:var(--fg)}
+.sh-head{flex-wrap:wrap}
+.sh-title{flex:1 1 240px;min-width:180px}
+/* --- selector, modes, questions, inquiries -------------------------------------------- */
+.add-pick-row,.add-mode-row{align-items:center;margin:6px 0;gap:6px}
+.add-pick{font:inherit;font-size:11.5px;padding:3px 11px;border-radius:6px;border:1px solid var(--line);
+  background:transparent;color:var(--fg);cursor:pointer}
+.add-pick:hover{border-color:var(--gold);color:var(--gold)}
+.add-pick.on{background:var(--gold);color:#12100c;border-color:var(--gold);font-weight:600}
+.add-mode-row .wb-seg:first-of-type{border-radius:6px 0 0 6px}
+.add-mode-row .wb-seg:last-of-type{border-radius:0 6px 6px 0}
+.wb-lede{font-size:12px;color:var(--muted);margin:0 0 10px;max-width:74ch;line-height:1.5}
+.wb-lede b{color:var(--fg);font-weight:600}
+.q-vs{font-size:11.5px;line-height:1.5;color:var(--muted);border-left:2px solid var(--gold);
+  padding:7px 10px;margin:0 0 14px;background:rgba(245,158,11,.05);border-radius:0 6px 6px 0;max-width:74ch}
+.q-vs b{color:var(--gold);font-weight:600}
+.q-row{border:1px solid var(--line);border-left:3px solid var(--line);border-radius:7px;
+  padding:10px 12px;margin-bottom:8px;position:relative}
+.q-row.c-yours{border-left-color:var(--gold)}
+.q-row.c-theirs{border-left-color:#7a6fa8}
+.q-row.c-split,.q-row.c-shared{border-left-color:#5b8f6e}
+.q-row.q-closed{opacity:.6}
+.q-t{font-size:13.5px;line-height:1.4;margin-bottom:3px}
+.q-m{font-size:11px;color:var(--muted);margin-bottom:7px}
+.q-sub{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.q-none{font-size:11px;color:var(--muted);font-style:italic}
+.q-go{position:absolute;top:9px;right:10px;font:inherit;font-size:10.5px;padding:2px 8px;
+  border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
+.q-go:hover{border-color:var(--gold);color:var(--gold)}
+.inq-box{margin-top:18px;border-top:1px solid var(--line);padding-top:14px}
+.inq-row{border:1px solid var(--line);border-radius:7px;padding:9px 12px;margin-bottom:7px;position:relative}
+.inq-q{font-size:13px;line-height:1.45}
+.inq-a{font-size:12.5px;color:var(--muted);margin-top:4px;line-height:1.45}
+.inq-a.inq-unanswered{color:#c07a4a;font-style:italic}
+.inq-form{align-items:center}
+.inq-form .sh-in{min-width:210px}
+.inq-form .sh-in-no{min-width:64px}
+.sh-part{display:inline-flex;margin-right:8px;flex:0 0 auto}
+.sh-part button{font:inherit;font-size:10.5px;font-weight:600;padding:1px 7px;border:1px solid var(--line);
+  background:transparent;color:var(--muted);cursor:pointer}
+.sh-part button:first-child{border-radius:5px 0 0 5px}
+.sh-part button:last-child{border-radius:0 5px 5px 0;border-left:none}
+.sh-part button:hover{color:var(--gold);border-color:var(--gold)}
+.sh-part button.on{background:var(--gold);color:#12100c;border-color:var(--gold)}
+.sh-swap{font-size:11px;color:var(--muted);font-style:italic}
+/* --- the addendum workbench ------------------------------------------------------------ */
 .add-filter-lead{align-items:center;margin:8px 0 2px}
 .add-filter-lead .add-filter-lbl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .add-filter-b.af-ar{font-weight:600}
@@ -186,9 +277,23 @@
   background:transparent;color:var(--muted);cursor:pointer}
 .sh-swap:hover{border-color:var(--gold);color:var(--gold)}
 .wu-warn{font-size:11.5px;color:#c07a4a;margin:2px 0;padding-left:2px}
-.rr-statecell select.rr-state{font:inherit;font-size:11px;padding:1px 4px;border-radius:4px;
-  border:1px solid var(--line);background:transparent;color:inherit;cursor:pointer}
-.rr-statecell select.rr-state:hover{border-color:var(--gold)}
+.rr-statecell select.rr-state{font:inherit;font-size:10px;font-weight:800;letter-spacing:.05em;
+  text-transform:uppercase;border-radius:8px;padding:2px 20px 2px 8px;border:1px solid transparent;
+  cursor:pointer;-webkit-appearance:none;appearance:none;
+  background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),
+                   linear-gradient(135deg,currentColor 50%,transparent 50%);
+  background-position:calc(100% - 11px) 51%,calc(100% - 7px) 51%;
+  background-size:4px 4px,4px 4px;background-repeat:no-repeat}
+.rr-statecell select.rr-state option{text-transform:none;font-weight:600;color:#1b1b1b;background:#fff}
+.rr-statecell select.rr-state:hover{border-color:currentColor}
+.rr-statecell select.rr-state:focus{outline:none;box-shadow:0 0 0 2px rgba(245,158,11,.35)}
+/* A row you can read without reading it: the state carries a colour and the row carries an edge. */
+.rfi-reg-row{border-left:3px solid transparent}
+.rfi-reg-row.rs-open{border-left-color:var(--teal)}
+.rfi-reg-row.rs-answered{border-left-color:var(--sage,#5b8f6e)}
+.rfi-reg-row.rs-reopened{border-left-color:var(--terracotta)}
+.rfi-reg-row.rs-closed{border-left-color:var(--border-soft)}
+.rfi-reg-row td:first-child{border-left:0}
 .sync-chip{font:inherit;font-size:10.5px;letter-spacing:.02em;padding:2px 8px;border-radius:999px;
   border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;margin-left:8px}
 .sync-chip:hover{border-color:var(--gold);color:var(--gold)}
@@ -870,6 +975,10 @@
   .rr-state{font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;border-radius:8px;padding:1px 7px;background:var(--border-soft);color:var(--muted);}
   .rr-state.rr-open{background:rgba(43,108,110,.12);color:var(--teal);}
   .rr-state.rr-reopened{background:rgba(193,102,72,.14);color:var(--terracotta);}
+  /* answered and closed had no rule at all — every state that is not open or reopened rendered
+     the same grey, which is why the register read as colourless once it became a control. */
+  .rr-state.rr-answered{background:rgba(91,143,110,.16);color:#5b8f6e;}
+  .rr-state.rr-closed{background:var(--border-soft);color:var(--faint);}
   .rr-age.rr-old{color:var(--terracotta);font-weight:800;}
   .due-pop{margin:6px 0;}
   .toast-act{margin-left:12px;border:1px solid rgba(255,255,255,.5);background:none;color:#fff;font-family:inherit;font-size:11.5px;font-weight:700;border-radius:7px;padding:2px 10px;cursor:pointer;}
@@ -2867,12 +2976,15 @@ function toast(msg,actionLabel,actionFn){
   setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t);},life+600);
 }
 function localQueueKey(){return'wt-capture-queue';}
-function queueLocally(payload){
+// `body` is for the one payload that is too big to be an op: a thumbnail. It travels beside the
+// op rather than inside it, so the op log stays small and a browser that never opens that row
+// never downloads the picture.
+function queueLocally(payload,body){
   if(!payload.id)payload.id=opId();
   if(!payload.by)payload.by=syncWho()||'';
   if(!payload.ts)payload.ts=new Date().toISOString();
   var q=readLocalQueue();q.push(payload);writeLocalQueue(q);
-  syncPush([payload]);
+  syncPush([payload],body?[{id:payload.id,body:body}]:null);
 }
 function flushLocalQueue(){if(!API_URL||API_URL.indexOf('PASTE_')===0)return;try{var q=readLocalQueue();if(!q.length)return;var remaining=[];q.forEach(function(payload){sendToSheet(payload,function(ok){if(!ok)remaining.push(payload);});});localStorage.setItem(localQueueKey(),JSON.stringify(remaining));}catch(e){}}
 function sendToSheet(payload,cb){fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}).then(function(r){return r.json();}).then(function(){if(cb)cb(true);}).catch(function(){if(cb)cb(false);});}
@@ -2902,7 +3014,7 @@ function addCapture(){
   if(!API_URL||API_URL.indexOf('PASTE_')===0){queueLocally(payload);refreshBoard();setStatus('Added to the board ('+queueCount()+' pending). Click “Copy for check-in” to sync with Claude.');return;}
   sendToSheet(payload,function(ok){if(ok)setStatus('Saved to your tracker sheet — tell Claude to sync next session.');else{queueLocally(payload);setStatus('Could not reach the sheet — saved locally, will retry.');}});
 }
-function typeLabel(type){return type==='answer'?'Answered \u2192':type==='addendum'?'Addendum +':type==='unaddendum'?'Addendum \u2013':type==='note'?'Note':type==='complete'?'Done':type==='blocker'?'Blocker':type==='watch'?'Watch':type==='subtask'?'Subtask':type==='stepdone'?'Step done':type==='court'?'Court \u2192':type==='topic'?'Topic \u2192':type==='due'?'Due \u2192':type==='delegate'?'Delegate \u2192':type==='rfistate'?'RFI state \u2192':type==='addmeta'?'Addendum field \u2192':type==='sheet'?'Sheet +':type==='produces'?'Addendum state \u2192':'New';}
+function typeLabel(type){return type==='answer'?'Answered \u2192':type==='addendum'?'Addendum +':type==='unaddendum'?'Addendum \u2013':type==='note'?'Note':type==='complete'?'Done':type==='blocker'?'Blocker':type==='watch'?'Watch':type==='subtask'?'Subtask':type==='stepdone'?'Step done':type==='court'?'Court \u2192':type==='topic'?'Topic \u2192':type==='due'?'Due \u2192':type==='delegate'?'Delegate \u2192':type==='image'?'Picture':type==='inquiry'?'Bid inquiry':type==='rfistate'?'RFI state \u2192':type==='addmeta'?'Addendum field \u2192':type==='sheet'?'Sheet +':type==='produces'?'Addendum state \u2192':'New';}
 function formatTs(ts){if(!ts)return'';var d=new Date(ts);if(isNaN(d.getTime()))return'';return d.toLocaleDateString(undefined,{month:'short',day:'numeric'})+' · '+d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});}
 
 function renderPendingRow(payload){updateCaptureSummary();var list=document.getElementById('pendingList');var empty=list.querySelector('.pending-empty');if(empty)empty.remove();var row=document.createElement('div');row.className='pending-row';renderPendingRowView(row,payload);list.appendChild(row);}
@@ -3069,18 +3181,32 @@ function syncPull(first){
       });
       if(j.now)SYNC.since=j.now;
       SYNC.n=(j.ops||[]).length;
+      // A picture that arrived from someone else is fetched once, then it is local like any other.
+      (j.ops||[]).forEach(function(o){
+        if(o&&o.type==='image'&&o.imgKey&&!IMG_CACHE[o.imgKey])syncFetchBody(o);});
       if(fresh){QCACHE=null;rebuildPendingList();refreshBoard();
         if(!first)setStatus(fresh+' change'+(fresh!==1?'s':'')+' arrived from someone else.');}
       renderSyncChip();
     })
     .catch(function(e){SYNC.err=String(e&&e.message||e);renderSyncChip();});
 }
-function syncPush(ops){
+function syncPush(ops,bodies){
   if(!SYNC.on||typeof fetch!=='function'||!ops||!ops.length)return;
   fetch(SYNC.url+'?room='+encodeURIComponent(SYNC.room),
-        {method:'POST',headers:syncHeaders(),body:JSON.stringify({ops:ops})})
+        {method:'POST',headers:syncHeaders(),body:JSON.stringify({ops:ops,bodies:bodies||[]})})
     .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);SYNC.err='';SYNC.at=Date.now();renderSyncChip();})
     .catch(function(e){SYNC.err=String(e&&e.message||e);renderSyncChip();});
+}
+function syncFetchBody(op){
+  if(!SYNC.on||typeof fetch!=='function')return;
+  imgGet(op.imgKey).then(function(have){
+    if(have)return;
+    fetch(SYNC.url+'?room='+encodeURIComponent(SYNC.room)+'&body='+encodeURIComponent(op.id),
+          {headers:SYNC.key?{'x-wt-key':SYNC.key}:{}})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(j){if(j&&j.body){imgPut(op.imgKey,j.body);buildAddendumRegister();}})
+      .catch(function(){});
+  });
 }
 function renderSyncChip(){
   var el=document.getElementById('syncChip');if(!el)return;
@@ -3130,6 +3256,10 @@ function buildExportText(){
       return '- [Answered \u2192] '+(loc?loc+': ':'')+p.text
         +(p.stepRef?' [answers: '+p.stepRef+']':'')+ref
         +(p.next?' [\u2192 next: '+p.next+']':'');
+    }
+    if(p.type==='image'){
+      return '- [Picture] '+(loc?loc+': ':'')+p.name+' ('+p.w+'\u00d7'+p.h+')'+ref
+        +'  \u2192 save to vault/attachments and add [img:: <path>] to the item';
     }
     return '- ['+typeLabel(p.type)+'] '+(loc?loc+': ':'')+p.text+ref;
   });
@@ -3594,6 +3724,54 @@ function buildAddendumRegister(){
     if(va!==vb)return va<vb?-1:1;
     return a<b?-1:1;
   });
+
+  // Two switches, both always visible: WHICH addendum, and WHICH VIEW of it. The first cut made
+  // you open a card to reach the sheet list, which buried the work you actually came to do one
+  // click deep and made the sheets feel like a sub-feature of the register. They are the same
+  // instrument; neither is inside the other.
+  if(!ADD_OPEN||order.indexOf(ADD_OPEN)===-1){
+    var best=order.slice().sort(function(a,b){
+      return addPoolFor(b).length-addPoolFor(a).length;})[0];
+    ADD_OPEN=best||order[0];
+  }
+  var pickRow=document.createElement('div');pickRow.className='add-filter add-pick-row';
+  var pl=document.createElement('span');pl.className='add-filter-lbl';pl.textContent='Addendum';
+  pickRow.appendChild(pl);
+  order.forEach(function(k){
+    var g=groups[k],n=addPoolFor(k).length;
+    var b=document.createElement('button');b.type='button';
+    b.className='add-pick'+(ADD_OPEN===k?' on':'');
+    b.textContent=(g.pkg||'').replace(/Package /,'Pkg ').split('\u2014')[0].trim()+' · Add '+g.num
+      +(n?'  '+n:'');
+    var dr=addendumDateFor(g.pkg,g.num);
+    b.title=(dr&&/^\d{4}-\d{2}-\d{2}/.test(dr.date))?('issues '+dr.date):'no date yet';
+    b.addEventListener('click',function(){ADD_OPEN=k;buildAddendumRegister();});
+    pickRow.appendChild(b);});
+  c.appendChild(pickRow);
+
+  var modeRow=document.createElement('div');modeRow.className='add-filter add-mode-row';
+  var ml=document.createElement('span');ml.className='add-filter-lbl';ml.textContent='View';
+  modeRow.appendChild(ml);
+  [['reg','Contents','What this addendum carries — the items, by consultant scope'],
+   ['threads','Our questions','Design questions WE are chasing — ours to answer. Not bid inquiries: those come from bidders, after the documents go out, and live in §5 of the Write-up.'],
+   ['sheets','Sheet work','The sheet-by-sheet punch list — where the states get set'],
+   ['wu','Write-up','\u00a73, \u00a74, the List of Attachments and \u00a75 Bid inquiries']
+  ].forEach(function(o){
+    var b=document.createElement('button');b.type='button';
+    b.className='wb-seg'+(ADD_MODE===o[0]?' on':'');
+    b.textContent=o[1];b.title=o[2];
+    if(o[0]==='threads'){var tn=addQuestionsFor(ADD_OPEN).length;if(tn)b.textContent+='  '+tn;}
+    if(o[0]==='sheets'){var sn2=addPoolFor(ADD_OPEN).length;if(sn2)b.textContent+='  '+sn2;}
+    b.addEventListener('click',function(){ADD_MODE=o[0];buildAddendumRegister();});
+    modeRow.appendChild(b);});
+  c.appendChild(modeRow);
+
+  if(ADD_MODE==='sheets'){addWorkbench(c,ADD_OPEN,addPoolFor(ADD_OPEN));return;}
+  if(ADD_MODE==='threads'){addQuestionsPanel(c,ADD_OPEN,groups[ADD_OPEN]);return;}
+  if(ADD_MODE==='wu'){
+    var h=document.createElement('div');h.id='wuHost-'+ADD_OPEN;c.appendChild(h);
+    h.setAttribute('data-rerender','1');buildWriteup(ADD_OPEN,h);return;}
+
   order.forEach(function(k){
     var g=groups[k];
     var row=addendumDateFor(g.pkg,g.num);
@@ -3626,81 +3804,39 @@ function buildAddendumRegister(){
     // "what rides this addendum", and the sheet-by-sheet detail lives one click away in Sheets.
     (function(){
       var pool=addPoolFor(k);
+      if(!pool.length)return;
       var strip=document.createElement('div');strip.className='add-sheets';
-      var open=(ADD_OPEN===k);
-      var ob=document.createElement('button');ob.type='button';ob.className='add-open'+(open?' on':'');
-      ob.textContent=(open?'▾ ':'▸ ')+'Sheet work'+(pool.length?' · '+pool.length:'');
-      ob.title='The sheet-by-sheet punch list that fills this addendum, and the write-up it renders';
-      ob.addEventListener('click',function(e){e.stopPropagation();toggleAddOpen(k);});
+      var un=pool.filter(function(i2){return !i2.produces;}).length;
+      var dn=pool.filter(function(i2){return i2.produces==='drawings';}).length;
+      var vn=pool.filter(function(i2){return i2.verify;}).length;
+      var ob=document.createElement('button');ob.type='button';ob.className='add-open';
+      ob.textContent='Sheet work · '+pool.length+' \u2192';
+      ob.title='Open the punch list for this addendum';
+      ob.addEventListener('click',function(e){e.stopPropagation();
+        ADD_OPEN=k;ADD_MODE='sheets';buildAddendumRegister();
+        var el=document.getElementById('addRegView');if(el)el.scrollIntoView({block:'start'});});
       strip.appendChild(ob);
-      if(!open){
-        var un=pool.filter(function(i2){return !i2.produces;}).length;
-        var dn=pool.filter(function(i2){return i2.produces==='drawings';}).length;
-        var vn=pool.filter(function(i2){return i2.verify;}).length;
-        var lab=document.createElement('span');lab.className='add-sheets-lab';
-        lab.textContent=pool.length?(dn+' issue a drawing'+(un?' · '+un+' untriaged':'')+(vn?' · '+vn+' to verify':''))
-          :'nothing on the sheet list yet';
-        strip.appendChild(lab);
-        pool.slice().sort(function(a,b){return sheetSortKey(a)<sheetSortKey(b)?-1:1;}).slice(0,18).forEach(function(it){
-          var c2=document.createElement('button');c2.type='button';
-          c2.className='sh-chip'+(it.produces?(' p-'+it.produces):' p-untriaged')+(it.verify?' q':'');
-          c2.textContent=(itemPart(it)==='spec'?(it.section||'§3'):(itemSheets(it)[0]||'no sheet'))
-            +(itemSheets(it).length>1?' +'+(itemSheets(it).length-1):'')+(it.verify?' ?':'');
-          c2.title=(it.title||'')+' — '+produceLabel(itemPart(it),it.produces);
-          c2.addEventListener('click',function(e){e.stopPropagation();
-            ADD_OPEN=k;buildAddendumRegister();
-            var el=document.getElementById('sh-'+it.id);
-            if(el){el.scrollIntoView({block:'center'});el.classList.add('sh-hit');
-              setTimeout(function(){el.classList.remove('sh-hit');},1600);}
-          });
-          strip.appendChild(c2);
-        });
-        if(pool.length>18){var mo=document.createElement('span');mo.className='add-sheets-lab';
-          mo.textContent='+'+(pool.length-18)+' more';strip.appendChild(mo);}
-      }
-      card.appendChild(strip);
-      if(ADD_OPEN===k)addWorkbench(card,k,pool);
+      var lab=document.createElement('span');lab.className='add-sheets-lab';
+      lab.textContent=dn+' issue a drawing'+(un?' · '+un+' untriaged':'')+(vn?' · '+vn+' to verify':'');
+      strip.appendChild(lab);
     })();
-    // What questions does this instrument carry? TP5-A1 gathers 15 threads across 3 packages --
-    // the one cross-cut the Programme > Package tree cannot draw, because those threads are filed
-    // under different packages. This is that map, in the surface where the write-up happens.
+    // The questions used to sit here as a row of chips, and at fifteen of them across three
+    // packages that row was unreadable — the one cross-cut the Programme > Package tree cannot
+    // draw, rendered as confetti. It has its own tab now, with a row each.
     (function(){
-      var order=[],seenT={};
-      g.items.forEach(function(it){
-        if(!it.topic)return;
-        if(!seenT[it.topic]){seenT[it.topic]={n:0,open:0};order.push(it.topic);}
-        seenT[it.topic].n++;
-        if(it.status!=='completed')seenT[it.topic].open++;
-      });
-      if(!order.length&&!g.items.length)return;
+      var qs=addQuestionsFor(k);
+      if(!qs.length)return;
       var row=document.createElement('div');row.className='add-threads';
-      var lbl=document.createElement('span');lbl.className='at-lbl';
-      lbl.textContent=order.length?('Questions riding this addendum \u00b7 '+order.length):'Questions riding this addendum';
-      row.appendChild(lbl);
-      if(!order.length){
-        var none=document.createElement('span');none.className='at-none';
-        none.textContent='nothing threaded yet \u2014 the "+ topic" pill on a card files it';
-        row.appendChild(none);
-      }
-      // most work first: an addendum is read by what it still owes
-      order.sort(function(a,b){
-        var d2=seenT[b].open-seenT[a].open;if(d2)return d2;
-        return seenT[b].n-seenT[a].n;
-      });
-      order.forEach(function(slug){
-        var TH=null;for(var ti=0;ti<THREADS.length;ti++){if(THREADS[ti].slug===slug){TH=THREADS[ti];break;}}
-        var b=document.createElement('button');b.type='button';b.className='at-chip';
-        if(TH&&TH.court)b.classList.add('c-'+TH.court);
-        b.textContent=(TH&&TH.question)?TH.question.replace(/\?$/,'').slice(0,46):topicLabel(slug);
-        var n=document.createElement('span');n.className='at-n';
-        n.textContent=seenT[slug].open?seenT[slug].open+' open':'closed';
-        b.appendChild(n);
-        b.title=(TH&&TH.question?TH.question+'\n':'')+slug
-          +(TH&&TH.court?'\nwhose move: '+TH.court:'')
-          +'\nClick to open it on the Board';
-        b.addEventListener('click',function(ev){ev.stopPropagation();jumpToThread(slug);});
-        row.appendChild(b);
-      });
+      var b=document.createElement('button');b.type='button';b.className='add-open';
+      b.textContent='Questions · '+qs.length+' \u2192';
+      b.title='The questions riding this addendum, one per row';
+      b.addEventListener('click',function(e){e.stopPropagation();
+        ADD_OPEN=k;ADD_MODE='threads';buildAddendumRegister();});
+      row.appendChild(b);
+      var open=qs.filter(function(q){return q.open;}).length;
+      var lab=document.createElement('span');lab.className='add-sheets-lab';
+      lab.textContent=open?(open+' still open'):'all answered';
+      row.appendChild(lab);
       card.appendChild(row);
     })();
     g.items.sort(function(a,b){return (a.status==='completed'?1:0)-(b.status==='completed'?1:0);});
@@ -3846,6 +3982,7 @@ function rfiTableEl(rows,hidePkg){
     // It is a control now, it queues like every other edit, and it survives a reload because the
     // queue IS the overlay.
     var sc=tr.querySelector('.rr-statecell');
+    tr.classList.add('rs-'+r.st);
     var sel=document.createElement('select');sel.className='rr-state rr-'+r.st;
     ['open','answered','reopened','closed'].forEach(function(v){
       var o=document.createElement('option');o.value=v;o.textContent=v;
@@ -3855,6 +3992,9 @@ function rfiTableEl(rows,hidePkg){
     sel.addEventListener('mousedown',function(e){e.stopPropagation();});
     sel.addEventListener('change',function(e){
       e.stopPropagation();
+      // repaint before the rebuild so the change is visible the instant you make it
+      sel.className='rr-state rr-'+sel.value;
+      tr.className=tr.className.replace(/\brs-\w+/,'rs-'+sel.value);
       queueLocally({type:'rfistate',program:r.it.program||'',pkg:r.it.pkg||'',
                     itemRef:(r.it.title||'').slice(0,160),
                     text:'state: '+r.st+' \u2192 '+sel.value});
@@ -5353,38 +5493,54 @@ function sheetSortKey(it){
 
 // ---- state ---------------------------------------------------------------------------------
 var sheetFilter='';        // legacy: which instrument the old Sheets tab was pinned to
-var ADD_OPEN=null;         // which addendum's workbench is open
+var ADD_OPEN=null;         // which addendum is selected — one is always selected
+var ADD_MODE='reg';        // reg | sheets | inq | wu
 var ADD_DISC='AR';         // Architecture is the default and says so. This is an ARCH addendum.
 var ADD_PART='';           // '' both · 'spec' §3 · 'drawing' §4
 var ADD_STATE='';          // '' | drawings | writeup | none | untriaged | verify
 var SH_OPEN={};
 var SH_ROW_OPEN={};
 var WU_EXCLUDE={};
-var WU_INQUIRIES=false;
 
-function setSheetFilter(a){ADD_OPEN=a||null;buildAddendumRegister();}
+
+function setSheetFilter(a){if(a)ADD_OPEN=a;ADD_MODE='sheets';buildAddendumRegister();}
 function setAddDisc(d){ADD_DISC=d;buildAddendumRegister();}
 function setAddPart(p){ADD_PART=(ADD_PART===p)?'':p;ADD_STATE='';buildAddendumRegister();}
 function setAddState(k){ADD_STATE=(ADD_STATE===k)?'':k;buildAddendumRegister();}
-function toggleAddOpen(k){ADD_OPEN=(ADD_OPEN===k)?null:k;buildAddendumRegister();}
+function toggleAddOpen(k){ADD_OPEN=k;ADD_MODE=(ADD_MODE==='sheets'?'reg':'sheets');buildAddendumRegister();}
 
 // ---- the item pool ---------------------------------------------------------------------------
 // The sheet lane, plus anything else riding an addendum. A board item is keyed to a question and
 // usually has no sheet — but if it puts something into the instrument it has to reach the
 // write-up, or the document is quietly short.
-function itemDisc(it){
-  var d=(typeof scopeInfo==='function'&&it.scope)?(scopeInfo(it.scope).d||''):'';
-  return (d||it.disc||'').split(/[,;/]+/)[0].trim();
+function itemDisc(it){return itemDiscList(it)[0]||'';}
+// `scope::` names WHOSE DOCUMENT an item belongs in, and that is the only question this filter
+// asks. `disc::` is looser — it says who a change touches — so a mechanical drawing-number fix
+// carries disc ['ME','AR'] because it also affects the architectural index. Reading `disc` first
+// put that item in the Vol 1 ARCH write-up. Scope wins; disc is the fallback when scope is absent.
+function itemDiscList(it){
+  var sc=(typeof scopeInfo==='function'&&it.scope)?(scopeInfo(it.scope).d||''):'';
+  if(sc)return [sc];
+  var raw=it.disc;
+  if(Array.isArray(raw))raw=raw.join(',');
+  return String(raw||'').split(/[,;/]+/).map(function(x){return x.trim();}).filter(Boolean);
 }
-// An item tagged 'ME,AR' is partly ours. It shows under AR as well as ME rather than vanishing.
+// And an untagged item is NOT quietly claimed by Architecture. It is held out and named, because
+// guessing which consultant owns a change is exactly how one ends up in the wrong document.
 function itemHasDisc(it,d){
   if(!d||d==='*')return true;
-  var raw=((typeof scopeInfo==='function'&&it.scope)?(scopeInfo(it.scope).d||''):'')+','+(it.disc||'');
-  var list=raw.split(/[,;/]+/).map(function(x){return x.trim();}).filter(Boolean);
-  if(!list.length)return d==='AR';   // unscoped work is yours until someone says otherwise
+  var list=itemDiscList(it);
+  if(!list.length)return false;
   return list.indexOf(d)>-1;
 }
+function addUntaggedFor(key){
+  return laneItems().filter(function(i){
+    return addKey(i.pkg,i.addendum)===key&&!itemDiscList(i).length;});
+}
 function itemPart(it){return it.part||(it.section?'spec':'drawing');}
+// `both` is a real answer, so nothing may test `part==='spec'` directly any more.
+function isSpecPart(it){var p=itemPart(it);return p==='spec'||p==='both';}
+function isDrawPart(it){var p=itemPart(it);return p==='drawing'||p==='both';}
 function itemSheets(it){
   if(it.sheets&&it.sheets.length)return it.sheets.slice();
   return it.sheet?[it.sheet]:[];
@@ -5471,6 +5627,12 @@ function addWorkbench(host,key,pool){
   var live=pool.filter(function(i){return !i.pendingComplete&&i.status!=='completed';});
   var done=pool.length-live.length;
   var wb=document.createElement('div');wb.className='wb';
+  var lede0=document.createElement('div');lede0.className='wb-lede';
+  lede0.innerHTML='One row per thing that changes. Give each a <b>state</b> and the document writes '
+    +'itself: <b>Issue drawing</b> puts the sheet in the List of Attachments, <b>Write-up only</b> '
+    +'says it in words with nothing attached, <b>Fix only</b> means we correct it and the bid never '
+    +'sees it. Open a row to see the exact lines it will produce.';
+  wb.appendChild(lede0);
 
   // 1. Specification or Drawing — the axis the letters never carried. §3 is written by the spec
   //    writer from what you note here; §4 is written here in full.
@@ -5521,6 +5683,29 @@ function addWorkbench(host,key,pool){
   wb.appendChild(sr);
 
   var wuh=document.createElement('div');wuh.id='wuHost-'+key;wb.appendChild(wuh);
+
+  // Held out of every discipline rather than guessed into one. Naming them here is what keeps the
+  // exclusion honest — a silently hidden item is worse than a wrongly filed one.
+  var untag=addUntaggedFor(key);
+  if(untag.length&&ADD_DISC!=='*'){
+    var ub=document.createElement('div');ub.className='untag-box';
+    var uh=document.createElement('div');uh.className='untag-h';
+    uh.textContent=untag.length+' item'+(untag.length!==1?'s':'')+' carry no scope, so '
+      +(untag.length!==1?'they are':'it is')+' in nobody\u2019s addendum yet';
+    ub.appendChild(uh);
+    untag.forEach(function(it){
+      var r=document.createElement('div');r.className='untag-r';
+      var t=document.createElement('span');t.className='untag-t';
+      t.textContent=(it.title||'').slice(0,88);r.appendChild(t);
+      ['AR','ME','EL','ST'].forEach(function(d){
+        var b=document.createElement('button');b.type='button';b.className='untag-b';
+        b.textContent=d;b.title='File this under '+d;
+        b.addEventListener('click',function(e){e.stopPropagation();
+          setAddMeta(it.id,'disc',d,'Discipline');});
+        r.appendChild(b);});
+      ub.appendChild(r);});
+    wb.appendChild(ub);
+  }
 
   // 3. the rows. Grouped by state so "what can I hand over" is a block, not a scan.
   var rows=parted.filter(function(i){
@@ -5611,7 +5796,7 @@ function sheetRow(it){
     +(sheets.length?'':' noSheet')+(it.pendingComplete||it.status==='completed'?' sh-doneRow':'');
   var head=document.createElement('div');head.className='sh-head';
   var no=document.createElement('span');no.className='sh-no';
-  if(part==='spec'){no.textContent=it.section?('SECTION '+it.section):'— no section';}
+  if(isSpecPart(it)&&!itemSheets(it).length){no.textContent=it.section?('SECTION '+it.section):'— no section';}
   else if(sheets.length>1){no.textContent=sheets[0]+' +'+(sheets.length-1);
     no.title='Also on '+sheets.slice(1).join(', ')+' — this item writes a line under each sheet';}
   else if(sheets.length){no.textContent=sheets[0];}
@@ -5620,6 +5805,19 @@ function sheetRow(it){
   if(it.pendingLocal){row.classList.add('pendingRow');
     var pb=document.createElement('span');pb.className='badge p';pb.textContent='PENDING';
     pb.title='Captured here, not yet folded into the vault';head.appendChild(pb);}
+  // It was buried in the expander. "Is this a spec item or a drawing item?" is the FIRST question
+  // about a row, not a detail of it, so it sits at the front of the row where it reads as a switch.
+  var pw=document.createElement('span');pw.className='sh-part';
+  [['drawing','§4','§4 Drawings — written here in full, one heading per sheet'],
+   ['spec','§3','§3 Specifications — you leave a note; the spec writer writes the final words'],
+   ['both','Both','One change needing a spec note AND a drawing revision. It appears in §3 and §4.']
+  ].forEach(function(o){
+    var b=document.createElement('button');b.type='button';b.textContent=o[1];b.title=o[2];
+    if(part===o[0])b.classList.add('on');
+    b.addEventListener('click',function(e){e.stopPropagation();
+      if(part!==o[0])setAddMeta(it.id,'part',o[0],'Goes into');});
+    pw.appendChild(b);});
+  head.appendChild(pw);
   var ti=document.createElement('span');ti.className='sh-title';
   ti.textContent=(it.title||'').replace(/^A\S+\s+—\s+/,'');
   head.appendChild(no);head.appendChild(ti);
@@ -5666,9 +5864,11 @@ function sheetRow(it){
   body.open=!!SH_ROW_OPEN[it.id];
   body.addEventListener('toggle',function(){SH_ROW_OPEN[it.id]=body.open;});
   var sm2=document.createElement('summary');
-  sm2.textContent=(steps.length?steps.length+' markup'+(steps.length!==1?'s':''):'no markup')
-    +(imgs.length?' · '+imgs.length+' image'+(imgs.length!==1?'s':''):'')
-    +(notes.length?' · ⚠ '+notes.length:'')+' · where it goes';
+  sm2.textContent='Where this goes in the addendum'
+    +'  —  '+(steps.length?steps.length+' markup'+(steps.length!==1?'s':''):'no markup yet')
+    +(function(){var n=imagesFor(it).length;
+        return n?', '+n+' picture'+(n!==1?'s':''):'';})()
+    +(notes.length?', ⚠ '+notes.length+' note'+(notes.length!==1?'s':''):'');
   body.appendChild(sm2);
 
   // where it goes — the editor for the fields the write-up reads
@@ -5684,28 +5884,116 @@ function sheetRow(it){
     i2.addEventListener('blur',function(){if((i2.value.trim()||'')!==(val||''))onSave(i2.value.trim());});
     w.appendChild(i2);return w;
   }
-  if(part==='spec'){
+  if(isSpecPart(it)){
     ed.appendChild(field('Section',it.section,'09 06 00 – Schedule for Finishes',
       'The §3 heading. Written as it appears in the document.',
       function(v){setAddMeta(it.id,'section',v,'Section');}));
-  }else{
-    ed.appendChild(field('Sheets',sheets.join(', '),'A5.31.21, A5.31.22',
-      'Comma-separated. An item on two sheets writes a line under each — Addendum 2 §4.2.1 and §4.3.1 are the same sentence on A42.81.12 and A42.81.13.',
-      function(v){setAddMeta(it.id,'sheets',v,'Sheets');}));
-    ed.appendChild(field('Detail',it.detail,'4',
-      'A detail or view number on the sheet. Makes the line read "4/A42.6.01; Revise …" instead of "Sheet A42.6.01; …".',
+    // You do not write §3 — Specifications does. What they need from you is the information:
+    // which section, what changed, and enough to write the clause. So this is a note, not prose.
+    var nw=document.createElement('div');nw.className='sh-note-f';
+    var nl=document.createElement('label');nl.textContent='Note for the spec writer';
+    nl.title='Goes to Specifications as written. Say what changed and why; they write the clause.';
+    nw.appendChild(nl);
+    var na=document.createElement('textarea');na.className='sh-in sh-note-in';
+    na.value=it.note||'';na.rows=2;
+    na.placeholder='e.g. WP2 is no longer used in Utility Corridor A58T01 — delete it and leave WP1. Confirmed with Chris H, 2026-08-09.';
+    na.addEventListener('keydown',function(e){e.stopPropagation();
+      if(e.key==='Escape'){na.value=it.note||'';na.blur();}});
+    na.addEventListener('blur',function(){
+      if((na.value.trim()||'')!==(it.note||''))setAddMeta(it.id,'note',na.value.trim(),'Spec note');});
+    nw.appendChild(na);
+    if(!it.note){var nh=document.createElement('div');nh.className='hintline';
+      nh.textContent='Without a note this section reaches Specifications empty.';nw.appendChild(nh);}
+    ed.appendChild(nw);
+  }
+  if(isDrawPart(it)){
+    // Three abstract text boxes told you nothing about what they would produce. The sheets are
+    // ordered chips now — you can see which is first and which is last, because that is the order
+    // §4 writes them in — and the exact lines this row will put in the document render underneath.
+    var sw2=document.createElement('div');sw2.className='sh-f sh-f-sheets';
+    var sl2=document.createElement('label');sl2.textContent='On which sheets';
+    sl2.title='One line is written under EACH, in this order. Addendum 2 §4.2.1 and §4.3.1 are the same sentence on A42.81.12 and A42.81.13.';
+    sw2.appendChild(sl2);
+    var chips=document.createElement('div');chips.className='sh-chips';
+    sheets.forEach(function(sn,ix){
+      var c3=document.createElement('span');c3.className='sh-sheetchip';
+      var od=document.createElement('b');od.textContent=(ix===0?'first':(ix===sheets.length-1?'last':String(ix+1)));
+      c3.appendChild(od);
+      c3.appendChild(document.createTextNode(sn));
+      var x=document.createElement('button');x.type='button';x.textContent='✕';
+      x.title='Take this row off '+sn;
+      x.addEventListener('click',function(e){e.stopPropagation();
+        var next=sheets.filter(function(z){return z!==sn;});
+        setAddMeta(it.id,'sheets',next.join(', '),'Sheets');});
+      c3.appendChild(x);chips.appendChild(c3);});
+    if(!sheets.length){var ns=document.createElement('span');ns.className='sh-nosheet';
+      ns.textContent='no sheet yet — this row cannot be written until it has one';chips.appendChild(ns);}
+    var addS=document.createElement('input');addS.type='text';addS.className='sh-in sh-in-no';
+    addS.placeholder=sheets.length?'+ another sheet':'+ sheet no.';
+    addS.addEventListener('keydown',function(e){e.stopPropagation();
+      if(e.key!=='Enter')return;
+      var v=addS.value.trim();if(!v)return;
+      setAddMeta(it.id,'sheets',sheets.concat(v.split(/[,;]+/).map(function(z){return z.trim();})
+        .filter(Boolean)).join(', '),'Sheets');});
+    chips.appendChild(addS);
+    sw2.appendChild(chips);
+    ed.appendChild(sw2);
+    ed.appendChild(field('Detail no.',it.detail,'e.g. 4',
+      'One view on the sheet rather than the whole sheet: the line becomes "4/A42.6.01; Revise …".',
       function(v){setAddMeta(it.id,'detail',v,'Detail');}));
-    ed.appendChild(field('Target',it.target,'auto — Sheet A5.31.21',
-      'What the line names before the semicolon. Leave blank for "Sheet <no>". The issued addenda also use "PLAN 1/A42.31.10", "DOOR SCHEDULE - BASIC DOORS /Sheet A42.0.02", "UTILITY CORRIDOR A58T01", "Doors P58M01, P58R01".',
+    ed.appendChild(field('Or name the target',it.target,'auto',
+      'Overrides both. The issued addenda use "PLAN 1/A42.31.10", "DOOR SCHEDULE - BASIC DOORS /Sheet A42.0.02", "UTILITY CORRIDOR A58T01", "Doors P58M01, P58R01".',
       function(v){setAddMeta(it.id,'target',v,'Target');}));
   }
-  var sw=document.createElement('button');sw.type='button';sw.className='sh-swap';
-  sw.textContent=part==='spec'?'→ move to §4 Drawings':'→ move to §3 Specifications';
-  sw.title='Addendum 4 §3.7 is a drawing item filed inside Specifications. This is the switch that prevents it.';
-  sw.addEventListener('click',function(e){e.stopPropagation();
-    setAddMeta(it.id,'part',part==='spec'?'drawing':'spec','Goes into');});
+  var sw=document.createElement('span');sw.className='sh-swap';
+  sw.textContent=part==='spec'?'§3 — the spec writer packages this one'
+    :(part==='both'?'§3 note + §4 line — it appears in both':'§4 — written here, in full');
+  sw.title='Change it with the §3/§4 switch at the front of the row. Addendum 4 §3.7 is a drawing item filed inside Specifications; that switch is what prevents it.';
   ed.appendChild(sw);
   body.appendChild(ed);
+
+  // The answer to "what do these fields do": show the lines. Same renderer as the document, so a
+  // preview can never disagree with what gets written.
+  (function(){
+    var pv=document.createElement('div');pv.className='sh-preview';
+    var ph=document.createElement('div');ph.className='sh-preview-h';
+    ph.textContent=inDocument(it)?'It will write this into the addendum'
+      :(it.produces==='none'?'Fix only — nothing is written into the addendum'
+                            :'No state yet — nothing is written until you pick one');
+    pv.appendChild(ph);
+    if(inDocument(it)){
+      var lines=[];
+      var st2=wuStepsOf(it);
+      if(isSpecPart(it)){
+        wuSpecLines(it,st2.keep.length?st2.keep:[it.title||'']).forEach(function(l){
+          lines.push('§3  SECTION '+((it.section||'[SECTION ___]').toUpperCase())+'\n      '+l);});
+      }
+      if(isDrawPart(it)){
+        (itemSheets(it).length?itemSheets(it):['']).forEach(function(sn){
+          var head='§4  DRAWING '+(sn||'[SHEET ___]');
+          if(!st2.keep.length){lines.push(head+'\n      [NO MARKUP RECORDED — write the line]');return;}
+          st2.keep.forEach(function(t){lines.push(head+'\n      '+wuDrawLine(it,sn,t));});
+        });
+      }
+      lines.forEach(function(l){
+        var d3=document.createElement('div');d3.className='sh-preview-l';d3.textContent=l;pv.appendChild(d3);});
+      if(st2.skipped){
+        var sk=document.createElement('div');sk.className='sh-preview-x';
+        sk.textContent=st2.skipped+' step'+(st2.skipped!==1?'s':'')+' left out — those tell YOU to do '
+          +'something, which is not addendum content.';
+        pv.appendChild(sk);}
+      if(it.produces==='drawings'&&itemSheets(it).length){
+        var at=document.createElement('div');at.className='sh-preview-a';
+        at.textContent='→ '+itemSheets(it).join(' and ')+' enter'+(itemSheets(it).length===1?'s':'')
+          +' the List of Attachments, because the line says "attached".';
+        pv.appendChild(at);}
+      if(it.produces==='writeup'){
+        var at2=document.createElement('div');at2.className='sh-preview-a';
+        at2.textContent='→ nothing is attached. The words have to carry the change on their own.';
+        pv.appendChild(at2);}
+    }
+    body.appendChild(pv);
+  })();
 
   if(steps.length){
     var sl=document.createElement('div');sl.className='sh-steps';
@@ -5718,14 +6006,7 @@ function sheetRow(it){
       sl.appendChild(e);});
     body.appendChild(sl);
   }
-  if(imgs.length){
-    var th=document.createElement('div');th.className='sh-thumbs';
-    imgs.forEach(function(im){
-      var img=document.createElement('img');img.src=im.src;img.alt=im.name;img.loading='lazy';
-      img.addEventListener('click',function(){showImgModal(im.src);});
-      th.appendChild(img);});
-    body.appendChild(th);
-  }
+  body.appendChild(imageStrip(it));
   notes.forEach(function(u){
     var t=String(u),b2=t.indexOf('|'),bod=b2>-1?t.slice(b2+1):t;
     var n=document.createElement('div');n.className='sh-note';
@@ -5740,6 +6021,299 @@ function showImgModal(src){
   m.addEventListener('click',function(){m.remove();});
   document.addEventListener('keydown',function esc(e){if(e.key==='Escape'){m.remove();document.removeEventListener('keydown',esc);}});
   document.body.appendChild(m);
+}
+
+
+// ---- Questions — its own tab, a row each -------------------------------------------------------
+// TP5 Addendum 1 gathers fifteen threads across three packages. That is the one cross-cut the
+// Programme > Package tree structurally cannot draw — and rendering it as a row of chips made it
+// unreadable, which is worse than not drawing it.
+function addQuestionsFor(key){
+  var out=[],seen={};
+  (window.ITEMS||[]).forEach(function(it){
+    if(addKey(it.pkg,it.addendum)!==key||!it.topic)return;
+    if(!itemHasDisc(it,ADD_DISC))return;
+    if(!seen[it.topic]){seen[it.topic]={slug:it.topic,n:0,open:0,items:[]};out.push(seen[it.topic]);}
+    var r=seen[it.topic];r.n++;r.items.push(it);
+    if(it.status!=='completed')r.open++;
+  });
+  out.forEach(function(r){
+    r.open=r.open>0;
+    for(var i=0;i<(window.THREADS||[]).length;i++)
+      if(THREADS[i].slug===r.slug){r.th=THREADS[i];break;}
+  });
+  // most work first: an addendum is read by what it still owes
+  out.sort(function(a,b){
+    var d=(b.open?1:0)-(a.open?1:0);if(d)return d;return b.n-a.n;});
+  return out;
+}
+function addQuestionsPanel(host,key,g){
+  var qs=addQuestionsFor(key);
+  var wrap=document.createElement('div');wrap.className='wb';
+  var lede=document.createElement('div');lede.className='wb-lede';
+  lede.innerHTML=qs.length
+    ? 'Each row is one question <b>we</b> are chasing, and everything it caused. An addendum closes '
+      +'when these do — the sheet list is how, this is why.'
+    : 'Nothing on this addendum is threaded to a question yet. The "+ topic" pill on an item card files it.';
+  wrap.appendChild(lede);
+  // Two different things share the word "question" on this project and confusing them would put
+  // internal design chatter into a bid document. Say which is which, here, every time.
+  var vs=document.createElement('div');vs.className='q-vs';
+  vs.innerHTML='<b>Not the same as a bid inquiry.</b> These are ours — open design questions, '
+    +'pre-bid, answered by us and by consultants. A <b>bid inquiry</b> is a question from a '
+    +'<b>bidder</b> after the documents go out; those are §5, they are typed in one at a time, '
+    +'and they live in the Write-up tab.';
+  wrap.appendChild(vs);
+  qs.forEach(function(q){
+    var r=document.createElement('div');r.className='q-row'+(q.open?'':' q-closed')
+      +(q.th&&q.th.court?' c-'+q.th.court:'');
+    var t=document.createElement('div');t.className='q-t';
+    t.textContent=(q.th&&q.th.question)?q.th.question:topicLabel(q.slug);
+    r.appendChild(t);
+    var m=document.createElement('div');m.className='q-m';
+    var bits=[];
+    if(q.th&&q.th.stageLabel)bits.push(q.th.stageLabel);
+    else if(q.th&&q.th.stage)bits.push(q.th.stage);
+    bits.push(q.open?(q.items.filter(function(i){return i.status!=='completed';}).length+' of '+q.n+' open')
+                    :(q.n+' item'+(q.n!==1?'s':'')+' · all closed'));
+    if(q.th&&q.th.court)bits.push('whose move: '+q.th.court);
+    if(q.th&&q.th.holders&&q.th.holders.length)bits.push(q.th.holders.join(', '));
+    m.textContent=bits.join('  ·  ');
+    r.appendChild(m);
+    // what this question actually puts into the instrument
+    var lane=addPoolFor(key).filter(function(i){return i.topic===q.slug;});
+    var sub=document.createElement('div');sub.className='q-sub';
+    lane.forEach(function(it){
+      var c2=document.createElement('button');c2.type='button';
+      c2.className='sh-chip'+(it.produces?(' p-'+it.produces):' p-untriaged')+(it.verify?' q':'');
+      c2.textContent=((isSpecPart(it)&&!itemSheets(it).length)?(it.section||'§3'):(itemSheets(it)[0]||'no sheet'));
+      c2.title=(it.title||'')+' — '+produceLabel(itemPart(it),it.produces);
+      c2.addEventListener('click',function(e){e.stopPropagation();
+        ADD_MODE='sheets';buildAddendumRegister();
+        var el=document.getElementById('sh-'+it.id);
+        if(el){el.scrollIntoView({block:'center'});el.classList.add('sh-hit');
+          setTimeout(function(){el.classList.remove('sh-hit');},1600);}});
+      sub.appendChild(c2);});
+    if(!lane.length){
+      var none=document.createElement('span');none.className='q-none';
+      none.textContent='nothing on the sheet list carries this yet';
+      sub.appendChild(none);}
+    r.appendChild(sub);
+    var go=document.createElement('button');go.type='button';go.className='q-go';
+    go.textContent='open the thread →';
+    go.addEventListener('click',function(e){e.stopPropagation();jumpToThread(q.slug);});
+    r.appendChild(go);
+    wrap.appendChild(r);
+  });
+  host.appendChild(wrap);
+}
+
+// ---- §5 Bid Inquiries --------------------------------------------------------------------------
+// Deliberately EMPTY until you type one. The RFI register is not a list of bid inquiries: an RFI
+// is a question from the design side during the work, a bid inquiry is a question from a BIDDER
+// after the documents go out. They arrive post-bid and fold into the first addendum after close.
+// Auto-filling §5 from the RFIs would have shipped eleven fabricated Q/A pairs into a bid document.
+function inquiriesFor(key){
+  return (readQueue()||[]).filter(function(p){
+    return p.type==='inquiry'&&p.addendum===key;});
+}
+function addInquiryBlock(host,key){
+  var box=document.createElement('div');box.className='inq-box';
+  var h=document.createElement('div');h.className='sh-group';
+  var list=inquiriesFor(key);
+  h.innerHTML='§5 Bid Inquiries — from BIDDERS <span class="n">'+list.length+' · '
+    +'typed in one at a time — never derived from a thread or the RFI register</span>';
+  box.appendChild(h);
+  var lede=document.createElement('div');lede.className='wb-lede';
+  lede.innerHTML='A bid inquiry is a <b>bidder’s</b> question after the documents go out, with '
+    +'your answer beneath it. They arrive post-bid and ride the first addendum after close. '
+    +'<b>Not</b> the threads in “Our questions”, and <b>not</b> the RFI register — an RFI is ours, '
+    +'raised during the work. Until a real one exists, §5 is not written at all.';
+  box.appendChild(lede);
+  list.forEach(function(p,ix){
+    var r=document.createElement('div');r.className='inq-row';
+    var q=document.createElement('div');q.className='inq-q';
+    q.textContent='Q'+(p.qno||(ix+1))+': '+(p.q||'');r.appendChild(q);
+    var a=document.createElement('div');a.className='inq-a';
+    a.textContent='A'+(p.qno||(ix+1))+': '+(p.a||'[not answered yet]');
+    if(!p.a)a.classList.add('inq-unanswered');
+    r.appendChild(a);
+    if(p.by){var by=document.createElement('span');by.className='op-by';by.textContent='· '+p.by;r.appendChild(by);}
+    var x=document.createElement('button');x.type='button';x.className='ar-x';x.textContent='✕';
+    x.title='Remove this inquiry';
+    x.addEventListener('click',function(){
+      if(!window.confirm('Remove Q'+(p.qno||(ix+1))+'?'))return;
+      voidOp(p);buildAddendumRegister();});
+    r.appendChild(x);
+    box.appendChild(r);
+  });
+  var f=document.createElement('div');f.className='sh-addform inq-form';
+  var no=document.createElement('input');no.type='text';no.className='sh-in sh-in-no';
+  no.placeholder='Q no.';no.value='Q'+(list.length+1);
+  var qi=document.createElement('input');qi.type='text';qi.className='sh-in';
+  qi.placeholder='The bidder’s question, as they wrote it';
+  var ai=document.createElement('input');ai.type='text';ai.className='sh-in';
+  ai.placeholder='Your answer — leave blank if it is not settled yet';
+  var save=document.createElement('button');save.type='button';save.className='hist-more';
+  save.style.margin='0';save.textContent='Add inquiry';
+  function commit(){
+    var qq=qi.value.trim();if(!qq)return;
+    queueLocally({type:'inquiry',addendum:key,qno:no.value.trim().replace(/^Q/i,''),
+      q:qq,a:ai.value.trim(),
+      program:'',pkg:'',text:'§5 '+no.value.trim()+': '+qq.slice(0,90)});
+    qi.value='';ai.value='';buildAddendumRegister();
+    setStatus('Bid inquiry recorded — it renders into §5 and queues for check-in.');
+  }
+  save.addEventListener('click',commit);
+  [no,qi,ai].forEach(function(el){el.addEventListener('keydown',function(e){
+    e.stopPropagation();if(e.key==='Enter')commit();});});
+  f.appendChild(no);f.appendChild(qi);f.appendChild(ai);f.appendChild(save);
+  box.appendChild(f);
+  host.appendChild(box);
+}
+
+
+// ---- pictures on a row -------------------------------------------------------------------------
+// A markup you can see beats a sentence describing it. Images added here are downscaled in the
+// browser before they are stored — a 4 MB phone photo becomes a ~30 KB thumbnail — because the
+// alternative is a check-in queue nobody can sync and a localStorage that fills up by Thursday.
+// They live in IndexedDB locally, ride the shared store so the other person sees them, and get
+// folded into vault/attachments (as `img::`) at the next check-in, which is their permanent home.
+var IMG_MAX=560, IMG_Q=0.62;
+var IMG_CACHE={};        // key -> dataURL, in memory for this page load
+var IMG_DB=null;
+function imgDB(){
+  if(IMG_DB)return IMG_DB;
+  if(typeof indexedDB==='undefined')return null;
+  IMG_DB=new Promise(function(res,rej){
+    var r=indexedDB.open('wt-images',1);
+    r.onupgradeneeded=function(){r.result.createObjectStore('img');};
+    r.onsuccess=function(){res(r.result);};r.onerror=function(){rej(r.error);};
+  }).catch(function(){return null;});
+  return IMG_DB;
+}
+function imgPut(key,dataUrl){
+  IMG_CACHE[key]=dataUrl;
+  var db=imgDB();if(!db)return;
+  db.then(function(d){if(!d)return;
+    try{d.transaction('img','readwrite').objectStore('img').put(dataUrl,key);}catch(e){}});
+}
+function imgGet(key){
+  if(IMG_CACHE[key])return Promise.resolve(IMG_CACHE[key]);
+  var db=imgDB();if(!db)return Promise.resolve(null);
+  return db.then(function(d){
+    if(!d)return null;
+    return new Promise(function(res){
+      try{var rq=d.transaction('img','readonly').objectStore('img').get(key);
+        rq.onsuccess=function(){if(rq.result)IMG_CACHE[key]=rq.result;res(rq.result||null);};
+        rq.onerror=function(){res(null);};}catch(e){res(null);}
+    });
+  });
+}
+// Downscale before anything else touches it. Longest edge to IMG_MAX, JPEG at IMG_Q.
+function shrinkImage(file){
+  return new Promise(function(res,rej){
+    if(!/^image\//.test(file.type))return rej(new Error('not an image'));
+    var fr=new FileReader();
+    fr.onload=function(){
+      var im=new Image();
+      im.onload=function(){
+        var w=im.naturalWidth,h=im.naturalHeight,sc=Math.min(1,IMG_MAX/Math.max(w,h));
+        var cw=Math.max(1,Math.round(w*sc)),ch=Math.max(1,Math.round(h*sc));
+        var cv=document.createElement('canvas');cv.width=cw;cv.height=ch;
+        cv.getContext('2d').drawImage(im,0,0,cw,ch);
+        var url;
+        try{url=cv.toDataURL('image/jpeg',IMG_Q);}catch(e){return rej(e);}
+        res({src:url,w:cw,h:ch,bytes:Math.round(url.length*0.75)});
+      };
+      im.onerror=function(){rej(new Error('unreadable image'));};
+      im.src=fr.result;
+    };
+    fr.onerror=function(){rej(fr.error);};
+    fr.readAsDataURL(file);
+  });
+}
+function addImageTo(it,file){
+  return shrinkImage(file).then(function(t){
+    var key='img-'+opId();
+    imgPut(key,t.src);
+    queueLocally({type:'image',program:it.program||'',pkg:it.pkg||'',
+      itemRef:(it.title||'').slice(0,160),imgKey:key,
+      name:(file.name||'markup').replace(/[^\w.-]+/g,'-').slice(0,60),
+      w:t.w,h:t.h,bytes:t.bytes,
+      text:'image: '+(file.name||'markup')+' ('+t.w+'×'+t.h+', '+Math.round(t.bytes/1024)+' KB)'},
+      t.src);
+    buildAddendumRegister();
+    setStatus('Picture added — '+t.w+'×'+t.h+', '+Math.round(t.bytes/1024)+' KB'
+      +(SYNC.on?', shared.':'. It folds into the vault attachments at check-in.'));
+  }).catch(function(e){setStatus('Could not read that picture: '+(e&&e.message||e));});
+}
+// Every picture on an item: the ones the generator inlined from `img::`, then the ones added here.
+function imagesFor(it){
+  var det=(window.LAST_DATA&&LAST_DATA.details&&LAST_DATA.details[it.id])||{};
+  var out=(det.images||[]).map(function(im){return {src:im.src,name:im.name,vault:true};});
+  (readQueue()||[]).forEach(function(p){
+    if(p.type!=='image'||!p.itemRef)return;
+    if((it.title||'').slice(0,60)!==String(p.itemRef).slice(0,60))return;
+    out.push({key:p.imgKey,name:p.name,by:p.by,op:p,w:p.w,h:p.h,pending:true,
+              src:IMG_CACHE[p.imgKey]||null});
+  });
+  return out;
+}
+function imgTile(im,host){
+  var fig=document.createElement('span');fig.className='sh-thumb'+(im.pending?' pending':'');
+  var img=document.createElement('img');img.alt=im.name||'markup';img.loading='lazy';
+  if(im.src)img.src=im.src;
+  else{fig.classList.add('loading');
+    imgGet(im.key).then(function(u){
+      if(u){img.src=u;fig.classList.remove('loading');}
+      else{fig.classList.add('missing');fig.title='Added on another machine — not downloaded here yet';}
+    });}
+  img.addEventListener('click',function(){if(img.src)showImgModal(img.src);});
+  fig.appendChild(img);
+  if(im.pending){
+    var x=document.createElement('button');x.type='button';x.className='thumb-x';x.textContent='✕';
+    x.title='Remove this picture';
+    x.addEventListener('click',function(e){e.stopPropagation();
+      if(!window.confirm('Remove this picture?'))return;
+      voidOp(im.op);buildAddendumRegister();});
+    fig.appendChild(x);
+    var b=document.createElement('span');b.className='thumb-b';
+    b.textContent=im.by?im.by:'pending';
+    b.title='Added on the site — folds into vault/attachments at the next check-in';
+    fig.appendChild(b);
+  }
+  host.appendChild(fig);
+}
+// Drop, paste, or pick. All three land in the same place, because people reach for all three.
+function imageStrip(it){
+  var wrap=document.createElement('div');wrap.className='sh-imgs';
+  var lbl=document.createElement('label');lbl.className='sh-imgs-l';
+  lbl.textContent='Pictures';
+  lbl.title='Drop a file, paste from the clipboard, or click to choose. Shrunk to a thumbnail here — the full markup stays in Bluebeam.';
+  wrap.appendChild(lbl);
+  var strip=document.createElement('div');strip.className='sh-thumbs';
+  imagesFor(it).forEach(function(im){imgTile(im,strip);});
+  var drop=document.createElement('button');drop.type='button';drop.className='img-drop';
+  drop.innerHTML='<span>+ picture</span><small>drop · paste · click</small>';
+  var inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.multiple=true;
+  inp.style.display='none';
+  inp.addEventListener('change',function(){
+    Array.prototype.forEach.call(inp.files||[],function(f){addImageTo(it,f);});inp.value='';});
+  drop.addEventListener('click',function(e){e.stopPropagation();inp.click();});
+  ['dragenter','dragover'].forEach(function(ev){drop.addEventListener(ev,function(e){
+    e.preventDefault();e.stopPropagation();drop.classList.add('over');});});
+  ['dragleave','drop'].forEach(function(ev){drop.addEventListener(ev,function(e){
+    e.preventDefault();e.stopPropagation();drop.classList.remove('over');});});
+  drop.addEventListener('drop',function(e){
+    Array.prototype.forEach.call((e.dataTransfer&&e.dataTransfer.files)||[],function(f){addImageTo(it,f);});});
+  drop.addEventListener('paste',function(e){
+    var items=(e.clipboardData&&e.clipboardData.items)||[];
+    Array.prototype.forEach.call(items,function(x){
+      if(x.kind==='file'){var f=x.getAsFile();if(f)addImageTo(it,f);}});});
+  strip.appendChild(drop);strip.appendChild(inp);
+  wrap.appendChild(strip);
+  return wrap;
 }
 
 // ---- the write-up ------------------------------------------------------------------------------
@@ -5784,24 +6358,49 @@ function wuDrawLine(it,sheet,step){
     ?('; As indicated on drawing '+(sheet||'[SHEET ___]')+WU_ATTACH_DWG)
     :'.');
 }
+// §3 is NOT written here. Shadi hands Specifications the information and they write the clause,
+// so a spec item renders its note verbatim, marked as a note. The one sentence the machine does
+// write is the attach form, because that is fixed and mechanical (Add 1 §3.2.1, Add 4 §3.1.1).
 function wuSpecLines(it,steps){
   var sec=it.section||'[SECTION ___]';
   var out=[];
+  var note=(it.note||'').trim();
   var del=steps.filter(function(t){return /^\s*✓?\s*DELETE\b/i.test(t);});
-  if(del.length)return ['Delete Section '+sec+' in its entirety.'];
+  if(del.length&&!note)return ['Delete Section '+sec+' in its entirety.'];
   if(it.produces==='drawings'){
-    var isNew=steps.some(function(t){return /NOT PREVIOUSLY ISSUED|NEW SECTION|ISSUE NEW/i.test(t);});
-    out.push(isNew
-      ?('Section '+sec+', not previously issued'+WU_ATTACH_SEC)
-      :('Section '+sec+' revised and re-issued,'+WU_ATTACH_SEC));
-    // narrative sub-items still ride along — Addendum 4 §3.3 lists six under one attached section
-    steps.forEach(function(t){
-      if(/RE-?ISSUE|REVISE AND/i.test(t))return;
-      var v=wuSentence(t);if(v)out.push(v+'.');});
-    return out;
+    var isNew=/NOT PREVIOUSLY ISSUED|NEW SECTION|ISSUE NEW/i.test(note)
+      ||steps.some(function(t){return /NOT PREVIOUSLY ISSUED|NEW SECTION|ISSUE NEW/i.test(t);});
+    out.push(isNew?('Section '+sec+', not previously issued'+WU_ATTACH_SEC)
+                  :('Section '+sec+' revised and re-issued,'+WU_ATTACH_SEC));
   }
-  steps.forEach(function(t){out.push(wuSentence(t)+'.');});
-  return out.length?out:['[NO NOTE RECORDED — write the line]'];
+  if(note){out.push('[FOR SPECIFICATIONS] '+note);return out;}
+  if(out.length)return out;
+  return ['[NO NOTE FOR SPECIFICATIONS YET — say what changed and why]'];
+}
+// The handover sheet — the thing that actually leaves your desk. It is not the addendum: it is
+// section, note, and whether the section is being attached.
+function specHandoverText(key){
+  var pool=addPoolFor(key).filter(function(i){return isSpecPart(i)&&inDocument(i)&&!WU_EXCLUDE[i.id];});
+  if(!pool.length)return null;
+  var by={},order=[];
+  pool.forEach(function(i){var k=(i.section||'').trim()||'(section not named)';
+    if(!by[k]){by[k]=[];order.push(k);}by[k].push(i);});
+  order.sort();
+  var g=pool[0]||{};
+  var L=['Addendum '+addNum(g.addendum||'')+' — §3 Specifications: notes for the spec writer',
+         '(Not final language. Section, what changed, and what you need to write it.)',''];
+  order.forEach(function(sk,ix){
+    L.push((ix+1)+'.  SECTION '+sk.toUpperCase());
+    by[sk].forEach(function(it){
+      L.push('    · '+((it.note||'').trim()||'[NO NOTE YET]'));
+      if(it.produces==='drawings')L.push('      \u2192 the section is being re-issued and attached');
+      if(it.verify)L.push('      \u2192 still to verify before issue');
+      if(itemPart(it)==='both'&&itemSheets(it).length)
+        L.push('      \u2192 also a drawing change on '+itemSheets(it).join(', '));
+    });
+    L.push('');
+  });
+  return L.join('\n');
 }
 function wuStepsOf(it){
   var det=(window.LAST_DATA&&LAST_DATA.details&&LAST_DATA.details[it.id])||{};
@@ -5836,7 +6435,7 @@ function buildAddendumDoc(key,opts){
 
   // ---- §3 Specifications, grouped by section --------------------------------------------------
   var secs={},secOrder=[];
-  live.filter(function(i){return itemPart(i)==='spec';}).forEach(function(i){
+  live.filter(isSpecPart).forEach(function(i){
     var k=(i.section||'').trim()||'(section not named)';
     if(!secs[k]){secs[k]=[];secOrder.push(k);}secs[k].push(i);});
   secOrder.sort();
@@ -5854,7 +6453,7 @@ function buildAddendumDoc(key,opts){
 
   // ---- §4 Drawings, grouped by sheet ----------------------------------------------------------
   var sheets={},shOrder=[];
-  live.filter(function(i){return itemPart(i)!=='spec';}).forEach(function(i){
+  live.filter(isDrawPart).forEach(function(i){
     var list=itemSheets(i);
     if(!list.length){
       warn.push('§4 "'+(i.title||'').slice(0,44)+'" has a state but no sheet — give it one, or a target');
@@ -5906,18 +6505,20 @@ function buildAddendumDoc(key,opts){
   out=out.concat(['','4      Drawings']);
   out=out.concat(L4.length?L4:['       (nothing in §4)']);
 
-  // ---- §5, if the RFIs riding this addendum are wanted -----------------------------------------
+  // ---- §5 Bid Inquiries -------------------------------------------------------------------------
+  // Only what was typed. An earlier cut rendered §5 from the RFIs riding this addendum, which was
+  // wrong twice over: an RFI is OUR question raised during the work, a bid inquiry is a BIDDER's
+  // question after the documents go out. That version would have shipped eleven fabricated Q/A
+  // pairs into a bid document. §5 is now absent unless a real inquiry exists.
+  var inqs=inquiriesFor(key);
   var inq=[];
-  if(opts.inquiries){
-    var rfis=(window.ITEMS||[]).filter(function(i){
-      return typeof isRfiItem==='function'&&isRfiItem(i)&&addKey(i.pkg,i.addendum)===key;});
-    rfis.forEach(function(r,ix){
-      inq.push('       5.'+(ix+1)+'    Q: '+(r.title||''));
-      var det=(window.LAST_DATA&&LAST_DATA.details&&LAST_DATA.details[r.id])||{};
-      inq.push('              A: '+((det.settled||'')||'[answer not recorded]'));
-    });
-    if(inq.length)out=out.concat(['','5      Bid Inquiries & Responses']).concat(inq);
-  }
+  inqs.forEach(function(p,ix){
+    var n=String(p.qno||(ix+1)).replace(/^Q/i,'');
+    inq.push('       '+padNum('5.'+(ix+1),8)+'Q'+n+': '+(p.q||''));
+    inq.push('               '+'A'+n+': '+(p.a||'[NOT ANSWERED — write the response]'));
+    inq.push('');
+  });
+  if(inq.length)out=out.concat(['','5      Bid Inquiries & Responses','']).concat(inq);
   out.push('');out.push('                        END OF ADDENDUM (VOL 1)');
 
   if(undecided.length)warn.push(undecided.length+' item(s) have no state and cannot be in the document: '
@@ -5927,13 +6528,14 @@ function buildAddendumDoc(key,opts){
   if(vq.length)warn.push(vq.length+' item(s) in the document are still flagged ? — verify with Chris H before issue');
   return {text:out.join('\n').replace(/\n{3,}/g,'\n\n'),
           att:att,warn:warn,skipped:skipped,n:live.length,undecided:undecided,pool:pool,
-          nSpec:secOrder.length,nSheet:shOrder.length,inq:inq.length};
+          nSpec:secOrder.length,nSheet:shOrder.length,inq:inqs.length,
+          unanswered:inqs.filter(function(p){return !p.a;}).length};
 }
 function buildWriteup(key,hostEl){
   var host=hostEl||document.getElementById('wuHost-'+key);if(!host)return;
   if(host.firstChild&&!host.getAttribute('data-rerender')){host.innerHTML='';return;}
   host.removeAttribute('data-rerender');host.innerHTML='';
-  var doc=buildAddendumDoc(key,{inquiries:WU_INQUIRIES});
+  var doc=buildAddendumDoc(key,{});
   var box=document.createElement('div');box.className='wu-box';
   var note=document.createElement('div');note.className='sh-stat';note.style.marginBottom='8px';
   note.innerHTML='<b>'+doc.n+'</b> item(s) in the document · <b>'+doc.nSpec+'</b> §3 section(s) · <b>'
@@ -5950,11 +6552,10 @@ function buildWriteup(key,hostEl){
   ob.addEventListener('click',function(){ADD_ORDER_NUMERIC=!ADD_ORDER_NUMERIC;
     host.setAttribute('data-rerender','1');buildWriteup(key,host);});
   opts.appendChild(ob);
-  var qb=document.createElement('button');qb.type='button';qb.className='wb-chip'+(WU_INQUIRIES?' on':'');
-  qb.textContent='Include §5 Bid Inquiries';
-  qb.title='Renders the RFIs tagged to this addendum as Q/A pairs, the way §5 does in the issued set';
-  qb.addEventListener('click',function(){WU_INQUIRIES=!WU_INQUIRIES;
-    host.setAttribute('data-rerender','1');buildWriteup(key,host);});
+  var qb=document.createElement('span');qb.className='sh-stat';
+  qb.textContent=doc.inq?('§5 · '+doc.inq+' bid inquir'+(doc.inq!==1?'ies':'y')
+      +(doc.unanswered?' · '+doc.unanswered+' unanswered':'')) : '§5 · none yet, so it is not written';
+  qb.title='Bid inquiries are typed in below. Nothing is ever derived into §5.';
   opts.appendChild(qb);
   box.appendChild(opts);
 
@@ -5975,7 +6576,8 @@ function buildWriteup(key,hostEl){
       host.setAttribute('data-rerender','1');buildWriteup(key,host);});
     l.appendChild(cb);
     var t=document.createElement('span');
-    t.textContent=(itemPart(it)==='spec'?('§3 '+(it.section||'?')):('§4 '+(itemSheets(it).join('/')||'no sheet')))
+    t.textContent=(itemPart(it)==='both'?('§3+§4 '+(it.section||'?')+' / '+(itemSheets(it).join('/')||'no sheet'))
+        :isSpecPart(it)?('§3 '+(it.section||'?')):('§4 '+(itemSheets(it).join('/')||'no sheet')))
       +'  '+(it.title||'').replace(/^A\S+\s+—\s+/,'')
       +'   ['+produceLabel(itemPart(it),it.produces)+']'
       +((it.pendingComplete||it.status==='completed')?'  ✓ done':'');
@@ -6001,6 +6603,24 @@ function buildWriteup(key,hostEl){
   hint.textContent='Editable · numbering computed at render · attachments derived from the clause, never typed';
   row.appendChild(cp);row.appendChild(dl);row.appendChild(hint);box.appendChild(row);
   host.appendChild(box);
+  var hand=specHandoverText(key);
+  if(hand){
+    var hb=document.createElement('div');hb.className='inq-box';
+    var hh=document.createElement('div');hh.className='sh-group';
+    hh.innerHTML='For the spec writer <span class="n">what you hand over \u2014 not final language</span>';
+    hb.appendChild(hh);
+    var hta=document.createElement('textarea');hta.value=hand;hta.spellcheck=false;
+    hta.className='wu-hand';hb.appendChild(hta);
+    var hr=document.createElement('div');hr.className='pedit-row';hr.style.marginTop='8px';
+    var hc=document.createElement('button');hc.type='button';hc.textContent='Copy the §3 notes';
+    hc.addEventListener('click',function(){copyText(hta.value,'§3 notes copied \u2014 send them to Specifications.');});
+    hr.appendChild(hc);
+    var hh2=document.createElement('span');hh2.className='inline-capture-hint';
+    hh2.textContent='They write the clause; this is the information they need to write it';
+    hr.appendChild(hh2);hb.appendChild(hr);
+    host.appendChild(hb);
+  }
+  addInquiryBlock(host,key);
 }
 function buildSheetsView(){ /* merged into the Addenda register */ }
 
