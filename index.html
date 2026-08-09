@@ -140,7 +140,63 @@
   .pedit-row input[type=text]{flex:1;min-width:140px;}
   .pedit-row button{font-family:inherit;font-size:12px;font-weight:600;border-radius:6px;padding:6px 12px;cursor:pointer;border:none;background:var(--text);color:#fff;}
   .pedit-row button.pcancel{background:none;border:1px solid var(--border);color:var(--muted);}
-  .pending-empty{font-size:12.5px;color:var(--faint);font-style:italic;}
+  /* --- the addendum workbench ------------------------------------------------------------ */
+.add-filter-lead{align-items:center;margin:8px 0 2px}
+.add-filter-lead .add-filter-lbl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.add-filter-b.af-ar{font-weight:600}
+.add-filter-b.af-ar.on{background:var(--gold);color:#12100c;border-color:var(--gold)}
+.add-filter-note{font-size:11.5px;color:var(--muted);margin:0 0 6px;padding-left:2px}
+.add-open{font:inherit;font-size:11.5px;padding:3px 10px;border-radius:6px;border:1px solid var(--line);
+  background:transparent;color:var(--fg);cursor:pointer;margin-right:8px}
+.add-open:hover{border-color:var(--gold);color:var(--gold)}
+.add-open.on{background:var(--gold);color:#12100c;border-color:var(--gold);font-weight:600}
+.wb{margin:8px 0 4px;padding:10px 10px 4px;border:1px solid var(--line);border-radius:8px;
+  background:rgba(245,158,11,.03)}
+.wb-bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px}
+.wb-lbl{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-right:4px}
+.wb-seg{font:inherit;font-size:11.5px;padding:3px 10px;border:1px solid var(--line);background:transparent;
+  color:var(--fg);cursor:pointer;border-radius:0}
+.wb-seg:first-of-type{border-radius:6px 0 0 6px}
+.wb-seg:last-of-type{border-radius:0 6px 6px 0}
+.wb-seg+.wb-seg{border-left:none}
+.wb-seg.on{background:var(--gold);color:#12100c;border-color:var(--gold);font-weight:600}
+.wb-chip{font:inherit;font-size:11px;padding:2px 9px;border-radius:999px;border:1px solid var(--line);
+  background:transparent;color:var(--muted);cursor:pointer}
+.wb-chip:hover{border-color:var(--gold);color:var(--gold)}
+.wb-chip.on{background:var(--gold);color:#12100c;border-color:var(--gold);font-weight:600}
+.wb-chip.s-drawings.on{background:#5b8f6e;border-color:#5b8f6e;color:#fff}
+.wb-chip.s-writeup.on{background:#7a6fa8;border-color:#7a6fa8;color:#fff}
+.wb-chip.s-none.on{background:#6a6a6a;border-color:#6a6a6a;color:#fff}
+.wb-chip.s-verify.on{background:#b4544a;border-color:#b4544a;color:#fff}
+.wb-right{margin-left:auto;display:flex;gap:6px;align-items:center}
+.wb-write{font:inherit;font-size:11.5px;padding:3px 12px;border-radius:6px;border:1px solid var(--gold);
+  background:var(--gold);color:#12100c;font-weight:600;cursor:pointer}
+.wb-empty{font-size:12px;color:var(--muted);padding:8px 2px}
+.wb-donenote{font-size:11.5px;color:var(--muted);margin:8px 0 4px;padding:6px 8px;border-left:2px solid var(--line)}
+.sh-group.g-drawings{border-left:2px solid #5b8f6e}
+.sh-group.g-writeup{border-left:2px solid #7a6fa8}
+.sh-group.g-none{border-left:2px solid #6a6a6a}
+.sh-group.g-untriaged{border-left:2px solid var(--gold)}
+.sh-edit{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:6px 0 8px;padding:6px 0;
+  border-bottom:1px dashed var(--line)}
+.sh-f{display:flex;align-items:center;gap:5px}
+.sh-f label{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.sh-f .sh-in{min-width:120px}
+.sh-swap{font:inherit;font-size:11px;padding:2px 9px;border-radius:6px;border:1px dashed var(--line);
+  background:transparent;color:var(--muted);cursor:pointer}
+.sh-swap:hover{border-color:var(--gold);color:var(--gold)}
+.wu-warn{font-size:11.5px;color:#c07a4a;margin:2px 0;padding-left:2px}
+.rr-statecell select.rr-state{font:inherit;font-size:11px;padding:1px 4px;border-radius:4px;
+  border:1px solid var(--line);background:transparent;color:inherit;cursor:pointer}
+.rr-statecell select.rr-state:hover{border-color:var(--gold)}
+.sync-chip{font:inherit;font-size:10.5px;letter-spacing:.02em;padding:2px 8px;border-radius:999px;
+  border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;margin-left:8px}
+.sync-chip:hover{border-color:var(--gold);color:var(--gold)}
+.sync-chip.sc-off{opacity:.65}
+.sync-chip.sc-warn{border-color:var(--gold);color:var(--gold)}
+.sync-chip.sc-err{border-color:#b4544a;color:#b4544a}
+.op-by{font-size:10px;color:var(--muted);margin-left:6px;opacity:.85}
+.pending-empty{font-size:12.5px;color:var(--faint);font-style:italic;}
   .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 8px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 16px;position:sticky;top:8px;z-index:20;box-shadow:0 1px 0 var(--bg);}
   .item.completed{display:none;}
   body.show-completed .item.completed{display:block;opacity:.55;}
@@ -914,7 +970,7 @@
   <div id="nowView">
 
   <details class="capture" id="captureBox">
-    <summary class="cap-summary"><span class="tag">Check-in queue</span><span class="cap-sum-note" id="capSumNote">nothing pending</span><span class="cap-sum-hint">everything you add here waits until you copy it to Claude</span></summary>
+    <summary class="cap-summary"><span class="tag">Check-in queue</span><span class="cap-sum-note" id="capSumNote">nothing pending</span><button type="button" class="sync-chip sc-off" id="syncChip" onclick="event.preventDefault();event.stopPropagation();openSyncPanel();">Local only</button><span class="cap-sum-hint">everything you add here waits until you copy it to Claude</span></summary>
     <div class="capture-status" id="capStatus">New items: use the "+ item" button on a package below. Steps, notes, blockers, completions and court changes queue here automatically.</div>
     <details style="margin:6px 0 4px;">
       <summary style="cursor:pointer;font-size:12px;color:var(--muted);">+ capture an item that doesn't have a home yet</summary>
@@ -1056,12 +1112,11 @@
       <button type="button" data-reg="add" class="active" onclick="setRegTab('add')">Addenda</button>
       <button type="button" data-reg="rfi" onclick="setRegTab('rfi')">RFIs</button>
       <button type="button" data-reg="pkg" onclick="setRegTab('pkg')">Packages</button>
-      <button type="button" data-reg="sheets" onclick="setRegTab('sheets')" title="The sheet-by-sheet punch list \u2014 held off the board on purpose">Sheets</button>
+      
     </div>
-    <div id="regPaneAdd"><div class="sec-lead">Addenda — what rides each one</div><div id="addRegView"></div></div>
+    <div id="regPaneAdd"><div class="sec-lead">Addenda — what rides each one, and the sheet-by-sheet work that fills it</div><div id="addRegView"></div><div id="sheetsView" style="display:none"></div></div>
     <div id="regPaneRfi" style="display:none"><div class="sec-lead">RFIs — aging first, because old RFIs become claims</div><div id="rfiRegView"></div></div>
     <div id="regPanePkg" style="display:none"><div class="sec-lead">Packages — where each one stands</div><div id="overviewView"></div></div>
-    <div id="regPaneSheets" style="display:none"><div class="sec-lead">Sheets — the punch list, by what it puts into the addendum</div><div id="sheetsView"></div></div>
   </div>
   <div id="historyView" style="display:none">
     <div class="regtabs" id="histTabs">
@@ -2325,8 +2380,10 @@ function setRegTab(k){
   regTab=k;
   // Built on demand: init() does not route through refreshBoard(), so the pane would otherwise be
   // empty until the first board refresh. Cheap enough to rebuild on every switch.
-  if(k==='sheets')buildSheetsView();
-  var panes={add:'regPaneAdd',rfi:'regPaneRfi',pkg:'regPanePkg',sheets:'regPaneSheets'};
+  // Sheets was its own sub-tab. It is the same instrument seen twice — the register says what an
+  // addendum carries, the sheet list says what fills it — so it now opens inside the Addenda card.
+  if(k==='sheets'){regTab=k='add';buildAddendumRegister();}
+  var panes={add:'regPaneAdd',rfi:'regPaneRfi',pkg:'regPanePkg'};
   Object.keys(panes).forEach(function(kk){
     var el=document.getElementById(panes[kk]);if(el)el.style.display=kk===k?'':'none';
   });
@@ -2810,8 +2867,14 @@ function toast(msg,actionLabel,actionFn){
   setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t);},life+600);
 }
 function localQueueKey(){return'wt-capture-queue';}
-function queueLocally(payload){try{var q=JSON.parse(localStorage.getItem(localQueueKey())||'[]');q.push(payload);localStorage.setItem(localQueueKey(),JSON.stringify(q));}catch(e){}}
-function flushLocalQueue(){if(!API_URL||API_URL.indexOf('PASTE_')===0)return;try{var q=JSON.parse(localStorage.getItem(localQueueKey())||'[]');if(!q.length)return;var remaining=[];q.forEach(function(payload){sendToSheet(payload,function(ok){if(!ok)remaining.push(payload);});});localStorage.setItem(localQueueKey(),JSON.stringify(remaining));}catch(e){}}
+function queueLocally(payload){
+  if(!payload.id)payload.id=opId();
+  if(!payload.by)payload.by=syncWho()||'';
+  if(!payload.ts)payload.ts=new Date().toISOString();
+  var q=readLocalQueue();q.push(payload);writeLocalQueue(q);
+  syncPush([payload]);
+}
+function flushLocalQueue(){if(!API_URL||API_URL.indexOf('PASTE_')===0)return;try{var q=readLocalQueue();if(!q.length)return;var remaining=[];q.forEach(function(payload){sendToSheet(payload,function(ok){if(!ok)remaining.push(payload);});});localStorage.setItem(localQueueKey(),JSON.stringify(remaining));}catch(e){}}
 function sendToSheet(payload,cb){fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}).then(function(r){return r.json();}).then(function(){if(cb)cb(true);}).catch(function(){if(cb)cb(false);});}
 function logComplete(payload){if(!API_URL||API_URL.indexOf('PASTE_')===0){queueLocally(payload);return;}sendToSheet(payload,function(ok){if(!ok)queueLocally(payload);});}
 function findItemsForPkg(programName,pkgName){return ITEMS.filter(function(it){return it.program===programName&&(!pkgName||it.pkg===pkgName);});}
@@ -2839,7 +2902,7 @@ function addCapture(){
   if(!API_URL||API_URL.indexOf('PASTE_')===0){queueLocally(payload);refreshBoard();setStatus('Added to the board ('+queueCount()+' pending). Click “Copy for check-in” to sync with Claude.');return;}
   sendToSheet(payload,function(ok){if(ok)setStatus('Saved to your tracker sheet — tell Claude to sync next session.');else{queueLocally(payload);setStatus('Could not reach the sheet — saved locally, will retry.');}});
 }
-function typeLabel(type){return type==='answer'?'Answered \u2192':type==='addendum'?'Addendum +':type==='unaddendum'?'Addendum \u2013':type==='note'?'Note':type==='complete'?'Done':type==='blocker'?'Blocker':type==='watch'?'Watch':type==='subtask'?'Subtask':type==='stepdone'?'Step done':type==='court'?'Court \u2192':type==='topic'?'Topic \u2192':type==='due'?'Due \u2192':type==='delegate'?'Delegate \u2192':'New';}
+function typeLabel(type){return type==='answer'?'Answered \u2192':type==='addendum'?'Addendum +':type==='unaddendum'?'Addendum \u2013':type==='note'?'Note':type==='complete'?'Done':type==='blocker'?'Blocker':type==='watch'?'Watch':type==='subtask'?'Subtask':type==='stepdone'?'Step done':type==='court'?'Court \u2192':type==='topic'?'Topic \u2192':type==='due'?'Due \u2192':type==='delegate'?'Delegate \u2192':type==='rfistate'?'RFI state \u2192':type==='addmeta'?'Addendum field \u2192':type==='sheet'?'Sheet +':type==='produces'?'Addendum state \u2192':'New';}
 function formatTs(ts){if(!ts)return'';var d=new Date(ts);if(isNaN(d.getTime()))return'';return d.toLocaleDateString(undefined,{month:'short',day:'numeric'})+' · '+d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});}
 
 function renderPendingRow(payload){updateCaptureSummary();var list=document.getElementById('pendingList');var empty=list.querySelector('.pending-empty');if(empty)empty.remove();var row=document.createElement('div');row.className='pending-row';renderPendingRowView(row,payload);list.appendChild(row);}
@@ -2901,22 +2964,35 @@ function renderPendingRowEdit(row,payload){
 function loadPending(){if(!API_URL||API_URL.indexOf('PASTE_')===0){renderLocalQueue();return;}fetch(API_URL+'?action=pending').then(function(r){return r.json();}).then(function(rows){if(!rows||!rows.length)return;var list=document.getElementById('pendingList');list.innerHTML='';rows.forEach(function(row){renderPendingRow(row);});}).catch(function(){});}
 function removeQueued(type,itemRef,text){
   // (complete payloads carry the title in .text with an empty itemRef)
-  var q=readQueue();
-  for(var i=q.length-1;i>=0;i--){if(q[i].type===type&&q[i].itemRef===itemRef&&(!text||q[i].text===text)){q.splice(i,1);break;}}
-  try{localStorage.setItem(localQueueKey(),JSON.stringify(q));}catch(e){}
+  // Undoing someone else's op is legitimate — two people working one addendum will correct
+  // each other — so this voids by id wherever the op lives, local or remote.
+  var all=readQueue(),hit=null;
+  for(var i=all.length-1;i>=0;i--){if(all[i].type===type&&all[i].itemRef===itemRef&&(!text||all[i].text===text)){hit=all[i];break;}}
+  if(!hit)return;
+  voidOp(hit);
+}
+// A void is itself an op, so the other browser learns about it on the next pull.
+function voidOp(op){
+  var q=readLocalQueue();
+  for(var i=q.length-1;i>=0;i--){if(q[i]===op||(op.id&&q[i].id===op.id)||(!op.id&&q[i].ts===op.ts&&q[i].text===op.text)){q.splice(i,1);break;}}
+  if(op.id){var t={id:opId(),type:'_void',voids:op.id,by:syncWho()||'',ts:new Date().toISOString()};
+    q.push(t);syncPush([t]);}
+  writeLocalQueue(q);
 }
 function deleteQueuedByTs(ts){
-  var q=readQueue();var idx=q.findIndex(function(p){return p.ts===ts;});
-  if(idx===-1)return false;
-  q.splice(idx,1);
-  try{localStorage.setItem(localQueueKey(),JSON.stringify(q));}catch(e){}
-  return true;
+  var all=readQueue();var op=null;
+  for(var i=0;i<all.length;i++){if(all[i].ts===ts){op=all[i];break;}}
+  if(!op)return false;
+  voidOp(op);return true;
 }
 function updateQueuedByTs(ts,fields){
-  var q=readQueue();var idx=q.findIndex(function(p){return p.ts===ts;});
-  if(idx===-1)return false;
-  q[idx]=Object.assign({},q[idx],fields);
-  try{localStorage.setItem(localQueueKey(),JSON.stringify(q));}catch(e){}
+  // An edit is a void plus a fresh op. Editing in place would need a revision number on
+  // every field and a rule for two people editing the same capture; this needs neither.
+  var all=readQueue(),op=null;
+  for(var i=0;i<all.length;i++){if(all[i].ts===ts){op=all[i];break;}}
+  if(!op)return false;
+  var next=Object.assign({},op,fields);delete next.id;next.ts=op.ts;
+  voidOp(op);queueLocally(next);
   return true;
 }
 function rebuildPendingList(){updateCaptureSummary();
@@ -2925,7 +3001,114 @@ function rebuildPendingList(){updateCaptureSummary();
   if(!q.length){list.innerHTML='<span class="pending-empty">Nothing pending yet.</span>';return;}
   q.forEach(function(p){renderPendingRow(p);});
 }
-function readQueue(){try{return JSON.parse(localStorage.getItem(localQueueKey())||'[]');}catch(e){return[];}}
+// ---- the shared store ------------------------------------------------------------------------
+// Every edit on this site was already an op in a queue: a court change, a ticked step, a letter,
+// a completion. Making the QUEUE shared makes every one of those features multi-user at once,
+// rather than bolting collaboration onto one surface. Local writes stay authoritative and
+// instant; remote ops arrive on a poll and merge by id. Nothing is ever edited in place — an
+// edit is a tombstone plus a new op — so the merge has no conflict to resolve.
+var SYNC={url:'',key:'',room:'work-tracker',on:false,since:0,timer:null,at:0,err:'',n:0};
+var REMOTE_Q=[];      // ops authored in another browser
+var QCACHE=null;      // merged view, rebuilt on any write or pull
+function syncWho(){
+  var w='';try{w=localStorage.getItem('wt-who')||'';}catch(e){}
+  return w;
+}
+function syncSetWho(n){try{localStorage.setItem('wt-who',String(n||'').slice(0,40));}catch(e){}
+  QCACHE=null;renderSyncChip();}
+function opId(){return (syncWho()||'me').slice(0,8).replace(/\s+/g,'')+'-'+Date.now().toString(36)
+  +'-'+Math.random().toString(36).slice(2,8);}
+function writeLocalQueue(q){try{localStorage.setItem(localQueueKey(),JSON.stringify(q));}catch(e){}QCACHE=null;}
+function readLocalQueue(){try{return JSON.parse(localStorage.getItem(localQueueKey())||'[]');}catch(e){return[];}}
+// The merge: newest-first by id, tombstones removed, then chronological. An op with no id is a
+// capture made before the store existed — it keeps working, it just cannot be voided remotely.
+function readQueue(){
+  if(QCACHE)return QCACHE;
+  var all=readLocalQueue().concat(REMOTE_Q||[]);
+  var byId={},voided={},out=[];
+  all.forEach(function(p){
+    if(!p)return;
+    if(p.type==='_void'){if(p.voids)voided[p.voids]=1;return;}
+    if(p.id){if(!byId[p.id]||(p.rev||0)>(byId[p.id].rev||0))byId[p.id]=p;}
+    else out.push(p);
+  });
+  Object.keys(byId).forEach(function(k){if(!voided[k])out.push(byId[k]);});
+  out.sort(function(a,b){return (a.ts||'')<(b.ts||'')?-1:1;});
+  QCACHE=out;return out;
+}
+function syncConfigure(d){
+  var cfg=(d&&d.sync)||null;
+  try{var over=JSON.parse(localStorage.getItem('wt-sync-override')||'null');if(over&&over.url)cfg=over;}catch(e){}
+  if(!cfg||!cfg.url){SYNC.on=false;renderSyncChip();return;}
+  SYNC.url=cfg.url;SYNC.key=cfg.key||'';SYNC.room=cfg.room||'work-tracker';SYNC.on=true;
+  syncPull(true);
+  if(SYNC.timer)clearInterval(SYNC.timer);
+  // 8s while you are looking at it. A hidden tab does not poll — two people leaving this open
+  // all day should not be a background request every 8 seconds each.
+  SYNC.timer=setInterval(function(){if(!document.hidden)syncPull();},8000);
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)syncPull();});
+  renderSyncChip();
+}
+function syncHeaders(){var h={'Content-Type':'text/plain'};if(SYNC.key)h['x-wt-key']=SYNC.key;return h;}
+function syncPull(first){
+  // jsdom (the test harness) and any browser without fetch would otherwise throw here on boot
+  if(!SYNC.on||typeof fetch!=='function')return Promise.resolve();
+  return fetch(SYNC.url+'?room='+encodeURIComponent(SYNC.room)+'&since='+(SYNC.since||0),
+               {headers:SYNC.key?{'x-wt-key':SYNC.key}:{}})
+    .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+    .then(function(j){
+      SYNC.err='';SYNC.at=Date.now();
+      var mine=syncWho();
+      var seen={};REMOTE_Q.forEach(function(o){if(o.id)seen[o.id]=1;});
+      var fresh=0;
+      (j.ops||[]).forEach(function(o){
+        if(!o||!o.id||seen[o.id])return;
+        // my own ops come back on the next pull; the local copy already has them
+        if(o.by&&mine&&o.by===mine&&o.type!=='_void')return;
+        REMOTE_Q.push(o);seen[o.id]=1;fresh++;
+      });
+      if(j.now)SYNC.since=j.now;
+      SYNC.n=(j.ops||[]).length;
+      if(fresh){QCACHE=null;rebuildPendingList();refreshBoard();
+        if(!first)setStatus(fresh+' change'+(fresh!==1?'s':'')+' arrived from someone else.');}
+      renderSyncChip();
+    })
+    .catch(function(e){SYNC.err=String(e&&e.message||e);renderSyncChip();});
+}
+function syncPush(ops){
+  if(!SYNC.on||typeof fetch!=='function'||!ops||!ops.length)return;
+  fetch(SYNC.url+'?room='+encodeURIComponent(SYNC.room),
+        {method:'POST',headers:syncHeaders(),body:JSON.stringify({ops:ops})})
+    .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);SYNC.err='';SYNC.at=Date.now();renderSyncChip();})
+    .catch(function(e){SYNC.err=String(e&&e.message||e);renderSyncChip();});
+}
+function renderSyncChip(){
+  var el=document.getElementById('syncChip');if(!el)return;
+  el.className='sync-chip';
+  if(!SYNC.on){el.textContent='Local only';el.title='No shared store configured. Captures stay in this browser.';
+    el.classList.add('sc-off');return;}
+  if(SYNC.err){el.textContent='Sync error';el.title=SYNC.err;el.classList.add('sc-err');return;}
+  var who=syncWho();
+  el.textContent='Shared'+(who?' · '+who:' · set your name');
+  if(!who)el.classList.add('sc-warn');
+  el.title='Shared store on. '+(SYNC.at?('last synced '+Math.round((Date.now()-SYNC.at)/1000)+'s ago'):'connecting')
+    +'. Click to change your name or the endpoint.';
+}
+function openSyncPanel(){
+  var who=window.prompt('Your name — it stamps every change you make so the other person can see whose it is:',syncWho()||'');
+  if(who===null)return;
+  syncSetWho(who.trim());
+  if(!SYNC.on){
+    var u=window.prompt('Shared store URL (leave blank to stay local-only):','');
+    if(u&&u.trim()){
+      var k=window.prompt('Shared store key (optional):','')||'';
+      try{localStorage.setItem('wt-sync-override',JSON.stringify({url:u.trim(),key:k.trim(),room:'work-tracker'}));}catch(e){}
+      syncConfigure(LAST_DATA);
+    }
+  }
+  setStatus('Signed in as '+(syncWho()||'(unnamed)')+'.');
+}
+
 function queueCount(){return readQueue().length;}
 function updateCaptureSummary(){
   var n=queueCount();var el=document.getElementById('capSumNote');if(!el)return;
@@ -2976,7 +3159,7 @@ function exportCaptures(){
   var out=buildExportText();
   if(!out){setStatus('Nothing to copy yet.');return;}
   var q=readQueue();if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(out).then(function(){setStatus('Copied '+q.length+' capture(s) + plan \u2014 paste to Claude at check-in.');},function(){window.prompt('Copy these and paste to Claude:',out);});}else{window.prompt('Copy these and paste to Claude:',out);}}
-function clearCaptures(){if(!readQueue().length){setStatus('Queue already empty.');return;}if(window.confirm('Clear captured items? Only do this after copying them to Claude.')){localStorage.setItem(localQueueKey(),'[]');document.getElementById('pendingList').innerHTML='<span class="pending-empty">Nothing pending yet.</span>';refreshBoard();setStatus('Local queue cleared.');}}
+function clearCaptures(){if(!readQueue().length){setStatus('Queue already empty.');return;}if(window.confirm('Clear captured items? Only do this after copying them to Claude. This clears them for everyone sharing the board.')){var _tomb=readQueue().filter(function(o){return o.id;}).map(function(o){return {id:opId(),type:'_void',voids:o.id,by:syncWho()||'',ts:new Date().toISOString()};});REMOTE_Q=[];writeLocalQueue(_tomb);syncPush(_tomb);document.getElementById('pendingList').innerHTML='<span class="pending-empty">Nothing pending yet.</span>';refreshBoard();setStatus('Local queue cleared.');}}
 
 // ---- 2026-07-04 views: Court / Overview / History ----
 function pkgNum(name){var m=/Package\s+([\d.]+)/i.exec(name||'');return m?m[1]:null;}
@@ -3302,7 +3485,10 @@ var SCOPE_LABELS={
 };
 var SCOPE_ORDER=['AR','ME-DLG','ME-SA','EL-DLG','EL-SMP','ST-DLG','ST-RJC','SIG'];
 function scopeInfo(k){return SCOPE_LABELS[k]||{t:(k||'Scope not set'),d:''};}
-var addDiscFilter='';
+// This is an ARCHITECTURAL addendum — 'Vol 1 – ARCHITECTURAL' is on the cover of all four issued
+// ones. So AR is the default and the bar says out loud what it is holding back; the other
+// disciplines are tracking, not write-up material.
+function addDiscFilter_(){return ADD_DISC==='*'?'':ADD_DISC;}
 // One addendum, one card. The contents come from `addendum::` tags and the date from a
 // Milestones row, and those two spell the same addendum differently — a tag says "TP5-A1"
 // where the milestone says "Addendum 1". Keying on the raw string drew two cards for one
@@ -3363,19 +3549,38 @@ function buildAddendumRegister(){
   if(!order.length)return;
   sectionHead(c,'Addendum register — what each upcoming addendum actually carries','var(--gold)');
   var discsPresent=[];
-  tagged.forEach(function(it){var dd=scopeInfo(it.scope).d;if(dd&&discsPresent.indexOf(dd)===-1)discsPresent.push(dd);});
-  if(discsPresent.length>1){   // a filter with one option is furniture
-    var fr=document.createElement('div');fr.className='add-filter';
-    var flb=document.createElement('span');flb.className='add-filter-lbl';flb.textContent='discipline';fr.appendChild(flb);
-    [''].concat(discsPresent).forEach(function(dd){
+  // `disc::` is occasionally multi-valued ('ME,AR') and `scope::` and `disc::` can name the same
+  // discipline twice. Split, trim, dedupe — a filter bar with two AR buttons is a bug you click.
+  tagged.concat((window.LANE_ITEMS||[])).forEach(function(it){
+    var raw=((it.scope?scopeInfo(it.scope).d:'')||'')+','+(it.disc||'');
+    raw.split(/[,;/]+/).forEach(function(x){
+      var dd=x.trim();
+      if(dd&&discsPresent.indexOf(dd)===-1)discsPresent.push(dd);});});
+  if(discsPresent.indexOf('AR')===-1)discsPresent.unshift('AR');
+  discsPresent.sort(function(a,b){return a==='AR'?-1:b==='AR'?1:(a<b?-1:1);});
+  {
+    var fr=document.createElement('div');fr.className='add-filter add-filter-lead';
+    var flb=document.createElement('span');flb.className='add-filter-lbl';flb.textContent='Discipline';fr.appendChild(flb);
+    discsPresent.concat(['']).forEach(function(dd){
       var fb=document.createElement('button');fb.type='button';
-      fb.className='add-filter-b'+(addDiscFilter===dd?' on':'');
-      fb.textContent=dd||'all';
-      fb.title=dd?('Show only '+dd+' scopes'):'Show every consultant';
-      fb.addEventListener('click',function(){addDiscFilter=dd;buildAddendumRegister();});
+      fb.className='add-filter-b'+(addDiscFilter_()===dd?' on':'');
+      fb.textContent=dd||'Everything';
+      fb.title=dd==='AR'?'Architecture — the discipline this addendum is written for. The default.'
+        :(dd?('Show only '+dd+' — tracking, not write-up material'):'Every consultant, including the ones you do not write');
+      if(dd==='AR')fb.classList.add('af-ar');
+      fb.addEventListener('click',function(){ADD_DISC=dd||'*';buildAddendumRegister();});
       fr.appendChild(fb);
     });
     c.appendChild(fr);
+    var hid=tagged.concat((window.LANE_ITEMS||[])).filter(function(it){
+      var dd=(it.scope?scopeInfo(it.scope).d:'')||it.disc||'';
+      return dd&&addDiscFilter_()&&dd!==addDiscFilter_();}).length;
+    var hn=document.createElement('div');hn.className='add-filter-note';
+    hn.textContent=addDiscFilter_()
+      ?(addDiscFilter_()==='AR'?'Architecture only':'Only '+addDiscFilter_())
+        +(hid?' — '+hid+' item(s) from other disciplines hidden':' — nothing else is filed under another discipline')
+      :'Every discipline showing. The write-up is Vol 1 – ARCHITECTURAL, so only AR items belong in it.';
+    c.appendChild(hn);
   }
   var note=document.createElement('p');note.className='g-p';
   note.style.cssText='font-size:11.5px;color:var(--muted);margin:2px 0 4px;';
@@ -3420,31 +3625,41 @@ function buildAddendumRegister(){
     // The sheet list for this instrument, if there is one. Compact by design: the card answers
     // "what rides this addendum", and the sheet-by-sheet detail lives one click away in Sheets.
     (function(){
-      var mine=(window.LANE_ITEMS||[]).filter(function(i){
-        return addKey(i.pkg,i.addendum)===k;});
-      if(!mine.length)return;
+      var pool=addPoolFor(k);
       var strip=document.createElement('div');strip.className='add-sheets';
-      var lab=document.createElement('span');lab.className='add-sheets-lab';
-      var un=mine.filter(function(i){return !i.produces;}).length;
-      lab.textContent='Sheets \u00b7 '+mine.length+(un?' ('+un+' untriaged)':'');
-      lab.title='The sheet-by-sheet punch list for this addendum \u2014 click any sheet to open it';
-      strip.appendChild(lab);
-      mine.slice().sort(function(a,b){return sheetSortKey(a)<sheetSortKey(b)?-1:1;}).forEach(function(it){
-        var c2=document.createElement('button');c2.type='button';
-        c2.className='sh-chip'+(it.produces?(' p-'+it.produces):' p-untriaged')+(it.verify?' q':'');
-        c2.textContent=(it.sheet||'no sheet')+(it.verify?' ?':'');
-        c2.title=(it.title||'')+' \u2014 '+(it.produces?({drawings:'D, drawing and write-up',
-          writeup:'A, write-up only',none:'N, no addendum line'}[it.produces]):'untriaged');
-        c2.addEventListener('click',function(e){e.stopPropagation();
-          setView('registers');setRegTab('sheets');
-          if(it.addendum)setSheetFilter(it.addendum);
-          var el=document.getElementById('sh-'+it.id);
-          if(el){el.scrollIntoView({block:'center'});el.classList.add('sh-hit');
-            setTimeout(function(){el.classList.remove('sh-hit');},1600);}
+      var open=(ADD_OPEN===k);
+      var ob=document.createElement('button');ob.type='button';ob.className='add-open'+(open?' on':'');
+      ob.textContent=(open?'▾ ':'▸ ')+'Sheet work'+(pool.length?' · '+pool.length:'');
+      ob.title='The sheet-by-sheet punch list that fills this addendum, and the write-up it renders';
+      ob.addEventListener('click',function(e){e.stopPropagation();toggleAddOpen(k);});
+      strip.appendChild(ob);
+      if(!open){
+        var un=pool.filter(function(i2){return !i2.produces;}).length;
+        var dn=pool.filter(function(i2){return i2.produces==='drawings';}).length;
+        var vn=pool.filter(function(i2){return i2.verify;}).length;
+        var lab=document.createElement('span');lab.className='add-sheets-lab';
+        lab.textContent=pool.length?(dn+' issue a drawing'+(un?' · '+un+' untriaged':'')+(vn?' · '+vn+' to verify':''))
+          :'nothing on the sheet list yet';
+        strip.appendChild(lab);
+        pool.slice().sort(function(a,b){return sheetSortKey(a)<sheetSortKey(b)?-1:1;}).slice(0,18).forEach(function(it){
+          var c2=document.createElement('button');c2.type='button';
+          c2.className='sh-chip'+(it.produces?(' p-'+it.produces):' p-untriaged')+(it.verify?' q':'');
+          c2.textContent=(itemPart(it)==='spec'?(it.section||'§3'):(itemSheets(it)[0]||'no sheet'))
+            +(itemSheets(it).length>1?' +'+(itemSheets(it).length-1):'')+(it.verify?' ?':'');
+          c2.title=(it.title||'')+' — '+produceLabel(itemPart(it),it.produces);
+          c2.addEventListener('click',function(e){e.stopPropagation();
+            ADD_OPEN=k;buildAddendumRegister();
+            var el=document.getElementById('sh-'+it.id);
+            if(el){el.scrollIntoView({block:'center'});el.classList.add('sh-hit');
+              setTimeout(function(){el.classList.remove('sh-hit');},1600);}
+          });
+          strip.appendChild(c2);
         });
-        strip.appendChild(c2);
-      });
+        if(pool.length>18){var mo=document.createElement('span');mo.className='add-sheets-lab';
+          mo.textContent='+'+(pool.length-18)+' more';strip.appendChild(mo);}
+      }
       card.appendChild(strip);
+      if(ADD_OPEN===k)addWorkbench(card,k,pool);
     })();
     // What questions does this instrument carry? TP5-A1 gathers 15 threads across 3 packages --
     // the one cross-cut the Programme > Package tree cannot draw, because those threads are filed
@@ -3499,7 +3714,7 @@ function buildAddendumRegister(){
     var showHeaders=scopeKeys.length>1,shown=0;
     scopeKeys.forEach(function(sk){
       var inf=scopeInfo(sk==='_none'?'':sk);
-      if(addDiscFilter&&inf.d!==addDiscFilter)return;
+      if(addDiscFilter_()&&inf.d!==addDiscFilter_())return;
       var rows=byScope[sk];shown+=rows.length;
       if(showHeaders){
         var sh=document.createElement('div');sh.className='add-scope'+(inf.ours?' ours':'');
@@ -3538,9 +3753,9 @@ function buildAddendumRegister(){
       card.appendChild(r);
       });
     });
-    if(!shown&&addDiscFilter){
+    if(!shown&&addDiscFilter_()){
       var nores=document.createElement('div');nores.className='add-row add-none';
-      nores.textContent='Nothing in this addendum is '+addDiscFilter+' scope.';
+      nores.textContent='Nothing in this addendum is '+addDiscFilter_()+' scope.';
       card.appendChild(nores);
     }
     var act=document.createElement('div');act.className='add-actions';
@@ -3621,11 +3836,33 @@ function rfiTableEl(rows,hidePkg){
     tr.innerHTML='<td class="rr-title">'+escapeHtml(r.it.title.slice(0,72))+'</td>'+
       '<td>'+escapeHtml(r.it.rfiSystem||'\u2014')+'</td>'+
       (hidePkg?'':'<td>'+escapeHtml(pkgShort)+'</td>')+
-      '<td><span class="rr-state rr-'+r.st+'">'+r.st+'</span></td>'+
+      '<td class="rr-statecell"></td>'+
       '<td>'+escapeHtml(courtTxt)+'</td>'+
       '<td>'+escapeHtml(r.raised||'\u2014')+'</td>'+
       '<td class="rr-age'+(r.age!==null&&r.age>=10?' rr-old':'')+'">'+ageTxt+'</td>'+
       '<td>'+r.closes+'</td>';
+    // The state was a printed word. An RFI answered in a meeting could not be recorded here at
+    // all — you had to go to the vault — so the register drifted from the truth between check-ins.
+    // It is a control now, it queues like every other edit, and it survives a reload because the
+    // queue IS the overlay.
+    var sc=tr.querySelector('.rr-statecell');
+    var sel=document.createElement('select');sel.className='rr-state rr-'+r.st;
+    ['open','answered','reopened','closed'].forEach(function(v){
+      var o=document.createElement('option');o.value=v;o.textContent=v;
+      if(v===r.st)o.selected=true;sel.appendChild(o);});
+    sel.title='Change the state \u2014 queues for check-in and shows to anyone sharing this board';
+    sel.addEventListener('click',function(e){e.stopPropagation();});
+    sel.addEventListener('mousedown',function(e){e.stopPropagation();});
+    sel.addEventListener('change',function(e){
+      e.stopPropagation();
+      queueLocally({type:'rfistate',program:r.it.program||'',pkg:r.it.pkg||'',
+                    itemRef:(r.it.title||'').slice(0,160),
+                    text:'state: '+r.st+' \u2192 '+sel.value});
+      rebuildPendingList();
+      setStatus('RFI state \u2192 '+sel.value+' \u2014 recorded'+(SYNC.on?' and shared.':'.'));
+      refreshBoard();
+    });
+    sc.appendChild(sel);
     tr.addEventListener('click',function(){openDrawer(r.it.id);});
     tb.appendChild(tr);
   });
@@ -4159,6 +4396,17 @@ function applyPendingOverlay(){
         for(var t2=0;t2<dd.subtasks.length;t2++){if(dd.subtasks[t2]===p.text||dd.subtasks[t2]===p.text+' \u23f3'){dd.subtasks[t2]='\u2713 '+dd.subtasks[t2];break;}}
         break;
       }
+    }else if(p.type==='rfistate'&&p.itemRef){
+      var m3=/\u2192\s*(\w+)\s*$/.exec(p.text||'');
+      if(m3){for(var r3=0;r3<items.length;r3++){
+        if(items[r3].title.slice(0,60)!==p.itemRef.slice(0,60))continue;
+        items[r3].state=m3[1];
+        // closed is closed everywhere \u2014 the item's own status is what every other view reads
+        if(m3[1]==='closed')items[r3].status='completed';
+        else if(items[r3].status==='completed')items[r3].status='open';
+        var dr=details[items[r3].id]=details[items[r3].id]||{next:null,subtasks:[],updates:[]};
+        dr.updates.push(ds+'|state \u2192 '+m3[1]+(p.by?' ('+p.by+')':'')+' \u23f3 pending check-in');
+        break;}}
     }else if(p.type==='complete'&&p.text){
       var tgt=null;
       for(var k=0;k<items.length;k++){if(items[k].title.slice(0,60)===p.text.slice(0,60)){tgt=items[k];break;}}
@@ -5053,27 +5301,95 @@ function updateTabCounts(){
   setCount('topics',topicsNeedingAttn,true,topicsNeedingAttn+' thread(s) hold something that needs you \u2014 yours, '
     +'and either past due, due within 3 days, or carrying an impact:: signal');
 }
-// ---- the sheet punch list -------------------------------------------------------------
+// ---- the addendum workbench -----------------------------------------------------------
+// Derived from the four issued addenda (Vol 1 ARCH, 2026-04-07 / -04-14 / -04-17 / -06-26).
+// Every line in an addendum has one shape:  TARGET; ACTION[; ATTACHMENT CLAUSE]
+// and the three states you can put an item in are exactly the presence or absence of that
+// clause. Nothing here is invented; the grammar below is transcribed from those documents.
+//
 // These items are LANE_ITEMS: they never reach the board, because a sheet is not a question and
 // twenty-seven of them would drown a view built around threads that close. They live here.
 var PRODUCES = [
-  {k:'',         label:'Untriaged',       hint:'no letter yet \u2014 not counted as addendum content'},
-  {k:'drawings', label:'D \u2014 drawing and write-up', hint:'reaches the List of Attachments'},
-  {k:'writeup',  label:'A \u2014 write-up only',        hint:'no drawing issued; the words must be complete'},
-  {k:'none',     label:'N \u2014 no addendum line',     hint:'clean-up only'}
+  {k:'',         label:'Untriaged',    hint:'no decision yet — cannot go in the document'},
+  {k:'drawings', label:'Issue drawing',hint:'the line ends "attached and forms part of this Addendum" — the sheet enters the List of Attachments'},
+  {k:'writeup',  label:'Write-up only',hint:'the words carry the change; nothing is attached'},
+  {k:'none',     label:'Fix only',     hint:'we correct it, but no line is written into the addendum'}
 ];
+// §3 is the same three decisions about a specification section rather than a sheet.
+var PRODUCES_SPEC = {
+  '':        {label:'Untriaged',     hint:'no decision yet'},
+  'drawings':{label:'Attach section',hint:'the section is re-issued or newly issued and rides the addendum'},
+  'writeup': {label:'Note only',     hint:'"Revise Item 1.12 to read …" or a clarification — nothing attached'},
+  'none':    {label:'Fix only',      hint:'corrected in our copy; the bid never sees it'}
+};
+function produceLabel(part,k){
+  if(part==='spec')return (PRODUCES_SPEC[k||'']||{}).label||'Untriaged';
+  for(var i=0;i<PRODUCES.length;i++)if(PRODUCES[i].k===(k||''))return PRODUCES[i].label;
+  return 'Untriaged';
+}
+function produceHint(part,k){
+  if(part==='spec')return (PRODUCES_SPEC[k||'']||{}).hint||'';
+  for(var i=0;i<PRODUCES.length;i++)if(PRODUCES[i].k===(k||''))return PRODUCES[i].hint;
+  return '';
+}
 // A step that tells YOU to do something is not addendum content. Only the drawing verbs render
 // into the write-up; the rest are process and are shown greyed so the exclusion is visible.
-var WU_VERBS = /^(ADD|DELETE|REVISE|UPDATE|REDIMENSION|SET|DRAW|SWEEP|MAKE|RENAME|MOVE)\b/;
+var WU_VERBS = /^(ADD|DELETE|REVISE|UPDATE|REDIMENSION|SET|DRAW|SWEEP|MAKE|RENAME|MOVE|RE-?ISSUE|MODIFY|PROVIDE|CLARIF)/;
+var WU_REISSUE = /^RE-?ISSUE\b/;
+var WU_DELETE_SEC = /^DELETE\b.*\bSECTION\b/;
+// House sheet order, taken from the issued documents rather than from arithmetic. In Addendum 1
+// A42.4.19 sits between A42.31.13 and A42.6.01 in BOTH §4 and the List of Attachments, which
+// only a text sort produces — a numeric one would file it eighth. Matching the house means the
+// render pastes into the document without being reordered by hand.
+var ADD_ORDER_NUMERIC=false;
 function sheetSortKey(it){
-  var m=String(it.sheet||'').match(/\d+/g)||[];
-  return m.map(function(n){return String(n).padStart(4,'0');}).join('.')+'|'+(it.title||'');
+  var sh=(typeof it==='string')?it:(it&&it.sheet)||'';
+  if(ADD_ORDER_NUMERIC){
+    var m=String(sh).match(/\d+/g)||[];
+    return m.map(function(n){return String(n).padStart(4,'0');}).join('.')+'|'+((it&&it.title)||'');
+  }
+  return String(sh).toUpperCase()+'|'+((typeof it==='string')?'':((it&&it.title)||''));
 }
-var sheetFilter='';   // '' = every instrument
-function setSheetFilter(a){sheetFilter=a===sheetFilter?'':(a||'');buildSheetsView();}
-// The sheet lane, plus anything else riding an addendum that already carries a `produces::`.
-// A board item is keyed to a question and usually has no sheet — but if it puts something into
-// the instrument it has to reach the write-up, or the document is quietly short.
+
+// ---- state ---------------------------------------------------------------------------------
+var sheetFilter='';        // legacy: which instrument the old Sheets tab was pinned to
+var ADD_OPEN=null;         // which addendum's workbench is open
+var ADD_DISC='AR';         // Architecture is the default and says so. This is an ARCH addendum.
+var ADD_PART='';           // '' both · 'spec' §3 · 'drawing' §4
+var ADD_STATE='';          // '' | drawings | writeup | none | untriaged | verify
+var SH_OPEN={};
+var SH_ROW_OPEN={};
+var WU_EXCLUDE={};
+var WU_INQUIRIES=false;
+
+function setSheetFilter(a){ADD_OPEN=a||null;buildAddendumRegister();}
+function setAddDisc(d){ADD_DISC=d;buildAddendumRegister();}
+function setAddPart(p){ADD_PART=(ADD_PART===p)?'':p;ADD_STATE='';buildAddendumRegister();}
+function setAddState(k){ADD_STATE=(ADD_STATE===k)?'':k;buildAddendumRegister();}
+function toggleAddOpen(k){ADD_OPEN=(ADD_OPEN===k)?null:k;buildAddendumRegister();}
+
+// ---- the item pool ---------------------------------------------------------------------------
+// The sheet lane, plus anything else riding an addendum. A board item is keyed to a question and
+// usually has no sheet — but if it puts something into the instrument it has to reach the
+// write-up, or the document is quietly short.
+function itemDisc(it){
+  var d=(typeof scopeInfo==='function'&&it.scope)?(scopeInfo(it.scope).d||''):'';
+  return (d||it.disc||'').split(/[,;/]+/)[0].trim();
+}
+// An item tagged 'ME,AR' is partly ours. It shows under AR as well as ME rather than vanishing.
+function itemHasDisc(it,d){
+  if(!d||d==='*')return true;
+  var raw=((typeof scopeInfo==='function'&&it.scope)?(scopeInfo(it.scope).d||''):'')+','+(it.disc||'');
+  var list=raw.split(/[,;/]+/).map(function(x){return x.trim();}).filter(Boolean);
+  if(!list.length)return d==='AR';   // unscoped work is yours until someone says otherwise
+  return list.indexOf(d)>-1;
+}
+function itemPart(it){return it.part||(it.section?'spec':'drawing');}
+function itemSheets(it){
+  if(it.sheets&&it.sheets.length)return it.sheets.slice();
+  return it.sheet?[it.sheet]:[];
+}
+function inDocument(it){return it.produces==='drawings'||it.produces==='writeup';}
 function laneItems(){
   var lane=(window.LANE_ITEMS||[]).map(function(i){return Object.assign({},i);});
   var extra=(window.ITEMS||[]).filter(function(i){return i.addendum;})
@@ -5085,152 +5401,173 @@ function laneItems(){
   (readQueue()||[]).forEach(function(p,ix){
     if(p.type==='sheet'){
       // captured on the site and not yet folded — it is real work the moment you type it
-      all.push({id:'pending-sheet-'+ix,title:p.text||'(untitled)',status:'open',
+      all.push({id:'pending-sheet-'+(p.id||ix),title:p.text||'(untitled)',status:'open',
         program:p.program||'',pkg:p.pkg||'',addendum:p.addendum||'',sheet:p.sheet||'',
+        sheets:p.sheet?String(p.sheet).split(/[,;]+/).map(function(x){return x.trim();}).filter(Boolean):[],
+        part:p.part||'drawing',section:p.section||'',scope:p.scope||'AR',disc:p.disc||'AR',
         produces:p.produces||undefined,verify:p.verify?'yes':undefined,
-        lane:'pending',pendingLocal:true});
+        lane:'pending',pendingLocal:true,by:p.by||''});
     }else if(p.type==='produces'&&p.itemRef){
       var t=byTitle(p.itemRef);if(!t)return;
-      var m=/\u2192\s*(.+)$/.exec(p.text||'');
+      var m=/→\s*(.+)$/.exec(p.text||'');
       if(m){var v=m[1].trim();
         if(v==='(untriaged)')delete t.produces; else t.produces=v;}
       if(/flagged to verify/.test(p.text||''))t.verify='yes';
       if(/\? cleared/.test(p.text||''))delete t.verify;
+      if(p.by)t.byLast=p.by;
+    }else if(p.type==='addmeta'&&p.itemRef&&p.field){
+      var a=byTitle(p.itemRef);if(!a)return;
+      if(p.field==='sheets'){
+        var list=String(p.value||'').split(/[,;]+/).map(function(x){return x.trim();}).filter(Boolean);
+        a.sheets=list;a.sheet=list[0]||'';
+      }else{a[p.field]=p.value;}
+      if(p.by)a.byLast=p.by;
     }else if(p.type==='complete'&&p.text){
       var c2=byTitle(p.text);if(c2)c2.pendingComplete=true;
     }
   });
-  return sheetFilter?all.filter(function(i){return i.addendum===sheetFilter;}):all;
+  return all;
 }
-function sheetInstruments(){
-  var seen={},out=[];
-  (window.LANE_ITEMS||[]).concat((window.ITEMS||[]).filter(function(i){return i.addendum;}))
-    .forEach(function(i){
-      if(!i.addendum||seen[i.addendum])return;seen[i.addendum]=1;
-      out.push({key:i.addendum,pkg:(i.pkg||'').replace(/Package /,'Pkg ').split('\u2014')[0].trim()});
-    });
-  return out.sort(function(a,b){return a.key<b.key?-1:1;});
+function addPoolFor(key){
+  return laneItems().filter(function(i){
+    if(addKey(i.pkg,i.addendum)!==key)return false;
+    return itemHasDisc(i,ADD_DISC);
+  });
 }
+function addHiddenCount(key){
+  return laneItems().filter(function(i){
+    return addKey(i.pkg,i.addendum)===key&&!itemHasDisc(i,ADD_DISC);
+  }).length;
+}
+
+// ---- edits ------------------------------------------------------------------------------------
+function findLane(id){var l=laneItems();for(var i=0;i<l.length;i++)if(l[i].id===id)return l[i];return null;}
 function setProduces(id,val){
-  var it=laneItems().find(function(x){return x.id===id;});if(!it)return;
+  var it=findLane(id);if(!it)return;
   var was=it.produces||'(untriaged)';
   // Queued, not written. The vault stays the source of truth; this folds in at the next check-in.
   queueLocally({type:'produces',program:it.program||'',pkg:it.pkg||'',itemRef:(it.title||'').slice(0,160),
-    text:(it.sheet?it.sheet+' \u2014 ':'')+'produces: '+was+' \u2192 '+(val||'(untriaged)'),
-    ts:new Date().toISOString()});
-  buildSheetsView();
-  setStatus('Letter changed \u2014 copy for check-in to make it permanent.');
+    text:(it.sheet?it.sheet+' — ':'')+'produces: '+was+' → '+(val||'(untriaged)')});
+  buildAddendumRegister();
+  setStatus(produceLabel(itemPart(it),val)+' — '+(SYNC.on?'shared, and copy for check-in to make it permanent.':'copy for check-in to make it permanent.'));
 }
 function toggleVerify(id){
-  var it=laneItems().find(function(x){return x.id===id;});if(!it)return;
+  var it=findLane(id);if(!it)return;
   queueLocally({type:'produces',program:it.program||'',pkg:it.pkg||'',itemRef:(it.title||'').slice(0,160),
-    text:(it.sheet?it.sheet+' \u2014 ':'')+(it.verify?'verified \u2014 ? cleared':'flagged to verify (?)'),
-    ts:new Date().toISOString()});
-  buildSheetsView();
+    text:(it.sheet?it.sheet+' — ':'')+(it.verify?'verified — ? cleared':'flagged to verify (?)')});
+  buildAddendumRegister();
 }
-function showImgModal(src){
-  var m=document.createElement('div');m.className='img-modal';
-  var i=document.createElement('img');i.src=src;m.appendChild(i);
-  m.addEventListener('click',function(){m.remove();});
-  document.addEventListener('keydown',function esc(e){if(e.key==='Escape'){m.remove();document.removeEventListener('keydown',esc);}});
-  document.body.appendChild(m);
+function setAddMeta(id,field,value,label){
+  var it=findLane(id);if(!it)return;
+  queueLocally({type:'addmeta',program:it.program||'',pkg:it.pkg||'',itemRef:(it.title||'').slice(0,160),
+    field:field,value:value,
+    text:(it.sheet?it.sheet+' — ':'')+(label||field)+': '+(value||'(cleared)')});
+  buildAddendumRegister();
+  setStatus((label||field)+' set — queued for check-in.');
 }
-function buildSheetsView(){
-  var c=document.getElementById('sheetsView');if(!c)return;c.innerHTML='';
-  var all=laneItems();
-  if(!all.length){c.innerHTML='<span class="focus-empty">Nothing rides an addendum yet.</span>';return;}
-  var live=all.filter(function(i){return !i.pendingComplete&&i.status!=='completed';});
-  var doneN=all.length-live.length;
-  var untriaged=live.filter(function(i){return !i.produces;}).length;
-  var verify=live.filter(function(i){return i.verify;}).length;
-  var d=live.filter(function(i){return i.produces==='drawings';}).length;
 
-  // instrument switcher — always drawn, so "which addendum am I working on" is answerable even
-  // when there is only one. It is a question about the tool, not about today's data.
-  var insts=sheetInstruments();
-  var everything=(window.LANE_ITEMS||[]).concat((window.ITEMS||[]).filter(function(i){return i.addendum;}));
-  var fb=document.createElement('div');fb.className='sh-bar';
-  var fl=document.createElement('span');fl.className='sh-stat';fl.textContent='Addendum:';fb.appendChild(fl);
-  var mk=function(key,label,n){
+// ---- the workbench render ----------------------------------------------------------------------
+function addWorkbench(host,key,pool){
+  var live=pool.filter(function(i){return !i.pendingComplete&&i.status!=='completed';});
+  var done=pool.length-live.length;
+  var wb=document.createElement('div');wb.className='wb';
+
+  // 1. Specification or Drawing — the axis the letters never carried. §3 is written by the spec
+  //    writer from what you note here; §4 is written here in full.
+  var pr=document.createElement('div');pr.className='wb-bar';
+  var pl=document.createElement('span');pl.className='wb-lbl';pl.textContent='Goes into';pr.appendChild(pl);
+  [['','Both','Everything riding this addendum'],
+   ['spec','Specifications §3','Section 09 06 00 and friends — you note the item, Specifications writes the final words'],
+   ['drawing','Drawings §4','One heading per sheet, one line per change — written here, in full']
+  ].forEach(function(o){
     var b=document.createElement('button');b.type='button';
-    b.className='fchip'+(sheetFilter===key?' active fi-code':'');
-    b.textContent=label+(n!=null?'  '+n:'');
-    b.addEventListener('click',function(){setSheetFilter(key);});
-    return b;};
-  fb.appendChild(mk('','All',everything.length));
-  insts.forEach(function(x){fb.appendChild(mk(x.key,x.pkg+' Add '+addNum(x.key),
-    everything.filter(function(i){return i.addendum===x.key;}).length));});
-  c.appendChild(fb);
+    b.className='wb-seg'+((ADD_PART===o[0])?' on':'');
+    b.textContent=o[1];b.title=o[2];
+    b.addEventListener('click',function(){ADD_PART=o[0];ADD_STATE='';buildAddendumRegister();});
+    pr.appendChild(b);});
+  wb.appendChild(pr);
 
-  var bar=document.createElement('div');bar.className='sh-bar';
-  var st=document.createElement('span');st.className='sh-stat';
-  st.innerHTML='<b>'+live.length+'</b> open \u00b7 <b>'+d+'</b> carry a drawing \u00b7 <b>'+untriaged+
-    '</b> untriaged \u00b7 <b>'+verify+'</b> to verify'+(doneN?' \u00b7 <b>'+doneN+'</b> done':'');
-  bar.appendChild(st);
-  var wb=document.createElement('button');wb.type='button';wb.className='hist-more';wb.style.margin='0';
-  wb.textContent='addendum write-up \u2709';
-  wb.title='Render \u00a74 Drawings and the List of Attachments from the items that carry a letter';
-  wb.addEventListener('click',buildWriteup);
-  bar.appendChild(wb);
-  c.appendChild(bar);
-  var wu=document.createElement('div');wu.id='wuHost';c.appendChild(wu);
+  var parted=ADD_PART?pool.filter(function(i){return itemPart(i)===ADD_PART;}):pool;
 
-  // group by instrument, then by letter inside it
-  var byAdd={},addOrder=[];
-  all.forEach(function(i){var k=i.addendum||'(none)';
-    if(!byAdd[k]){byAdd[k]=[];addOrder.push(k);}byAdd[k].push(i);});
-  addOrder.sort();
-  addOrder.forEach(function(ak){
-    var rows=byAdd[ak];
-    var lv=rows.filter(function(i){return !i.pendingComplete&&i.status!=='completed';});
-    var un=lv.filter(function(i){return !i.produces;}).length;
-    var wrap=document.createElement('details');wrap.className='sh-add';
-    wrap.open=(SH_OPEN[ak]!==false);
-    wrap.addEventListener('toggle',function(){SH_OPEN[ak]=wrap.open;});
-    var sm=document.createElement('summary');
-    var pkg=(rows[0].pkg||'').replace(/Package /,'Pkg ').split('\u2014')[0].trim();
-    sm.appendChild(document.createTextNode(pkg+' \u00b7 Addendum '+addNum(ak)));
-    var cc=document.createElement('span');cc.className='c';
-    cc.textContent=lv.length+' open'+(un?' \u00b7 '+un+' untriaged':'')
-      +((rows.length-lv.length)?' \u00b7 '+(rows.length-lv.length)+' done':'');
-    sm.appendChild(cc);
-    wrap.appendChild(sm);
-    var addRow=document.createElement('div');addRow.className='sh-bar';addRow.style.margin='6px 0 0';
-    var ab=document.createElement('button');ab.type='button';ab.className='add-item-btn';
-    ab.textContent='+ add to this addendum';
-    ab.title='Capture a sheet or an item straight into this addendum';
-    ab.addEventListener('click',function(e){e.stopPropagation();
-      openAddSheet(addRow,ak,rows[0].pkg||'',rows[0].program||'');});
-    addRow.appendChild(ab);
-    var gw=document.createElement('button');gw.type='button';gw.className='hist-more';gw.style.margin='0';
-    gw.textContent='write-up for Addendum '+addNum(ak)+' \u2709';
-    gw.title='Render \u00a74 and the List of Attachments for this instrument only';
-    var gh=document.createElement('div');gh.id='wuHost-'+ak;
-    gw.addEventListener('click',function(e){e.stopPropagation();buildWriteup(ak,gh);});
-    addRow.appendChild(gw);
-    wrap.appendChild(addRow);
-    wrap.appendChild(gh);
-    PRODUCES.forEach(function(g){
-      var grp=rows.filter(function(i){return (i.produces||'')===g.k;})
-        .sort(function(a,b){return sheetSortKey(a)<sheetSortKey(b)?-1:1;});
-      if(!grp.length)return;
-      var h=document.createElement('div');h.className='sh-group';
-      h.innerHTML=g.label+'<span class="n">'+grp.length+' \u00b7 '+g.hint+'</span>';
-      wrap.appendChild(h);
-      grp.forEach(function(it){wrap.appendChild(sheetRow(it));});
-    });
-    c.appendChild(wrap);
+  // 2. the three states, then the ? — counts come from what the part switch left standing
+  var sr=document.createElement('div');sr.className='wb-bar';
+  var sl=document.createElement('span');sl.className='wb-lbl';sl.textContent='State';sr.appendChild(sl);
+  var partForLabels=ADD_PART||'drawing';
+  [['drawings'],['writeup'],['none'],['untriaged'],['verify']].forEach(function(o){
+    var k=o[0];
+    var n=parted.filter(function(i){
+      if(k==='untriaged')return !i.produces;
+      if(k==='verify')return !!i.verify;
+      return i.produces===k;}).length;
+    var b=document.createElement('button');b.type='button';
+    b.className='wb-chip s-'+k+((ADD_STATE===k)?' on':'');
+    b.textContent=(k==='untriaged'?'Untriaged':k==='verify'?'? to verify':produceLabel(partForLabels,k))+'  '+n;
+    b.title=k==='verify'?'Flagged for Chris H to confirm before it can be written'
+      :(k==='untriaged'?'No decision yet — cannot go in the document':produceHint(partForLabels,k));
+    b.addEventListener('click',function(){setAddState(k);});
+    sr.appendChild(b);});
+  var right=document.createElement('span');right.className='wb-right';
+  var wbtn=document.createElement('button');wbtn.type='button';wbtn.className='wb-write';
+  wbtn.textContent='Write the addendum ✉';
+  wbtn.title='Render §3, §4 and the List of Attachments from the items that carry a state';
+  wbtn.addEventListener('click',function(){buildWriteup(key,document.getElementById('wuHost-'+key));});
+  right.appendChild(wbtn);
+  var ab=document.createElement('button');ab.type='button';ab.className='add-item-btn';
+  ab.textContent='+ add an item';
+  ab.addEventListener('click',function(e){e.stopPropagation();
+    openAddSheet(sr,key,(pool[0]||{}).pkg||'',(pool[0]||{}).program||'');});
+  right.appendChild(ab);
+  sr.appendChild(right);
+  wb.appendChild(sr);
+
+  var wuh=document.createElement('div');wuh.id='wuHost-'+key;wb.appendChild(wuh);
+
+  // 3. the rows. Grouped by state so "what can I hand over" is a block, not a scan.
+  var rows=parted.filter(function(i){
+    if(!ADD_STATE)return true;
+    if(ADD_STATE==='untriaged')return !i.produces;
+    if(ADD_STATE==='verify')return !!i.verify;
+    return i.produces===ADD_STATE;});
+  if(!rows.length){
+    var e=document.createElement('div');e.className='wb-empty';
+    e.textContent='Nothing here with those filters.';wb.appendChild(e);host.appendChild(wb);return;}
+
+  var groups=ADD_PART==='spec'?['drawings','writeup','none','']:['drawings','writeup','none',''];
+  groups.forEach(function(g){
+    var grp=rows.filter(function(i){return (i.produces||'')===g;})
+      .sort(function(a,b){return sheetSortKey(a)<sheetSortKey(b)?-1:1;});
+    if(!grp.length)return;
+    var h=document.createElement('div');h.className='sh-group g-'+(g||'untriaged');
+    h.innerHTML=escapeHtml(produceLabel(partForLabels,g))+' <span class="n">'+grp.length+' · '
+      +escapeHtml(produceHint(partForLabels,g))+'</span>';
+    wb.appendChild(h);
+    grp.forEach(function(it){wb.appendChild(sheetRow(it));});
   });
+  if(done){
+    var dn=document.createElement('div');dn.className='wb-donenote';
+    dn.textContent='✓ '+done+' of these are finished. A finished item stays in the addendum — the '
+      +'state decides what goes in the document, the tick only says the work is done.';
+    wb.appendChild(dn);
+  }
+  host.appendChild(wb);
 }
 function openAddSheet(anchor,addKey,pkg,program){
   var ex=anchor.parentNode.querySelector(':scope>.sh-addform');if(ex){ex.remove();return;}
   var f=document.createElement('div');f.className='sh-addform';
-  var sh=document.createElement('input');sh.type='text';sh.placeholder='Sheet no. — optional';sh.className='sh-in sh-in-no';
+  var chosen={p:'',q:false,part:'drawing'};
+  var pseg=document.createElement('span');pseg.className='sh-pick';
+  [['drawing','§4 Drawing'],['spec','§3 Spec']].forEach(function(o){
+    var b=document.createElement('button');b.type='button';b.textContent=o[1];
+    if(chosen.part===o[0])b.classList.add('on');
+    b.addEventListener('click',function(){chosen.part=o[0];
+      pseg.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');
+      sh.placeholder=chosen.part==='spec'?'Section no. — e.g. 09 06 00':'Sheet no. — comma-separated if several';});
+    pseg.appendChild(b);});
+  var sh=document.createElement('input');sh.type='text';sh.placeholder='Sheet no. — comma-separated if several';sh.className='sh-in sh-in-no';
   var ti=document.createElement('input');ti.type='text';ti.placeholder='What changes on it';ti.className='sh-in';
   var pick=document.createElement('span');pick.className='sh-pick';
-  var chosen={p:'',q:false};
-  [['none','N'],['writeup','A'],['drawings','D']].forEach(function(p){
-    var b=document.createElement('button');b.type='button';b.textContent=p[1];b.title=p[0];
+  [['drawings','Issue'],['writeup','Write-up'],['none','Fix only']].forEach(function(p){
+    var b=document.createElement('button');b.type='button';b.textContent=p[1];b.title=produceHint('drawing',p[0]);
     b.addEventListener('click',function(){
       chosen.p=chosen.p===p[0]?'':p[0];
       pick.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});
@@ -5242,15 +5579,17 @@ function openAddSheet(anchor,addKey,pkg,program){
   var save=document.createElement('button');save.type='button';save.textContent='Add';save.className='hist-more';save.style.margin='0';
   var cancel=document.createElement('button');cancel.type='button';cancel.textContent='Cancel';cancel.className='pcancel';
   var hint=document.createElement('span');hint.className='inline-capture-hint';
-  hint.textContent='Appears immediately \u00b7 queued for the next check-in';
+  hint.textContent='Appears immediately · queued for the next check-in';
   function commit(){
     var t=ti.value.trim();if(!t){f.remove();return;}
     var num=sh.value.trim();
     queueLocally({type:'sheet',program:program||'',pkg:pkg||'',addendum:addKey||'',
-      sheet:num,produces:chosen.p||'',verify:chosen.q?'yes':'',
-      text:(num?num+' \u2014 ':'')+t,ts:new Date().toISOString()});
-    f.remove();buildSheetsView();rebuildPendingList();
-    setStatus('Added \u2014 copy for check-in to make it permanent.');
+      sheet:chosen.part==='spec'?'':num,section:chosen.part==='spec'?num:'',
+      part:chosen.part,scope:ADD_DISC==='*'?'AR':ADD_DISC,disc:ADD_DISC==='*'?'AR':ADD_DISC,
+      produces:chosen.p||'',verify:chosen.q?'yes':'',
+      text:(num?num+' — ':'')+t});
+    f.remove();buildAddendumRegister();rebuildPendingList();
+    setStatus('Added — copy for check-in to make it permanent.');
   }
   save.addEventListener('click',commit);
   cancel.addEventListener('click',function(){f.remove();});
@@ -5258,202 +5597,413 @@ function openAddSheet(anchor,addKey,pkg,program){
     e.stopPropagation();
     if(e.key==='Enter')commit();
     if(e.key==='Escape')f.remove();});});
-  f.appendChild(sh);f.appendChild(ti);f.appendChild(pick);f.appendChild(save);f.appendChild(cancel);f.appendChild(hint);
+  f.appendChild(pseg);f.appendChild(sh);f.appendChild(ti);f.appendChild(pick);f.appendChild(save);f.appendChild(cancel);f.appendChild(hint);
   anchor.insertAdjacentElement('afterend',f);
   ti.focus();
 }
-var SH_OPEN={};          // which instruments are expanded — survives a rebuild
-var SH_ROW_OPEN={};      // which rows are expanded
+
+// ---- one row -----------------------------------------------------------------------------------
 function sheetRow(it){
+  var part=itemPart(it),sheets=itemSheets(it);
   var row=document.createElement('div');
   row.id='sh-'+it.id;
   row.className='sh-row'+(!it.produces?' untriaged':'')+(it.verify?' verify':'')
-    +(it.lane?'':' noSheet')+(it.pendingComplete?' sh-doneRow':'');
+    +(sheets.length?'':' noSheet')+(it.pendingComplete||it.status==='completed'?' sh-doneRow':'');
   var head=document.createElement('div');head.className='sh-head';
   var no=document.createElement('span');no.className='sh-no';
-  no.textContent=it.sheet||(it.lane?'\u2014 no sheet':'\u25c7 from the board');
+  if(part==='spec'){no.textContent=it.section?('SECTION '+it.section):'— no section';}
+  else if(sheets.length>1){no.textContent=sheets[0]+' +'+(sheets.length-1);
+    no.title='Also on '+sheets.slice(1).join(', ')+' — this item writes a line under each sheet';}
+  else if(sheets.length){no.textContent=sheets[0];}
+  else{no.textContent=it.lane?'— no sheet':'◇ from the board';}
+  if(it.detail)no.textContent=it.detail+'/'+(sheets[0]||'?');
   if(it.pendingLocal){row.classList.add('pendingRow');
     var pb=document.createElement('span');pb.className='badge p';pb.textContent='PENDING';
-    pb.title='Captured here, not yet folded into the vault';no.appendChild(document.createTextNode(' '));
-    head.appendChild(pb);}
-  if(!it.sheet)no.title=it.lane?'This item has no sheet number yet'
-    :'A board item riding this addendum. It is keyed to a question, not a drawing, so it has no sheet.';
+    pb.title='Captured here, not yet folded into the vault';head.appendChild(pb);}
   var ti=document.createElement('span');ti.className='sh-title';
-  ti.textContent=(it.title||'').replace(/^A\S+\s+\u2014\s+/,'');
+  ti.textContent=(it.title||'').replace(/^A\S+\s+—\s+/,'');
   head.appendChild(no);head.appendChild(ti);
+  if(it.byLast){var bb=document.createElement('span');bb.className='op-by';bb.textContent='· '+it.byLast;
+    bb.title='Last changed by '+it.byLast;head.appendChild(bb);}
   var pick=document.createElement('span');pick.className='sh-pick';
-  [['none','N'],['writeup','A'],['drawings','D']].forEach(function(p){
-    var b=document.createElement('button');b.type='button';b.textContent=p[1];b.title=p[0];
+  [['drawings'],['writeup'],['none']].forEach(function(p){
+    var b=document.createElement('button');b.type='button';
+    b.textContent=produceLabel(part,p[0]);b.title=produceHint(part,p[0]);
     if(it.produces===p[0])b.classList.add('on');
     b.addEventListener('click',function(e){e.stopPropagation();
       setProduces(it.id,it.produces===p[0]?'':p[0]);});
     pick.appendChild(b);});
-  var q=document.createElement('button');q.type='button';q.textContent='?';q.title='needs verifying';
+  var q=document.createElement('button');q.type='button';q.textContent='?';q.title='needs verifying — Chris H';
   if(it.verify)q.classList.add('on','q');
   q.addEventListener('click',function(e){e.stopPropagation();toggleVerify(it.id);});
   pick.appendChild(q);
   head.appendChild(pick);
   var cb=document.createElement('input');cb.type='checkbox';cb.className='sh-done';
-  cb.title='Mark complete \u2014 folds in at the next check-in';
-  cb.setAttribute('aria-label','Mark complete: '+(it.title||''));
-  cb.checked=!!it.pendingComplete;
+  cb.title='Mark the WORK done. The item stays in the addendum — its state decides that, not this.';
+  cb.setAttribute('aria-label','Mark work done: '+(it.title||''));
+  cb.checked=!!(it.pendingComplete||it.status==='completed');
   cb.addEventListener('change',function(e){
     e.stopPropagation();
     var payload={type:'complete',program:it.program||'',pkg:it.pkg||'',itemRef:'',
                  text:(it.title||'').slice(0,200),ts:new Date().toISOString()};
     if(cb.checked){
       logComplete(payload);renderPendingRow(payload);
-      toast('Marked done: '+(it.sheet||it.title||'').slice(0,50),'undo',function(){
+      toast('Work done: '+(sheets[0]||it.title||'').slice(0,50)
+        +(inDocument(it)?' — still in the addendum':''),'undo',function(){
         cb.checked=false;cb.dispatchEvent(new Event('change'));});
     }else{
       removeQueued('complete','',(it.title||'').slice(0,200));rebuildPendingList();
     }
-    buildSheetsView();
+    buildAddendumRegister();
   });
   head.appendChild(cb);
   row.appendChild(head);
 
   var det=(window.LAST_DATA&&LAST_DATA.details&&LAST_DATA.details[it.id])||{};
   var steps=(det.subtasks||[]),imgs=(det.images||[]);
-  var notes=(det.updates||[]).filter(function(u){return String(u).indexOf('\u26a0')>-1;});
-  if(steps.length||imgs.length||notes.length){
-    var body=document.createElement('details');body.className='sh-body';
-    body.open=!!SH_ROW_OPEN[it.id];
-    body.addEventListener('toggle',function(){SH_ROW_OPEN[it.id]=body.open;});
-    var sm2=document.createElement('summary');
-    sm2.textContent=(steps.length?steps.length+' markup'+(steps.length!==1?'s':''):'no markup')
-      +(imgs.length?' \u00b7 '+imgs.length+' image'+(imgs.length!==1?'s':''):'')
-      +(notes.length?' \u00b7 \u26a0 '+notes.length:'');
-    body.appendChild(sm2);
-    if(steps.length){
-      var sl=document.createElement('div');sl.className='sh-steps';
-      steps.forEach(function(t){
-        var txt=String(t).replace(/^\u2713\s*/,'');
-        var e=document.createElement('div');
-        if(!WU_VERBS.test(txt))e.className='proc';
-        e.textContent='\u2022 '+txt;sl.appendChild(e);});
-      body.appendChild(sl);
-    }
-    if(imgs.length){
-      var th=document.createElement('div');th.className='sh-thumbs';
-      imgs.forEach(function(im){
-        var img=document.createElement('img');img.src=im.src;img.alt=im.name;img.loading='lazy';
-        img.addEventListener('click',function(){showImgModal(im.src);});
-        th.appendChild(img);});
-      body.appendChild(th);
-    }
-    notes.forEach(function(u){
-      var t=String(u),b2=t.indexOf('|'),bod=b2>-1?t.slice(b2+1):t;
-      var n=document.createElement('div');n.className='sh-note';
-      n.textContent=bod.replace(/\[src::[^\]]*\]/,'').trim();
-      body.appendChild(n);});
-    row.appendChild(body);
+  var notes=(det.updates||[]).filter(function(u){return String(u).indexOf('⚠')>-1;});
+  var body=document.createElement('details');body.className='sh-body';
+  body.open=!!SH_ROW_OPEN[it.id];
+  body.addEventListener('toggle',function(){SH_ROW_OPEN[it.id]=body.open;});
+  var sm2=document.createElement('summary');
+  sm2.textContent=(steps.length?steps.length+' markup'+(steps.length!==1?'s':''):'no markup')
+    +(imgs.length?' · '+imgs.length+' image'+(imgs.length!==1?'s':''):'')
+    +(notes.length?' · ⚠ '+notes.length:'')+' · where it goes';
+  body.appendChild(sm2);
+
+  // where it goes — the editor for the fields the write-up reads
+  var ed=document.createElement('div');ed.className='sh-edit';
+  function field(lbl,val,ph,hint,onSave){
+    var w=document.createElement('span');w.className='sh-f';
+    var l=document.createElement('label');l.textContent=lbl;l.title=hint||'';w.appendChild(l);
+    var i2=document.createElement('input');i2.type='text';i2.value=val||'';i2.placeholder=ph||'';
+    i2.className='sh-in';i2.title=hint||'';
+    i2.addEventListener('keydown',function(e){e.stopPropagation();
+      if(e.key==='Enter'){onSave(i2.value.trim());}
+      if(e.key==='Escape'){i2.value=val||'';i2.blur();}});
+    i2.addEventListener('blur',function(){if((i2.value.trim()||'')!==(val||''))onSave(i2.value.trim());});
+    w.appendChild(i2);return w;
   }
+  if(part==='spec'){
+    ed.appendChild(field('Section',it.section,'09 06 00 – Schedule for Finishes',
+      'The §3 heading. Written as it appears in the document.',
+      function(v){setAddMeta(it.id,'section',v,'Section');}));
+  }else{
+    ed.appendChild(field('Sheets',sheets.join(', '),'A5.31.21, A5.31.22',
+      'Comma-separated. An item on two sheets writes a line under each — Addendum 2 §4.2.1 and §4.3.1 are the same sentence on A42.81.12 and A42.81.13.',
+      function(v){setAddMeta(it.id,'sheets',v,'Sheets');}));
+    ed.appendChild(field('Detail',it.detail,'4',
+      'A detail or view number on the sheet. Makes the line read "4/A42.6.01; Revise …" instead of "Sheet A42.6.01; …".',
+      function(v){setAddMeta(it.id,'detail',v,'Detail');}));
+    ed.appendChild(field('Target',it.target,'auto — Sheet A5.31.21',
+      'What the line names before the semicolon. Leave blank for "Sheet <no>". The issued addenda also use "PLAN 1/A42.31.10", "DOOR SCHEDULE - BASIC DOORS /Sheet A42.0.02", "UTILITY CORRIDOR A58T01", "Doors P58M01, P58R01".',
+      function(v){setAddMeta(it.id,'target',v,'Target');}));
+  }
+  var sw=document.createElement('button');sw.type='button';sw.className='sh-swap';
+  sw.textContent=part==='spec'?'→ move to §4 Drawings':'→ move to §3 Specifications';
+  sw.title='Addendum 4 §3.7 is a drawing item filed inside Specifications. This is the switch that prevents it.';
+  sw.addEventListener('click',function(e){e.stopPropagation();
+    setAddMeta(it.id,'part',part==='spec'?'drawing':'spec','Goes into');});
+  ed.appendChild(sw);
+  body.appendChild(ed);
+
+  if(steps.length){
+    var sl=document.createElement('div');sl.className='sh-steps';
+    steps.forEach(function(t){
+      var txt=String(t).replace(/^✓\s*/,'');
+      var e=document.createElement('div');
+      if(!WU_VERBS.test(txt.toUpperCase()))e.className='proc';
+      e.textContent='• '+txt;
+      e.title=WU_VERBS.test(txt.toUpperCase())?'This becomes a line in the document':'Process — not addendum content, excluded from the write-up';
+      sl.appendChild(e);});
+    body.appendChild(sl);
+  }
+  if(imgs.length){
+    var th=document.createElement('div');th.className='sh-thumbs';
+    imgs.forEach(function(im){
+      var img=document.createElement('img');img.src=im.src;img.alt=im.name;img.loading='lazy';
+      img.addEventListener('click',function(){showImgModal(im.src);});
+      th.appendChild(img);});
+    body.appendChild(th);
+  }
+  notes.forEach(function(u){
+    var t=String(u),b2=t.indexOf('|'),bod=b2>-1?t.slice(b2+1):t;
+    var n=document.createElement('div');n.className='sh-note';
+    n.textContent=bod.replace(/\[src::[^\]]*\]/,'').trim();
+    body.appendChild(n);});
+  row.appendChild(body);
   return row;
 }
-
-// ---- the addendum write-up ------------------------------------------------------------------
-// A render, not a guess. Every line comes from a step that already exists; the numbering is
-// positional and computed here, never stored, so inserting an item cannot desynchronise it.
-function wuSentence(txt){
-  var t=String(txt).replace(/^\u2713\s*/,'').trim();
-  var m=t.match(/^([A-Z]{2,})\b(.*)$/);
-  if(m)t=m[1].charAt(0)+m[1].slice(1).toLowerCase()+m[2];
-  return t.replace(/\s+\u2014\s+.*$/,'').replace(/[.;]+$/,'');
+function showImgModal(src){
+  var m=document.createElement('div');m.className='img-modal';
+  var i=document.createElement('img');i.src=src;m.appendChild(i);
+  m.addEventListener('click',function(){m.remove();});
+  document.addEventListener('keydown',function esc(e){if(e.key==='Escape'){m.remove();document.removeEventListener('keydown',esc);}});
+  document.body.appendChild(m);
 }
-var WU_EXCLUDE={};   // ids deliberately held out of the document
-function buildWriteup(addKey,hostEl){
-  var host=hostEl||document.getElementById('wuHost');if(!host)return;
+
+// ---- the write-up ------------------------------------------------------------------------------
+// A render, not a guess. The shape below is transcribed from the four issued addenda:
+//
+//   §3  SECTION 09 06 00 – SCHEDULE FOR FINISHES
+//         3.1.1  Section 09 06 00 - Schedule for Finishes revised and re-issued, is attached
+//                hereto and forms part of this Addendum.
+//   §4  DRAWING A42.22.11 - ARRIVALS FLOOR PLAN - AREA 1
+//         4.11.1 Sheet A42.22.11; add wall tag; As indicated on drawing A42.22.11, attached
+//                and forms part of this Addendum.
+//         4.11.2 Sheet A42.22.11; revise location of chain-link fence gate; As indicated …
+//
+// One heading per SHEET, one line per change — which is why an item can name several sheets and
+// appear under each. Numbering is positional and computed at render, never stored, so inserting
+// an item cannot desynchronise it.
+function padNum(n,w){n=String(n);while(n.length<w)n+=' ';return n;}
+function wuSentence(txt){
+  var t=String(txt).replace(/^✓\s*/,'').trim();
+  var m=t.match(/^([A-Z][A-Z/-]{1,})\b(.*)$/);
+  if(m)t=m[1].charAt(0)+m[1].slice(1).toLowerCase()+m[2];
+  // "REVISE the A5.3.23 reference to A5.0.08 — confirm first" ends in commentary, and it must go.
+  // "REVISE detail 11/A5.94.17 — Typical section detail — to 6/A5.94.17" uses the dash as a
+  // parenthesis, and cutting at the first one loses the destination. One dash = commentary; two or
+  // more = punctuation. Measured against the sheet list before choosing the rule.
+  if((t.match(/\s+—\s+/g)||[]).length===1)t=t.replace(/\s+—\s+.*$/,'');
+  return t.replace(/[.;]+$/,'');
+}
+var WU_ATTACH_DWG=', attached and forms part of this Addendum.';
+var WU_ATTACH_SEC=' is attached hereto and forms part of this Addendum.';
+function wuTargetFor(it,sheet){
+  if(it.target)return it.target;
+  if(it.detail)return it.detail+'/'+(sheet||'[SHEET ___]');
+  return 'Sheet '+(sheet||'[SHEET ___]');
+}
+function wuDrawLine(it,sheet,step){
+  var up=String(step).replace(/^✓\s*/,'').toUpperCase();
+  if(WU_REISSUE.test(up))
+    return 'Sheet '+(sheet||'[SHEET ___]')+'; Re-issue drawing in its entirety attached and forming part of this Addendum.';
+  var line=wuTargetFor(it,sheet)+'; '+wuSentence(step);
+  return line+(it.produces==='drawings'
+    ?('; As indicated on drawing '+(sheet||'[SHEET ___]')+WU_ATTACH_DWG)
+    :'.');
+}
+function wuSpecLines(it,steps){
+  var sec=it.section||'[SECTION ___]';
+  var out=[];
+  var del=steps.filter(function(t){return /^\s*✓?\s*DELETE\b/i.test(t);});
+  if(del.length)return ['Delete Section '+sec+' in its entirety.'];
+  if(it.produces==='drawings'){
+    var isNew=steps.some(function(t){return /NOT PREVIOUSLY ISSUED|NEW SECTION|ISSUE NEW/i.test(t);});
+    out.push(isNew
+      ?('Section '+sec+', not previously issued'+WU_ATTACH_SEC)
+      :('Section '+sec+' revised and re-issued,'+WU_ATTACH_SEC));
+    // narrative sub-items still ride along — Addendum 4 §3.3 lists six under one attached section
+    steps.forEach(function(t){
+      if(/RE-?ISSUE|REVISE AND/i.test(t))return;
+      var v=wuSentence(t);if(v)out.push(v+'.');});
+    return out;
+  }
+  steps.forEach(function(t){out.push(wuSentence(t)+'.');});
+  return out.length?out:['[NO NOTE RECORDED — write the line]'];
+}
+function wuStepsOf(it){
+  var det=(window.LAST_DATA&&LAST_DATA.details&&LAST_DATA.details[it.id])||{};
+  var all=(det.subtasks||[]).map(function(t){return String(t).replace(/^✓\s*/,'');});
+  var keep=all.filter(function(t){return WU_VERBS.test(t.toUpperCase());});
+  return {keep:keep,skipped:all.length-keep.length};
+}
+function sheetTitleFor(no,pool){
+  for(var i=0;i<pool.length;i++){
+    var it=pool[i];
+    if(itemSheets(it).indexOf(no)===-1)continue;
+    var t=(it.title||'');
+    var m=t.match(/^\s*\S+\s+—\s+(.*)$/);
+    if(m&&t.toUpperCase().indexOf(String(no).toUpperCase())===0)return m[1];
+  }
+  return '';
+}
+// The one derivation that matters: an entry appears in the List of Attachments if and only if at
+// least one of its lines carries the attachment clause. Checked against all four issued addenda —
+// Addendum 1 lists 27 sheets against 28 §4 groups (A42.0.00's only line has no clause), and
+// Addendum 2 lists no drawings at all because all twelve of its §4 lines are write-up only.
+function attachesIn(lines){
+  return lines.some(function(l){return /attached (?:and form|hereto and form)/i.test(l);});
+}
+function buildAddendumDoc(key,opts){
+  opts=opts||{};
+  var pool=addPoolFor(key).filter(function(i){return !WU_EXCLUDE[i.id];});
+  var undecided=pool.filter(function(i){return !i.produces;});
+  // A finished item is still addendum content. Only the STATE decides what is in the document.
+  var live=pool.filter(inDocument);
+  var warn=[],att={sec:[],dwg:[]},L3=[],L4=[],skipped=0;
+
+  // ---- §3 Specifications, grouped by section --------------------------------------------------
+  var secs={},secOrder=[];
+  live.filter(function(i){return itemPart(i)==='spec';}).forEach(function(i){
+    var k=(i.section||'').trim()||'(section not named)';
+    if(!secs[k]){secs[k]=[];secOrder.push(k);}secs[k].push(i);});
+  secOrder.sort();
+  secOrder.forEach(function(sk,ix){
+    var mine=secs[sk],lines=[];
+    mine.forEach(function(it){
+      var st=wuStepsOf(it);skipped+=st.skipped;
+      wuSpecLines(it,st.keep.length?st.keep:[it.title||'']).forEach(function(l){lines.push(l);});
+      if(!it.section)warn.push('§3 "'+(it.title||'').slice(0,44)+'" has no section number');
+    });
+    L3.push('       '+padNum('3.'+(ix+1),8)+'SECTION '+sk.toUpperCase());
+    lines.forEach(function(l,jx){L3.push('               '+padNum('3.'+(ix+1)+'.'+(jx+1),9)+l);});
+    if(attachesIn(lines))att.sec.push('SECTION '+sk);
+  });
+
+  // ---- §4 Drawings, grouped by sheet ----------------------------------------------------------
+  var sheets={},shOrder=[];
+  live.filter(function(i){return itemPart(i)!=='spec';}).forEach(function(i){
+    var list=itemSheets(i);
+    if(!list.length){
+      warn.push('§4 "'+(i.title||'').slice(0,44)+'" has a state but no sheet — give it one, or a target');
+      list=[''];
+    }
+    list.forEach(function(sn){
+      if(!sheets[sn]){sheets[sn]=[];shOrder.push(sn);}
+      sheets[sn].push(i);});
+  });
+  shOrder.sort(function(a,b){return sheetSortKey(a)<sheetSortKey(b)?-1:1;});
+  shOrder.forEach(function(sn,ix){
+    var mine=sheets[sn],lines=[];
+    mine.forEach(function(it){
+      var st=wuStepsOf(it);skipped+=st.skipped;
+      if(!st.keep.length){
+        lines.push('[NO MARKUP RECORDED — write the line]');
+        // An Issue-drawing item with no markup line is the quiet failure: the sheet is meant to be
+        // attached, but nothing in the document says so, so it never reaches the List of Attachments.
+        if(it.produces==='drawings')
+          warn.push('§4 '+(sn||'?')+' is marked "Issue drawing" but has no markup line — it will not '
+            +'reach the List of Attachments until one is written');
+        return;}
+      st.keep.forEach(function(t){lines.push(wuDrawLine(it,sn,t));});
+    });
+    var ttl=sheetTitleFor(sn,pool);
+    L4.push('       '+padNum('4.'+(ix+1),8)+'DRAWING '+(sn||'[SHEET ___]')+(ttl?' - '+ttl.toUpperCase():''));
+    lines.forEach(function(l,jx){L4.push('               '+padNum('4.'+(ix+1)+'.'+(jx+1),9)+l);});
+    if(attachesIn(lines)&&sn)att.dwg.push({no:sn,t:ttl});
+    // Two identical lines under one sheet is always a duplicate entry, never a real instruction.
+    var seenL={};lines.forEach(function(l){
+      if(seenL[l]&&l.indexOf('[NO MARKUP')===-1)
+        warn.push('§4 '+(sn||'?')+' writes the same line twice — "'+l.slice(0,52)+'…" — resolve the duplicate');
+      seenL[l]=1;});
+  });
+
+  // ---- the document ---------------------------------------------------------------------------
+  var g=pool[0]||{};
+  var pk=(g.pkg||'').replace(/Package /,'Pkg ').split('—')[0].trim();
+  var head=['ADDENDUM '+addNum(g.addendum||key.split('|')[1]||'')+'  —  Vol 1 – ARCHITECTURAL'
+            +(pk?'   ('+pk+')':''),'',
+            '2      General','','List of Attachments:',''];
+  att.sec.forEach(function(x){head.push('       '+x);});
+  if(att.sec.length&&att.dwg.length)head.push('');
+  att.dwg.forEach(function(x){
+    head.push(((       '       '+(x.no+'                ').slice(0,16)+(x.t||'').toUpperCase())).replace(/\s+$/,''));});
+  if(!att.sec.length&&!att.dwg.length)head.push('       (none — nothing carries an attachment yet)');
+  var out=head.concat(['','3      Specifications']);
+  out=out.concat(L3.length?L3:['       (nothing in §3)']);
+  out=out.concat(['','4      Drawings']);
+  out=out.concat(L4.length?L4:['       (nothing in §4)']);
+
+  // ---- §5, if the RFIs riding this addendum are wanted -----------------------------------------
+  var inq=[];
+  if(opts.inquiries){
+    var rfis=(window.ITEMS||[]).filter(function(i){
+      return typeof isRfiItem==='function'&&isRfiItem(i)&&addKey(i.pkg,i.addendum)===key;});
+    rfis.forEach(function(r,ix){
+      inq.push('       5.'+(ix+1)+'    Q: '+(r.title||''));
+      var det=(window.LAST_DATA&&LAST_DATA.details&&LAST_DATA.details[r.id])||{};
+      inq.push('              A: '+((det.settled||'')||'[answer not recorded]'));
+    });
+    if(inq.length)out=out.concat(['','5      Bid Inquiries & Responses']).concat(inq);
+  }
+  out.push('');out.push('                        END OF ADDENDUM (VOL 1)');
+
+  if(undecided.length)warn.push(undecided.length+' item(s) have no state and cannot be in the document: '
+    +undecided.slice(0,6).map(function(i){return i.sheet||(i.title||'').slice(0,26);}).join(' · ')
+    +(undecided.length>6?' …':''));
+  var vq=pool.filter(function(i){return i.verify&&inDocument(i);});
+  if(vq.length)warn.push(vq.length+' item(s) in the document are still flagged ? — verify with Chris H before issue');
+  return {text:out.join('\n').replace(/\n{3,}/g,'\n\n'),
+          att:att,warn:warn,skipped:skipped,n:live.length,undecided:undecided,pool:pool,
+          nSpec:secOrder.length,nSheet:shOrder.length,inq:inq.length};
+}
+function buildWriteup(key,hostEl){
+  var host=hostEl||document.getElementById('wuHost-'+key);if(!host)return;
   if(host.firstChild&&!host.getAttribute('data-rerender')){host.innerHTML='';return;}
   host.removeAttribute('data-rerender');host.innerHTML='';
-  // Candidates are everything on this instrument that puts something INTO it. An untriaged item
-  // has not been decided yet, so it cannot be in the document — it is counted and named instead,
-  // because a write-up that is quietly short is worse than one that says what is missing.
-  var pool=laneItems().filter(function(i){return (!addKey||i.addendum===addKey)
-      &&!i.pendingComplete&&i.status!=='completed';});
-  var undecided=pool.filter(function(i){return !i.produces;});
-  var all=pool.filter(function(i){return (i.produces==='drawings'||i.produces==='writeup')
-      &&!WU_EXCLUDE[i.id];})
-    .sort(function(a,b){return sheetSortKey(a)<sheetSortKey(b)?-1:1;});
-  var L=[],att=[],skipped=0,noSheet=[];
-  all.forEach(function(it,ix){
-    var det=(window.LAST_DATA&&LAST_DATA.details&&LAST_DATA.details[it.id])||{};
-    var steps=(det.subtasks||[]).filter(function(t){return WU_VERBS.test(String(t).replace(/^\u2713\s*/,''));});
-    skipped+=(det.subtasks||[]).length-steps.length;
-    if(!it.sheet){noSheet.push(it.title);}
-    var sheet=it.sheet||'[SHEET ___]';
-    var title=(it.title||'').replace(/^A\S+\s+\u2014\s+/,'').toUpperCase();
-    L.push('4.'+(ix+1)+'  DRAWING '+sheet+' - '+title);
-    if(!steps.length){L.push('4.'+(ix+1)+'.1  [NO MARKUP RECORDED \u2014 write the line]');}
-    steps.forEach(function(t,jx){
-      var line='Sheet '+sheet+'; '+wuSentence(t);
-      if(it.produces==='drawings'){line+='; As indicated on drawing '+sheet+', attached and forms part of this Addendum.';}
-      else{line+='.';}
-      L.push('4.'+(ix+1)+'.'+(jx+1)+'  '+line);
-    });
-    // sort key travels with the row: 'A5.100.03' must not sort before 'A5.30.20'
-    if(it.produces==='drawings'&&it.sheet)att.push({k:sheetSortKey(it),t:it.sheet+'    '+title});
-    L.push('');
-  });
-  var lbl=addKey?('ADDENDUM '+addNum(addKey)):'ADDENDUM';
-  var pk=(pool[0]&&pool[0].pkg||'').replace(/Package /,'Pkg ').split('\u2014')[0].trim();
-  var head=[lbl+' \u2014 Vol 1 \u2013 ARCHITECTURAL'+(pk?'   ('+pk+')':''),'','2  General','','List of Attachments:',''];
-  att.sort(function(a,b){return a.k<b.k?-1:1;}).forEach(function(a){head.push('  '+a.t);});
-  if(!att.length)head.push('  (none \u2014 no item carries a drawing yet)');
-  head.push('','4  Drawings','');
-  var text=head.concat(L).join('\n').replace(/\n{3,}/g,'\n\n');
-
+  var doc=buildAddendumDoc(key,{inquiries:WU_INQUIRIES});
   var box=document.createElement('div');box.className='wu-box';
   var note=document.createElement('div');note.className='sh-stat';note.style.marginBottom='8px';
-  var exN=Object.keys(WU_EXCLUDE).filter(function(k){return WU_EXCLUDE[k];}).length;
-  note.innerHTML='<b>'+all.length+'</b> item(s) rendered \u00b7 <b>'+att.length+'</b> attachment(s) derived from the D items'
-    +(skipped?' \u00b7 <b>'+skipped+'</b> process step(s) excluded (not addendum content)':'')
-    +(noSheet.length?' \u00b7 \u26a0 <b>'+noSheet.length+'</b> with no sheet number':'')
-    +(undecided.length?' \u00b7 \u26a0 <b>'+undecided.length+'</b> still untriaged, so not in the document':'')
-    +(exN?' \u00b7 <b>'+exN+'</b> held out by you':'');
+  note.innerHTML='<b>'+doc.n+'</b> item(s) in the document · <b>'+doc.nSpec+'</b> §3 section(s) · <b>'
+    +doc.nSheet+'</b> §4 sheet(s) · <b>'+(doc.att.sec.length+doc.att.dwg.length)+'</b> attachment(s), derived'
+    +(doc.skipped?' · <b>'+doc.skipped+'</b> process step(s) excluded':'');
   box.appendChild(note);
-  // choose what goes in. Default is everything with a letter; unticking is a decision you can see.
+  doc.warn.forEach(function(w){
+    var d=document.createElement('div');d.className='wu-warn';d.textContent='⚠ '+w;box.appendChild(d);});
+
+  var opts=document.createElement('div');opts.className='wb-bar';
+  var ob=document.createElement('button');ob.type='button';ob.className='wb-chip'+(ADD_ORDER_NUMERIC?'':' on');
+  ob.textContent='House order';
+  ob.title='Sheets sort as text, the way the issued addenda do — A42.4.19 files between A42.31.13 and A42.6.01. Click for numeric order instead.';
+  ob.addEventListener('click',function(){ADD_ORDER_NUMERIC=!ADD_ORDER_NUMERIC;
+    host.setAttribute('data-rerender','1');buildWriteup(key,host);});
+  opts.appendChild(ob);
+  var qb=document.createElement('button');qb.type='button';qb.className='wb-chip'+(WU_INQUIRIES?' on':'');
+  qb.textContent='Include §5 Bid Inquiries';
+  qb.title='Renders the RFIs tagged to this addendum as Q/A pairs, the way §5 does in the issued set';
+  qb.addEventListener('click',function(){WU_INQUIRIES=!WU_INQUIRIES;
+    host.setAttribute('data-rerender','1');buildWriteup(key,host);});
+  opts.appendChild(qb);
+  box.appendChild(opts);
+
+  // choose what goes in. Default is everything with a state; unticking is a decision you can see.
+  var candidates=addPoolFor(key).filter(inDocument).concat(
+    addPoolFor(key).filter(function(i){return WU_EXCLUDE[i.id];}))
+    .filter(function(v,i,a){return a.indexOf(v)===i;})
+    .sort(function(a,b){return sheetSortKey(a)<sheetSortKey(b)?-1:1;});
   var picker=document.createElement('details');picker.className='wu-pick';picker.open=false;
   var ps=document.createElement('summary');
-  ps.textContent='Choose which items go in \u2014 '+all.length+' of '+
-    pool.filter(function(i){return i.produces==='drawings'||i.produces==='writeup';}).length+' selected';
+  ps.textContent='Choose which items go in — '+doc.n+' of '+candidates.length+' selected';
   picker.appendChild(ps);
-  pool.filter(function(i){return i.produces==='drawings'||i.produces==='writeup';})
-      .sort(function(a,b){return sheetSortKey(a)<sheetSortKey(b)?-1:1;})
-      .forEach(function(it){
+  candidates.forEach(function(it){
     var l=document.createElement('label');l.className='wu-pick-row';
     var cb=document.createElement('input');cb.type='checkbox';cb.checked=!WU_EXCLUDE[it.id];
     cb.addEventListener('change',function(){
       WU_EXCLUDE[it.id]=!cb.checked;
-      host.setAttribute('data-rerender','1');buildWriteup(addKey,host);});
+      host.setAttribute('data-rerender','1');buildWriteup(key,host);});
     l.appendChild(cb);
     var t=document.createElement('span');
-    t.textContent=(it.sheet?it.sheet+'  ':'')+(it.title||'').replace(/^A\S+\s+\u2014\s+/,'')
-      +'   ['+(it.produces==='drawings'?'D':'A')+']';
+    t.textContent=(itemPart(it)==='spec'?('§3 '+(it.section||'?')):('§4 '+(itemSheets(it).join('/')||'no sheet')))
+      +'  '+(it.title||'').replace(/^A\S+\s+—\s+/,'')
+      +'   ['+produceLabel(itemPart(it),it.produces)+']'
+      +((it.pendingComplete||it.status==='completed')?'  ✓ done':'');
     l.appendChild(t);picker.appendChild(l);});
-  if(undecided.length){
+  if(doc.undecided.length){
     var un=document.createElement('div');un.className='wu-pick-row wu-undecided';
-    un.textContent='\u26a0 '+undecided.length+' item(s) have no N/A/D yet and cannot be included: '
-      +undecided.slice(0,6).map(function(i){return i.sheet||(i.title||'').slice(0,28);}).join(' \u00b7 ')
-      +(undecided.length>6?' \u2026':'');
+    un.textContent='⚠ '+doc.undecided.length+' item(s) have no state yet and cannot be included.';
     picker.appendChild(un);}
   box.appendChild(picker);
-  var ta=document.createElement('textarea');ta.value=text;ta.spellcheck=false;box.appendChild(ta);
+
+  var ta=document.createElement('textarea');ta.value=doc.text;ta.spellcheck=false;box.appendChild(ta);
   var row=document.createElement('div');row.className='pedit-row';row.style.marginTop='8px';
   var cp=document.createElement('button');cp.type='button';cp.textContent='Copy';
-  cp.addEventListener('click',function(){copyText(ta.value,'Addendum write-up copied.');});
+  cp.addEventListener('click',function(){copyText(ta.value,'Addendum write-up copied — hand it to Specifications to package.');});
   var dl=document.createElement('button');dl.type='button';dl.className='pcancel';dl.textContent='Download .md';
   dl.addEventListener('click',function(){
     var b=new Blob([ta.value],{type:'text/markdown'});var u=URL.createObjectURL(b);
     var a=document.createElement('a');a.href=u;
-    a.download=(addKey?String(addKey).replace(/[^A-Za-z0-9.-]+/g,'-'):'addendum')+'-writeup.md';a.click();
+    a.download=String(key).replace(/[^A-Za-z0-9.-]+/g,'-')+'-addendum-writeup.md';a.click();
     setTimeout(function(){URL.revokeObjectURL(u);},1000);
   });
   var hint=document.createElement('span');hint.className='inline-capture-hint';
-  hint.textContent='Editable \u2014 numbering is computed at render, never stored';
+  hint.textContent='Editable · numbering computed at render · attachments derived from the clause, never typed';
   row.appendChild(cp);row.appendChild(dl);row.appendChild(hint);box.appendChild(row);
   host.appendChild(box);
 }
+function buildSheetsView(){ /* merged into the Addenda register */ }
+
 function refreshBoard(){applyPendingOverlay();buildProgramView();buildSheetsView();recalcCounts();applyComputedPriorities();buildFocusPanel();buildTodayFocus();buildRadarPanel();buildMyDay();updateTabCounts();setView(activeViewKey());refreshPins();}
 var RFI_PROGRAMS={'Concourse B (Onware)':{host:'Concourse B',system:'Onware'},'Centralized / PBS (Planner board)':{host:'Centralized / PBS',system:'Planner board'}};
 var LAST_DATA={};
@@ -5465,7 +6015,7 @@ function boot(d){LAST_DATA=d;MILESTONES=d.milestones||[];STAKEHOLDERS=d.stakehol
   // no per-view exclusion to forget, and a future side-list is held back automatically.
   window.LANE_ITEMS=_all.filter(function(it){return !!it.lane;});
   BASE_ITEMS=_all.filter(function(it){return !it.lane;});
-  BASE_DETAILS=d.details||{};applyPendingOverlay();init();buildImpactChips();restoreUiState();}
+  BASE_DETAILS=d.details||{};applyPendingOverlay();init();buildImpactChips();restoreUiState();syncConfigure(d);}
 
 // ---- encrypted data (data.enc.json) — password gate ----
 var GATE_PASS_KEY='wt-gate-pass';
