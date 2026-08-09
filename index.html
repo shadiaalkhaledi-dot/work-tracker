@@ -1193,6 +1193,7 @@ select.pl-in{cursor:pointer}
   background:none;color:var(--muted);border-radius:5px;padding:2px 9px;cursor:pointer;white-space:nowrap}
 .gate-go:hover{border-color:var(--gold);color:var(--gold)}
 .gate-ok{font-size:12.5px;color:var(--muted);display:block}
+.pl-new{border-color:var(--sage)!important;background:rgba(120,148,104,.08)}
 </style>
 </head>
 <body>
@@ -6518,7 +6519,13 @@ var PL_ACTIONS=[
   {k:'update',  label:'Update \u2026',           tpl:'UPDATE \u27e8what\u27e9'},
   {k:'extend',  label:'Extend \u2026',           tpl:'EXTEND \u27e8what\u27e9'},
   {k:'modify',  label:'Modify to reflect \u2026',tpl:'MODIFIED to reflect \u27e8what\u27e9'},
-  {k:'reissue', label:'Re-issue the whole sheet',tpl:'RE-ISSUE'}
+  {k:'reissue', label:'Re-issue the whole sheet',tpl:'RE-ISSUE'},
+  // Addendum 1 §4.18 adds a drawing that was never in the bid set, and it does NOT say "re-issue":
+  //   Sheet A42.4.19; add section; issue drawing in its entirety attached and forming part of this
+  //   Addendum.
+  // A42.4.19 is genuinely absent from the Package 4.2 coversheet index, which is how I know.
+  {k:'newsheet', label:'New drawing (not previously issued)',tpl:'ADD \u27e8what it shows\u27e9'},
+  {k:'delview',  label:'Delete a view or detail',tpl:'DELETE \u27e8which view\u27e9'}
 ];
 // A skeleton is not a finished line. Anything still holding a ⟨slot⟩ is called out in the write-up
 // rather than shipped, because "REVISE ⟨what⟩" reaching a bidder is worse than a blank.
@@ -6528,6 +6535,7 @@ function plActionOf(pl){
   if(!t)return '';
   if(/^RE-?ISSUE/.test(t))return 'reissue';
   if(/^ADD NEW DETAIL/.test(t))return 'newdet';
+  if(/^DELETE/.test(t))return 'delview';
   if(/^REVISE THE REFERENCE CALL-?OUT/.test(t))return 'renumber';
   if(/^REVISE .* TO READ/.test(t))return 'reviseto';
   if(/^REVISE/.test(t))return 'revise';
@@ -6563,7 +6571,8 @@ function savePlacements(it,list,quiet){
 function placementLine(it,pl){
   if(pl.override&&pl.override.trim())return pl.override.trim();
   var proxy={target:pl.target||'',viewtype:pl.view||'',detail:pl.no||'',room:pl.room||'',
-             element:pl.element||'',alt:pl.alt||'',produces:it.produces,linestyle:it.linestyle};
+             element:pl.element||'',alt:pl.alt||'',produces:it.produces,linestyle:it.linestyle,
+             newsheet:!!pl.newsheet};
   if(!(pl.text||'').trim())
     return wuTargetFor(proxy,pl.sheet)+(lineStyleOf(it)==='dash'?' - ':'; ')+'\u27e8pick an action\u27e9';
   return wuDrawLine(proxy,pl.sheet,pl.text);
@@ -6664,11 +6673,14 @@ function placementEditor(it){
     shNo.setAttribute('list','sheetList');
     var markSheet=function(){
       var v=shNo.value.trim();
-      shNo.classList.toggle('pl-unknown',!!v&&knownSheet(it.pkg,v)===null);
+      var unknown=!!v&&knownSheet(it.pkg,v)===null;
+      shNo.classList.toggle('pl-unknown',unknown&&!pl.newsheet);
+      shNo.classList.toggle('pl-new',unknown&&!!pl.newsheet);
       shNo.title=!v?'The drawing number.'
-        :(knownSheet(it.pkg,v)===null
-          ?'Not in the project drawing list. Check the number, or add it to Projects/Drawing List.md.'
-          :'On the drawing list \u2713');
+        :(!unknown?'On the project drawing list \u2713'
+          :(pl.newsheet?'A new drawing \u2014 not in the bid set, and the line says "issue drawing in its entirety".'
+            :'Not on the project drawing list. Check the number, or set the action to '
+             +'"New drawing (not previously issued)".'));
     };
     markSheet();
     shNm.title='The drawing\u2019s title, as the title block has it. It prints in the \u00a74 heading '
@@ -6714,7 +6726,8 @@ function placementEditor(it){
     asel.addEventListener('change',function(){
       var a=PL_ACTIONS.filter(function(x){return x.k===asel.value;})[0];
       if(!a||!a.k)return;
-      if(a.k==='reissue'){pl.text='RE-ISSUE the drawing in its entirety';commit();return;}
+      if(a.k==='reissue'){pl.text='RE-ISSUE the drawing in its entirety';pl.newsheet=false;commit();return;}
+      pl.newsheet=(a.k==='newsheet');
       // keep whatever you had already written after the verb
       var rest=String(pl.text||'').replace(/^[A-Z][A-Z/ -]*\b/,'').replace(PL_SLOT,'').trim();
       pl.text=rest?a.tpl.replace(PL_SLOT,rest):a.tpl;
@@ -6867,9 +6880,11 @@ function wuDrawLine(it,sheet,step){
   // The separator style governs the TARGET; the attachment clause keeps its semicolon either way,
   // because '; As indicated on drawing X, attached and forms part of this Addendum.' is the only
   // form the issued set ever uses and the dash example carries no attachment at all to argue with.
-  return line+(it.produces==='drawings'
-    ?'; As indicated on drawing '+(sheet||'[SHEET ___]')+WU_ATTACH_DWG
-    :'.');
+  if(it.produces!=='drawings')return line+'.';
+  // a sheet that was never in the set is ISSUED, not re-issued, and the clause says so
+  return line+(it.newsheet
+    ?'; issue drawing in its entirety attached and forming part of this Addendum.'
+    :'; As indicated on drawing '+(sheet||'[SHEET ___]')+WU_ATTACH_DWG);
 }
 // §3 is NOT written here. Shadi hands Specifications the information and they write the clause,
 // so a spec item renders its note verbatim, marked as a note. The one sentence the machine does
@@ -7149,7 +7164,7 @@ function issueGate(key){
   var unknown=[];
   pool.filter(isDrawPart).filter(inDocument).forEach(function(i){
     placementsOf(i).forEach(function(pl){
-      if(pl.sheet&&knownSheet(i.pkg,pl.sheet)===null&&unknown.indexOf(pl.sheet)===-1)
+      if(pl.sheet&&!pl.newsheet&&knownSheet(i.pkg,pl.sheet)===null&&unknown.indexOf(pl.sheet)===-1)
         unknown.push(pl.sheet);});});
   if(unknown.length)cautions.push({n:unknown.length,t:'drawing number'+(unknown.length!==1?'s':'')+' not on the project list',
     w:unknown.join(', ')+' \u2014 a typo, or a sheet the list has not caught up with.',go:null});
