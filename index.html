@@ -179,7 +179,6 @@
   .fchip.fa-model.active{background:var(--teal);}
   .fchip.fa-review.active{background:var(--mauve);}
   .fchip.fa-coordinate.active{background:var(--taupe);}
-  .fchip.fa-chase.active{background:var(--terracotta);}
   .fchip.fa-admin.active{background:var(--olive);}
   .altgroup{margin-bottom:20px;}
   .altgroup-head{display:flex;align-items:baseline;gap:10px;margin-bottom:8px;padding-left:10px;border-left:4px solid var(--gold);}
@@ -922,8 +921,8 @@
     <label class="control-toggle"><input type="checkbox" id="cardsExpToggle" onchange="toggleCardsExpanded()"> Expand cards</label>
     <label class="control-toggle"><input type="checkbox" id="urgencyToggle" checked onchange="toggleUrgencyColors()"> Urgency edges</label>
     <label class="control-toggle"><input type="checkbox" id="showCompletedToggle" onchange="toggleShowCompleted()"> Show completed</label>
-    <button class="btn-mycourt" id="morningBtn" onclick="toggleMorningPreset()" title="Preset \u2014 mine, plus anything due, overdue or high-priority" title="Preset — mine, plus anything due, overdue or high">Morning</button>
-    <button class="btn-mycourt" id="myCourtBtn" onclick="toggleMyCourtFilter()" style="display:none">Mine</button>
+    <button class="btn-mycourt" id="morningBtn" onclick="toggleMorningPreset()" title="Filter the board to My day \u2014 the list you built, not a re-derived guess at it">My day</button>
+    <button class="fchip fi-high" id="needsYouChip" style="display:none" onclick="setNeedsYouFilter(false)" title="Filtered to what needs you \u2014 click to clear">needs you \u00d7</button>
     <div class="searchbox">
       <input type="text" id="searchBox" placeholder="Find anything…  ( / )" aria-label="Find anything" oninput="onSearchInput()" autocomplete="off">
       <div class="palette" id="palette" style="display:none"></div>
@@ -943,8 +942,8 @@
     <span class="filter-label">When:</span>
     <button class="fchip fh-today" data-horizon="today" onclick="toggleHorizonChip(this)">Today</button>
     <button class="fchip fh-week" data-horizon="week" onclick="toggleHorizonChip(this)">This week</button>
-    <button class="fchip fh-sprint" data-horizon="sprint" id="sprintChip" onclick="toggleHorizonChip(this)" title="Rides its package's next submission">Rides a set</button>
-    <button class="fchip fh-watch" data-horizon="watch" onclick="toggleHorizonChip(this)" title="Deliberately unclocked">No clock</button>
+    <button class="fchip fh-sprint" data-horizon="sprint" id="sprintChip" onclick="toggleHorizonChip(this)" title="horizon:: sprint — rides its package’s next submission. Narrower than the sprint stat card, which also counts anything dated before that day.">Rides a set</button>
+    <button class="fchip fh-watch" data-horizon="watch" onclick="toggleHorizonChip(this)" title="horizon:: watch — deliberately unclocked. Different from the “watch only” stat card, which counts status:: watch.">No clock</button>
     </span>
     <div class="filter-sep"></div>
     <span class="filter-grp">
@@ -1031,7 +1030,7 @@
         <tr><td><b>then →</b></td><td>who it goes to once your part is finished — the handoff, not the current holder</td></tr>
         <tr><td><b>with</b></td><td>they execute, <i>accountability stays yours</i>. Sets agency to <b>shared</b> — the ball bounces, so the move is check in, not chase</td></tr>
         <tr><td><b>horizon</b></td><td>today · week · sprint (rides the package's next submission) · <b>watch</b> (deliberately unclocked — this is what exempts an item from the date and staleness checks)</td></tr>
-        <tr><td><b>impact</b></td><td><i>why</i> it matters, not how much: critical-path · cost · safety · ripple · decision · visibility. Absent means normal</td></tr>
+        <tr><td><b>impact</b></td><td><i>why</i> it matters, not how much: issued-wrong · code · cost · decision · unrecorded · owner-facing (the first four are read from the item’s own words; <code>decision</code> and <code>owner-facing</code> are declared-only; a bare <code>high</code> renders as UNSIGNALLED). Absent means normal</td></tr>
         <tr><td><b>action</b></td><td>the kind of work: model · review · coordinate · admin</td></tr>
         <tr><td><b>discipline</b></td><td>what trade the item is <i>about</i> — the subject, nothing else</td></tr>
         <tr><td><b>category</b></td><td>what kind of thing it is: decisions · meetings · coordination · documentation · drawings · rfi</td></tr>
@@ -1210,6 +1209,13 @@ var VIEW_ALIASES = {people:'court',milestones:'registers',overview:'registers',p
 var BOARD_MODES = ['program','status','discipline','topics','rfis'];
 var boardMode = 'program';
 var morningActive = false;
+var needsYouActive = false;
+function setNeedsYouFilter(on){
+  needsYouActive=!!on;
+  var c=document.getElementById('needsYouChip');
+  if(c)c.style.display=needsYouActive?'':'none';
+  applySearchFilter();
+}
 function courtList(v){return Array.isArray(v)?v:(v?String(v).split(',').map(function(x){return x.trim();}).filter(Boolean):[]);}
 function courtHasYou(v){return courtList(v).indexOf('You')!==-1;}
 // 'Today' is a local calendar day, not a UTC instant. new Date().toISOString().slice(0,10) rolls
@@ -1651,7 +1657,10 @@ function renderItem(itemData){
   var dlgB=document.createElement('button');dlgB.type='button';dlgB.className='dlg-btn';
   dlgB.textContent='delegate';dlgB.title='Hand execution to someone \u2014 the item stays yours and stays in your accountability view';
   actRow.appendChild(dlgB);
-  [['subtask','+ subtask','The sub-step itself…'],['blocker','flag blocking',"Why it's blocking (optional)…"],['note','add note',"What happened / what's new…"]].forEach(function(a){
+  // The button here wrote a retired status. What the board actually lacked is the other half: items
+  // sitting in someone else's court with nothing recorded about what is expected back — which is what
+  // the pink "No expectation recorded" box nags about. Same slot, verbs that earn it.
+  [['subtask','+ subtask','The sub-step itself…'],['wait','waiting on…',"Who you're waiting on — and what for. Becomes a WAIT step."],['remind','remind me…',"When to raise it again, and who it needs a message to."],['note','add note',"What happened / what's new…"]].forEach(function(a){
     var btn=document.createElement('button');btn.type='button';btn.textContent=a[1];
     btn.addEventListener('click',function(e){
       e.stopPropagation();
@@ -2059,8 +2068,12 @@ function initStatClicks(){
   function wire(id,fn,tip){var el=document.getElementById(id);if(!el)return;var card=el.closest('.stat');if(!card)return;card.style.cursor='pointer';card.title=tip;card.addEventListener('click',fn);}
   wire('statOutstanding',function(){clearAllFilters();setView('program');},'Open the full board');
   wire('statOverdue',function(){setView('now');},'Now \u2014 the ranked list leads with overdue');
-  wire('statBlocking',function(){setView('status');},'Board grouped by status \u2014 Blocking on top');
-  wire('statWatch',function(){setView('status');},'Board grouped by status \u2014 Watch at the bottom');
+  // Was a tip naming the retired status and pointing at the Status board. The card no longer
+  // counts it; the card now names a set, so clicking it delivers exactly that set.
+  wire('statBlocking',function(){setView('program');setNeedsYouFilter(true);},
+    'Yours, and either past due, due within 3 days, or carrying an impact:: signal \u2014 click to filter the board to them');
+  wire('statWatch',function(){setView('status');},
+    'status:: watch \u2014 deliberately not actionable. Different from the \u201cNo clock\u201d chip, which is horizon:: watch');
   wire('statSprintEnd',function(){setView('program');var chip=document.getElementById('sprintChip');if(chip&&!chip.classList.contains('active'))toggleHorizonChip(chip);},'Board filtered to the sprint horizon');
 }
 function recalcCounts(){
@@ -2072,7 +2085,12 @@ function recalcCounts(){
     prog.querySelectorAll('details.pkg').forEach(function(pkg){var pcountsEl=pkg.querySelector('.pcounts');if(!pcountsEl)return;var pt=tallyDom(Array.prototype.slice.call(pkg.querySelectorAll('.item')));pcountsEl.textContent=formatCounts(pt.open,pt.blocking,pt.watch);});
   });
   var s0=document.getElementById('statOutstanding');var s1=document.getElementById('statBlocking');var s2=document.getElementById('statWatch');
-  if(s0)s0.textContent=grandOpen+grandBlocking;if(s1)s1.textContent=grandBlocking;if(s2)s2.textContent=grandWatch;
+  if(s0)s0.textContent=grandOpen+grandBlocking;
+  if(s1){
+    var nyEls=Array.prototype.slice.call(document.querySelectorAll('#programView .item')).filter(needsYouEl);
+    s1.textContent=nyEls.length;
+  }
+  if(s2)s2.textContent=grandWatch;   // tips live in initStatClicks, which runs last and would win anyway
   var sprintEndEl=document.getElementById('statSprintEnd');
   if(sprintEndEl&&window.SPRINT_END_DATE){var sprintDate=new Date(window.SPRINT_END_DATE+'T23:59:59');var sprintCount=0;document.querySelectorAll('#programView .item').forEach(function(it){if(isDone(it))return;var due=it.getAttribute('data-due');var hz=it.getAttribute('data-horizon');if((due&&new Date(due+'T23:59:59')<=sprintDate)||hz==='sprint')sprintCount++;});sprintEndEl.textContent=sprintCount;sprintEndEl.title='Everything anchored to the sprint end: items with a \ud83d\udcc5 due date before it, plus horizon: sprint items (watch included \u2014 they land with that submission)';}
   var overdueEl=document.getElementById('statOverdue');
@@ -2483,10 +2501,44 @@ function setBoardMode(mode){if(BOARD_MODES.indexOf(mode)===-1)return;boardMode=m
 // The 'Hide personal' toggle was removed: zero items carry `private::` today, and the value of
 // the flag is the PERSONAL badge and the export exclusion, not a checkbox on an already-crowded
 // control row. The CSS hook stays, so a future view can hide them without new plumbing.
+// Was: mine, plus anything due/overdue/high — an urgency guess that measured out as a strict subset
+// of the Mine chip (9 of 40), so it gave a second, worse answer to a question the chip row already
+// answers. My day is the list you actually built; this filters the board down to it.
+function myDayIdSet(){
+  var m={};try{(mdSeq()||[]).forEach(function(en){m[mdParse(en).id]=1;});}catch(e){}
+  return m;
+}
 function toggleMorningPreset(){
   morningActive=!morningActive;
   document.getElementById('morningBtn').classList.toggle('active',morningActive);
   applySearchFilter();
+}
+// "Needs you" — ONE rule, two readers: the Now stat card and the Threads-mode badge. Both used to
+// count `status: blocking`, a retired field carried by exactly two vault items. So the card read 2
+// while the NEEDS YOU NOW panel under it listed 8, and both would have read 0 forever the moment
+// those two items were cleaned. The panel's own rule cannot be reused as a count — it is loose by
+// design (it feeds a ranked top-8) and matches 36 of 58 open items. This is the countable version:
+// yours, and either past due, due inside three days, or carrying a real `impact::` signal. A bare
+// `high` is not a signal — that is what UNSIGNALLED means.
+function needsYouEl(it){
+  if(isDone(it))return false;
+  if(!elIsMine(it))return false;
+  var imp=it.getAttribute('data-impact')||'';
+  if(imp&&imp!=='high')return true;
+  var due=it.getAttribute('data-due');if(!due)return false;
+  return Math.ceil((new Date(due+'T00:00:00').getTime()-Date.now())/86400000)<=3;
+}
+// Same rule against a data object, for the readers that run before the DOM exists or that never
+// touch it. Kept beside its twin so the two cannot drift; a verifier asserts they agree.
+function needsYouIt(it){
+  // `pendingComplete` is a tick made on the site that has not yet been folded into the vault. The
+  // DOM twin drops those via isDone() (the .done-pending class), so this must too — otherwise
+  // ticking an item makes the Now card and the Threads badge disagree until the next check-in.
+  if(!it||it.status==='completed'||it.pendingComplete)return false;
+  if(it.agency!=='mine')return false;
+  if(it.impact&&it.impact!=='high')return true;
+  if(!it.due)return false;
+  return Math.ceil((new Date(it.due+'T00:00:00').getTime()-Date.now())/86400000)<=3;
 }
 function isOverdueEl(it){var due=it.getAttribute('data-due');if(!due)return false;return new Date(due+'T23:59:59').getTime()<Date.now();}
 
@@ -2516,8 +2568,9 @@ function hasActiveActions(){return Object.keys(activeActions).length>0;}
 
 function clearAllFilters(){
   document.getElementById('searchBox').value='';
-  document.getElementById('myCourtBtn').classList.remove('active');
+  var _mc0=document.getElementById('myCourtBtn');if(_mc0)_mc0.classList.remove('active');
   if(morningActive){morningActive=false;document.getElementById('morningBtn').classList.remove('active');}
+  if(needsYouActive)setNeedsYouFilter(false);
   activeHorizons={};document.querySelectorAll('.fchip[data-horizon]').forEach(function(b){b.classList.remove('active');});
   activeAgency={};document.querySelectorAll('.fchip[data-agency]').forEach(function(b){b.classList.remove('active');});
   activeImpact={};document.querySelectorAll('.fchip[data-imp]').forEach(function(b){b.classList.remove('active');});
@@ -2525,11 +2578,14 @@ function clearAllFilters(){
   applySearchFilter();
 }
 function applySearchFilter(){
-  var term=document.getElementById('searchBox').value.trim().toLowerCase();var myCourtOnly=document.getElementById('myCourtBtn').classList.contains('active');var hasFilter=term||myCourtOnly||morningActive||hasActiveHorizons()||hasActiveActions()||hasActiveAgency()||hasActiveImpact();
+  var term=document.getElementById('searchBox').value.trim().toLowerCase();
+  var _mc=document.getElementById('myCourtBtn');var myCourtOnly=!!(_mc&&_mc.classList.contains('active'));
+  var mdIds=morningActive?myDayIdSet():{};   // computed once per pass, not once per item
+  var hasFilter=term||myCourtOnly||morningActive||needsYouActive||hasActiveHorizons()||hasActiveActions()||hasActiveAgency()||hasActiveImpact();
   document.getElementById('searchClear').style.display=term?'':'none';
   var activeView=null;Object.keys(VIEW_IDS).some(function(k){var v=document.getElementById(VIEW_IDS[k]);if(v&&v.style.display!=='none'){activeView=v;return true;}return false;});
   if(!activeView)activeView=document.getElementById('programView');
-  Array.prototype.slice.call(activeView.querySelectorAll('.item')).forEach(function(it){var text=it.textContent.toLowerCase();var matchTerm=!term||text.indexOf(term)!==-1;var matchCourt=!myCourtOnly||elIsMine(it);var matchHorizon=!hasActiveHorizons()||!!activeHorizons[it.getAttribute('data-horizon')||''];var matchAction=!hasActiveActions()||!!activeActions[it.getAttribute('data-action')||''];var matchAgency=!hasActiveAgency()||!!activeAgency[it.getAttribute('data-agency')||''];var matchImpact=!hasActiveImpact()||!!activeImpact[it.getAttribute('data-impact')||''];var matchMorning=!morningActive||(elIsMine(it)&&((it.getAttribute('data-horizon')||'')==='today'||isOverdueEl(it)||(it.getAttribute('data-priority')||'')==='high'));it.style.display=(matchTerm&&matchCourt&&matchHorizon&&matchAction&&matchAgency&&matchImpact&&matchMorning)?'':'none';});
+  Array.prototype.slice.call(activeView.querySelectorAll('.item')).forEach(function(it){var text=it.textContent.toLowerCase();var matchTerm=!term||text.indexOf(term)!==-1;var matchCourt=!myCourtOnly||elIsMine(it);var matchHorizon=!hasActiveHorizons()||!!activeHorizons[it.getAttribute('data-horizon')||''];var matchAction=!hasActiveActions()||!!activeActions[it.getAttribute('data-action')||''];var matchAgency=!hasActiveAgency()||!!activeAgency[it.getAttribute('data-agency')||''];var matchImpact=!hasActiveImpact()||!!activeImpact[it.getAttribute('data-impact')||''];var matchMorning=!morningActive||!!mdIds[it.getAttribute('data-id')||''];var matchNeedsYou=!needsYouActive||needsYouEl(it);it.style.display=(matchTerm&&matchCourt&&matchHorizon&&matchAction&&matchAgency&&matchImpact&&matchMorning&&matchNeedsYou)?'':'none';});
   // The filter bar is visible on every view, including Now, where the heading is hidden.
   // This is the affordance that actually guarantees you can tell a filter is on and turn it off.
   (function(){
@@ -2554,7 +2610,8 @@ function applySearchFilter(){
         &&(!hasActiveActions()||!!activeActions[it.action||''])
         &&(!hasActiveAgency()||!!activeAgency[it.agency||''])
         &&(!hasActiveImpact()||!!activeImpact[it.impact||''])
-        &&(!morningActive||(it.agency==='mine'&&((it.horizon==='today')||(it.due&&it.due<isoToday())||it.priority==='high')));
+        &&(!morningActive||!!mdIds[it.id||''])
+        &&(!needsYouActive||needsYouIt(it));
       row.style.display=ok?'':'none';
     });
   // A heading that outlives its contents is why a filter reads as broken: the items go, the
@@ -2665,7 +2722,7 @@ function palMove(d){
 }
 function onSearchInput(){applySearchFilter();renderPalette();}
 function clearSearch(){document.getElementById('searchBox').value='';applySearchFilter();hidePalette();}
-function toggleMyCourtFilter(){document.getElementById('myCourtBtn').classList.toggle('active');applySearchFilter();}
+function toggleMyCourtFilter(){var e=document.getElementById('myCourtBtn');if(e)e.classList.toggle('active');applySearchFilter();}
 function toggleShowCompleted(){document.body.classList.toggle('show-completed',document.getElementById('showCompletedToggle').checked);recalcCounts();}
 function toggleUrgencyColors(){var on=document.getElementById('urgencyToggle').checked;document.body.classList.toggle('priority-mode',on);var k=document.getElementById('priKey');if(k)k.style.display=on?'':'none';}
 function onProgramHeadClick(e){var prog=e.currentTarget.closest('.program');if(prog)prog.classList.toggle('collapsed');}
@@ -2703,7 +2760,7 @@ function refreshCapItem(){
   var g=document.createElement('option');g.value='';g.textContent=pkgName?'General note for this package':'General note for this program';sel.appendChild(g);
   var items=findItemsForPkg(program,pkgName);items.forEach(function(it){var o=document.createElement('option');o.value=it.title;o.textContent=it.title.length>90?it.title.slice(0,90)+'…':it.title;sel.appendChild(o);});
 }
-function onCapTypeChange(){var type=document.getElementById('capType').value;var needsRef=type==='note'||type==='blocker'||type==='watch'||type==='subtask';document.getElementById('capItemRow').style.display=needsRef?'':'none';if(needsRef)refreshCapItem();document.getElementById('capText').placeholder=type==='blocker'?"Why it's blocking (optional)…":type==='watch'?'Why to watch it (optional)…':type==='subtask'?'The sub-step itself…':"What happened / what's new…";}
+function onCapTypeChange(){var type=document.getElementById('capType').value;var needsRef=type==='note'||type==='blocker'||type==='watch'||type==='subtask';document.getElementById('capItemRow').style.display=needsRef?'':'none';if(needsRef)refreshCapItem();document.getElementById('capText').placeholder=type==='wait'?"Who you're waiting on \u2014 and what for\u2026":type==='remind'?'When to raise it again, and who it needs a message to\u2026':type==='blocker'?"Why it's blocking (optional)…":type==='watch'?'Why to watch it (optional)…':type==='subtask'?'The sub-step itself…':"What happened / what's new…";}
 function onCapProgramChange(){refreshCapPkg();}
 function onCapPkgChange(){refreshCapItem();}
 
@@ -3593,7 +3650,7 @@ function histRow(ev){
 var histFilter={pkg:'',person:'',topic:''};
 // Bumped by hand whenever index.html changes. Shown in the footer beside the data fingerprint so
 // a stale upload is visible at a glance instead of being inferred from a file size.
-var SITE_BUILD='2026-08-04.b';
+var SITE_BUILD='2026-08-09.a';
 var histShowAll=false;
 
 /* ---- The decision record: what we know, grouped by thread. Never by date --- 184 of the
@@ -3683,7 +3740,7 @@ function buildHistoryView(){
   fb.appendChild(mkSel('Anyone\u2019s court',perOpts,'person'));
   fb.appendChild(mkSel('All threads',topOpts,'topic'));
   var wk=document.createElement('button');wk.type='button';wk.className='hist-more';wk.style.margin='0';wk.textContent='copy week summary';
-  wk.title='The Friday rollup: closed \u00b7 moved \u00b7 still blocking \u00b7 issued \u00b7 coming up \u2014 formatted to paste';
+  wk.title='The Friday rollup: closed \u00b7 moved \u00b7 unsignalled \u00b7 issued \u00b7 coming up \u2014 formatted to paste';
   wk.addEventListener('click',function(){copyText(weekSummaryText(),'Week summary copied \u2014 paste into your status email/Teams.');});
   fb.appendChild(wk);
   if(histFilter.pkg||histFilter.person||histFilter.topic){
@@ -3778,9 +3835,15 @@ function renderSessionData(d){
       if(fc){
         var freshDays=Math.floor((Date.now()-new Date(d.meta.generated+'T00:00:00').getTime())/86400000);
         window.DATA_AGE_DAYS=freshDays;
-        fc.textContent=freshDays<=0?'updated today':'updated '+freshDays+'d ago';
+        // meta.generatedAt is newer than meta.generated; fall back so an older data.json still renders.
+        var stamp='';
+        if(d.meta.generatedAt){
+          var gd=new Date(d.meta.generatedAt);
+          if(!isNaN(gd))stamp=gd.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
+        }
+        fc.textContent=freshDays<=0?('updated today'+(stamp?' '+stamp:'')):('updated '+freshDays+'d ago'+(stamp?' \u00b7 '+stamp:''));
         fc.classList.toggle('stale',freshDays>=5);
-        fc.title='Data generated '+d.meta.generated+(freshDays>=5?' \u2014 5+ days is the staleness threshold':'');
+        fc.title='Data generated '+(d.meta.generatedAt||d.meta.generated)+(freshDays>=5?' \u2014 5+ days is the staleness threshold':'');
       }
     }
   }
@@ -3879,7 +3942,7 @@ function buildMsStrip(){
       if(it.status==='completed')return;
       var itN=pkgNum(it.pkg);
       if(!(n&&itN&&itN===n))return;
-      openCt++;if(it.status==='blocking')blockCt++;
+      openCt++;if(needsYouIt(it))blockCt++;
     });
     chips.push({label:label,what:what,date:m.next.date,d:d,openCt:openCt,blockCt:blockCt});
   });
@@ -3893,8 +3956,8 @@ function buildMsStrip(){
     var cdTxt=c.d===null?'date TBD':c.d<0?(-c.d)+'d overdue':c.d===0?'today':'in '+c.d+'d';
     var atRisk=c.d!==null&&c.d<=14&&c.blockCt>0;
     chip.className='ms-chip'+(c.d===null?' tbd':(c.d<=7?' soon':''))+(atRisk?' risk':'');
-    chip.innerHTML='<b>'+escapeHtml(c.label)+'</b> '+escapeHtml(c.what)+' <span class="cd">'+escapeHtml(cdTxt)+'</span>'+(atRisk?' <span class="risk-flag">\u26a0 '+c.blockCt+' blocking</span>':'');
-    chip.title=atRisk?(c.blockCt+' blocking + '+c.openCt+' open items sit behind this date \u2014 open Progress'):'Open the Progress view';
+    chip.innerHTML='<b>'+escapeHtml(c.label)+'</b> '+escapeHtml(c.what)+' <span class="cd">'+escapeHtml(cdTxt)+'</span>'+(atRisk?' <span class="risk-flag">\u26a0 '+c.blockCt+' need you</span>':'');
+    chip.title=atRisk?(c.blockCt+' need you + '+c.openCt+' open items sit behind this date \u2014 open Progress'):'Open the Progress view';
     chip.style.cursor='pointer';
     chip.addEventListener('click',function(){setView('program');});
     strip.appendChild(chip);
@@ -4012,7 +4075,7 @@ function applyPendingOverlay(){
       if(!target)return;
       var d=details[target.id]=details[target.id]||{next:null,subtasks:[],updates:[]};
       if(p.type==='subtask')d.subtasks.push((p.text||'')+' \u23f3');
-      else d.updates.push(ds+'|'+(p.type==='blocker'?'\u2691 flagged blocking'+(p.text?': ':''):'')+(p.text||'')+' \u23f3 pending check-in');
+      else d.updates.push(ds+'|'+(p.type==='blocker'?'\u2691 flagged blocking'+(p.text?': ':''):'')+(p.type==='wait'?'\u23f8 waiting on'+(p.text?': ':''):'')+(p.type==='remind'?'\u23f0 reminder'+(p.text?': ':''):'')+(p.text||'')+' \u23f3 pending check-in');
     }
   });
   ITEMS=items;ITEM_DETAILS=details;
@@ -4686,7 +4749,10 @@ document.addEventListener('click',function(e){
     var item2=ab.closest('.item');var id2=item2?item2.getAttribute('data-id'):null;var it2=id2?itemById(id2):null;
     if(!it2)return;
     var txt=ab.textContent;
-    var map={'+ subtask':['subtask','The sub-step itself\u2026'],'flag blocking':['blocker',"Why it's blocking (optional)\u2026"],'add note':["note","What happened / what's new\u2026"]};
+    var map={'+ subtask':['subtask','The sub-step itself\u2026'],
+      'waiting on\u2026':['wait',"Who you're waiting on \u2014 and what for. Becomes a WAIT step."],
+      'remind me\u2026':['remind',"When to raise it again, and who it needs a message to."],
+      'add note':["note","What happened / what's new\u2026"]};
     var m=map[txt];if(!m)return;
     openInlineCapture(ab.closest('.item-actions'),{
       payloadType:m[0],program:it2.program,pkg:it2.pkg,itemRef:it2.title.slice(0,160),
@@ -4705,7 +4771,9 @@ function chaseTextFor(it){
   if(det&&det.updates&&det.updates.length){var u=det.updates[det.updates.length-1];var b=u.indexOf('|');lastTxt=cleanUpdateText(b>-1?u.slice(b+1):u);}
   var lines=['Hi '+who+' \u2014 following up on: '+it.title+'.'];
   if(lm)lines.push('Last movement was '+lm+(lastTxt?' ('+lastTxt.slice(0,140)+(lastTxt.length>140?'\u2026':'')+')':'')+(age>=5?' \u2014 '+age+' days ago now':'')+'.');
-  if(it.status==='blocking')lines.push('This is currently blocking work on '+(it.pkg||it.program)+'.');
+  // This paragraph is pasted to other people, in your name. `blocking` was an internal flag, not a
+  // fact about their work — so say the thing that is actually true and checkable: why it matters.
+  if(it.impact&&it.impact!=='high')lines.push('This one matters because of '+String(it.impact).replace(/-/g,' ')+'.');
   if(it.due)lines.push('It\u2019s due '+it.due+'.');
   var nx=det&&det.next?cleanUpdateText(det.next):null;
   lines.push(nx?('What I need: '+nx.slice(0,160)):'Could you give me a quick status, or point me at who owns this?');
@@ -4752,7 +4820,7 @@ function weekSummaryText(){
   L.push('');L.push('Moved ('+mv.length+'):');
   mv.slice(0,15).forEach(function(id){var ev=movedIds[id];L.push('- '+ev.itemTitle.slice(0,80)+' \u2014 '+cleanUpdateText(ev.text).slice(0,110));});
   if(mv.length>15)L.push('- \u2026and '+(mv.length-15)+' more');
-  L.push('');L.push('Still blocking ('+blocking.length+'):');
+  L.push('');L.push('Still on the retired `blocking` status ('+blocking.length+') \u2014 each needs an impact:: instead:');
   if(blocking.length)blocking.forEach(function(it){L.push('- '+it.title.slice(0,90)+' \u2014 court: '+(courtList(it.court).join(', ')||'\u2014'));});else L.push('- (none)');
   if(msDone.length){L.push('');L.push('Issued this week:');msDone.forEach(function(ev){L.push('- '+ev.date+' \u2014 '+ev.itemTitle+': '+ev.text.slice(0,80));});}
   L.push('');L.push('Coming up (next ~9 days):');
@@ -4872,16 +4940,23 @@ function updateTabCounts(){
   // neither, so the two numbers on one screen disagreed — and the louder, warn-styled one was the
   // wrong one. Same definition now.
   var overdue=open.filter(function(it){return it.due&&it.due<today&&courtHasYou(it.court)&&!it.pendingComplete;}).length;
-  function setCount(view,n,warn){
+  function setCount(view,n,warn,title){
     var b=document.querySelector('#viewToggle button[data-view="'+view+'"]')||document.querySelector('#boardModeToggle button[data-mode="'+view+'"]');if(!b)return;
     var span=b.querySelector('.tab-count');
     if(!span){span=document.createElement('span');span.className='tab-count';b.appendChild(span);}
     span.textContent=n>0?String(n):'';span.style.display=n>0?'':'none';
     span.classList.toggle('warn',!!warn);
+    if(title)span.title=title;
   }
   var byTopicTC={};open.forEach(function(it){if(!it.topic)return;(byTopicTC[it.topic]=byTopicTC[it.topic]||[]).push(it);});
-  var topicsNeedingAttn=Object.keys(byTopicTC).filter(function(k){return byTopicTC[k].some(function(it){return it.status==='blocking';});}).length;
-  setCount('court',coming,false);setCount('upcoming',overdue,true);setCount('topics',topicsNeedingAttn,true);
+  var topicsNeedingAttn=Object.keys(byTopicTC).filter(function(k){return byTopicTC[k].some(needsYouIt);}).length;
+  // 'upcoming' was the Schedule tab's key. Deleting that tab left this call writing to a button that
+  // no longer exists — setCount returns early on a miss, so the overdue badge has silently rendered
+  // nowhere ever since. It belongs on Now, where the overdue stat card already lives.
+  setCount('court',coming,false,coming+' item(s) come back to you once someone else moves');
+  setCount('now',overdue,true,overdue+' item(s) in your court are past due');
+  setCount('topics',topicsNeedingAttn,true,topicsNeedingAttn+' thread(s) hold something that needs you \u2014 yours, '
+    +'and either past due, due within 3 days, or carrying an impact:: signal');
 }
 function refreshBoard(){applyPendingOverlay();buildProgramView();recalcCounts();applyComputedPriorities();buildFocusPanel();buildTodayFocus();buildRadarPanel();buildMyDay();updateTabCounts();setView(activeViewKey());refreshPins();}
 var RFI_PROGRAMS={'Concourse B (Onware)':{host:'Concourse B',system:'Onware'},'Centralized / PBS (Planner board)':{host:'Centralized / PBS',system:'Planner board'}};
@@ -4938,7 +5013,7 @@ function saveUiState(){
       cardsExp:document.getElementById('cardsExpToggle').checked,
       urgency:document.getElementById('urgencyToggle').checked,
       showDone:document.getElementById('showCompletedToggle').checked,
-      myCourt:document.getElementById('myCourtBtn').classList.contains('active'),
+      myCourt:(function(){var e=document.getElementById('myCourtBtn');return !!(e&&e.classList.contains('active'));})(),
       morning:morningActive,
       horizons:Object.keys(activeHorizons),actions:Object.keys(activeActions),
       focusOpen:document.getElementById('focusPanel').open
@@ -4950,7 +5025,7 @@ function restoreUiState(){
     var s=JSON.parse(localStorage.getItem(UI_STATE_KEY)||'null');if(!s)return;
     (s.horizons||[]).forEach(function(h){var b=document.querySelector('.fchip[data-horizon="'+h+'"]');if(b&&!activeHorizons[h])toggleHorizonChip(b);});
     (s.actions||[]).forEach(function(a){var b=document.querySelector('.fchip[data-action="'+a+'"]');if(b&&!activeActions[a])toggleActionChip(b);});
-    if(s.myCourt)document.getElementById('myCourtBtn').classList.add('active');
+    if(s.myCourt){var e2=document.getElementById('myCourtBtn');if(e2)e2.classList.add('active');}
     if(s.morning)toggleMorningPreset();
     if(s.cardsExp){document.getElementById('cardsExpToggle').checked=true;toggleCardsExpanded();}
     if(s.urgency===false){document.getElementById('urgencyToggle').checked=false;toggleUrgencyColors();}
