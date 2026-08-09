@@ -10,6 +10,9 @@
     --text:#2b2a27; --muted:#8a8579; --faint:#b3aea2;
     --mauve:rgb(168,118,142); --sage:rgb(120,148,104); --taupe:rgb(150,134,118); --olive:rgb(150,148,96);
     --terracotta:rgb(176,122,100); --teal:rgb(94,158,149); --gold:rgb(181,144,66); --rose:rgb(196,120,110); --rfi:#2b2a27;
+    /* aliases: `--line` was referenced three times and never defined; `--fg` came in with
+       the addendum work. Naming them here beats sprinkling the raw tokens around. */
+    --line:var(--border); --fg:var(--text);
   }
   *{box-sizing:border-box;}
   body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.55;}
@@ -150,9 +153,9 @@
 .sh-thumb.missing{border-style:dotted}
 .thumb-x{position:absolute;top:3px;right:3px;font:inherit;font-size:10px;line-height:1;
   border:none;border-radius:4px;background:rgba(0,0,0,.6);color:#fff;cursor:pointer;padding:2px 5px}
-.thumb-x:hover{background:#b4544a}
+.thumb-x:hover{background:var(--rose)}
 .thumb-b{position:absolute;bottom:3px;left:3px;font-size:9px;letter-spacing:.04em;text-transform:uppercase;
-  background:var(--gold);color:#12100c;border-radius:3px;padding:1px 5px;font-weight:700;line-height:1.4}
+  background:var(--gold);color:#fff;border-radius:3px;padding:1px 5px;font-weight:700;line-height:1.4}
 .img-drop{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
   min-width:112px;height:80px;border:1px dashed var(--line);border-radius:6px;background:transparent;
   color:var(--muted);cursor:pointer;font:inherit;font-size:12px;line-height:1.3}
@@ -165,19 +168,19 @@
 .pl-row{display:grid;grid-template-columns:118px 150px 56px 170px 1fr 26px;gap:6px;align-items:center;margin-bottom:4px}
 .pl-cols{font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
 .pl-in{font:inherit;font-size:12px;padding:4px 7px;border-radius:5px;border:1px solid var(--line);
-  background:#0d0b08;color:var(--fg);min-width:0;width:100%}
+  background:var(--card);color:var(--fg);min-width:0;width:100%}
 .pl-in:focus{outline:none;border-color:var(--gold)}
 select.pl-in{cursor:pointer}
 .pl-sheet{font-family:ui-monospace,Menlo,monospace;font-weight:600}
 .pl-x{font:inherit;font-size:11px;border:none;background:none;color:var(--muted);cursor:pointer;padding:2px}
-.pl-x:hover{color:#b4544a}
+.pl-x:hover{color:var(--rose)}
 .pl-line{display:flex;align-items:flex-start;gap:7px;margin:0 0 10px 0;padding-left:2px}
 .pl-line-g{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:var(--gold);
   flex:0 0 auto;padding-top:6px;min-width:44px}
 .pl-line-t{flex:1 1 auto;font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;resize:vertical;
   padding:5px 8px;border-radius:5px;border:1px solid var(--line);background:rgba(245,158,11,.04);
   color:var(--fg);overflow:hidden}
-.pl-line-t:focus{outline:none;border-color:var(--gold);background:#0d0b08}
+.pl-line-t:focus{outline:none;border-color:var(--gold);background:var(--card)}
 .pl-line.edited .pl-line-t{border-color:var(--gold);background:rgba(245,158,11,.09)}
 .pl-revert{font:inherit;font-size:10px;border:1px solid var(--line);background:none;color:var(--muted);
   border-radius:4px;padding:2px 6px;cursor:pointer;margin-top:5px}
@@ -185,7 +188,7 @@ select.pl-in{cursor:pointer}
 .pl-add{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 4px}
 .pl-reset{font:inherit;font-size:11px;border:1px dashed var(--line);background:none;color:var(--muted);
   border-radius:5px;padding:2px 9px;cursor:pointer}
-.pl-reset:hover{border-color:#b4544a;color:#b4544a}
+.pl-reset:hover{border-color:var(--rose);color:var(--rose)}
 .pl-foot{font-size:11px;color:var(--muted)}
 @media(max-width:820px){.pl-row{grid-template-columns:1fr 1fr;}.pl-cols{display:none}}
 .sh-sel{min-width:170px;cursor:pointer}
@@ -195,8 +198,8 @@ select.pl-in{cursor:pointer}
   border:1px solid var(--line);border-radius:6px;background:rgba(245,158,11,.06)}
 .sh-sheetchip b{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);font-weight:700}
 .sh-sheetchip button{font:inherit;font-size:10px;border:none;background:none;color:var(--muted);cursor:pointer;padding:0 2px}
-.sh-sheetchip button:hover{color:#b4544a}
-.sh-nosheet{font-size:11.5px;color:#c07a4a;font-style:italic}
+.sh-sheetchip button:hover{color:var(--rose)}
+.sh-nosheet{font-size:11.5px;color:var(--terracotta);font-style:italic}
 .sh-preview{margin:8px 0 10px;padding:9px 11px;border-left:2px solid var(--gold);
   background:rgba(245,158,11,.05);border-radius:0 6px 6px 0}
 .sh-preview-h{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
@@ -207,7 +210,7 @@ select.pl-in{cursor:pointer}
 .sh-note-f{display:flex;flex-direction:column;gap:3px;flex:1 1 320px;min-width:260px}
 .sh-note-f label{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold)}
 .sh-note-in{width:100%;resize:vertical;font:inherit;font-size:12.5px;line-height:1.45;padding:6px 9px}
-.hintline{font-size:10.5px;color:#c07a4a}
+.hintline{font-size:10.5px;color:var(--terracotta)}
 .untag-box{border:1px solid #6a5a3a;border-radius:7px;padding:9px 11px;margin:6px 0 10px;
   background:rgba(245,158,11,.05)}
 .untag-h{font-size:11.5px;color:var(--gold);margin-bottom:6px}
@@ -217,7 +220,7 @@ select.pl-in{cursor:pointer}
   border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
 .untag-b:hover{border-color:var(--gold);color:var(--gold)}
 .wu-hand{width:100%;min-height:160px;resize:vertical;font:12.5px/1.55 ui-monospace,Menlo,monospace;
-  padding:10px;border-radius:7px;border:1px solid var(--line);background:#0d0b08;color:var(--fg)}
+  padding:10px;border-radius:7px;border:1px solid var(--line);background:var(--card);color:var(--fg)}
 .sh-head{flex-wrap:wrap}
 .sh-title{flex:1 1 240px;min-width:180px}
 /* --- selector, modes, questions, inquiries -------------------------------------------- */
@@ -225,7 +228,7 @@ select.pl-in{cursor:pointer}
 .add-pick{font:inherit;font-size:11.5px;padding:3px 11px;border-radius:6px;border:1px solid var(--line);
   background:transparent;color:var(--fg);cursor:pointer}
 .add-pick:hover{border-color:var(--gold);color:var(--gold)}
-.add-pick.on{background:var(--gold);color:#12100c;border-color:var(--gold);font-weight:600}
+.add-pick.on{background:var(--gold);color:#fff;border-color:var(--gold);font-weight:600}
 .add-mode-row .wb-seg:first-of-type{border-radius:6px 0 0 6px}
 .add-mode-row .wb-seg:last-of-type{border-radius:0 6px 6px 0}
 .wb-lede{font-size:12px;color:var(--muted);margin:0 0 10px;max-width:74ch;line-height:1.5}
@@ -236,8 +239,8 @@ select.pl-in{cursor:pointer}
 .q-row{border:1px solid var(--line);border-left:3px solid var(--line);border-radius:7px;
   padding:10px 12px;margin-bottom:8px;position:relative}
 .q-row.c-yours{border-left-color:var(--gold)}
-.q-row.c-theirs{border-left-color:#7a6fa8}
-.q-row.c-split,.q-row.c-shared{border-left-color:#5b8f6e}
+.q-row.c-theirs{border-left-color:var(--taupe)}
+.q-row.c-split,.q-row.c-shared{border-left-color:var(--sage)}
 .q-row.q-closed{opacity:.6}
 .q-t{font-size:13.5px;line-height:1.4;margin-bottom:3px}
 .q-m{font-size:11px;color:var(--muted);margin-bottom:7px}
@@ -250,7 +253,7 @@ select.pl-in{cursor:pointer}
 .inq-row{border:1px solid var(--line);border-radius:7px;padding:9px 12px;margin-bottom:7px;position:relative}
 .inq-q{font-size:13px;line-height:1.45}
 .inq-a{font-size:12.5px;color:var(--muted);margin-top:4px;line-height:1.45}
-.inq-a.inq-unanswered{color:#c07a4a;font-style:italic}
+.inq-a.inq-unanswered{color:var(--terracotta);font-style:italic}
 .inq-form{align-items:center}
 .inq-form .sh-in{min-width:210px}
 .inq-form .sh-in-no{min-width:64px}
@@ -263,11 +266,11 @@ select.pl-in{cursor:pointer}
 .sh-part button+button{border-left:none}
 /* One colour each, so spec and drawing sort themselves at a glance rather than by reading. */
 .sh-part button.p-drawing:hover{color:var(--teal);border-color:var(--teal)}
-.sh-part button.p-spec:hover{color:#6d7fc4;border-color:#6d7fc4}
+.sh-part button.p-spec:hover{color:var(--mauve);border-color:var(--mauve)}
 .sh-part button.p-both:hover{color:var(--gold);border-color:var(--gold)}
 .sh-part button.p-drawing.on{background:var(--teal);border-color:var(--teal);color:#fff}
-.sh-part button.p-spec.on{background:#6d7fc4;border-color:#6d7fc4;color:#fff}
-.sh-part button.p-both.on{background:var(--gold);border-color:var(--gold);color:#12100c}
+.sh-part button.p-spec.on{background:var(--mauve);border-color:var(--mauve);color:#fff}
+.sh-part button.p-both.on{background:var(--gold);border-color:var(--gold);color:#fff}
 .sh-row{border-left:3px solid transparent;padding-left:8px}
 .sh-row.pt-drawing{border-left-color:rgba(43,108,110,.55)}
 .sh-row.pt-spec{border-left-color:rgba(109,127,196,.6)}
@@ -277,12 +280,12 @@ select.pl-in{cursor:pointer}
 .add-filter-lead{align-items:center;margin:8px 0 2px}
 .add-filter-lead .add-filter-lbl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .add-filter-b.af-ar{font-weight:600}
-.add-filter-b.af-ar.on{background:var(--gold);color:#12100c;border-color:var(--gold)}
+.add-filter-b.af-ar.on{background:var(--gold);color:#fff;border-color:var(--gold)}
 .add-filter-note{font-size:11.5px;color:var(--muted);margin:0 0 6px;padding-left:2px}
 .add-open{font:inherit;font-size:11.5px;padding:3px 10px;border-radius:6px;border:1px solid var(--line);
   background:transparent;color:var(--fg);cursor:pointer;margin-right:8px}
 .add-open:hover{border-color:var(--gold);color:var(--gold)}
-.add-open.on{background:var(--gold);color:#12100c;border-color:var(--gold);font-weight:600}
+.add-open.on{background:var(--gold);color:#fff;border-color:var(--gold);font-weight:600}
 .wb{margin:8px 0 4px;padding:10px 10px 4px;border:1px solid var(--line);border-radius:8px;
   background:rgba(245,158,11,.03)}
 .wb-bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px}
@@ -292,23 +295,23 @@ select.pl-in{cursor:pointer}
 .wb-seg:first-of-type{border-radius:6px 0 0 6px}
 .wb-seg:last-of-type{border-radius:0 6px 6px 0}
 .wb-seg+.wb-seg{border-left:none}
-.wb-seg.on{background:var(--gold);color:#12100c;border-color:var(--gold);font-weight:600}
+.wb-seg.on{background:var(--gold);color:#fff;border-color:var(--gold);font-weight:600}
 .wb-chip{font:inherit;font-size:11px;padding:2px 9px;border-radius:999px;border:1px solid var(--line);
   background:transparent;color:var(--muted);cursor:pointer}
 .wb-chip:hover{border-color:var(--gold);color:var(--gold)}
-.wb-chip.on{background:var(--gold);color:#12100c;border-color:var(--gold);font-weight:600}
-.wb-chip.s-drawings.on{background:#5b8f6e;border-color:#5b8f6e;color:#fff}
-.wb-chip.s-writeup.on{background:#7a6fa8;border-color:#7a6fa8;color:#fff}
-.wb-chip.s-none.on{background:#6a6a6a;border-color:#6a6a6a;color:#fff}
-.wb-chip.s-verify.on{background:#b4544a;border-color:#b4544a;color:#fff}
+.wb-chip.on{background:var(--gold);color:#fff;border-color:var(--gold);font-weight:600}
+.wb-chip.s-drawings.on{background:var(--sage);border-color:var(--sage);color:#fff}
+.wb-chip.s-writeup.on{background:var(--taupe);border-color:var(--taupe);color:#fff}
+.wb-chip.s-none.on{background:var(--faint);border-color:var(--faint);color:#fff}
+.wb-chip.s-verify.on{background:var(--rose);border-color:var(--rose);color:#fff}
 .wb-right{margin-left:auto;display:flex;gap:6px;align-items:center}
 .wb-write{font:inherit;font-size:11.5px;padding:3px 12px;border-radius:6px;border:1px solid var(--gold);
-  background:var(--gold);color:#12100c;font-weight:600;cursor:pointer}
+  background:var(--gold);color:#fff;font-weight:600;cursor:pointer}
 .wb-empty{font-size:12px;color:var(--muted);padding:8px 2px}
 .wb-donenote{font-size:11.5px;color:var(--muted);margin:8px 0 4px;padding:6px 8px;border-left:2px solid var(--line)}
-.sh-group.g-drawings{border-left:2px solid #5b8f6e}
-.sh-group.g-writeup{border-left:2px solid #7a6fa8}
-.sh-group.g-none{border-left:2px solid #6a6a6a}
+.sh-group.g-drawings{border-left:2px solid var(--sage)}
+.sh-group.g-writeup{border-left:2px solid var(--taupe)}
+.sh-group.g-none{border-left:2px solid var(--faint)}
 .sh-group.g-untriaged{border-left:2px solid var(--gold)}
 .sh-edit{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:6px 0 8px;padding:6px 0;
   border-bottom:1px dashed var(--line)}
@@ -318,7 +321,7 @@ select.pl-in{cursor:pointer}
 .sh-swap{font:inherit;font-size:11px;padding:2px 9px;border-radius:6px;border:1px dashed var(--line);
   background:transparent;color:var(--muted);cursor:pointer}
 .sh-swap:hover{border-color:var(--gold);color:var(--gold)}
-.wu-warn{font-size:11.5px;color:#c07a4a;margin:2px 0;padding-left:2px}
+.wu-warn{font-size:11.5px;color:var(--terracotta);margin:2px 0;padding-left:2px}
 .rr-statecell select.rr-state{font:inherit;font-size:10px;font-weight:800;letter-spacing:.05em;
   text-transform:uppercase;border-radius:8px;padding:2px 20px 2px 8px;border:1px solid transparent;
   cursor:pointer;-webkit-appearance:none;appearance:none;
@@ -326,13 +329,13 @@ select.pl-in{cursor:pointer}
                    linear-gradient(135deg,currentColor 50%,transparent 50%);
   background-position:calc(100% - 11px) 51%,calc(100% - 7px) 51%;
   background-size:4px 4px,4px 4px;background-repeat:no-repeat}
-.rr-statecell select.rr-state option{text-transform:none;font-weight:600;color:#1b1b1b;background:#fff}
+.rr-statecell select.rr-state option{text-transform:none;font-weight:600;color:var(--text);background:var(--card)}
 .rr-statecell select.rr-state:hover{border-color:currentColor}
 .rr-statecell select.rr-state:focus{outline:none;box-shadow:0 0 0 2px rgba(245,158,11,.35)}
 /* A row you can read without reading it: the state carries a colour and the row carries an edge. */
 .rfi-reg-row{border-left:3px solid transparent}
 .rfi-reg-row.rs-open{border-left-color:var(--teal)}
-.rfi-reg-row.rs-answered{border-left-color:var(--sage,#5b8f6e)}
+.rfi-reg-row.rs-answered{border-left-color:var(--sage,var(--sage))}
 .rfi-reg-row.rs-reopened{border-left-color:var(--terracotta)}
 .rfi-reg-row.rs-closed{border-left-color:var(--border-soft)}
 .rfi-reg-row td:first-child{border-left:0}
@@ -341,7 +344,7 @@ select.pl-in{cursor:pointer}
 .sync-chip:hover{border-color:var(--gold);color:var(--gold)}
 .sync-chip.sc-off{opacity:.65}
 .sync-chip.sc-warn{border-color:var(--gold);color:var(--gold)}
-.sync-chip.sc-err{border-color:#b4544a;color:#b4544a}
+.sync-chip.sc-err{border-color:var(--rose);color:var(--rose)}
 .op-by{font-size:10px;color:var(--muted);margin-left:6px;opacity:.85}
 .pending-empty{font-size:12.5px;color:var(--faint);font-style:italic;}
   .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 8px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 16px;position:sticky;top:8px;z-index:20;box-shadow:0 1px 0 var(--bg);}
@@ -1019,7 +1022,7 @@ select.pl-in{cursor:pointer}
   .rr-state.rr-reopened{background:rgba(193,102,72,.14);color:var(--terracotta);}
   /* answered and closed had no rule at all — every state that is not open or reopened rendered
      the same grey, which is why the register read as colourless once it became a control. */
-  .rr-state.rr-answered{background:rgba(91,143,110,.16);color:#5b8f6e;}
+  .rr-state.rr-answered{background:rgba(91,143,110,.16);color:var(--sage);}
   .rr-state.rr-closed{background:var(--border-soft);color:var(--faint);}
   .rr-age.rr-old{color:var(--terracotta);font-weight:800;}
   .due-pop{margin:6px 0;}
@@ -1093,6 +1096,75 @@ select.pl-in{cursor:pointer}
   .topbar #viewToggle{margin:0;}
   /* filters stay in flow, one row under the header — moving them buys nothing
      and the search box carries its own handler. */
+
+/* ============================================================================================
+   ROW LAYOUT — rewritten 2026-08-09. The body was one flex row with align-items:center, so a
+   three-line textarea stretched to 400px and dragged its label to the vertical middle of empty
+   space, while the "§3 — the spec writer packages this one" caption floated off to the right of
+   nothing. Everything below is a single left gutter and stacked, labelled blocks.
+   These rules come last on purpose; they supersede the earlier ones rather than editing them.
+   ========================================================================================= */
+.sh-row{border-left:3px solid transparent;padding:11px 12px 6px;margin-bottom:7px;
+  border-radius:0 8px 8px 0;background:transparent}
+.sh-row:hover{background:rgba(245,158,11,.03)}
+.sh-head{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto auto;gap:10px;align-items:start}
+.sh-row .sh-part{margin-right:0;padding-top:1px;align-self:start}
+.sh-no{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;font-weight:600;
+  white-space:nowrap;padding-top:4px}
+.sh-no-empty{color:var(--muted);font-weight:400}
+.sh-title{font-size:13.5px;line-height:1.45;padding-top:2px;min-width:0}
+.sh-head .sh-pick{justify-self:end;align-self:start;flex-wrap:nowrap}
+.sh-head .sh-done{justify-self:end;align-self:start;margin:5px 0 0}
+.sh-head .badge.p{align-self:start;margin-top:3px}
+
+.sh-body{margin-top:9px}
+.sh-body>summary{font-size:11.5px;color:var(--muted);cursor:pointer;padding:3px 0;list-style:none}
+.sh-body>summary::-webkit-details-marker{display:none}
+.sh-body>summary::before{content:"\25b8";color:var(--gold);margin-right:6px;display:inline-block}
+.sh-body[open]>summary::before{content:"\25be"}
+.sh-body>summary:hover{color:var(--gold)}
+
+.sh-blk{margin:13px 0 0;padding:0 0 0 14px;border-left:1px solid var(--line)}
+.sh-blk-h{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);
+  margin-bottom:8px;font-weight:700;line-height:1.4}
+.sh-blk-h span{display:block;letter-spacing:0;text-transform:none;font-weight:400;
+  color:var(--muted);font-size:11px;margin-top:2px}
+
+.sh-edit{display:block;border-bottom:none;margin:13px 0 0;padding:0 0 0 14px}
+.sh-f{display:flex;flex-direction:column;align-items:stretch;gap:3px;margin:0 0 11px;max-width:440px}
+.sh-f label{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.sh-f .sh-in{width:100%;min-width:0}
+.sh-note-f{display:flex;flex-direction:column;gap:3px;flex:none;min-width:0;max-width:640px;margin-bottom:4px}
+.sh-note-f label{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold)}
+.sh-note-in{width:100%;min-height:64px;max-height:150px;resize:vertical;
+  font:inherit;font-size:12.5px;line-height:1.5;padding:7px 9px}
+.hintline{font-size:10.5px;color:var(--terracotta);margin-top:3px}
+
+.sh-preview{margin:13px 0 0;padding:0 0 0 14px;border-left:2px solid var(--gold);
+  background:none;border-radius:0}
+.sh-preview.sh-preview-off{border-left-color:var(--line);opacity:.6}
+.sh-preview-l{font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap;
+  color:var(--fg);margin-bottom:7px}
+.sh-preview-x,.sh-preview-a{font-size:11px;color:var(--muted);margin-top:3px}
+.sh-preview-a{color:var(--gold);opacity:.85}
+
+.sh-steps{font-size:12.5px;line-height:1.65}
+.sh-note{font-size:12px;line-height:1.5;color:var(--muted);margin-bottom:6px}
+.sh-imgs{display:block}
+.sh-imgs .sh-thumbs{margin-top:2px}
+
+/* the placement table sits inside "Where it goes" and needs no second gutter */
+.pl-wrap{flex:none;margin:0}
+.pl-row{grid-template-columns:120px 152px 54px 168px minmax(0,1fr) 24px}
+@media(max-width:900px){
+  .sh-head{grid-template-columns:auto minmax(0,1fr) auto}
+  .sh-head .sh-pick{grid-column:1/-1;justify-self:start;flex-wrap:wrap;margin-top:4px}
+  .pl-row{grid-template-columns:1fr 1fr}
+}
+.pl-row{grid-template-columns:112px 140px 48px 150px 150px minmax(0,1fr) 24px}
+.pl-act{font-size:11.5px}
+.pl-line.empty .pl-line-t{color:var(--faint);font-style:italic}
+@media(max-width:1000px){.pl-row{grid-template-columns:1fr 1fr}.pl-cols{display:none}}
 </style>
 </head>
 <body>
@@ -5640,26 +5712,68 @@ function addHiddenCount(key){
 
 // ---- edits ------------------------------------------------------------------------------------
 function findLane(id){var l=laneItems();for(var i=0;i<l.length;i++)if(l[i].id===id)return l[i];return null;}
+// The item as the VAULT has it, before any queued op is laid over the top. Needed to answer the
+// only question that matters when you edit: is this different from what Claude already knows?
+function baseLaneItem(id){
+  var a=(window.LANE_ITEMS||[]).concat(window.ITEMS||[]);
+  for(var i=0;i<a.length;i++)if(a[i].id===id)return a[i];
+  return null;
+}
+// Typing, deleting and retyping a field used to leave three ops in the queue, and a check-in then
+// had to reconcile a history nobody wanted. A field has one value: the one it has now. So setting
+// it voids whatever this field queued before, and if you land back on the vault's own value the
+// op disappears entirely — there is nothing to fold.
+function supersede(match){
+  (readQueue()||[]).forEach(function(o){if(match(o))voidOp(o);});
+}
+function sameValue(a,b){return String(a==null?'':a).trim()===String(b==null?'':b).trim();}
 function setProduces(id,val){
   var it=findLane(id);if(!it)return;
-  var was=it.produces||'(untriaged)';
+  var ref=(it.title||'').slice(0,160);
+  var base=baseLaneItem(id)||{};
+  supersede(function(o){return o.type==='produces'&&o.itemRef===ref&&/produces:/.test(o.text||'');});
+  if(sameValue(val,base.produces)){
+    buildAddendumRegister();
+    setStatus('Back to what the vault says — nothing left queued for this one.');return;}
   // Queued, not written. The vault stays the source of truth; this folds in at the next check-in.
-  queueLocally({type:'produces',program:it.program||'',pkg:it.pkg||'',itemRef:(it.title||'').slice(0,160),
-    text:(it.sheet?it.sheet+' — ':'')+'produces: '+was+' → '+(val||'(untriaged)')});
+  queueLocally({type:'produces',program:it.program||'',pkg:it.pkg||'',itemRef:ref,
+    text:(it.sheet?it.sheet+' — ':'')+'produces: '+(base.produces||'(untriaged)')+' → '+(val||'(untriaged)')});
   buildAddendumRegister();
   setStatus(produceLabel(itemPart(it),val)+' — '+(SYNC.on?'shared, and copy for check-in to make it permanent.':'copy for check-in to make it permanent.'));
 }
 function toggleVerify(id){
   var it=findLane(id);if(!it)return;
-  queueLocally({type:'produces',program:it.program||'',pkg:it.pkg||'',itemRef:(it.title||'').slice(0,160),
+  var ref=(it.title||'').slice(0,160),base=baseLaneItem(id)||{};
+  var next=it.verify?'':'yes';
+  supersede(function(o){return o.type==='produces'&&o.itemRef===ref&&/verify|\? cleared/.test(o.text||'');});
+  if(sameValue(next,base.verify)){buildAddendumRegister();
+    setStatus('Back to what the vault says — nothing left queued.');return;}
+  queueLocally({type:'produces',program:it.program||'',pkg:it.pkg||'',itemRef:ref,
     text:(it.sheet?it.sheet+' — ':'')+(it.verify?'verified — ? cleared':'flagged to verify (?)')});
   buildAddendumRegister();
 }
 function setAddMeta(id,field,value,label){
   var it=findLane(id);if(!it)return;
-  queueLocally({type:'addmeta',program:it.program||'',pkg:it.pkg||'',itemRef:(it.title||'').slice(0,160),
+  var ref=(it.title||'').slice(0,160),base=baseLaneItem(id)||{};
+  // one field, one op — the newest wins and the rest stop existing
+  supersede(function(o){return o.type==='addmeta'&&o.itemRef===ref&&o.field===field;});
+  var was=(field==='sheets')?itemSheets(base).join(', ')
+        :(field==='placements')?'' :(base[field]||'');
+  if(field!=='placements'&&sameValue(value,was)){
+    buildAddendumRegister();
+    setStatus((label||field)+' is back to what the vault says — nothing queued.');return;}
+  // a placements edit that matches the derived default is also nothing worth folding
+  if(field==='placements'&&value){
+    try{
+      var d=JSON.stringify(derivePlacements(base));
+      if(sameValue(value,d)){buildAddendumRegister();
+        setStatus('Back to the placements the markups already imply — nothing queued.');return;}
+    }catch(e){}
+  }
+  queueLocally({type:'addmeta',program:it.program||'',pkg:it.pkg||'',itemRef:ref,
     field:field,value:value,
-    text:(it.sheet?it.sheet+' — ':'')+(label||field)+': '+(value||'(cleared)')});
+    text:(it.sheet?it.sheet+' — ':'')+(label||field)+': '
+      +(field==='placements'?((JSON.parse(value||'[]')||[]).length+' line(s)'):(value||'(cleared)'))});
   buildAddendumRegister();
   setStatus((label||field)+' set — queued for check-in.');
 }
@@ -5830,6 +5944,15 @@ function openAddSheet(anchor,addKey,pkg,program){
 }
 
 // ---- one row -----------------------------------------------------------------------------------
+// One block, one heading, one job. The body used to be a single flex row, so a two-line textarea
+// stretched to 400px and dragged its label to the vertical middle of nothing.
+function shBlock(title,hint){
+  var b=document.createElement('div');b.className='sh-blk';
+  var h=document.createElement('div');h.className='sh-blk-h';
+  h.appendChild(document.createTextNode(title));
+  if(hint){var sp=document.createElement('span');sp.textContent=hint;h.appendChild(sp);}
+  b.appendChild(h);return b;
+}
 function sheetRow(it){
   var part=itemPart(it),sheets=(itemPart(it)==='spec')?itemSheets(it):placementSheets(it);
   var nLines=isDrawPart(it)?placementsOf(it).length:0;
@@ -5839,7 +5962,10 @@ function sheetRow(it){
     +(sheets.length?'':' noSheet')+(it.pendingComplete||it.status==='completed'?' sh-doneRow':'');
   var head=document.createElement('div');head.className='sh-head';
   var no=document.createElement('span');no.className='sh-no';
-  if(isSpecPart(it)&&!itemSheets(it).length){no.textContent=it.section?('SECTION '+it.section):'— no section';}
+  if(isSpecPart(it)&&!itemSheets(it).length){
+    no.textContent=it.section?('§3 '+it.section):'§3';
+    if(!it.section){no.classList.add('sh-no-empty');no.title='No specification section named yet';}
+  }
   else if(sheets.length>1){no.textContent=sheets[0]+' +'+(sheets.length-1);
     no.title='Also on '+sheets.slice(1).join(', ')+' — this item writes a line under each drawing';}
   else if(sheets.length){no.textContent=sheets[0];}
@@ -5919,7 +6045,9 @@ function sheetRow(it){
   body.appendChild(sm2);
 
   // where it goes — the editor for the fields the write-up reads
-  var ed=document.createElement('div');ed.className='sh-edit';
+  var ed=shBlock('Where it goes',isSpecPart(it)?'§3 — Specifications packages this one'
+    :(itemPart(it)==='both'?'§3 note + §4 lines':'§4 — written here, in full'));
+  ed.classList.add('sh-edit');
   function field(lbl,val,ph,hint,onSave){
     var w=document.createElement('span');w.className='sh-f';
     var l=document.createElement('label');l.textContent=lbl;l.title=hint||'';w.appendChild(l);
@@ -5932,7 +6060,7 @@ function sheetRow(it){
     w.appendChild(i2);return w;
   }
   if(isSpecPart(it)){
-    ed.appendChild(field('Section',it.section,'09 06 00 – Schedule for Finishes',
+    ed.appendChild(field('Specification section',it.section,'09 06 00 – Schedule for Finishes',
       'The §3 heading. Written as it appears in the document.',
       function(v){setAddMeta(it.id,'section',v,'Section');}));
     // You do not write §3 — Specifications does. What they need from you is the information:
@@ -5942,7 +6070,7 @@ function sheetRow(it){
     nl.title='Goes to Specifications as written. Say what changed and why; they write the clause.';
     nw.appendChild(nl);
     var na=document.createElement('textarea');na.className='sh-in sh-note-in';
-    na.value=it.note||'';na.rows=2;
+    na.value=it.note||'';na.rows=3;
     na.placeholder='e.g. WP2 is no longer used in Utility Corridor A58T01 — delete it and leave WP1. Confirmed with Chris H, 2026-08-09.';
     na.addEventListener('keydown',function(e){e.stopPropagation();
       if(e.key==='Escape'){na.value=it.note||'';na.blur();}});
@@ -5957,22 +6085,16 @@ function sheetRow(it){
     ed.appendChild(placementEditor(it));
 
   }
-  var sw=document.createElement('span');sw.className='sh-swap';
-  sw.textContent=part==='spec'?'§3 — the spec writer packages this one'
-    :(part==='both'?'§3 note + §4 line — it appears in both':'§4 — written here, in full');
-  sw.title='Change it with the §3/§4 switch at the front of the row. Addendum 4 §3.7 is a drawing item filed inside Specifications; that switch is what prevents it.';
-  ed.appendChild(sw);
   body.appendChild(ed);
 
   // The answer to "what do these fields do": show the lines. Same renderer as the document, so a
   // preview can never disagree with what gets written.
   (function(){
-    var pv=document.createElement('div');pv.className='sh-preview';
-    var ph=document.createElement('div');ph.className='sh-preview-h';
-    ph.textContent=inDocument(it)?'It will write this into the addendum'
-      :(it.produces==='none'?'Fix only — nothing is written into the addendum'
-                            :'No state yet — nothing is written until you pick one');
-    pv.appendChild(ph);
+    var pv=shBlock('It will read',inDocument(it)?'exactly this, in the document'
+      :(it.produces==='none'?'nothing — Fix only never reaches the bid'
+                            :'nothing yet — pick a state above'));
+    pv.classList.add('sh-preview');
+    if(!inDocument(it))pv.classList.add('sh-preview-off');
     if(inDocument(it)){
       var lines=[];
       var st2=wuStepsOf(it);
@@ -6006,6 +6128,7 @@ function sheetRow(it){
   })();
 
   if(steps.length){
+    var sb=shBlock('Markups','what the sheet list recorded · greyed ones are process, not addendum content');
     var sl=document.createElement('div');sl.className='sh-steps';
     steps.forEach(function(t){
       var txt=String(t).replace(/^✓\s*/,'');
@@ -6014,14 +6137,18 @@ function sheetRow(it){
       e.textContent='• '+txt;
       e.title=WU_VERBS.test(txt.toUpperCase())?'This becomes a line in the document':'Process — not addendum content, excluded from the write-up';
       sl.appendChild(e);});
-    body.appendChild(sl);
+    sb.appendChild(sl);body.appendChild(sb);
   }
   body.appendChild(imageStrip(it));
-  notes.forEach(function(u){
-    var t=String(u),b2=t.indexOf('|'),bod=b2>-1?t.slice(b2+1):t;
-    var n=document.createElement('div');n.className='sh-note';
-    n.textContent=bod.replace(/\[src::[^\]]*\]/,'').trim();
-    body.appendChild(n);});
+  if(notes.length){
+    var nb=shBlock('Flags','things the capture wanted you to see');
+    notes.forEach(function(u){
+      var t=String(u),b2=t.indexOf('|'),bod=b2>-1?t.slice(b2+1):t;
+      var n=document.createElement('div');n.className='sh-note';
+      n.textContent=bod.replace(/\[src::[^\]]*\]/,'').trim();
+      nb.appendChild(n);});
+    body.appendChild(nb);
+  }
   row.appendChild(body);
   return row;
 }
@@ -6297,11 +6424,8 @@ function imgTile(im,host){
 }
 // Drop, paste, or pick. All three land in the same place, because people reach for all three.
 function imageStrip(it){
-  var wrap=document.createElement('div');wrap.className='sh-imgs';
-  var lbl=document.createElement('label');lbl.className='sh-imgs-l';
-  lbl.textContent='Pictures';
-  lbl.title='Drop a file, paste from the clipboard, or click to choose. Shrunk to a thumbnail here — the full markup stays in Bluebeam.';
-  wrap.appendChild(lbl);
+  var wrap=shBlock('Pictures','drop, paste or click — shrunk to a thumbnail here; the full markup stays in Bluebeam');
+  wrap.className+=' sh-imgs';
   var strip=document.createElement('div');strip.className='sh-thumbs';
   imagesFor(it).forEach(function(im){imgTile(im,strip);});
   var drop=document.createElement('button');drop.type='button';drop.className='img-drop';
@@ -6342,6 +6466,45 @@ function imageStrip(it){
 // Nothing in the vault has to change. An item that has never been touched here derives its
 // placements from `sheet::` × its drawing-verb steps, which is exactly what the old renderer did —
 // so the 42 existing rows keep working and gain the editor the moment you open one.
+// The verbs, from the issued sets. Each carries the sentence skeleton it produces, so choosing one
+// puts a real line on screen instead of leaving you [WRITE THE LINE] and a cursor.
+//   Add        PLAN 1/A42.31.10; Add missing wall; As indicated…
+//   Remove     SECTION DETAIL 4/A3.420 - Remove Window Treatment WT-200.
+//   Revise…to  Door A59R01.1; Revise hardware group from 04.2 to 04.0…
+//   Renumber   A5.94.15; Revise the reference call-out from 11/A5.94.17 to 6/A5.94.17.
+//   New detail SECTION DETAIL 20/A7.490; Add new detail showing section at ledge…
+//   Re-issue   Sheet A42.20.10; Re-issue drawing in its entirety attached and forming part…
+var PL_ACTIONS=[
+  {k:'',        label:'— choose an action —', tpl:''},
+  {k:'add',     label:'Add \u2026',              tpl:'ADD \u27e8what\u27e9'},
+  {k:'remove',  label:'Remove \u2026',           tpl:'REMOVE \u27e8what\u27e9'},
+  {k:'revise',  label:'Revise \u2026',           tpl:'REVISE \u27e8what\u27e9'},
+  {k:'reviseto',label:'Revise \u2026 to read \u2026',tpl:'REVISE \u27e8what\u27e9 to read \u27e8new value\u27e9'},
+  {k:'renumber',label:'Renumber a call-out',  tpl:'REVISE the reference call-out from \u27e8a\u27e9 to \u27e8b\u27e9'},
+  {k:'newdet',  label:'New detail',           tpl:'ADD new detail showing \u27e8what\u27e9'},
+  {k:'update',  label:'Update \u2026',           tpl:'UPDATE \u27e8what\u27e9'},
+  {k:'extend',  label:'Extend \u2026',           tpl:'EXTEND \u27e8what\u27e9'},
+  {k:'modify',  label:'Modify to reflect \u2026',tpl:'MODIFIED to reflect \u27e8what\u27e9'},
+  {k:'reissue', label:'Re-issue the whole sheet',tpl:'RE-ISSUE'}
+];
+// A skeleton is not a finished line. Anything still holding a ⟨slot⟩ is called out in the write-up
+// rather than shipped, because "REVISE ⟨what⟩" reaching a bidder is worse than a blank.
+var PL_SLOT=/\u27e8[^\u27e9]*\u27e9/;
+function plActionOf(pl){
+  var t=String(pl.text||'').toUpperCase();
+  if(!t)return '';
+  if(/^RE-?ISSUE/.test(t))return 'reissue';
+  if(/^ADD NEW DETAIL/.test(t))return 'newdet';
+  if(/^REVISE THE REFERENCE CALL-?OUT/.test(t))return 'renumber';
+  if(/^REVISE .* TO READ/.test(t))return 'reviseto';
+  if(/^REVISE/.test(t))return 'revise';
+  if(/^ADD/.test(t))return 'add';
+  if(/^REMOVE|^DELETE/.test(t))return 'remove';
+  if(/^UPDATE/.test(t))return 'update';
+  if(/^EXTEND/.test(t))return 'extend';
+  if(/^MODIF/.test(t))return 'modify';
+  return '';
+}
 function derivePlacements(it){
   var out=[],sheets=itemSheets(it);
   var st=wuStepsOf(it);
@@ -6368,7 +6531,9 @@ function placementLine(it,pl){
   if(pl.override&&pl.override.trim())return pl.override.trim();
   var proxy={target:pl.target||'',viewtype:pl.view||'',detail:pl.no||'',room:pl.room||'',
              element:pl.element||'',alt:pl.alt||'',produces:it.produces,linestyle:it.linestyle};
-  return wuDrawLine(proxy,pl.sheet,pl.text||'[WRITE THE LINE]');
+  if(!(pl.text||'').trim())
+    return wuTargetFor(proxy,pl.sheet)+(lineStyleOf(it)==='dash'?' - ':'; ')+'\u27e8pick an action\u27e9';
+  return wuDrawLine(proxy,pl.sheet,pl.text);
 }
 function placementSheets(it){
   var seen={},out=[];
@@ -6385,7 +6550,7 @@ function placementEditor(it){
   wrap.appendChild(head);
 
   var cols=document.createElement('div');cols.className='pl-row pl-cols';
-  ['Drawing','View','No.','Room / element','What changes',''].forEach(function(t){
+  ['Drawing','View','No.','Room / element','Action','What changes',''].forEach(function(t){
     var c=document.createElement('span');c.textContent=t;cols.appendChild(c);});
   wrap.appendChild(cols);
 
@@ -6413,7 +6578,30 @@ function placementEditor(it){
     inp('view','','pl-view',VIEW_TYPES);
     inp('no','4','pl-no');
     inp('room','room or element','pl-room');
-    inp('text','what changes on it','pl-text');
+    // Choosing a verb writes the skeleton of the sentence into the text field and puts the cursor
+    // at the end of it. You finish the sentence; you never start one from nothing.
+    var asel=document.createElement('select');asel.className='pl-in pl-act';
+    PL_ACTIONS.forEach(function(a){
+      var o=document.createElement('option');o.value=a.k;o.textContent=a.label;
+      if(a.hint)o.title=a.hint;
+      if(plActionOf(pl)===a.k)o.selected=true;
+      asel.appendChild(o);});
+    asel.title='The verb, from the issued addenda. Picking one writes the sentence pattern for you.';
+    r.appendChild(asel);
+    var tin=inp('text','finish the sentence','pl-text');
+    asel.addEventListener('change',function(){
+      var a=PL_ACTIONS.filter(function(x){return x.k===asel.value;})[0];
+      if(!a||!a.k)return;
+      if(a.k==='reissue'){pl.text='RE-ISSUE the drawing in its entirety';commit();return;}
+      // keep whatever you had already written after the verb
+      var rest=String(pl.text||'').replace(/^[A-Z][A-Z/ -]*\b/,'').replace(PL_SLOT,'').trim();
+      pl.text=rest?a.tpl.replace(PL_SLOT,rest):a.tpl;
+      tin.value=pl.text;commit();
+      tin.focus();
+      var m=PL_SLOT.exec(pl.text);
+      try{if(m)tin.setSelectionRange(m.index,m.index+m[0].length);
+          else tin.setSelectionRange(pl.text.length,pl.text.length);}catch(e){}
+    });
     var x=document.createElement('button');x.type='button';x.className='pl-x';x.textContent='✕';
     x.title='Remove this placement';
     x.addEventListener('click',function(e){e.stopPropagation();
@@ -6429,6 +6617,7 @@ function placementEditor(it){
     var ta=document.createElement('textarea');ta.className='pl-line-t';ta.rows=1;
     ta.value=placementLine(it,pl);
     ta.title='This is the line that goes in the addendum. Edit it and your words are used verbatim.';
+    if(!(pl.text||'').trim()&&!(pl.override||'').trim())lw.classList.add('empty');
     if(pl.override&&pl.override.trim())lw.classList.add('edited');
     var auto=function(){ta.style.height='auto';ta.style.height=(ta.scrollHeight+2)+'px';};
     setTimeout(auto,0);
@@ -6673,6 +6862,10 @@ function buildAddendumDoc(key,opts){
     mine.forEach(function(e){
       var it=e.it,pl=e.pl;
       if(!seenIt[it.id]){seenIt[it.id]=1;skipped+=wuStepsOf(it).skipped;}
+      var _ln=(pl.override||'').trim()||(pl.text||'').trim();
+      if(PL_SLOT.test(_ln))
+        warn.push('§4 '+(sn||'?')+' still has an unfinished line — \u201c'+_ln.slice(0,44)
+          +'\u201d — the \u27e8slots\u27e9 have to be filled in before issue');
       if(!(pl.text||'').trim()&&!(pl.override||'').trim()){
         lines.push('[NO MARKUP RECORDED — write the line]');
         // An Issue-drawing placement with no words is the quiet failure: the sheet is meant to be
