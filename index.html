@@ -314,6 +314,11 @@
   .sh-chip.q{border-style:dashed;}
   .sh-row.sh-hit{box-shadow:0 0 0 2px rgba(245,158,11,.55);}
   .sh-row.noSheet{border-left:3px solid var(--mauve);}
+  .sh-addform{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin:7px 0 2px;padding:9px 11px;background:var(--card);border:1px solid var(--sage);border-radius:9px;}
+  .sh-in{font:inherit;font-size:12.5px;padding:5px 8px;border:1px solid var(--border);border-radius:7px;background:#fff;color:var(--text);flex:1 1 260px;}
+  .sh-in-no{flex:0 0 150px;font-variant-numeric:tabular-nums;}
+  .sh-in:focus{outline:none;border-color:var(--teal);}
+  .sh-row.pendingRow{border-left:3px solid var(--gold);background:rgba(181,144,66,.05);}
   .sh-add{margin:14px 0 4px;}
   .sh-add>summary{cursor:pointer;list-style:none;font-size:14.5px;font-weight:650;color:var(--text);padding:7px 0 6px;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:baseline;}
   .sh-add>summary::-webkit-details-marker{display:none;}
@@ -329,6 +334,12 @@
   .sh-bar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:4px 0 10px;}
   .sh-stat{font-size:12px;color:var(--muted);}
   .sh-stat b{color:var(--text);}
+  .wu-pick{margin:2px 0 10px;font-size:12px;}
+  .wu-pick>summary{cursor:pointer;color:var(--teal);list-style:none;padding:3px 0;}
+  .wu-pick>summary::-webkit-details-marker{display:none;}
+  .wu-pick-row{display:flex;gap:8px;align-items:flex-start;padding:2.5px 0 2.5px 4px;color:var(--muted);cursor:pointer;}
+  .wu-pick-row input{margin-top:2px;accent-color:var(--teal);}
+  .wu-undecided{color:#b45309;cursor:default;padding-top:7px;}
   .wu-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin:10px 0;}
   .wu-box textarea{width:100%;min-height:340px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;line-height:1.5;border:1px solid var(--sage);border-radius:8px;padding:9px;background:#fff;color:var(--text);resize:vertical;}
   .img-modal{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px;cursor:zoom-out;}
@@ -5064,9 +5075,31 @@ function setSheetFilter(a){sheetFilter=a===sheetFilter?'':(a||'');buildSheetsVie
 // A board item is keyed to a question and usually has no sheet — but if it puts something into
 // the instrument it has to reach the write-up, or the document is quietly short.
 function laneItems(){
-  var lane=(window.LANE_ITEMS||[]).slice();
-  var extra=(window.ITEMS||[]).filter(function(i){return i.addendum;});
+  var lane=(window.LANE_ITEMS||[]).map(function(i){return Object.assign({},i);});
+  var extra=(window.ITEMS||[]).filter(function(i){return i.addendum;})
+                              .map(function(i){return Object.assign({},i);});
   var all=lane.concat(extra);
+  var byTitle=function(t){
+    for(var i=0;i<all.length;i++){if((all[i].title||'').slice(0,60)===String(t||'').slice(0,60))return all[i];}
+    return null;};
+  (readQueue()||[]).forEach(function(p,ix){
+    if(p.type==='sheet'){
+      // captured on the site and not yet folded — it is real work the moment you type it
+      all.push({id:'pending-sheet-'+ix,title:p.text||'(untitled)',status:'open',
+        program:p.program||'',pkg:p.pkg||'',addendum:p.addendum||'',sheet:p.sheet||'',
+        produces:p.produces||undefined,verify:p.verify?'yes':undefined,
+        lane:'pending',pendingLocal:true});
+    }else if(p.type==='produces'&&p.itemRef){
+      var t=byTitle(p.itemRef);if(!t)return;
+      var m=/\u2192\s*(.+)$/.exec(p.text||'');
+      if(m){var v=m[1].trim();
+        if(v==='(untriaged)')delete t.produces; else t.produces=v;}
+      if(/flagged to verify/.test(p.text||''))t.verify='yes';
+      if(/\? cleared/.test(p.text||''))delete t.verify;
+    }else if(p.type==='complete'&&p.text){
+      var c2=byTitle(p.text);if(c2)c2.pendingComplete=true;
+    }
+  });
   return sheetFilter?all.filter(function(i){return i.addendum===sheetFilter;}):all;
 }
 function sheetInstruments(){
@@ -5079,9 +5112,8 @@ function sheetInstruments(){
   return out.sort(function(a,b){return a.key<b.key?-1:1;});
 }
 function setProduces(id,val){
-  var it=(window.LANE_ITEMS||[]).find(function(x){return x.id===id;});if(!it)return;
+  var it=laneItems().find(function(x){return x.id===id;});if(!it)return;
   var was=it.produces||'(untriaged)';
-  it.produces=val||undefined; if(!val)delete it.produces;
   // Queued, not written. The vault stays the source of truth; this folds in at the next check-in.
   queueLocally({type:'produces',program:it.program||'',pkg:it.pkg||'',itemRef:(it.title||'').slice(0,160),
     text:(it.sheet?it.sheet+' \u2014 ':'')+'produces: '+was+' \u2192 '+(val||'(untriaged)'),
@@ -5090,10 +5122,9 @@ function setProduces(id,val){
   setStatus('Letter changed \u2014 copy for check-in to make it permanent.');
 }
 function toggleVerify(id){
-  var it=(window.LANE_ITEMS||[]).find(function(x){return x.id===id;});if(!it)return;
-  it.verify=it.verify?undefined:'yes'; if(!it.verify)delete it.verify;
+  var it=laneItems().find(function(x){return x.id===id;});if(!it)return;
   queueLocally({type:'produces',program:it.program||'',pkg:it.pkg||'',itemRef:(it.title||'').slice(0,160),
-    text:(it.sheet?it.sheet+' \u2014 ':'')+(it.verify?'flagged to verify (?)':'verified \u2014 ? cleared'),
+    text:(it.sheet?it.sheet+' \u2014 ':'')+(it.verify?'verified \u2014 ? cleared':'flagged to verify (?)'),
     ts:new Date().toISOString()});
   buildSheetsView();
 }
@@ -5164,6 +5195,21 @@ function buildSheetsView(){
       +((rows.length-lv.length)?' \u00b7 '+(rows.length-lv.length)+' done':'');
     sm.appendChild(cc);
     wrap.appendChild(sm);
+    var addRow=document.createElement('div');addRow.className='sh-bar';addRow.style.margin='6px 0 0';
+    var ab=document.createElement('button');ab.type='button';ab.className='add-item-btn';
+    ab.textContent='+ add to this addendum';
+    ab.title='Capture a sheet or an item straight into this addendum';
+    ab.addEventListener('click',function(e){e.stopPropagation();
+      openAddSheet(addRow,ak,rows[0].pkg||'',rows[0].program||'');});
+    addRow.appendChild(ab);
+    var gw=document.createElement('button');gw.type='button';gw.className='hist-more';gw.style.margin='0';
+    gw.textContent='write-up for Addendum '+addNum(ak)+' \u2709';
+    gw.title='Render \u00a74 and the List of Attachments for this instrument only';
+    var gh=document.createElement('div');gh.id='wuHost-'+ak;
+    gw.addEventListener('click',function(e){e.stopPropagation();buildWriteup(ak,gh);});
+    addRow.appendChild(gw);
+    wrap.appendChild(addRow);
+    wrap.appendChild(gh);
     PRODUCES.forEach(function(g){
       var grp=rows.filter(function(i){return (i.produces||'')===g.k;})
         .sort(function(a,b){return sheetSortKey(a)<sheetSortKey(b)?-1:1;});
@@ -5176,6 +5222,46 @@ function buildSheetsView(){
     c.appendChild(wrap);
   });
 }
+function openAddSheet(anchor,addKey,pkg,program){
+  var ex=anchor.parentNode.querySelector(':scope>.sh-addform');if(ex){ex.remove();return;}
+  var f=document.createElement('div');f.className='sh-addform';
+  var sh=document.createElement('input');sh.type='text';sh.placeholder='Sheet no. — optional';sh.className='sh-in sh-in-no';
+  var ti=document.createElement('input');ti.type='text';ti.placeholder='What changes on it';ti.className='sh-in';
+  var pick=document.createElement('span');pick.className='sh-pick';
+  var chosen={p:'',q:false};
+  [['none','N'],['writeup','A'],['drawings','D']].forEach(function(p){
+    var b=document.createElement('button');b.type='button';b.textContent=p[1];b.title=p[0];
+    b.addEventListener('click',function(){
+      chosen.p=chosen.p===p[0]?'':p[0];
+      pick.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});
+      if(chosen.p)b.classList.add('on');});
+    pick.appendChild(b);});
+  var q=document.createElement('button');q.type='button';q.textContent='?';q.title='needs verifying';
+  q.addEventListener('click',function(){chosen.q=!chosen.q;q.classList.toggle('on',chosen.q);q.classList.toggle('q',chosen.q);});
+  pick.appendChild(q);
+  var save=document.createElement('button');save.type='button';save.textContent='Add';save.className='hist-more';save.style.margin='0';
+  var cancel=document.createElement('button');cancel.type='button';cancel.textContent='Cancel';cancel.className='pcancel';
+  var hint=document.createElement('span');hint.className='inline-capture-hint';
+  hint.textContent='Appears immediately \u00b7 queued for the next check-in';
+  function commit(){
+    var t=ti.value.trim();if(!t){f.remove();return;}
+    var num=sh.value.trim();
+    queueLocally({type:'sheet',program:program||'',pkg:pkg||'',addendum:addKey||'',
+      sheet:num,produces:chosen.p||'',verify:chosen.q?'yes':'',
+      text:(num?num+' \u2014 ':'')+t,ts:new Date().toISOString()});
+    f.remove();buildSheetsView();rebuildPendingList();
+    setStatus('Added \u2014 copy for check-in to make it permanent.');
+  }
+  save.addEventListener('click',commit);
+  cancel.addEventListener('click',function(){f.remove();});
+  [sh,ti].forEach(function(el){el.addEventListener('keydown',function(e){
+    e.stopPropagation();
+    if(e.key==='Enter')commit();
+    if(e.key==='Escape')f.remove();});});
+  f.appendChild(sh);f.appendChild(ti);f.appendChild(pick);f.appendChild(save);f.appendChild(cancel);f.appendChild(hint);
+  anchor.insertAdjacentElement('afterend',f);
+  ti.focus();
+}
 var SH_OPEN={};          // which instruments are expanded — survives a rebuild
 var SH_ROW_OPEN={};      // which rows are expanded
 function sheetRow(it){
@@ -5186,6 +5272,10 @@ function sheetRow(it){
   var head=document.createElement('div');head.className='sh-head';
   var no=document.createElement('span');no.className='sh-no';
   no.textContent=it.sheet||(it.lane?'\u2014 no sheet':'\u25c7 from the board');
+  if(it.pendingLocal){row.classList.add('pendingRow');
+    var pb=document.createElement('span');pb.className='badge p';pb.textContent='PENDING';
+    pb.title='Captured here, not yet folded into the vault';no.appendChild(document.createTextNode(' '));
+    head.appendChild(pb);}
   if(!it.sheet)no.title=it.lane?'This item has no sheet number yet'
     :'A board item riding this addendum. It is keyed to a question, not a drawing, so it has no sheet.';
   var ti=document.createElement('span');ti.className='sh-title';
@@ -5212,11 +5302,10 @@ function sheetRow(it){
     var payload={type:'complete',program:it.program||'',pkg:it.pkg||'',itemRef:'',
                  text:(it.title||'').slice(0,200),ts:new Date().toISOString()};
     if(cb.checked){
-      it.pendingComplete=true;logComplete(payload);renderPendingRow(payload);
+      logComplete(payload);renderPendingRow(payload);
       toast('Marked done: '+(it.sheet||it.title||'').slice(0,50),'undo',function(){
         cb.checked=false;cb.dispatchEvent(new Event('change'));});
     }else{
-      it.pendingComplete=false;
       removeQueued('complete','',(it.title||'').slice(0,200));rebuildPendingList();
     }
     buildSheetsView();
@@ -5272,11 +5361,19 @@ function wuSentence(txt){
   if(m)t=m[1].charAt(0)+m[1].slice(1).toLowerCase()+m[2];
   return t.replace(/\s+\u2014\s+.*$/,'').replace(/[.;]+$/,'');
 }
-function buildWriteup(){
-  var host=document.getElementById('wuHost');if(!host)return;
-  if(host.firstChild){host.innerHTML='';return;}
-  var all=laneItems().filter(function(i){return (i.produces==='drawings'||i.produces==='writeup')
-      &&!i.pendingComplete&&i.status!=='completed';})
+var WU_EXCLUDE={};   // ids deliberately held out of the document
+function buildWriteup(addKey,hostEl){
+  var host=hostEl||document.getElementById('wuHost');if(!host)return;
+  if(host.firstChild&&!host.getAttribute('data-rerender')){host.innerHTML='';return;}
+  host.removeAttribute('data-rerender');host.innerHTML='';
+  // Candidates are everything on this instrument that puts something INTO it. An untriaged item
+  // has not been decided yet, so it cannot be in the document — it is counted and named instead,
+  // because a write-up that is quietly short is worse than one that says what is missing.
+  var pool=laneItems().filter(function(i){return (!addKey||i.addendum===addKey)
+      &&!i.pendingComplete&&i.status!=='completed';});
+  var undecided=pool.filter(function(i){return !i.produces;});
+  var all=pool.filter(function(i){return (i.produces==='drawings'||i.produces==='writeup')
+      &&!WU_EXCLUDE[i.id];})
     .sort(function(a,b){return sheetSortKey(a)<sheetSortKey(b)?-1:1;});
   var L=[],att=[],skipped=0,noSheet=[];
   all.forEach(function(it,ix){
@@ -5298,7 +5395,9 @@ function buildWriteup(){
     if(it.produces==='drawings'&&it.sheet)att.push({k:sheetSortKey(it),t:it.sheet+'    '+title});
     L.push('');
   });
-  var head=['ADDENDUM 1 \u2014 Vol 1 \u2013 ARCHITECTURAL','','2  General','','List of Attachments:',''];
+  var lbl=addKey?('ADDENDUM '+addNum(addKey)):'ADDENDUM';
+  var pk=(pool[0]&&pool[0].pkg||'').replace(/Package /,'Pkg ').split('\u2014')[0].trim();
+  var head=[lbl+' \u2014 Vol 1 \u2013 ARCHITECTURAL'+(pk?'   ('+pk+')':''),'','2  General','','List of Attachments:',''];
   att.sort(function(a,b){return a.k<b.k?-1:1;}).forEach(function(a){head.push('  '+a.t);});
   if(!att.length)head.push('  (none \u2014 no item carries a drawing yet)');
   head.push('','4  Drawings','');
@@ -5306,10 +5405,39 @@ function buildWriteup(){
 
   var box=document.createElement('div');box.className='wu-box';
   var note=document.createElement('div');note.className='sh-stat';note.style.marginBottom='8px';
+  var exN=Object.keys(WU_EXCLUDE).filter(function(k){return WU_EXCLUDE[k];}).length;
   note.innerHTML='<b>'+all.length+'</b> item(s) rendered \u00b7 <b>'+att.length+'</b> attachment(s) derived from the D items'
-    +(skipped?' \u00b7 <b>'+skipped+'</b> process step(s) excluded (they are not addendum content)':'')
-    +(noSheet.length?' \u00b7 \u26a0 <b>'+noSheet.length+'</b> item(s) have no sheet number':'');
+    +(skipped?' \u00b7 <b>'+skipped+'</b> process step(s) excluded (not addendum content)':'')
+    +(noSheet.length?' \u00b7 \u26a0 <b>'+noSheet.length+'</b> with no sheet number':'')
+    +(undecided.length?' \u00b7 \u26a0 <b>'+undecided.length+'</b> still untriaged, so not in the document':'')
+    +(exN?' \u00b7 <b>'+exN+'</b> held out by you':'');
   box.appendChild(note);
+  // choose what goes in. Default is everything with a letter; unticking is a decision you can see.
+  var picker=document.createElement('details');picker.className='wu-pick';picker.open=false;
+  var ps=document.createElement('summary');
+  ps.textContent='Choose which items go in \u2014 '+all.length+' of '+
+    pool.filter(function(i){return i.produces==='drawings'||i.produces==='writeup';}).length+' selected';
+  picker.appendChild(ps);
+  pool.filter(function(i){return i.produces==='drawings'||i.produces==='writeup';})
+      .sort(function(a,b){return sheetSortKey(a)<sheetSortKey(b)?-1:1;})
+      .forEach(function(it){
+    var l=document.createElement('label');l.className='wu-pick-row';
+    var cb=document.createElement('input');cb.type='checkbox';cb.checked=!WU_EXCLUDE[it.id];
+    cb.addEventListener('change',function(){
+      WU_EXCLUDE[it.id]=!cb.checked;
+      host.setAttribute('data-rerender','1');buildWriteup(addKey,host);});
+    l.appendChild(cb);
+    var t=document.createElement('span');
+    t.textContent=(it.sheet?it.sheet+'  ':'')+(it.title||'').replace(/^A\S+\s+\u2014\s+/,'')
+      +'   ['+(it.produces==='drawings'?'D':'A')+']';
+    l.appendChild(t);picker.appendChild(l);});
+  if(undecided.length){
+    var un=document.createElement('div');un.className='wu-pick-row wu-undecided';
+    un.textContent='\u26a0 '+undecided.length+' item(s) have no N/A/D yet and cannot be included: '
+      +undecided.slice(0,6).map(function(i){return i.sheet||(i.title||'').slice(0,28);}).join(' \u00b7 ')
+      +(undecided.length>6?' \u2026':'');
+    picker.appendChild(un);}
+  box.appendChild(picker);
   var ta=document.createElement('textarea');ta.value=text;ta.spellcheck=false;box.appendChild(ta);
   var row=document.createElement('div');row.className='pedit-row';row.style.marginTop='8px';
   var cp=document.createElement('button');cp.type='button';cp.textContent='Copy';
@@ -5317,7 +5445,8 @@ function buildWriteup(){
   var dl=document.createElement('button');dl.type='button';dl.className='pcancel';dl.textContent='Download .md';
   dl.addEventListener('click',function(){
     var b=new Blob([ta.value],{type:'text/markdown'});var u=URL.createObjectURL(b);
-    var a=document.createElement('a');a.href=u;a.download='TP5-Addendum-1-writeup.md';a.click();
+    var a=document.createElement('a');a.href=u;
+    a.download=(addKey?String(addKey).replace(/[^A-Za-z0-9.-]+/g,'-'):'addendum')+'-writeup.md';a.click();
     setTimeout(function(){URL.revokeObjectURL(u);},1000);
   });
   var hint=document.createElement('span');hint.className='inline-capture-hint';
