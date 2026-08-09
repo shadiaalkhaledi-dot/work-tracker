@@ -303,6 +303,29 @@
   .sh-thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
   .sh-thumbs img{max-width:190px;max-height:130px;border:1px solid var(--border);border-radius:6px;cursor:zoom-in;background:#fff;}
   .sh-note{margin-top:6px;font-size:12px;color:#b45309;background:rgba(245,158,11,.09);border-radius:6px;padding:5px 9px;}
+  .add-sheets{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin:8px 0 2px;padding-top:8px;border-top:1px dashed var(--border);}
+  .add-sheets-lab{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-right:4px;}
+  .sh-chip{font:inherit;font-size:11px;font-weight:600;border:1px solid var(--border);background:var(--card);color:var(--muted);border-radius:6px;padding:1px 7px;cursor:pointer;font-variant-numeric:tabular-nums;}
+  .sh-chip:hover{border-color:var(--teal);color:var(--teal);}
+  .sh-chip.p-drawings{border-color:var(--teal);color:var(--teal);}
+  .sh-chip.p-writeup{border-color:var(--mauve);color:var(--mauve);}
+  .sh-chip.p-none{color:var(--faint);}
+  .sh-chip.p-untriaged{border-color:#f59e0b;color:#b45309;background:rgba(245,158,11,.08);}
+  .sh-chip.q{border-style:dashed;}
+  .sh-row.sh-hit{box-shadow:0 0 0 2px rgba(245,158,11,.55);}
+  .sh-row.noSheet{border-left:3px solid var(--mauve);}
+  .sh-add{margin:14px 0 4px;}
+  .sh-add>summary{cursor:pointer;list-style:none;font-size:14.5px;font-weight:650;color:var(--text);padding:7px 0 6px;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:baseline;}
+  .sh-add>summary::-webkit-details-marker{display:none;}
+  .sh-add>summary::before{content:'\25b8';color:var(--muted);font-size:11px;transition:transform .12s;}
+  .sh-add[open]>summary::before{transform:rotate(90deg);}
+  .sh-add>summary .c{font-size:12px;font-weight:400;color:var(--muted);margin-left:auto;}
+  .sh-body>summary{cursor:pointer;list-style:none;font-size:11.5px;color:var(--muted);padding:4px 0 0;}
+  .sh-body>summary::-webkit-details-marker{display:none;}
+  .sh-body>summary:hover{color:var(--teal);}
+  .sh-done{width:15px;height:15px;accent-color:var(--teal);cursor:pointer;flex:0 0 auto;align-self:center;}
+  .sh-row.sh-doneRow{opacity:.5;}
+  .sh-row.sh-doneRow .sh-no,.sh-row.sh-doneRow .sh-title{text-decoration:line-through;}
   .sh-bar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:4px 0 10px;}
   .sh-stat{font-size:12px;color:var(--muted);}
   .sh-stat b{color:var(--text);}
@@ -3383,6 +3406,35 @@ function buildAddendumRegister(){
       +(scopeBits.length>1?'  \u00b7  '+scopeBits.join(' / '):'')):'empty — nothing tagged to it yet';
     head.appendChild(cnt);
     card.appendChild(head);
+    // The sheet list for this instrument, if there is one. Compact by design: the card answers
+    // "what rides this addendum", and the sheet-by-sheet detail lives one click away in Sheets.
+    (function(){
+      var mine=(window.LANE_ITEMS||[]).filter(function(i){
+        return addKey(i.pkg,i.addendum)===k;});
+      if(!mine.length)return;
+      var strip=document.createElement('div');strip.className='add-sheets';
+      var lab=document.createElement('span');lab.className='add-sheets-lab';
+      var un=mine.filter(function(i){return !i.produces;}).length;
+      lab.textContent='Sheets \u00b7 '+mine.length+(un?' ('+un+' untriaged)':'');
+      lab.title='The sheet-by-sheet punch list for this addendum \u2014 click any sheet to open it';
+      strip.appendChild(lab);
+      mine.slice().sort(function(a,b){return sheetSortKey(a)<sheetSortKey(b)?-1:1;}).forEach(function(it){
+        var c2=document.createElement('button');c2.type='button';
+        c2.className='sh-chip'+(it.produces?(' p-'+it.produces):' p-untriaged')+(it.verify?' q':'');
+        c2.textContent=(it.sheet||'no sheet')+(it.verify?' ?':'');
+        c2.title=(it.title||'')+' \u2014 '+(it.produces?({drawings:'D, drawing and write-up',
+          writeup:'A, write-up only',none:'N, no addendum line'}[it.produces]):'untriaged');
+        c2.addEventListener('click',function(e){e.stopPropagation();
+          setView('registers');setRegTab('sheets');
+          if(it.addendum)setSheetFilter(it.addendum);
+          var el=document.getElementById('sh-'+it.id);
+          if(el){el.scrollIntoView({block:'center'});el.classList.add('sh-hit');
+            setTimeout(function(){el.classList.remove('sh-hit');},1600);}
+        });
+        strip.appendChild(c2);
+      });
+      card.appendChild(strip);
+    })();
     // What questions does this instrument carry? TP5-A1 gathers 15 threads across 3 packages --
     // the one cross-cut the Programme > Package tree cannot draw, because those threads are filed
     // under different packages. This is that map, in the surface where the write-up happens.
@@ -5006,7 +5058,26 @@ function sheetSortKey(it){
   var m=String(it.sheet||'').match(/\d+/g)||[];
   return m.map(function(n){return String(n).padStart(4,'0');}).join('.')+'|'+(it.title||'');
 }
-function laneItems(){return (window.LANE_ITEMS||[]).slice();}
+var sheetFilter='';   // '' = every instrument
+function setSheetFilter(a){sheetFilter=a===sheetFilter?'':(a||'');buildSheetsView();}
+// The sheet lane, plus anything else riding an addendum that already carries a `produces::`.
+// A board item is keyed to a question and usually has no sheet — but if it puts something into
+// the instrument it has to reach the write-up, or the document is quietly short.
+function laneItems(){
+  var lane=(window.LANE_ITEMS||[]).slice();
+  var extra=(window.ITEMS||[]).filter(function(i){return i.addendum;});
+  var all=lane.concat(extra);
+  return sheetFilter?all.filter(function(i){return i.addendum===sheetFilter;}):all;
+}
+function sheetInstruments(){
+  var seen={},out=[];
+  (window.LANE_ITEMS||[]).concat((window.ITEMS||[]).filter(function(i){return i.addendum;}))
+    .forEach(function(i){
+      if(!i.addendum||seen[i.addendum])return;seen[i.addendum]=1;
+      out.push({key:i.addendum,pkg:(i.pkg||'').replace(/Package /,'Pkg ').split('\u2014')[0].trim()});
+    });
+  return out.sort(function(a,b){return a.key<b.key?-1:1;});
+}
 function setProduces(id,val){
   var it=(window.LANE_ITEMS||[]).find(function(x){return x.id===id;});if(!it)return;
   var was=it.produces||'(untriaged)';
@@ -5036,15 +5107,34 @@ function showImgModal(src){
 function buildSheetsView(){
   var c=document.getElementById('sheetsView');if(!c)return;c.innerHTML='';
   var all=laneItems();
-  if(!all.length){c.innerHTML='<span class="focus-empty">No sheet list loaded.</span>';return;}
-  var untriaged=all.filter(function(i){return !i.produces;}).length;
-  var verify=all.filter(function(i){return i.verify;}).length;
-  var d=all.filter(function(i){return i.produces==='drawings';}).length;
+  if(!all.length){c.innerHTML='<span class="focus-empty">Nothing rides an addendum yet.</span>';return;}
+  var live=all.filter(function(i){return !i.pendingComplete&&i.status!=='completed';});
+  var doneN=all.length-live.length;
+  var untriaged=live.filter(function(i){return !i.produces;}).length;
+  var verify=live.filter(function(i){return i.verify;}).length;
+  var d=live.filter(function(i){return i.produces==='drawings';}).length;
+
+  // instrument switcher — always drawn, so "which addendum am I working on" is answerable even
+  // when there is only one. It is a question about the tool, not about today's data.
+  var insts=sheetInstruments();
+  var everything=(window.LANE_ITEMS||[]).concat((window.ITEMS||[]).filter(function(i){return i.addendum;}));
+  var fb=document.createElement('div');fb.className='sh-bar';
+  var fl=document.createElement('span');fl.className='sh-stat';fl.textContent='Addendum:';fb.appendChild(fl);
+  var mk=function(key,label,n){
+    var b=document.createElement('button');b.type='button';
+    b.className='fchip'+(sheetFilter===key?' active fi-code':'');
+    b.textContent=label+(n!=null?'  '+n:'');
+    b.addEventListener('click',function(){setSheetFilter(key);});
+    return b;};
+  fb.appendChild(mk('','All',everything.length));
+  insts.forEach(function(x){fb.appendChild(mk(x.key,x.pkg+' Add '+addNum(x.key),
+    everything.filter(function(i){return i.addendum===x.key;}).length));});
+  c.appendChild(fb);
 
   var bar=document.createElement('div');bar.className='sh-bar';
   var st=document.createElement('span');st.className='sh-stat';
-  st.innerHTML='<b>'+all.length+'</b> sheets \u00b7 <b>'+d+'</b> carry a drawing \u00b7 <b>'+untriaged+
-    '</b> untriaged \u00b7 <b>'+verify+'</b> to verify';
+  st.innerHTML='<b>'+live.length+'</b> open \u00b7 <b>'+d+'</b> carry a drawing \u00b7 <b>'+untriaged+
+    '</b> untriaged \u00b7 <b>'+verify+'</b> to verify'+(doneN?' \u00b7 <b>'+doneN+'</b> done':'');
   bar.appendChild(st);
   var wb=document.createElement('button');wb.type='button';wb.className='hist-more';wb.style.margin='0';
   wb.textContent='addendum write-up \u2709';
@@ -5054,66 +5144,125 @@ function buildSheetsView(){
   c.appendChild(bar);
   var wu=document.createElement('div');wu.id='wuHost';c.appendChild(wu);
 
-  PRODUCES.forEach(function(g){
-    var rows=all.filter(function(i){return (i.produces||'')===g.k;}).sort(function(a,b){
-      return sheetSortKey(a)<sheetSortKey(b)?-1:1;});
-    if(!rows.length)return;
-    var h=document.createElement('div');h.className='sh-group';
-    h.innerHTML=g.label+'<span class="n">'+rows.length+' \u00b7 '+g.hint+'</span>';
-    c.appendChild(h);
-    rows.forEach(function(it){
-      var row=document.createElement('div');
-      row.className='sh-row'+(!it.produces?' untriaged':'')+(it.verify?' verify':'');
-      var head=document.createElement('div');head.className='sh-head';
-      var no=document.createElement('span');no.className='sh-no';no.textContent=it.sheet||'\u2014 no sheet';
-      var ti=document.createElement('span');ti.className='sh-title';
-      ti.textContent=(it.title||'').replace(/^A\S+\s+\u2014\s+/,'');
-      head.appendChild(no);head.appendChild(ti);
-      var pick=document.createElement('span');pick.className='sh-pick';
-      [['none','N'],['writeup','A'],['drawings','D']].forEach(function(p){
-        var b=document.createElement('button');b.type='button';b.textContent=p[1];
-        b.title=p[0];
-        if(it.produces===p[0])b.classList.add('on');
-        b.addEventListener('click',function(e){e.stopPropagation();setProduces(it.id,it.produces===p[0]?'':p[0]);});
-        pick.appendChild(b);
-      });
-      var q=document.createElement('button');q.type='button';q.textContent='?';q.title='needs verifying';
-      if(it.verify)q.classList.add('on','q');
-      q.addEventListener('click',function(e){e.stopPropagation();toggleVerify(it.id);});
-      pick.appendChild(q);
-      head.appendChild(pick);
-      row.appendChild(head);
-      var det=(window.LAST_DATA&&LAST_DATA.details&&LAST_DATA.details[it.id])||{};
-      var steps=det.subtasks||[];
-      if(steps.length){
-        var sl=document.createElement('div');sl.className='sh-steps';
-        steps.forEach(function(t){
-          var txt=String(t).replace(/^\u2713\s*/,'');
-          var e=document.createElement('div');
-          if(!WU_VERBS.test(txt))e.className='proc';
-          e.textContent='\u2022 '+txt;
-          sl.appendChild(e);
-        });
-        row.appendChild(sl);
-      }
-      (det.images||[]).forEach(function(im,ix){
-        if(ix===0){var th=document.createElement('div');th.className='sh-thumbs';row.appendChild(th);}
-        var th=row.querySelector('.sh-thumbs');
-        var img=document.createElement('img');img.src=im.src;img.alt=im.name;img.loading='lazy';
-        img.addEventListener('click',function(){showImgModal(im.src);});
-        th.appendChild(img);
-      });
-      (det.updates||[]).forEach(function(u){
-        var t=String(u);var b=t.indexOf('|');var body=b>-1?t.slice(b+1):t;
-        if(body.indexOf('\u26a0')===-1)return;
-        var n=document.createElement('div');n.className='sh-note';
-        n.textContent=body.replace(/\[src::[^\]]*\]/,'').trim();
-        row.appendChild(n);
-      });
-      c.appendChild(row);
+  // group by instrument, then by letter inside it
+  var byAdd={},addOrder=[];
+  all.forEach(function(i){var k=i.addendum||'(none)';
+    if(!byAdd[k]){byAdd[k]=[];addOrder.push(k);}byAdd[k].push(i);});
+  addOrder.sort();
+  addOrder.forEach(function(ak){
+    var rows=byAdd[ak];
+    var lv=rows.filter(function(i){return !i.pendingComplete&&i.status!=='completed';});
+    var un=lv.filter(function(i){return !i.produces;}).length;
+    var wrap=document.createElement('details');wrap.className='sh-add';
+    wrap.open=(SH_OPEN[ak]!==false);
+    wrap.addEventListener('toggle',function(){SH_OPEN[ak]=wrap.open;});
+    var sm=document.createElement('summary');
+    var pkg=(rows[0].pkg||'').replace(/Package /,'Pkg ').split('\u2014')[0].trim();
+    sm.appendChild(document.createTextNode(pkg+' \u00b7 Addendum '+addNum(ak)));
+    var cc=document.createElement('span');cc.className='c';
+    cc.textContent=lv.length+' open'+(un?' \u00b7 '+un+' untriaged':'')
+      +((rows.length-lv.length)?' \u00b7 '+(rows.length-lv.length)+' done':'');
+    sm.appendChild(cc);
+    wrap.appendChild(sm);
+    PRODUCES.forEach(function(g){
+      var grp=rows.filter(function(i){return (i.produces||'')===g.k;})
+        .sort(function(a,b){return sheetSortKey(a)<sheetSortKey(b)?-1:1;});
+      if(!grp.length)return;
+      var h=document.createElement('div');h.className='sh-group';
+      h.innerHTML=g.label+'<span class="n">'+grp.length+' \u00b7 '+g.hint+'</span>';
+      wrap.appendChild(h);
+      grp.forEach(function(it){wrap.appendChild(sheetRow(it));});
     });
+    c.appendChild(wrap);
   });
 }
+var SH_OPEN={};          // which instruments are expanded — survives a rebuild
+var SH_ROW_OPEN={};      // which rows are expanded
+function sheetRow(it){
+  var row=document.createElement('div');
+  row.id='sh-'+it.id;
+  row.className='sh-row'+(!it.produces?' untriaged':'')+(it.verify?' verify':'')
+    +(it.lane?'':' noSheet')+(it.pendingComplete?' sh-doneRow':'');
+  var head=document.createElement('div');head.className='sh-head';
+  var no=document.createElement('span');no.className='sh-no';
+  no.textContent=it.sheet||(it.lane?'\u2014 no sheet':'\u25c7 from the board');
+  if(!it.sheet)no.title=it.lane?'This item has no sheet number yet'
+    :'A board item riding this addendum. It is keyed to a question, not a drawing, so it has no sheet.';
+  var ti=document.createElement('span');ti.className='sh-title';
+  ti.textContent=(it.title||'').replace(/^A\S+\s+\u2014\s+/,'');
+  head.appendChild(no);head.appendChild(ti);
+  var pick=document.createElement('span');pick.className='sh-pick';
+  [['none','N'],['writeup','A'],['drawings','D']].forEach(function(p){
+    var b=document.createElement('button');b.type='button';b.textContent=p[1];b.title=p[0];
+    if(it.produces===p[0])b.classList.add('on');
+    b.addEventListener('click',function(e){e.stopPropagation();
+      setProduces(it.id,it.produces===p[0]?'':p[0]);});
+    pick.appendChild(b);});
+  var q=document.createElement('button');q.type='button';q.textContent='?';q.title='needs verifying';
+  if(it.verify)q.classList.add('on','q');
+  q.addEventListener('click',function(e){e.stopPropagation();toggleVerify(it.id);});
+  pick.appendChild(q);
+  head.appendChild(pick);
+  var cb=document.createElement('input');cb.type='checkbox';cb.className='sh-done';
+  cb.title='Mark complete \u2014 folds in at the next check-in';
+  cb.setAttribute('aria-label','Mark complete: '+(it.title||''));
+  cb.checked=!!it.pendingComplete;
+  cb.addEventListener('change',function(e){
+    e.stopPropagation();
+    var payload={type:'complete',program:it.program||'',pkg:it.pkg||'',itemRef:'',
+                 text:(it.title||'').slice(0,200),ts:new Date().toISOString()};
+    if(cb.checked){
+      it.pendingComplete=true;logComplete(payload);renderPendingRow(payload);
+      toast('Marked done: '+(it.sheet||it.title||'').slice(0,50),'undo',function(){
+        cb.checked=false;cb.dispatchEvent(new Event('change'));});
+    }else{
+      it.pendingComplete=false;
+      removeQueued('complete','',(it.title||'').slice(0,200));rebuildPendingList();
+    }
+    buildSheetsView();
+  });
+  head.appendChild(cb);
+  row.appendChild(head);
+
+  var det=(window.LAST_DATA&&LAST_DATA.details&&LAST_DATA.details[it.id])||{};
+  var steps=(det.subtasks||[]),imgs=(det.images||[]);
+  var notes=(det.updates||[]).filter(function(u){return String(u).indexOf('\u26a0')>-1;});
+  if(steps.length||imgs.length||notes.length){
+    var body=document.createElement('details');body.className='sh-body';
+    body.open=!!SH_ROW_OPEN[it.id];
+    body.addEventListener('toggle',function(){SH_ROW_OPEN[it.id]=body.open;});
+    var sm2=document.createElement('summary');
+    sm2.textContent=(steps.length?steps.length+' markup'+(steps.length!==1?'s':''):'no markup')
+      +(imgs.length?' \u00b7 '+imgs.length+' image'+(imgs.length!==1?'s':''):'')
+      +(notes.length?' \u00b7 \u26a0 '+notes.length:'');
+    body.appendChild(sm2);
+    if(steps.length){
+      var sl=document.createElement('div');sl.className='sh-steps';
+      steps.forEach(function(t){
+        var txt=String(t).replace(/^\u2713\s*/,'');
+        var e=document.createElement('div');
+        if(!WU_VERBS.test(txt))e.className='proc';
+        e.textContent='\u2022 '+txt;sl.appendChild(e);});
+      body.appendChild(sl);
+    }
+    if(imgs.length){
+      var th=document.createElement('div');th.className='sh-thumbs';
+      imgs.forEach(function(im){
+        var img=document.createElement('img');img.src=im.src;img.alt=im.name;img.loading='lazy';
+        img.addEventListener('click',function(){showImgModal(im.src);});
+        th.appendChild(img);});
+      body.appendChild(th);
+    }
+    notes.forEach(function(u){
+      var t=String(u),b2=t.indexOf('|'),bod=b2>-1?t.slice(b2+1):t;
+      var n=document.createElement('div');n.className='sh-note';
+      n.textContent=bod.replace(/\[src::[^\]]*\]/,'').trim();
+      body.appendChild(n);});
+    row.appendChild(body);
+  }
+  return row;
+}
+
 // ---- the addendum write-up ------------------------------------------------------------------
 // A render, not a guess. Every line comes from a step that already exists; the numbering is
 // positional and computed here, never stored, so inserting an item cannot desynchronise it.
@@ -5126,7 +5275,8 @@ function wuSentence(txt){
 function buildWriteup(){
   var host=document.getElementById('wuHost');if(!host)return;
   if(host.firstChild){host.innerHTML='';return;}
-  var all=laneItems().filter(function(i){return i.produces==='drawings'||i.produces==='writeup';})
+  var all=laneItems().filter(function(i){return (i.produces==='drawings'||i.produces==='writeup')
+      &&!i.pendingComplete&&i.status!=='completed';})
     .sort(function(a,b){return sheetSortKey(a)<sheetSortKey(b)?-1:1;});
   var L=[],att=[],skipped=0,noSheet=[];
   all.forEach(function(it,ix){
