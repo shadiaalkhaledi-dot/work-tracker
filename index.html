@@ -158,6 +158,37 @@
   color:var(--muted);cursor:pointer;font:inherit;font-size:12px;line-height:1.3}
 .img-drop small{font-size:9.5px;opacity:.75;letter-spacing:.03em}
 .img-drop:hover,.img-drop.over{border-color:var(--gold);color:var(--gold);background:rgba(245,158,11,.06)}
+.pl-wrap{flex:1 1 100%;margin:2px 0 6px}
+.pl-head{font-size:12px;margin-bottom:8px}
+.pl-head b{color:var(--gold);font-weight:600}
+.pl-head span{color:var(--muted);font-size:11.5px}
+.pl-row{display:grid;grid-template-columns:118px 150px 56px 170px 1fr 26px;gap:6px;align-items:center;margin-bottom:4px}
+.pl-cols{font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.pl-in{font:inherit;font-size:12px;padding:4px 7px;border-radius:5px;border:1px solid var(--line);
+  background:#0d0b08;color:var(--fg);min-width:0;width:100%}
+.pl-in:focus{outline:none;border-color:var(--gold)}
+select.pl-in{cursor:pointer}
+.pl-sheet{font-family:ui-monospace,Menlo,monospace;font-weight:600}
+.pl-x{font:inherit;font-size:11px;border:none;background:none;color:var(--muted);cursor:pointer;padding:2px}
+.pl-x:hover{color:#b4544a}
+.pl-line{display:flex;align-items:flex-start;gap:7px;margin:0 0 10px 0;padding-left:2px}
+.pl-line-g{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:var(--gold);
+  flex:0 0 auto;padding-top:6px;min-width:44px}
+.pl-line-t{flex:1 1 auto;font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;resize:vertical;
+  padding:5px 8px;border-radius:5px;border:1px solid var(--line);background:rgba(245,158,11,.04);
+  color:var(--fg);overflow:hidden}
+.pl-line-t:focus{outline:none;border-color:var(--gold);background:#0d0b08}
+.pl-line.edited .pl-line-t{border-color:var(--gold);background:rgba(245,158,11,.09)}
+.pl-revert{font:inherit;font-size:10px;border:1px solid var(--line);background:none;color:var(--muted);
+  border-radius:4px;padding:2px 6px;cursor:pointer;margin-top:5px}
+.pl-revert:hover{border-color:var(--gold);color:var(--gold)}
+.pl-add{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 4px}
+.pl-reset{font:inherit;font-size:11px;border:1px dashed var(--line);background:none;color:var(--muted);
+  border-radius:5px;padding:2px 9px;cursor:pointer}
+.pl-reset:hover{border-color:#b4544a;color:#b4544a}
+.pl-foot{font-size:11px;color:var(--muted)}
+@media(max-width:820px){.pl-row{grid-template-columns:1fr 1fr;}.pl-cols{display:none}}
+.sh-sel{min-width:170px;cursor:pointer}
 .sh-f-sheets{flex:1 1 100%;align-items:flex-start;flex-direction:column;gap:4px}
 .sh-chips{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
 .sh-sheetchip{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;padding:2px 4px 2px 8px;
@@ -224,12 +255,23 @@
 .inq-form .sh-in{min-width:210px}
 .inq-form .sh-in-no{min-width:64px}
 .sh-part{display:inline-flex;margin-right:8px;flex:0 0 auto}
-.sh-part button{font:inherit;font-size:10.5px;font-weight:600;padding:1px 7px;border:1px solid var(--line);
-  background:transparent;color:var(--muted);cursor:pointer}
+.sh-part button{font:inherit;font-size:10.5px;font-weight:600;padding:2px 8px;border:1px solid var(--line);
+  background:transparent;color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;gap:2px}
+.sh-part button sup{font-size:8px;opacity:.7;font-weight:700}
 .sh-part button:first-child{border-radius:5px 0 0 5px}
-.sh-part button:last-child{border-radius:0 5px 5px 0;border-left:none}
-.sh-part button:hover{color:var(--gold);border-color:var(--gold)}
-.sh-part button.on{background:var(--gold);color:#12100c;border-color:var(--gold)}
+.sh-part button:last-child{border-radius:0 5px 5px 0}
+.sh-part button+button{border-left:none}
+/* One colour each, so spec and drawing sort themselves at a glance rather than by reading. */
+.sh-part button.p-drawing:hover{color:var(--teal);border-color:var(--teal)}
+.sh-part button.p-spec:hover{color:#6d7fc4;border-color:#6d7fc4}
+.sh-part button.p-both:hover{color:var(--gold);border-color:var(--gold)}
+.sh-part button.p-drawing.on{background:var(--teal);border-color:var(--teal);color:#fff}
+.sh-part button.p-spec.on{background:#6d7fc4;border-color:#6d7fc4;color:#fff}
+.sh-part button.p-both.on{background:var(--gold);border-color:var(--gold);color:#12100c}
+.sh-row{border-left:3px solid transparent;padding-left:8px}
+.sh-row.pt-drawing{border-left-color:rgba(43,108,110,.55)}
+.sh-row.pt-spec{border-left-color:rgba(109,127,196,.6)}
+.sh-row.pt-both{border-left-color:var(--gold)}
 .sh-swap{font-size:11px;color:var(--muted);font-style:italic}
 /* --- the addendum workbench ------------------------------------------------------------ */
 .add-filter-lead{align-items:center;margin:8px 0 2px}
@@ -5789,16 +5831,17 @@ function openAddSheet(anchor,addKey,pkg,program){
 
 // ---- one row -----------------------------------------------------------------------------------
 function sheetRow(it){
-  var part=itemPart(it),sheets=itemSheets(it);
+  var part=itemPart(it),sheets=(itemPart(it)==='spec')?itemSheets(it):placementSheets(it);
+  var nLines=isDrawPart(it)?placementsOf(it).length:0;
   var row=document.createElement('div');
   row.id='sh-'+it.id;
-  row.className='sh-row'+(!it.produces?' untriaged':'')+(it.verify?' verify':'')
+  row.className='sh-row pt-'+part+(!it.produces?' untriaged':'')+(it.verify?' verify':'')
     +(sheets.length?'':' noSheet')+(it.pendingComplete||it.status==='completed'?' sh-doneRow':'');
   var head=document.createElement('div');head.className='sh-head';
   var no=document.createElement('span');no.className='sh-no';
   if(isSpecPart(it)&&!itemSheets(it).length){no.textContent=it.section?('SECTION '+it.section):'— no section';}
   else if(sheets.length>1){no.textContent=sheets[0]+' +'+(sheets.length-1);
-    no.title='Also on '+sheets.slice(1).join(', ')+' — this item writes a line under each sheet';}
+    no.title='Also on '+sheets.slice(1).join(', ')+' — this item writes a line under each drawing';}
   else if(sheets.length){no.textContent=sheets[0];}
   else{no.textContent=it.lane?'— no sheet':'◇ from the board';}
   if(it.detail)no.textContent=it.detail+'/'+(sheets[0]||'?');
@@ -5808,11 +5851,14 @@ function sheetRow(it){
   // It was buried in the expander. "Is this a spec item or a drawing item?" is the FIRST question
   // about a row, not a detail of it, so it sits at the front of the row where it reads as a switch.
   var pw=document.createElement('span');pw.className='sh-part';
-  [['drawing','§4','§4 Drawings — written here in full, one heading per sheet'],
-   ['spec','§3','§3 Specifications — you leave a note; the spec writer writes the final words'],
-   ['both','Both','One change needing a spec note AND a drawing revision. It appears in §3 and §4.']
+  [['drawing','Drawing','4','§4 Drawings — written here in full, one heading per sheet'],
+   ['spec','Spec','3','§3 Specifications — you leave a note; the spec writer writes the final words'],
+   ['both','Both','','One change needing a spec note AND a drawing revision. It appears in §3 and §4.']
   ].forEach(function(o){
-    var b=document.createElement('button');b.type='button';b.textContent=o[1];b.title=o[2];
+    var b=document.createElement('button');b.type='button';b.title=o[3];
+    b.className='p-'+o[0];
+    b.appendChild(document.createTextNode(o[1]));
+    if(o[2]){var sp=document.createElement('sup');sp.textContent='\u00a7'+o[2];b.appendChild(sp);}
     if(part===o[0])b.classList.add('on');
     b.addEventListener('click',function(e){e.stopPropagation();
       if(part!==o[0])setAddMeta(it.id,'part',o[0],'Goes into');});
@@ -5864,8 +5910,9 @@ function sheetRow(it){
   body.open=!!SH_ROW_OPEN[it.id];
   body.addEventListener('toggle',function(){SH_ROW_OPEN[it.id]=body.open;});
   var sm2=document.createElement('summary');
-  sm2.textContent='Where this goes in the addendum'
-    +'  —  '+(steps.length?steps.length+' markup'+(steps.length!==1?'s':''):'no markup yet')
+  sm2.textContent=(nLines?nLines+' line'+(nLines!==1?'s':'')+' across '+sheets.length+' drawing'
+      +(sheets.length!==1?'s':'')+'  —  edit them here':'Where this goes in the addendum')
+    +(nLines?'':'  —  '+(steps.length?steps.length+' markup'+(steps.length!==1?'s':''):'no markup yet'))
     +(function(){var n=imagesFor(it).length;
         return n?', '+n+' picture'+(n!==1?'s':''):'';})()
     +(notes.length?', ⚠ '+notes.length+' note'+(notes.length!==1?'s':''):'');
@@ -5907,43 +5954,8 @@ function sheetRow(it){
     ed.appendChild(nw);
   }
   if(isDrawPart(it)){
-    // Three abstract text boxes told you nothing about what they would produce. The sheets are
-    // ordered chips now — you can see which is first and which is last, because that is the order
-    // §4 writes them in — and the exact lines this row will put in the document render underneath.
-    var sw2=document.createElement('div');sw2.className='sh-f sh-f-sheets';
-    var sl2=document.createElement('label');sl2.textContent='On which sheets';
-    sl2.title='One line is written under EACH, in this order. Addendum 2 §4.2.1 and §4.3.1 are the same sentence on A42.81.12 and A42.81.13.';
-    sw2.appendChild(sl2);
-    var chips=document.createElement('div');chips.className='sh-chips';
-    sheets.forEach(function(sn,ix){
-      var c3=document.createElement('span');c3.className='sh-sheetchip';
-      var od=document.createElement('b');od.textContent=(ix===0?'first':(ix===sheets.length-1?'last':String(ix+1)));
-      c3.appendChild(od);
-      c3.appendChild(document.createTextNode(sn));
-      var x=document.createElement('button');x.type='button';x.textContent='✕';
-      x.title='Take this row off '+sn;
-      x.addEventListener('click',function(e){e.stopPropagation();
-        var next=sheets.filter(function(z){return z!==sn;});
-        setAddMeta(it.id,'sheets',next.join(', '),'Sheets');});
-      c3.appendChild(x);chips.appendChild(c3);});
-    if(!sheets.length){var ns=document.createElement('span');ns.className='sh-nosheet';
-      ns.textContent='no sheet yet — this row cannot be written until it has one';chips.appendChild(ns);}
-    var addS=document.createElement('input');addS.type='text';addS.className='sh-in sh-in-no';
-    addS.placeholder=sheets.length?'+ another sheet':'+ sheet no.';
-    addS.addEventListener('keydown',function(e){e.stopPropagation();
-      if(e.key!=='Enter')return;
-      var v=addS.value.trim();if(!v)return;
-      setAddMeta(it.id,'sheets',sheets.concat(v.split(/[,;]+/).map(function(z){return z.trim();})
-        .filter(Boolean)).join(', '),'Sheets');});
-    chips.appendChild(addS);
-    sw2.appendChild(chips);
-    ed.appendChild(sw2);
-    ed.appendChild(field('Detail no.',it.detail,'e.g. 4',
-      'One view on the sheet rather than the whole sheet: the line becomes "4/A42.6.01; Revise …".',
-      function(v){setAddMeta(it.id,'detail',v,'Detail');}));
-    ed.appendChild(field('Or name the target',it.target,'auto',
-      'Overrides both. The issued addenda use "PLAN 1/A42.31.10", "DOOR SCHEDULE - BASIC DOORS /Sheet A42.0.02", "UTILITY CORRIDOR A58T01", "Doors P58M01, P58R01".',
-      function(v){setAddMeta(it.id,'target',v,'Target');}));
+    ed.appendChild(placementEditor(it));
+
   }
   var sw=document.createElement('span');sw.className='sh-swap';
   sw.textContent=part==='spec'?'§3 — the spec writer packages this one'
@@ -5969,11 +5981,8 @@ function sheetRow(it){
           lines.push('§3  SECTION '+((it.section||'[SECTION ___]').toUpperCase())+'\n      '+l);});
       }
       if(isDrawPart(it)){
-        (itemSheets(it).length?itemSheets(it):['']).forEach(function(sn){
-          var head='§4  DRAWING '+(sn||'[SHEET ___]');
-          if(!st2.keep.length){lines.push(head+'\n      [NO MARKUP RECORDED — write the line]');return;}
-          st2.keep.forEach(function(t){lines.push(head+'\n      '+wuDrawLine(it,sn,t));});
-        });
+        placementsOf(it).forEach(function(pl){
+          lines.push('§4  DRAWING '+(pl.sheet||'[SHEET ___]')+'\n      '+placementLine(it,pl));});
       }
       lines.forEach(function(l){
         var d3=document.createElement('div');d3.className='sh-preview-l';d3.textContent=l;pv.appendChild(d3);});
@@ -5982,9 +5991,10 @@ function sheetRow(it){
         sk.textContent=st2.skipped+' step'+(st2.skipped!==1?'s':'')+' left out — those tell YOU to do '
           +'something, which is not addendum content.';
         pv.appendChild(sk);}
-      if(it.produces==='drawings'&&itemSheets(it).length){
+      var psh=placementSheets(it);
+      if(it.produces==='drawings'&&psh.length){
         var at=document.createElement('div');at.className='sh-preview-a';
-        at.textContent='→ '+itemSheets(it).join(' and ')+' enter'+(itemSheets(it).length===1?'s':'')
+        at.textContent='→ '+psh.join(' and ')+' enter'+(psh.length===1?'s':'')
           +' the List of Attachments, because the line says "attached".';
         pv.appendChild(at);}
       if(it.produces==='writeup'){
@@ -6316,6 +6326,166 @@ function imageStrip(it){
   return wrap;
 }
 
+
+// ---- placements ---------------------------------------------------------------------------------
+// An item does not have "some sheets". It has a list of PLACES it lands, and each place produces
+// exactly one line. That is the shape the issued documents actually have:
+//
+//   A3.420   SECTION DETAIL 4   - Remove Window Treatment WT-200.
+//   A7.490   SECTION DETAIL 20  - New detail showing section at ledge at Customer Service NW.2.083…
+//   A8.665   MILLWORK ELEVATION 5 – TICKETING CUSTOMER SERVICE NW.1.028 - AV screen updated to 1 screen.
+//   A8.665   SECTION DETAIL 6   – TICKETING CUSTOMER SERVICE NW.1.028 - Millwork section detail…
+//
+// Note the last two: ONE sheet, TWO details. A list of sheet numbers cannot express that; a list of
+// placements can, and §4 still groups them under a single A8.665 heading.
+//
+// Nothing in the vault has to change. An item that has never been touched here derives its
+// placements from `sheet::` × its drawing-verb steps, which is exactly what the old renderer did —
+// so the 42 existing rows keep working and gain the editor the moment you open one.
+function derivePlacements(it){
+  var out=[],sheets=itemSheets(it);
+  var st=wuStepsOf(it);
+  var steps=st.keep.length?st.keep:[''];
+  (sheets.length?sheets:['']).forEach(function(sn){
+    steps.forEach(function(t){
+      out.push({sheet:sn,view:it.viewtype||'',no:it.detail||'',room:it.room||'',
+                element:it.element||'',alt:it.alt||'',text:t,override:''});
+    });
+  });
+  return out;
+}
+function placementsOf(it){
+  if(it.placements){
+    try{var p=JSON.parse(it.placements);if(Array.isArray(p))return p;}catch(e){}
+  }
+  return derivePlacements(it);
+}
+function savePlacements(it,list){
+  setAddMeta(it.id,'placements',JSON.stringify(list),'Placements');
+}
+// One placement, one line. The override is verbatim — if you edited it, that IS the line.
+function placementLine(it,pl){
+  if(pl.override&&pl.override.trim())return pl.override.trim();
+  var proxy={target:pl.target||'',viewtype:pl.view||'',detail:pl.no||'',room:pl.room||'',
+             element:pl.element||'',alt:pl.alt||'',produces:it.produces,linestyle:it.linestyle};
+  return wuDrawLine(proxy,pl.sheet,pl.text||'[WRITE THE LINE]');
+}
+function placementSheets(it){
+  var seen={},out=[];
+  placementsOf(it).forEach(function(p){var s2=p.sheet||'';if(!seen[s2]){seen[s2]=1;out.push(s2);}});
+  return out.filter(Boolean);
+}
+
+function placementEditor(it){
+  var wrap=document.createElement('div');wrap.className='pl-wrap';
+  var list=placementsOf(it);
+  var head=document.createElement('div');head.className='pl-head';
+  head.innerHTML='<b>Where this lands</b> <span>one row = one line in §4. '
+    +'A sheet can appear more than once — that is two details on the same drawing.</span>';
+  wrap.appendChild(head);
+
+  var cols=document.createElement('div');cols.className='pl-row pl-cols';
+  ['Drawing','View','No.','Room / element','What changes',''].forEach(function(t){
+    var c=document.createElement('span');c.textContent=t;cols.appendChild(c);});
+  wrap.appendChild(cols);
+
+  function commit(){savePlacements(it,list);}
+  list.forEach(function(pl,ix){
+    var r=document.createElement('div');r.className='pl-row';
+    function inp(key,ph,cls,opts){
+      var el;
+      if(opts){
+        el=document.createElement('select');el.className='pl-in '+(cls||'');
+        opts.forEach(function(v){var o=document.createElement('option');o.value=v;
+          o.textContent=v||'—';if((pl[key]||'')===v)o.selected=true;el.appendChild(o);});
+        el.addEventListener('change',function(){pl[key]=el.value;commit();});
+      }else{
+        el=document.createElement('input');el.type='text';el.className='pl-in '+(cls||'');
+        el.value=pl[key]||'';el.placeholder=ph||'';
+        el.addEventListener('keydown',function(e){e.stopPropagation();
+          if(e.key==='Enter'){pl[key]=el.value.trim();commit();}});
+        el.addEventListener('blur',function(){
+          if((el.value.trim()||'')!==(pl[key]||'')){pl[key]=el.value.trim();commit();}});
+      }
+      r.appendChild(el);return el;
+    }
+    inp('sheet','A5.31.21','pl-sheet');
+    inp('view','','pl-view',VIEW_TYPES);
+    inp('no','4','pl-no');
+    inp('room','room or element','pl-room');
+    inp('text','what changes on it','pl-text');
+    var x=document.createElement('button');x.type='button';x.className='pl-x';x.textContent='✕';
+    x.title='Remove this placement';
+    x.addEventListener('click',function(e){e.stopPropagation();
+      list.splice(ix,1);savePlacements(it,list);});
+    r.appendChild(x);
+    wrap.appendChild(r);
+
+    // the line, editable, right under the row that produces it
+    var lw=document.createElement('div');lw.className='pl-line';
+    var lg=document.createElement('span');lg.className='pl-line-g';
+    lg.textContent=(ADD_NUMBERING==='plain'?(ix+1)+'.':'4.x.'+(ix+1));
+    lw.appendChild(lg);
+    var ta=document.createElement('textarea');ta.className='pl-line-t';ta.rows=1;
+    ta.value=placementLine(it,pl);
+    ta.title='This is the line that goes in the addendum. Edit it and your words are used verbatim.';
+    if(pl.override&&pl.override.trim())lw.classList.add('edited');
+    var auto=function(){ta.style.height='auto';ta.style.height=(ta.scrollHeight+2)+'px';};
+    setTimeout(auto,0);
+    ta.addEventListener('input',auto);
+    ta.addEventListener('keydown',function(e){e.stopPropagation();
+      if(e.key==='Escape'){pl.override='';ta.value=placementLine(it,pl);commit();}});
+    ta.addEventListener('blur',function(){
+      var v=ta.value.trim();
+      var generated=(function(){var c=Object.assign({},pl);c.override='';return placementLine(it,c);})();
+      pl.override=(v===generated)?'':v;
+      commit();});
+    lw.appendChild(ta);
+    if(pl.override&&pl.override.trim()){
+      var rv=document.createElement('button');rv.type='button';rv.className='pl-revert';
+      rv.textContent='revert';rv.title='Go back to the generated line';
+      rv.addEventListener('click',function(e){e.stopPropagation();pl.override='';commit();});
+      lw.appendChild(rv);
+    }
+    wrap.appendChild(lw);
+  });
+
+  var addRow=document.createElement('div');addRow.className='pl-add';
+  var b1=document.createElement('button');b1.type='button';b1.className='add-item-btn';
+  b1.textContent='+ another drawing';
+  b1.title='A second sheet this same change lands on';
+  b1.addEventListener('click',function(e){e.stopPropagation();
+    list.push({sheet:'',view:'',no:'',room:'',text:(list[0]&&list[0].text)||'',override:''});
+    savePlacements(it,list);});
+  addRow.appendChild(b1);
+  var b2=document.createElement('button');b2.type='button';b2.className='add-item-btn';
+  b2.textContent='+ another detail on the same drawing';
+  b2.title='Same sheet, a different detail or view';
+  b2.addEventListener('click',function(e){e.stopPropagation();
+    var last=list[list.length-1]||{};
+    list.push({sheet:last.sheet||'',view:last.view||'',no:'',room:last.room||'',text:'',override:''});
+    savePlacements(it,list);});
+  addRow.appendChild(b2);
+  if(it.placements){
+    var rs=document.createElement('button');rs.type='button';rs.className='pl-reset';
+    rs.textContent='reset to the markups';
+    rs.title='Throw away these placements and rebuild them from the item’s steps';
+    rs.addEventListener('click',function(e){e.stopPropagation();
+      if(window.confirm('Rebuild the placements from the markups? Your edited lines are lost.'))
+        setAddMeta(it.id,'placements','','Placements');});
+    addRow.appendChild(rs);
+  }
+  wrap.appendChild(addRow);
+
+  var foot=document.createElement('div');foot.className='pl-foot';
+  var shn=placementSheets(it);
+  foot.textContent=list.length+' line'+(list.length!==1?'s':'')+' across '+shn.length+' drawing'
+    +(shn.length!==1?'s':'')+(shn.length?' — '+shn.join(', '):' — no drawing named yet')
+    +'. These fold straight into the full write-up.';
+  wrap.appendChild(foot);
+  return wrap;
+}
+
 // ---- the write-up ------------------------------------------------------------------------------
 // A render, not a guess. The shape below is transcribed from the four issued addenda:
 //
@@ -6344,18 +6514,50 @@ function wuSentence(txt){
 }
 var WU_ATTACH_DWG=', attached and forms part of this Addendum.';
 var WU_ATTACH_SEC=' is attached hereto and forms part of this Addendum.';
+// Every TARGET seen in an issued addendum is one to four parts. Nothing here is invented:
+//   VIEW      'PLAN 1/A42.31.10' · 'SECTION DETAIL 4/A3.420' · 'MILLWORK ELEVATION 5/A8.665'
+//   ROOM      'UTILITY CORRIDOR A58T01' · 'EXEC WC NW.2.074.F' · 'CESC FLEX NE.085.B'
+//   BOTH      'INTERIOR ELEVATION 1A/A7.305 – TEAM STORE NW.1.022'
+//   ELEMENT   'Door A59R01.1' · 'Doors P58M01, P58R01'
+//   ALTERNATE 'ALT 02 - Doors A58Q08, A58W02'
+//   SHEET     'Sheet A42.20.10'            ← the fallback when nothing narrower is named
+var VIEW_TYPES=['','PLAN','ENLARGED PLAN','REFLECTED CEILING PLAN','SECTION','SECTION DETAIL',
+  'DETAIL','INTERIOR ELEVATION','ELEVATION','MILLWORK ELEVATION','SCHEDULE','DRAWING LIST'];
 function wuTargetFor(it,sheet){
-  if(it.target)return it.target;
-  if(it.detail)return it.detail+'/'+(sheet||'[SHEET ___]');
-  return 'Sheet '+(sheet||'[SHEET ___]');
+  if(it.target)return it.target;                       // typed by hand — always wins
+  var sh=sheet||'[SHEET ___]';
+  var parts=[];
+  if(it.alt)parts.push(String(it.alt).toUpperCase());
+  var view='';
+  if(it.viewtype&&it.detail)view=it.viewtype+' '+it.detail+'/'+sh;
+  else if(it.viewtype)view=it.viewtype+' /Sheet '+sh;
+  else if(it.detail)view=it.detail+'/'+sh;
+  if(view)parts.push(view);
+  if(it.room)parts.push(String(it.room));
+  if(it.element)parts.push(String(it.element));
+  if(!parts.length)return 'Sheet '+sh;
+  // ALT is a prefix with a dash; view and room join with an en-dash, the way the issued set does
+  var head=it.alt?parts.shift()+' - ':'';
+  return head+parts.join(' \u2013 ');
 }
+// Two house styles, both from issued documents. Concourse B: 'Sheet A42.22.11; add wall tag; As
+// indicated…'. Suites/Premium: 'SECTION DETAIL 4/A3.420 - Remove Window Treatment WT-200.'
+function lineStyleOf(it){return it.linestyle==='dash'?'dash':(ADD_LINESTYLE||'semicolon');}
+var ADD_LINESTYLE='semicolon';
+var ADD_NUMBERING='decimal';
 function wuDrawLine(it,sheet,step){
   var up=String(step).replace(/^✓\s*/,'').toUpperCase();
+  var sep=lineStyleOf(it)==='dash'?' - ':'; ';
   if(WU_REISSUE.test(up))
-    return 'Sheet '+(sheet||'[SHEET ___]')+'; Re-issue drawing in its entirety attached and forming part of this Addendum.';
-  var line=wuTargetFor(it,sheet)+'; '+wuSentence(step);
+    return 'Sheet '+(sheet||'[SHEET ___]')+sep+'Re-issue drawing in its entirety attached and forming part of this Addendum.';
+  var line=wuTargetFor(it,sheet)+sep+wuSentence(step);
+  // The attachment clause is what puts the sheet in the List of Attachments, so it is written
+  // when — and only when — the state says a drawing is being issued.
+  // The separator style governs the TARGET; the attachment clause keeps its semicolon either way,
+  // because '; As indicated on drawing X, attached and forms part of this Addendum.' is the only
+  // form the issued set ever uses and the dash example carries no attachment at all to argue with.
   return line+(it.produces==='drawings'
-    ?('; As indicated on drawing '+(sheet||'[SHEET ___]')+WU_ATTACH_DWG)
+    ?'; As indicated on drawing '+(sheet||'[SHEET ___]')+WU_ATTACH_DWG
     :'.');
 }
 // §3 is NOT written here. Shadi hands Specifications the information and they write the clause,
@@ -6452,36 +6654,51 @@ function buildAddendumDoc(key,opts){
   });
 
   // ---- §4 Drawings, grouped by sheet ----------------------------------------------------------
+  // Grouped by sheet, filled from placements. One item on two sheets contributes to two groups;
+  // one item with two details on one sheet contributes two lines to the same group.
   var sheets={},shOrder=[];
   live.filter(isDrawPart).forEach(function(i){
-    var list=itemSheets(i);
-    if(!list.length){
-      warn.push('§4 "'+(i.title||'').slice(0,44)+'" has a state but no sheet — give it one, or a target');
-      list=[''];
+    var pls=placementsOf(i);
+    if(!pls.length||pls.every(function(p){return !p.sheet;})){
+      warn.push('§4 "'+(i.title||'').slice(0,44)+'" has a state but no drawing named — open it and add one');
     }
-    list.forEach(function(sn){
+    pls.forEach(function(pl){
+      var sn=pl.sheet||'';
       if(!sheets[sn]){sheets[sn]=[];shOrder.push(sn);}
-      sheets[sn].push(i);});
+      sheets[sn].push({it:i,pl:pl});});
   });
   shOrder.sort(function(a,b){return sheetSortKey(a)<sheetSortKey(b)?-1:1;});
   shOrder.forEach(function(sn,ix){
-    var mine=sheets[sn],lines=[];
-    mine.forEach(function(it){
-      var st=wuStepsOf(it);skipped+=st.skipped;
-      if(!st.keep.length){
+    var mine=sheets[sn],lines=[],seenIt={};
+    mine.forEach(function(e){
+      var it=e.it,pl=e.pl;
+      if(!seenIt[it.id]){seenIt[it.id]=1;skipped+=wuStepsOf(it).skipped;}
+      if(!(pl.text||'').trim()&&!(pl.override||'').trim()){
         lines.push('[NO MARKUP RECORDED — write the line]');
-        // An Issue-drawing item with no markup line is the quiet failure: the sheet is meant to be
+        // An Issue-drawing placement with no words is the quiet failure: the sheet is meant to be
         // attached, but nothing in the document says so, so it never reaches the List of Attachments.
         if(it.produces==='drawings')
-          warn.push('§4 '+(sn||'?')+' is marked "Issue drawing" but has no markup line — it will not '
-            +'reach the List of Attachments until one is written');
+          warn.push('§4 '+(sn||'?')+' is marked "Issue drawing" but one of its lines is empty — it '
+            +'will not reach the List of Attachments until it is written');
         return;}
-      st.keep.forEach(function(t){lines.push(wuDrawLine(it,sn,t));});
+      lines.push(placementLine(it,pl));
     });
     var ttl=sheetTitleFor(sn,pool);
-    L4.push('       '+padNum('4.'+(ix+1),8)+'DRAWING '+(sn||'[SHEET ___]')+(ttl?' - '+ttl.toUpperCase():''));
-    lines.forEach(function(l,jx){L4.push('               '+padNum('4.'+(ix+1)+'.'+(jx+1),9)+l);});
+    if(ADD_NUMBERING==='plain'){
+      L4.push((ix+1)+'.  DRAWING '+(sn||'[SHEET ___]')+(ttl?'  '+ttl.toUpperCase():''));
+      lines.forEach(function(l,jx){L4.push('    '+(jx+1)+'.  '+l);});
+      L4.push('');
+    }else{
+      L4.push('       '+padNum('4.'+(ix+1),8)+'DRAWING '+(sn||'[SHEET ___]')+(ttl?' - '+ttl.toUpperCase():''));
+      lines.forEach(function(l,jx){L4.push('               '+padNum('4.'+(ix+1)+'.'+(jx+1),9)+l);});
+    }
     if(attachesIn(lines)&&sn)att.dwg.push({no:sn,t:ttl});
+    else if(sn&&mine.some(function(e){return e.it.produces==='drawings';})){
+      // You are allowed to write the line yourself. You are not allowed to lose a drawing by doing
+      // it — the attachment list is derived from the clause, so removing the clause removes the sheet.
+      warn.push('§4 '+sn+' is marked "Issue drawing" but no line on it carries the attachment '
+        +'clause, so it is NOT in the List of Attachments. An edited line probably dropped it.');
+    }
     // Two identical lines under one sheet is always a duplicate entry, never a real instruction.
     var seenL={};lines.forEach(function(l){
       if(seenL[l]&&l.indexOf('[NO MARKUP')===-1)
@@ -6552,6 +6769,19 @@ function buildWriteup(key,hostEl){
   ob.addEventListener('click',function(){ADD_ORDER_NUMERIC=!ADD_ORDER_NUMERIC;
     host.setAttribute('data-rerender','1');buildWriteup(key,host);});
   opts.appendChild(ob);
+  var lb=document.createElement('button');lb.type='button';lb.className='wb-chip'+(ADD_LINESTYLE==='dash'?' on':'');
+  lb.textContent=ADD_LINESTYLE==='dash'?'Dash style':'Semicolon style';
+  lb.title='Two house styles, both from issued sets. Concourse B: "Sheet A42.22.11; add wall tag; As indicated…". '
+    +'Suites/Premium: "SECTION DETAIL 4/A3.420 - Remove Window Treatment WT-200."';
+  lb.addEventListener('click',function(){ADD_LINESTYLE=(ADD_LINESTYLE==='dash'?'semicolon':'dash');
+    host.setAttribute('data-rerender','1');buildWriteup(key,host);});
+  opts.appendChild(lb);
+  var nb=document.createElement('button');nb.type='button';nb.className='wb-chip'+(ADD_NUMBERING==='plain'?' on':'');
+  nb.textContent=ADD_NUMBERING==='plain'?'1. / 1. numbering':'4.1.1 numbering';
+  nb.title='Concourse B numbers 4.1.1; the Suites/Premium set numbers each drawing 1., 2. with its changes nested 1., 2.';
+  nb.addEventListener('click',function(){ADD_NUMBERING=(ADD_NUMBERING==='plain'?'decimal':'plain');
+    host.setAttribute('data-rerender','1');buildWriteup(key,host);});
+  opts.appendChild(nb);
   var qb=document.createElement('span');qb.className='sh-stat';
   qb.textContent=doc.inq?('§5 · '+doc.inq+' bid inquir'+(doc.inq!==1?'ies':'y')
       +(doc.unanswered?' · '+doc.unanswered+' unanswered':'')) : '§5 · none yet, so it is not written';
@@ -6576,8 +6806,8 @@ function buildWriteup(key,hostEl){
       host.setAttribute('data-rerender','1');buildWriteup(key,host);});
     l.appendChild(cb);
     var t=document.createElement('span');
-    t.textContent=(itemPart(it)==='both'?('§3+§4 '+(it.section||'?')+' / '+(itemSheets(it).join('/')||'no sheet'))
-        :isSpecPart(it)?('§3 '+(it.section||'?')):('§4 '+(itemSheets(it).join('/')||'no sheet')))
+    t.textContent=(itemPart(it)==='both'?('§3+§4 '+(it.section||'?')+' / '+(placementSheets(it).join('/')||'no drawing'))
+        :isSpecPart(it)?('§3 '+(it.section||'?')):('§4 '+(placementSheets(it).join('/')||'no drawing')))
       +'  '+(it.title||'').replace(/^A\S+\s+—\s+/,'')
       +'   ['+produceLabel(itemPart(it),it.produces)+']'
       +((it.pendingComplete||it.status==='completed')?'  ✓ done':'');
