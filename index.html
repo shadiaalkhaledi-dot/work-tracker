@@ -1133,11 +1133,13 @@ select.pl-in{cursor:pointer}
 .sh-edit{display:block;border-bottom:none;margin:13px 0 0;padding:0 0 0 14px}
 .sh-f{display:flex;flex-direction:column;align-items:stretch;gap:3px;margin:0 0 11px;max-width:440px}
 .sh-f label{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.sh-f .sh-in{width:100%;min-width:0}
+.sh-f .sh-in{width:100%;min-width:0;flex:0 0 auto;height:auto}
 .sh-note-f{display:flex;flex-direction:column;gap:3px;flex:none;min-width:0;max-width:640px;margin-bottom:4px}
 .sh-note-f label{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold)}
-.sh-note-in{width:100%;min-height:64px;max-height:150px;resize:vertical;
+.sh-note-in{width:100%;flex:0 0 auto;min-height:56px;max-height:130px;resize:vertical;
   font:inherit;font-size:12.5px;line-height:1.5;padding:7px 9px}
+.pl-in,.pl-line-t{flex:0 0 auto}
+.pl-line-t{min-height:30px;max-height:120px}
 .hintline{font-size:10.5px;color:var(--terracotta);margin-top:3px}
 
 .sh-preview{margin:13px 0 0;padding:0 0 0 14px;border-left:2px solid var(--gold);
@@ -1165,6 +1167,32 @@ select.pl-in{cursor:pointer}
 .pl-act{font-size:11.5px}
 .pl-line.empty .pl-line-t{color:var(--faint);font-style:italic}
 @media(max-width:1000px){.pl-row{grid-template-columns:1fr 1fr}.pl-cols{display:none}}
+.pl-sheetcell{display:flex;flex-direction:column;gap:3px;min-width:0}
+.pl-sheetname{font-size:10.5px!important;padding:3px 6px!important;color:var(--muted)}
+.pl-sheetname:focus{color:var(--text)}
+.pl-row{grid-template-columns:132px 150px 78px 150px 132px minmax(0,1fr) 24px;align-items:start}
+.pl-cols{align-items:end}
+.pl-cols span{line-height:1.3}
+@media(max-width:1040px){.pl-row{grid-template-columns:1fr 1fr}.pl-cols{display:none}}
+.pl-unknown{border-color:var(--terracotta)!important;background:rgba(176,122,100,.06)}
+.gate{border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin:0 0 14px}
+.gate-yes{border-left:4px solid var(--sage)}
+.gate-no{border-left:4px solid var(--terracotta)}
+.gate-h{font-size:15px;font-weight:650;margin-bottom:3px}
+.gate-yes .gate-h{color:var(--sage)}
+.gate-no .gate-h{color:var(--terracotta)}
+.gate-sub{font-size:11.5px;color:var(--muted);margin-bottom:10px}
+.gate-r{display:grid;grid-template-columns:34px 1fr auto;gap:8px;align-items:baseline;
+  padding:6px 0;border-top:1px solid var(--border-soft)}
+.gate-r b{font-size:15px;font-weight:700;text-align:right}
+.gate-b b{color:var(--terracotta)}
+.gate-c b{color:var(--gold)}
+.gate-t{font-size:13px;font-weight:600}
+.gate-w{grid-column:2;font-size:11.5px;color:var(--muted);display:block;margin-top:2px}
+.gate-go{grid-row:1;grid-column:3;font:inherit;font-size:11px;border:1px solid var(--border);
+  background:none;color:var(--muted);border-radius:5px;padding:2px 9px;cursor:pointer;white-space:nowrap}
+.gate-go:hover{border-color:var(--gold);color:var(--gold)}
+.gate-ok{font-size:12.5px;color:var(--muted);display:block}
 </style>
 </head>
 <body>
@@ -5752,7 +5780,11 @@ function toggleVerify(id){
     text:(it.sheet?it.sheet+' — ':'')+(it.verify?'verified — ? cleared':'flagged to verify (?)')});
   buildAddendumRegister();
 }
-function setAddMeta(id,field,value,label){
+// `quiet` means: record it, but do NOT rebuild the register. Every field used to commit on blur
+// and then re-render the entire tab, which tore out the input you had just tabbed into — so a
+// second field could not be filled at all without clicking back in. Structural changes (adding or
+// deleting a placement) still rebuild; typing into one does not.
+function setAddMeta(id,field,value,label,quiet){
   var it=findLane(id);if(!it)return;
   var ref=(it.title||'').slice(0,160),base=baseLaneItem(id)||{};
   // one field, one op — the newest wins and the rest stop existing
@@ -5760,20 +5792,21 @@ function setAddMeta(id,field,value,label){
   var was=(field==='sheets')?itemSheets(base).join(', ')
         :(field==='placements')?'' :(base[field]||'');
   if(field!=='placements'&&sameValue(value,was)){
-    buildAddendumRegister();
-    setStatus((label||field)+' is back to what the vault says — nothing queued.');return;}
+    if(!quiet){buildAddendumRegister();
+      setStatus((label||field)+' is back to what the vault says — nothing queued.');}
+    return;}
   // a placements edit that matches the derived default is also nothing worth folding
   if(field==='placements'&&value){
     try{
       var d=JSON.stringify(derivePlacements(base));
-      if(sameValue(value,d)){buildAddendumRegister();
-        setStatus('Back to the placements the markups already imply — nothing queued.');return;}
+      if(sameValue(value,d)){if(!quiet)buildAddendumRegister();return;}
     }catch(e){}
   }
   queueLocally({type:'addmeta',program:it.program||'',pkg:it.pkg||'',itemRef:ref,
     field:field,value:value,
     text:(it.sheet?it.sheet+' — ':'')+(label||field)+': '
       +(field==='placements'?((JSON.parse(value||'[]')||[]).length+' line(s)'):(value||'(cleared)'))});
+  if(quiet){setStatus((label||field)+' recorded.');return;}
   buildAddendumRegister();
   setStatus((label||field)+' set — queued for check-in.');
 }
@@ -6062,7 +6095,7 @@ function sheetRow(it){
   if(isSpecPart(it)){
     ed.appendChild(field('Specification section',it.section,'09 06 00 – Schedule for Finishes',
       'The §3 heading. Written as it appears in the document.',
-      function(v){setAddMeta(it.id,'section',v,'Section');}));
+      function(v){setAddMeta(it.id,'section',v,'Section',true);}));
     // You do not write §3 — Specifications does. What they need from you is the information:
     // which section, what changed, and enough to write the clause. So this is a note, not prose.
     var nw=document.createElement('div');nw.className='sh-note-f';
@@ -6075,7 +6108,7 @@ function sheetRow(it){
     na.addEventListener('keydown',function(e){e.stopPropagation();
       if(e.key==='Escape'){na.value=it.note||'';na.blur();}});
     na.addEventListener('blur',function(){
-      if((na.value.trim()||'')!==(it.note||''))setAddMeta(it.id,'note',na.value.trim(),'Spec note');});
+      if((na.value.trim()||'')!==(it.note||''))setAddMeta(it.id,'note',na.value.trim(),'Spec note',true);});
     nw.appendChild(na);
     if(!it.note){var nh=document.createElement('div');nh.className='hintline';
       nh.textContent='Without a note this section reaches Specifications empty.';nw.appendChild(nh);}
@@ -6226,7 +6259,7 @@ function addQuestionsPanel(host,key,g){
       c2.textContent=((isSpecPart(it)&&!itemSheets(it).length)?(it.section||'§3'):(itemSheets(it)[0]||'no sheet'));
       c2.title=(it.title||'')+' — '+produceLabel(itemPart(it),it.produces);
       c2.addEventListener('click',function(e){e.stopPropagation();
-        ADD_MODE='sheets';buildAddendumRegister();
+        ADD_MODE='sheets';SH_ROW_OPEN[it.id]=true;buildAddendumRegister();
         var el=document.getElementById('sh-'+it.id);
         if(el){el.scrollIntoView({block:'center'});el.classList.add('sh-hit');
           setTimeout(function(){el.classList.remove('sh-hit');},1600);}});
@@ -6523,8 +6556,8 @@ function placementsOf(it){
   }
   return derivePlacements(it);
 }
-function savePlacements(it,list){
-  setAddMeta(it.id,'placements',JSON.stringify(list),'Placements');
+function savePlacements(it,list,quiet){
+  setAddMeta(it.id,'placements',JSON.stringify(list),'Placements',quiet);
 }
 // One placement, one line. The override is verbatim — if you edited it, that IS the line.
 function placementLine(it,pl){
@@ -6541,8 +6574,42 @@ function placementSheets(it){
   return out.filter(Boolean);
 }
 
+// Repaint the lines and the preview for ONE row, in place, without disturbing focus.
+function refreshRowLines(it,wrap,list){
+  var tas=wrap.querySelectorAll('.pl-line-t');
+  list.forEach(function(pl,i){
+    if(!tas[i])return;
+    if(document.activeElement===tas[i])return;      // never overwrite what you are typing
+    tas[i].value=placementLine(it,pl);
+    tas[i].parentNode.classList.toggle('empty',!(pl.text||'').trim()&&!(pl.override||'').trim());
+    tas[i].parentNode.classList.toggle('edited',!!(pl.override||'').trim());
+  });
+  var foot=wrap.querySelector('.pl-foot');
+  if(foot){
+    var seen={},sh=[];
+    list.forEach(function(p){var v=p.sheet||'';if(v&&!seen[v]){seen[v]=1;sh.push(v);}});
+    foot.textContent=list.length+' line'+(list.length!==1?'s':'')+' across '+sh.length+' drawing'
+      +(sh.length!==1?'s':'')+(sh.length?' — '+sh.join(', '):' — no drawing named yet')
+      +'. These fold straight into the full write-up.';
+  }
+}
 function placementEditor(it){
+  var key=addKey(it.pkg,it.addendum);
   var wrap=document.createElement('div');wrap.className='pl-wrap';
+  // the project's own sheet numbers, offered as you type
+  var sl=document.getElementById('sheetList');
+  if(sl)sl.remove();
+  sl=document.createElement('datalist');sl.id='sheetList';
+  var reg=drawingsFor(it.pkg);
+  Object.keys(reg).sort().forEach(function(k){
+    var o=document.createElement('option');o.value=k;o.label=reg[k];sl.appendChild(o);});
+  document.body.appendChild(sl);
+  if(!document.getElementById('viewTypeList')){
+    var dl=document.createElement('datalist');dl.id='viewTypeList';
+    VIEW_TYPES.filter(Boolean).forEach(function(v){
+      var o=document.createElement('option');o.value=v;dl.appendChild(o);});
+    document.body.appendChild(dl);
+  }
   var list=placementsOf(it);
   var head=document.createElement('div');head.className='pl-head';
   head.innerHTML='<b>Where this lands</b> <span>one row = one line in §4. '
@@ -6550,34 +6617,89 @@ function placementEditor(it){
   wrap.appendChild(head);
 
   var cols=document.createElement('div');cols.className='pl-row pl-cols';
-  ['Drawing','View','No.','Room / element','Action','What changes',''].forEach(function(t){
+  ['Drawing no. / name','View name','View no.','Room or item  (optional)','Action','What changes','']
+   .forEach(function(t){
     var c=document.createElement('span');c.textContent=t;cols.appendChild(c);});
   wrap.appendChild(cols);
 
-  function commit(){savePlacements(it,list);}
+  function commit(){savePlacements(it,list,true);refreshRowLines(it,wrap,list);}
+  function commitHard(){savePlacements(it,list);}
   list.forEach(function(pl,ix){
     var r=document.createElement('div');r.className='pl-row';
     function inp(key,ph,cls,opts){
       var el;
       if(opts){
-        el=document.createElement('select');el.className='pl-in '+(cls||'');
-        opts.forEach(function(v){var o=document.createElement('option');o.value=v;
-          o.textContent=v||'—';if((pl[key]||'')===v)o.selected=true;el.appendChild(o);});
-        el.addEventListener('change',function(){pl[key]=el.value;commit();});
+        // A dropdown of view TYPES could not express "DOOR SCHEDULE - BASIC DOORS", which is what
+        // Addendum 1 §4.2 actually writes. So it is a free field with the common ones offered.
+        el=document.createElement('input');el.type='text';el.className='pl-in '+(cls||'');
+        el.value=pl[key]||'';el.placeholder='type it, or pick';el.setAttribute('list','viewTypeList');
+        el.title='Pick a common one or type the view exactly as the drawing names it — '
+          +'"DOOR SCHEDULE - BASIC DOORS", "ENLARGED PLAN — WASHROOMS". What you type is what the line says.';
+        el.addEventListener('input',function(){pl[key]=el.value.trim();refreshRowLines(it,wrap,list);});
+        el.addEventListener('keydown',function(e){e.stopPropagation();
+          if(e.key==='Enter'){pl[key]=el.value.trim();commit();el.blur();}});
+        el.addEventListener('blur',function(){pl[key]=el.value.trim();commit();});
       }else{
         el=document.createElement('input');el.type='text';el.className='pl-in '+(cls||'');
         el.value=pl[key]||'';el.placeholder=ph||'';
+        if(key==='view'){el.setAttribute('list','viewTypeList');
+          el.title='Pick a common one or type the view exactly as the drawing names it — '
+            +'"DOOR SCHEDULE - BASIC DOORS", "ENLARGED PLAN — WASHROOMS". What you type is what the line says.';}
+        // The line under the row repaints on every keystroke; only the QUEUE waits for you to
+        // finish. Watching a line say [SHEET ___] while the box beside it already says A5.31.21
+        // is the kind of disagreement that makes a tool feel broken.
+        el.addEventListener('input',function(){pl[key]=el.value.trim();refreshRowLines(it,wrap,list);});
         el.addEventListener('keydown',function(e){e.stopPropagation();
-          if(e.key==='Enter'){pl[key]=el.value.trim();commit();}});
-        el.addEventListener('blur',function(){
-          if((el.value.trim()||'')!==(pl[key]||'')){pl[key]=el.value.trim();commit();}});
+          if(e.key==='Enter'){pl[key]=el.value.trim();commit();el.blur();}});
+        el.addEventListener('blur',function(){pl[key]=el.value.trim();commit();});
       }
       r.appendChild(el);return el;
     }
-    inp('sheet','A5.31.21','pl-sheet');
+    // number on top, name beneath — typed once per drawing and shared by every line on it
+    var shWrap=document.createElement('span');shWrap.className='pl-sheetcell';
+    var shNo=document.createElement('input');shNo.type='text';shNo.className='pl-in pl-sheet';
+    shNo.value=pl.sheet||'';shNo.placeholder='A5.31.21';shNo.title='The drawing number.';
+    var shNm=document.createElement('input');shNm.type='text';shNm.className='pl-in pl-sheetname';
+    shNm.value=sheetNameFor(key,pl.sheet,it.pkg)||'';shNm.placeholder='drawing name';
+    shNo.setAttribute('list','sheetList');
+    var markSheet=function(){
+      var v=shNo.value.trim();
+      shNo.classList.toggle('pl-unknown',!!v&&knownSheet(it.pkg,v)===null);
+      shNo.title=!v?'The drawing number.'
+        :(knownSheet(it.pkg,v)===null
+          ?'Not in the project drawing list. Check the number, or add it to Projects/Drawing List.md.'
+          :'On the drawing list \u2713');
+    };
+    markSheet();
+    shNm.title='The drawing\u2019s title, as the title block has it. It prints in the \u00a74 heading '
+      +'AND in the List of Attachments, so it is typed once per drawing and reused on every line.';
+    shNo.addEventListener('input',function(){pl.sheet=shNo.value.trim();
+      var reg=sheetNameFor(key,pl.sheet,it.pkg);
+      if(reg)shNm.value=reg;                     // the register knows it — stop typing
+      markSheet();refreshRowLines(it,wrap,list);});
+    shNo.addEventListener('keydown',function(e){e.stopPropagation();
+      if(e.key==='Enter'){pl.sheet=shNo.value.trim();commit();shNo.blur();}});
+    shNo.addEventListener('blur',function(){pl.sheet=shNo.value.trim();commit();});
+    shNm.addEventListener('keydown',function(e){e.stopPropagation();
+      if(e.key==='Enter'){setSheetName(key,pl.sheet,shNm.value);shNm.blur();}});
+    shNm.addEventListener('blur',function(){
+      // only record an override; a name that matches the project register needs no op
+      var reg=knownSheet(it.pkg,pl.sheet)||'';
+      var v=shNm.value.trim();
+      if(sameValue(v,reg)){supersede(function(o){return o.type==='sheetname'&&o.addendum===key
+        &&String(o.sheet||'').toUpperCase()===String(pl.sheet||'').toUpperCase();});return;}
+      if(sheetNameFor(key,pl.sheet,it.pkg)!==v)setSheetName(key,pl.sheet,v);});
+    shWrap.appendChild(shNo);shWrap.appendChild(shNm);
+    r.appendChild(shWrap);
     inp('view','','pl-view',VIEW_TYPES);
-    inp('no','4','pl-no');
-    inp('room','room or element','pl-room');
+    inp('no','1  ·  1A  ·  20','pl-no');
+    // The issued sets write a room as NAME + NUMBER exactly as the drawing labels it —
+    // 'UTILITY CORRIDOR A58T01', 'EXEC WC NW.2.074.F', 'TEAM STORE NW.1.022' — or an element in
+    // place of one: 'Door A59R01.1', 'Doors P58M01, P58R01'. Blank is normal: leave it out when
+    // the change is to the whole view.
+    var rin=inp('room','e.g. TEAM STORE NW.1.022','pl-room');
+    rin.title='Optional. The room as the drawing labels it — name AND number — or an element '
+      +'instead (Door A59R01.1). Leave blank when the change is to the whole view.';
     // Choosing a verb writes the skeleton of the sentence into the text field and puts the cursor
     // at the end of it. You finish the sentence; you never start one from nothing.
     var asel=document.createElement('select');asel.className='pl-in pl-act';
@@ -6605,7 +6727,7 @@ function placementEditor(it){
     var x=document.createElement('button');x.type='button';x.className='pl-x';x.textContent='✕';
     x.title='Remove this placement';
     x.addEventListener('click',function(e){e.stopPropagation();
-      list.splice(ix,1);savePlacements(it,list);});
+      list.splice(ix,1);commitHard();});
     r.appendChild(x);
     wrap.appendChild(r);
 
@@ -6645,7 +6767,7 @@ function placementEditor(it){
   b1.title='A second sheet this same change lands on';
   b1.addEventListener('click',function(e){e.stopPropagation();
     list.push({sheet:'',view:'',no:'',room:'',text:(list[0]&&list[0].text)||'',override:''});
-    savePlacements(it,list);});
+    commitHard();});
   addRow.appendChild(b1);
   var b2=document.createElement('button');b2.type='button';b2.className='add-item-btn';
   b2.textContent='+ another detail on the same drawing';
@@ -6653,7 +6775,7 @@ function placementEditor(it){
   b2.addEventListener('click',function(e){e.stopPropagation();
     var last=list[list.length-1]||{};
     list.push({sheet:last.sheet||'',view:last.view||'',no:'',room:last.room||'',text:'',override:''});
-    savePlacements(it,list);});
+    commitHard();});
   addRow.appendChild(b2);
   if(it.placements){
     var rs=document.createElement('button');rs.type='button';rs.className='pl-reset';
@@ -6799,7 +6921,50 @@ function wuStepsOf(it){
   var keep=all.filter(function(t){return WU_VERBS.test(t.toUpperCase());});
   return {keep:keep,skipped:all.length-keep.length};
 }
-function sheetTitleFor(no,pool){
+// A sheet's name is written TWICE in every issued addendum — in the §4 heading
+// (4.11 DRAWING A42.22.11 - ARRIVALS FLOOR PLAN - AREA 1) and again in the List of Attachments
+// (A42.22.11    ARRIVALS FLOOR PLAN - AREA 1). It belongs to the sheet, not to the change, so it
+// is typed once per drawing and reused everywhere. Before this it was scraped out of the item's
+// own title, which worked for the sheet list and produced a blank for everything else.
+// `Projects/Drawing List.md`, by package. 51 sheets to start with, recovered from the four issued
+// addenda and the TP5 sheet list; the coversheet drawing index supersedes them when it arrives.
+function drawingsFor(pkg){
+  var d=(window.LAST_DATA&&LAST_DATA.drawings)||{};
+  if(d[pkg])return d[pkg];
+  var n=pkgNum(pkg);
+  if(n){for(var k in d){if(pkgNum(k)===n)return d[k];}}
+  return {};
+}
+function knownSheet(pkg,no){
+  if(!no)return null;
+  var m=drawingsFor(pkg);var k=String(no).toUpperCase();
+  return Object.prototype.hasOwnProperty.call(m,k)?m[k]:null;
+}
+// typed on this addendum wins, then the project register, then the item's own title
+function sheetNameFor(key,no,pkg){
+  if(!no)return '';
+  var want=String(no).toUpperCase();
+  var q=readQueue()||[];
+  for(var i=q.length-1;i>=0;i--){
+    var o=q[i];
+    if(o.type==='sheetname'&&o.addendum===key&&String(o.sheet||'').toUpperCase()===want)
+      return o.name||'';
+  }
+  var reg=pkg?knownSheet(pkg,no):null;
+  return reg||'';
+}
+function setSheetName(key,no,name){
+  if(!no)return;
+  var want=String(no).toUpperCase();
+  supersede(function(o){return o.type==='sheetname'&&o.addendum===key
+    &&String(o.sheet||'').toUpperCase()===want;});
+  if(!String(name||'').trim())return;
+  queueLocally({type:'sheetname',addendum:key,sheet:no,name:String(name).trim(),
+    program:'',pkg:'',text:'sheet name: '+no+' — '+String(name).trim()});
+}
+function sheetTitleFor(no,pool,key){
+  var typed=key?sheetNameFor(key,no,(pool[0]||{}).pkg):'';
+  if(typed)return typed;
   for(var i=0;i<pool.length;i++){
     var it=pool[i];
     if(itemSheets(it).indexOf(no)===-1)continue;
@@ -6876,7 +7041,7 @@ function buildAddendumDoc(key,opts){
         return;}
       lines.push(placementLine(it,pl));
     });
-    var ttl=sheetTitleFor(sn,pool);
+    var ttl=sheetTitleFor(sn,pool,key);
     if(ADD_NUMBERING==='plain'){
       L4.push((ix+1)+'.  DRAWING '+(sn||'[SHEET ___]')+(ttl?'  '+ttl.toUpperCase():''));
       lines.forEach(function(l,jx){L4.push('    '+(jx+1)+'.  '+l);});
@@ -6885,7 +7050,11 @@ function buildAddendumDoc(key,opts){
       L4.push('       '+padNum('4.'+(ix+1),8)+'DRAWING '+(sn||'[SHEET ___]')+(ttl?' - '+ttl.toUpperCase():''));
       lines.forEach(function(l,jx){L4.push('               '+padNum('4.'+(ix+1)+'.'+(jx+1),9)+l);});
     }
-    if(attachesIn(lines)&&sn)att.dwg.push({no:sn,t:ttl});
+    if(attachesIn(lines)&&sn){
+      att.dwg.push({no:sn,t:ttl});
+      if(!ttl)warn.push('§4 '+sn+' has no drawing name — the heading and the List of Attachments '
+        +'both print it, so both will be bare. Type it once in the Drawing column.');
+    }
     else if(sn&&mine.some(function(e){return e.it.produces==='drawings';})){
       // You are allowed to write the line yourself. You are not allowed to lose a drawing by doing
       // it — the attachment list is derived from the clause, so removing the clause removes the sheet.
@@ -6941,10 +7110,92 @@ function buildAddendumDoc(key,opts){
           nSpec:secOrder.length,nSheet:shOrder.length,inq:inqs.length,
           unanswered:inqs.filter(function(p){return !p.a;}).length};
 }
+// The warnings existed but you had to read them. This answers the only question that matters on
+// the day — CAN THIS GO OUT — and names every reason it cannot, in the order you would fix them.
+function issueGate(key){
+  var pool=addPoolFor(key);
+  var doc=buildAddendumDoc(key,{});
+  var blockers=[],cautions=[];
+  var untriaged=pool.filter(function(i){return !i.produces;});
+  if(untriaged.length)blockers.push({n:untriaged.length,
+    t:'item'+(untriaged.length!==1?'s':'')+' with no state',
+    w:'Nothing is written for them, so the document is short by that much.',
+    go:function(){ADD_MODE='sheets';ADD_STATE='untriaged';buildAddendumRegister();}});
+  var slots=[],noSheet=[],unnamed=[];
+  pool.filter(inDocument).forEach(function(i){
+    if(isSpecPart(i)&&!(i.note||'').trim())slots.push(i);
+    if(!isDrawPart(i))return;
+    placementsOf(i).forEach(function(pl){
+      var ln=(pl.override||'').trim()||(pl.text||'').trim();
+      if(!ln||PL_SLOT.test(ln))slots.push(i);
+      if(!pl.sheet)noSheet.push(i);
+      else if(i.produces==='drawings'&&!sheetNameFor(key,pl.sheet,i.pkg))unnamed.push(pl.sheet);
+    });
+  });
+  if(noSheet.length)blockers.push({n:noSheet.length,t:'line'+(noSheet.length!==1?'s':'')+' with no drawing',
+    w:'A line with no sheet cannot be filed under a heading.',
+    go:function(){ADD_MODE='sheets';buildAddendumRegister();}});
+  if(slots.length)blockers.push({n:slots.length,t:'unfinished line'+(slots.length!==1?'s':''),
+    w:'Still holding a \u27e8slot\u27e9 or empty. These would ship as placeholders.',
+    go:function(){ADD_MODE='sheets';buildAddendumRegister();}});
+  var un2=unnamed.filter(function(v,i,a){return a.indexOf(v)===i;});
+  if(un2.length)blockers.push({n:un2.length,t:'attached drawing'+(un2.length!==1?'s':'')+' with no name',
+    w:'The name prints in the \u00a74 heading and again in the List of Attachments \u2014 '+un2.join(', ')+'.',
+    go:function(){ADD_MODE='sheets';buildAddendumRegister();}});
+  var verify=pool.filter(function(i){return i.verify&&inDocument(i);});
+  if(verify.length)cautions.push({n:verify.length,t:'still flagged ?',
+    w:'In the document, but not yet confirmed with Chris H.',
+    go:function(){ADD_MODE='sheets';ADD_STATE='verify';buildAddendumRegister();}});
+  var unknown=[];
+  pool.filter(isDrawPart).filter(inDocument).forEach(function(i){
+    placementsOf(i).forEach(function(pl){
+      if(pl.sheet&&knownSheet(i.pkg,pl.sheet)===null&&unknown.indexOf(pl.sheet)===-1)
+        unknown.push(pl.sheet);});});
+  if(unknown.length)cautions.push({n:unknown.length,t:'drawing number'+(unknown.length!==1?'s':'')+' not on the project list',
+    w:unknown.join(', ')+' \u2014 a typo, or a sheet the list has not caught up with.',go:null});
+  var dt=addendumDateFor((pool[0]||{}).pkg||'',addNum((pool[0]||{}).addendum||''));
+  if(!dt||!/^\d{4}-\d{2}-\d{2}/.test(dt.date||''))cautions.push({n:1,t:'no issue date',
+    w:'Milestones has no date for this instrument.',go:null});
+  return {blockers:blockers,cautions:cautions,doc:doc,
+          lines:(doc.text.match(/^\s+\d+\.?\d*\.?\d*\s{2,}\S/gm)||[]).length};
+}
+function renderIssueGate(key,host){
+  var g=issueGate(key);
+  var box=document.createElement('div');box.className='gate'+(g.blockers.length?' gate-no':' gate-yes');
+  var h=document.createElement('div');h.className='gate-h';
+  h.textContent=g.blockers.length
+    ? 'Not ready to issue \u2014 '+g.blockers.reduce(function(a,b){return a+b.n;},0)+' thing(s) to settle'
+    : 'Ready to issue';
+  box.appendChild(h);
+  var sub=document.createElement('div');sub.className='gate-sub';
+  sub.textContent=g.doc.n+' item(s) \u00b7 '+g.doc.nSpec+' \u00a73 section(s) \u00b7 '+g.doc.nSheet
+    +' \u00a74 drawing(s) \u00b7 '+(g.doc.att.sec.length+g.doc.att.dwg.length)+' attachment(s)'
+    +(g.doc.inq?' \u00b7 '+g.doc.inq+' bid inquir'+(g.doc.inq!==1?'ies':'y'):'');
+  box.appendChild(sub);
+  var mk=function(list,cls){
+    list.forEach(function(b){
+      var r=document.createElement('div');r.className='gate-r '+cls;
+      var n=document.createElement('b');n.textContent=b.n;r.appendChild(n);
+      var t=document.createElement('span');t.className='gate-t';t.textContent=b.t;r.appendChild(t);
+      var wl=document.createElement('span');wl.className='gate-w';wl.textContent=b.w;r.appendChild(wl);
+      if(b.go){var go=document.createElement('button');go.type='button';go.className='gate-go';
+        go.textContent='take me there \u2192';
+        go.addEventListener('click',function(){b.go();});r.appendChild(go);}
+      box.appendChild(r);});};
+  mk(g.blockers,'gate-b');mk(g.cautions,'gate-c');
+  if(!g.blockers.length&&!g.cautions.length){
+    var ok=document.createElement('div');ok.className='gate-r gate-ok';
+    ok.textContent='Every item has a state, every line is finished, every attached drawing is named, '
+      +'and nothing is waiting on a ?.';
+    box.appendChild(ok);
+  }
+  host.appendChild(box);
+}
 function buildWriteup(key,hostEl){
   var host=hostEl||document.getElementById('wuHost-'+key);if(!host)return;
   if(host.firstChild&&!host.getAttribute('data-rerender')){host.innerHTML='';return;}
   host.removeAttribute('data-rerender');host.innerHTML='';
+  renderIssueGate(key,host);
   var doc=buildAddendumDoc(key,{});
   var box=document.createElement('div');box.className='wu-box';
   var note=document.createElement('div');note.className='sh-stat';note.style.marginBottom='8px';
@@ -7111,13 +7362,22 @@ function saveUiState(){
       myCourt:(function(){var e=document.getElementById('myCourtBtn');return !!(e&&e.classList.contains('active'));})(),
       morning:morningActive,
       horizons:Object.keys(activeHorizons),actions:Object.keys(activeActions),
-      focusOpen:document.getElementById('focusPanel').open
+      focusOpen:document.getElementById('focusPanel').open,
+      // the Addenda page remembers which instrument, which view and which discipline you were on
+      addOpen:ADD_OPEN,addMode:ADD_MODE,addDisc:ADD_DISC,
+      addStyle:ADD_LINESTYLE,addNum:ADD_NUMBERING,addOrderNum:ADD_ORDER_NUMERIC
     }));
   }catch(e){}
 }
 function restoreUiState(){
   try{
     var s=JSON.parse(localStorage.getItem(UI_STATE_KEY)||'null');if(!s)return;
+    if(s.addOpen)ADD_OPEN=s.addOpen;
+    if(s.addMode)ADD_MODE=s.addMode;
+    if(s.addDisc)ADD_DISC=s.addDisc;
+    if(s.addStyle)ADD_LINESTYLE=s.addStyle;
+    if(s.addNum)ADD_NUMBERING=s.addNum;
+    if(typeof s.addOrderNum==='boolean')ADD_ORDER_NUMERIC=s.addOrderNum;
     (s.horizons||[]).forEach(function(h){var b=document.querySelector('.fchip[data-horizon="'+h+'"]');if(b&&!activeHorizons[h])toggleHorizonChip(b);});
     (s.actions||[]).forEach(function(a){var b=document.querySelector('.fchip[data-action="'+a+'"]');if(b&&!activeActions[a])toggleActionChip(b);});
     if(s.myCourt){var e2=document.getElementById('myCourtBtn');if(e2)e2.classList.add('active');}
