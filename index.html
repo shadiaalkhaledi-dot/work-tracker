@@ -1264,6 +1264,32 @@ select.pl-in{cursor:pointer}
 .pl-rel button b{font-family:ui-monospace,Menlo,monospace;font-weight:600;margin-right:5px}
 .pl-rel .pl-sib:hover{border-color:var(--teal);color:var(--teal)}
 .pl-rel .pl-ov:hover{border-color:var(--sage);color:var(--sage)}
+.sh-local{font-size:11.5px;color:var(--muted);border-left:2px solid var(--terracotta);
+  padding:6px 10px;margin:0 0 8px;background:rgba(176,122,100,.05);border-radius:0 6px 6px 0}
+.sh-local b{color:var(--terracotta)}
+.sh-local-b{font:inherit;font-size:11px;border:1px solid var(--terracotta);background:none;
+  color:var(--terracotta);border-radius:5px;padding:1px 9px;cursor:pointer}
+.sh-local-b:hover{background:rgba(176,122,100,.12)}
+.sync-back{position:fixed;inset:0;background:rgba(20,18,14,.42);display:flex;align-items:center;
+  justify-content:center;z-index:9000;padding:20px}
+.sync-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px 22px;
+  max-width:520px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,.18)}
+.sync-box h3{margin:0 0 8px;font-size:17px}
+.sync-p{font-size:12.5px;line-height:1.55;color:var(--muted);margin:0 0 14px}
+.sync-p b{color:var(--text)}
+.sync-p code{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:var(--gold)}
+.sync-f{display:block;margin-bottom:11px}
+.sync-f span{display:block;font-size:10px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:3px}
+.sync-f input{width:100%;font:inherit;font-size:12.5px;padding:6px 9px;border-radius:6px;
+  border:1px solid var(--border);background:#fff;color:var(--text)}
+.sync-f input:focus{outline:none;border-color:var(--gold)}
+.sync-f small{display:block;font-size:10.5px;color:var(--faint);margin-top:3px}
+.sync-stat{font-size:11.5px;min-height:16px;margin:2px 0 10px;color:var(--muted)}
+.sync-stat.good{color:var(--sage)}
+.sync-stat.bad{color:var(--rose)}
+.sync-row{display:flex;gap:8px;align-items:center}
+.sync-note{margin:14px 0 0;padding-top:12px;border-top:1px solid var(--border-soft);font-size:11.5px}
 </style>
 </head>
 <body>
@@ -3433,19 +3459,82 @@ function renderSyncChip(){
   el.title='Shared store on. '+(SYNC.at?('last synced '+Math.round((Date.now()-SYNC.at)/1000)+'s ago'):'connecting')
     +'. Click to change your name or the endpoint.';
 }
+// Three chained window.prompts was a bad way to ask for the one thing that turns this site from
+// one browser into a shared board. This is a panel, it explains what it is for, and it TESTS the
+// endpoint before claiming anything.
 function openSyncPanel(){
-  var who=window.prompt('Your name — it stamps every change you make so the other person can see whose it is:',syncWho()||'');
-  if(who===null)return;
-  syncSetWho(who.trim());
-  if(!SYNC.on){
-    var u=window.prompt('Shared store URL (leave blank to stay local-only):','');
-    if(u&&u.trim()){
-      var k=window.prompt('Shared store key (optional):','')||'';
-      try{localStorage.setItem('wt-sync-override',JSON.stringify({url:u.trim(),key:k.trim(),room:'work-tracker'}));}catch(e){}
-      syncConfigure(LAST_DATA);
-    }
-  }
-  setStatus('Signed in as '+(syncWho()||'(unnamed)')+'.');
+  var ex=document.getElementById('syncPanel');if(ex){ex.remove();return;}
+  var cur={url:'',key:'',room:'work-tracker'};
+  try{var o=JSON.parse(localStorage.getItem('wt-sync-override')||'null');if(o)cur=o;}catch(e){}
+  if(!cur.url&&LAST_DATA&&LAST_DATA.sync)cur=LAST_DATA.sync;
+  var back=document.createElement('div');back.id='syncPanel';back.className='sync-back';
+  var box=document.createElement('div');box.className='sync-box';
+  var h=document.createElement('h3');h.textContent='Sharing';box.appendChild(h);
+  var p1=document.createElement('p');p1.className='sync-p';
+  p1.innerHTML='Without a shared store this page is <b>one browser</b>. Letters, sheets, pictures, '
+    +'RFI states \u2014 all of it stays here and reaches Claude only through the check-in export. '
+    +'With one, every edit appears on the other screen in about eight seconds, stamped with who '
+    +'made it. Setup is five minutes on the Cloudflare dashboard, once, and it is free \u2014 the '
+    +'steps are in <code>pipeline/SHARED-STORE.md</code>.';
+  box.appendChild(p1);
+  var mk=function(label,val,ph,hint){
+    var w2=document.createElement('label');w2.className='sync-f';
+    var l=document.createElement('span');l.textContent=label;w2.appendChild(l);
+    var i2=document.createElement('input');i2.type='text';i2.value=val||'';i2.placeholder=ph||'';
+    i2.addEventListener('keydown',function(e){e.stopPropagation();});
+    w2.appendChild(i2);
+    if(hint){var hh=document.createElement('small');hh.textContent=hint;w2.appendChild(hh);}
+    box.appendChild(w2);return i2;
+  };
+  var nIn=mk('Your name',syncWho(),'Shadi','Stamps every change you make.');
+  var uIn=mk('Store URL',cur.url,'https://work-tracker-sync.<you>.workers.dev',
+    'The Worker you deployed. Leave blank to stay local-only.');
+  var kIn=mk('Key',cur.key,'the SHARED_KEY you set','Optional, but set one — the URL is otherwise open.');
+  var stat=document.createElement('div');stat.className='sync-stat';box.appendChild(stat);
+  var row=document.createElement('div');row.className='sync-row';
+  var test=document.createElement('button');test.type='button';test.className='pcancel';
+  test.textContent='Test the connection';
+  test.addEventListener('click',function(){
+    var u=uIn.value.trim();if(!u){stat.textContent='No URL to test.';stat.className='sync-stat bad';return;}
+    stat.textContent='trying\u2026';stat.className='sync-stat';
+    fetch(u+'?room='+encodeURIComponent(cur.room||'work-tracker')+'&since=0',
+          {headers:kIn.value.trim()?{'x-wt-key':kIn.value.trim()}:{}})
+      .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status+(r.status===401?' — the key does not match':''));
+        return r.json();})
+      .then(function(j){stat.textContent='Reached it. '+((j.ops||[]).length)+' op(s) already there.';
+        stat.className='sync-stat good';})
+      .catch(function(e){stat.textContent='No answer: '+(e&&e.message||e)
+        +'. Check the URL, the key, and that the Worker has its OPS binding.';
+        stat.className='sync-stat bad';});
+  });
+  var save=document.createElement('button');save.type='button';save.className='hist-more';
+  save.style.margin='0';save.textContent='Save';
+  save.addEventListener('click',function(){
+    syncSetWho(nIn.value.trim());
+    var u=uIn.value.trim();
+    try{
+      if(u)localStorage.setItem('wt-sync-override',JSON.stringify(
+        {url:u,key:kIn.value.trim(),room:cur.room||'work-tracker'}));
+      else localStorage.removeItem('wt-sync-override');
+    }catch(e){}
+    syncConfigure(LAST_DATA);
+    back.remove();
+    setStatus(u?('Sharing on, as '+(syncWho()||'(unnamed)')
+      +'. Put the same URL in pipeline/sync.json so everyone gets it without pasting.')
+      :'Local only.');
+  });
+  var cancel=document.createElement('button');cancel.type='button';cancel.className='pcancel';
+  cancel.textContent='Close';cancel.addEventListener('click',function(){back.remove();});
+  row.appendChild(test);row.appendChild(save);row.appendChild(cancel);box.appendChild(row);
+  var note=document.createElement('p');note.className='sync-p sync-note';
+  note.innerHTML='Pasting the URL here fixes <b>this browser</b>. To fix every browser, put it in '
+    +'<code>pipeline/sync.json</code> and rebuild \u2014 it travels inside the encrypted data, so '
+    +'anyone with the password picks it up and the address never sits in the public HTML.';
+  box.appendChild(note);
+  back.appendChild(box);
+  back.addEventListener('click',function(e){if(e.target===back)back.remove();});
+  document.body.appendChild(back);
+  nIn.focus();
 }
 
 function queueCount(){return readQueue().length;}
@@ -6522,7 +6611,8 @@ function addImageTo(it,file){
       t.src);
     buildAddendumRegister();
     setStatus('Picture added — '+t.w+'×'+t.h+', '+Math.round(t.bytes/1024)+' KB'
-      +(SYNC.on?', shared.':'. It folds into the vault attachments at check-in.'));
+      +(SYNC.on?', and shared with everyone on the board.'
+               :'. Local only — it reaches the vault at check-in, not other browsers.'));
   }).catch(function(e){setStatus('Could not read that picture: '+(e&&e.message||e));});
 }
 // Every picture on an item: the ones the generator inlined from `img::`, then the ones added here.
@@ -6566,6 +6656,20 @@ function imgTile(im,host){
 function imageStrip(it){
   var wrap=shBlock('Pictures','drop, paste or click — shrunk to a thumbnail here; the full markup stays in Bluebeam');
   wrap.className+=' sh-imgs';
+  // The surprise this block causes: a picture added here does not appear on someone else's screen,
+  // because nothing does until the shared store exists. Say it where the picture is, not only in a
+  // chip at the top of the page.
+  if(!SYNC.on){
+    var lo=document.createElement('div');lo.className='sh-local';
+    lo.innerHTML='<b>Local only.</b> This picture stays in this browser \u2014 so does every other '
+      +'change on this page. It still reaches Claude in the check-in export. ';
+    var b=document.createElement('button');b.type='button';b.className='sh-local-b';
+    b.textContent='set up sharing';
+    b.title='A shared store makes every edit on this site multi-user \u2014 see pipeline/SHARED-STORE.md';
+    b.addEventListener('click',function(e){e.stopPropagation();openSyncPanel();});
+    lo.appendChild(b);
+    wrap.appendChild(lo);
+  }
   var strip=document.createElement('div');strip.className='sh-thumbs';
   imagesFor(it).forEach(function(im){imgTile(im,strip);});
   var drop=document.createElement('button');drop.type='button';drop.className='img-drop';
