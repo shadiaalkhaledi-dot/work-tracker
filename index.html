@@ -1245,6 +1245,25 @@ select.pl-in{cursor:pointer}
   color:inherit;border-radius:5px;padding:1px 9px;cursor:pointer;margin-left:2px}
 .pl-ask button:hover{background:rgba(181,144,66,.12)}
 .pl-ask:empty{display:none}
+.pl-ask .pl-ask-hint{color:var(--muted)}
+.pl-ask:has(.pl-ask-hint){color:var(--muted)}
+.pl-ask .pl-sib{border-color:var(--teal);color:var(--teal)}
+.pl-ask .pl-ov{border-color:var(--sage);color:var(--sage)}
+.pl-ask button{margin-left:5px}
+.pl-ask{padding:0 12px 10px}
+.pl-rel{border:1px dashed var(--border);border-radius:8px;padding:9px 11px;background:rgba(181,144,66,.04)}
+.pl-rel-h{font-size:11.5px;color:var(--text);margin-bottom:7px}
+.pl-rel-g{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:5px}
+.pl-rel-g:last-child{margin-bottom:0}
+.pl-rel-l{font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
+  min-width:158px;cursor:help}
+.pl-rel-l.r-same{color:var(--teal)}
+.pl-rel-l.r-untag{color:var(--sage)}
+.pl-rel button{font:inherit;font-size:11.5px;border:1px solid var(--border);background:var(--card);
+  border-radius:6px;padding:3px 10px;cursor:pointer;margin:0}
+.pl-rel button b{font-family:ui-monospace,Menlo,monospace;font-weight:600;margin-right:5px}
+.pl-rel .pl-sib:hover{border-color:var(--teal);color:var(--teal)}
+.pl-rel .pl-ov:hover{border-color:var(--sage);color:var(--sage)}
 </style>
 </head>
 <body>
@@ -6091,6 +6110,15 @@ function buildRowPreview(it,live){
         var at2=document.createElement('div');at2.className='sh-preview-a';
         at2.textContent='→ nothing is attached. The words have to carry the change on their own.';
         pv.appendChild(at2);}
+      var mods=(live||placementsOf(it)).filter(function(pl){
+        return /^MODIF/i.test(String((pl.override||pl.text||'')).replace(/^✓\s*/,''));});
+      if(mods.length){
+        var m3=document.createElement('div');m3.className='sh-preview-x';
+        m3.textContent='→ '+mods.map(function(p){return p.sheet||'?';}).join(', ')
+          +(mods.length===1?' says':' say')+' the drawing was updated to show the change. '
+          +'No tag, note or keynote is claimed — the sheet is reissued because the work moved on it. '
+          +'That is the form Addendum 1 §4.14.3 uses.';
+        pv.appendChild(m3);}
     }
     return pv;
 }
@@ -6608,6 +6636,18 @@ var PL_ACTIONS=[
 // A skeleton is not a finished line. Anything still holding a ⟨slot⟩ is called out in the write-up
 // rather than shipped, because "REVISE ⟨what⟩" reaching a bidder is worse than a blank.
 var PL_SLOT=/\u27e8[^\u27e9]*\u27e9/;
+// Turning "DELETE the CMU wall and add the new wall" into a companion line is not a phrasing
+// problem the machine should bluff its way through. One verb and a clean object — take it. Two
+// verbs, or anything with 'and' joining actions — hand back an empty slot and let Shadi write it.
+function companionPhrase(text){
+  var t=String(text||'').replace(/^✓\s*/,'').replace(PL_SLOT,'').trim();
+  if(!t)return '';
+  var rest=t.replace(/^[A-Z][A-Z/-]*\b/,'').trim();
+  if(!rest)return '';
+  if(/\b(and|then|;|,)\s+(add|delete|remove|revise|update|extend|modif)/i.test(rest))return '';
+  if(rest.split(/\s+/).length>9)return '';
+  return rest;
+}
 function plActionOf(pl){
   var t=String(pl.text||'').toUpperCase();
   if(!t)return '';
@@ -6744,10 +6784,13 @@ function placementEditor(it){
         el.setAttribute('list','viewList-'+ix);
         el.title='Pick a common one or type the view exactly as the drawing names it — '
           +'"DOOR SCHEDULE - BASIC DOORS", "ENLARGED PLAN — WASHROOMS". What you type is what the line says.';
-        el.addEventListener('input',function(){pl[key]=el.value.trim();pairView();refreshRowLines(it,wrap,list);});
+        var vsync=function(fire){pl[key]=el.value.trim();pairView(key);
+          refreshRowLines(it,wrap,list);if(fire)commit();};
+        el.addEventListener('input',function(){vsync(false);});
+        el.addEventListener('change',function(){vsync(true);});   // a datalist pick fires this
         el.addEventListener('keydown',function(e){e.stopPropagation();
-          if(e.key==='Enter'){pl[key]=el.value.trim();pairView();commit();el.blur();}});
-        el.addEventListener('blur',function(){pl[key]=el.value.trim();pairView();commit();});
+          if(e.key==='Enter'){vsync(true);el.blur();}});
+        el.addEventListener('blur',function(){vsync(true);});
       }else{
         el=document.createElement('input');el.type='text';el.className='pl-in '+(cls||'');
         el.value=pl[key]||'';el.placeholder=ph||'';
@@ -6757,10 +6800,12 @@ function placementEditor(it){
         // The line under the row repaints on every keystroke; only the QUEUE waits for you to
         // finish. Watching a line say [SHEET ___] while the box beside it already says A5.31.21
         // is the kind of disagreement that makes a tool feel broken.
-        el.addEventListener('input',function(){pl[key]=el.value.trim();refreshRowLines(it,wrap,list);});
+        var osync=function(fire){pl[key]=el.value.trim();pairView(key);
+          refreshRowLines(it,wrap,list);if(fire)commit();};
+        el.addEventListener('input',function(){osync(false);});
         el.addEventListener('keydown',function(e){e.stopPropagation();
-          if(e.key==='Enter'){pl[key]=el.value.trim();commit();el.blur();}});
-        el.addEventListener('blur',function(){pl[key]=el.value.trim();commit();});
+          if(e.key==='Enter'){osync(true);el.blur();}});
+        el.addEventListener('blur',function(){osync(true);});
       }
       return el;
     }
@@ -6801,6 +6846,57 @@ function placementEditor(it){
       if(unknown&&!pl.newsheet){
         var q=document.createElement('span');q.textContent=v+' is not on the drawing list \u2014 ';
         ask.appendChild(q);ask.appendChild(askB);}
+      else if(!unknown){
+        // "Does this change reach further?" is a question with exactly two shapes of answer, and
+        // they are not interchangeable: another AREA gets the identical line, tags and all; the
+        // OVERALL gets a line that says the drawing was updated and claims no annotation. Asking
+        // them as one undifferentiated row of buttons is how the wrong one gets clicked.
+        var placed=function(n2){return list.some(function(z){
+          return String(z.sheet||'').toUpperCase()===n2;});};
+        var shortName=function(nm){
+          var m2=/\bAREA\s+(\d+)/i.exec(nm||'');if(m2)return 'Area '+m2[1];
+          return /OVERALL/i.test(nm||'')?'Overall':(nm||'').slice(0,22);
+        };
+        var ov=overallFor(it.pkg,v);
+        var sibs=siblingAreas(it.pkg,v).filter(function(x){return !placed(x.no);});
+        if(!((ov&&!placed(ov.no))||sibs.length))return;
+        var panel=document.createElement('div');panel.className='pl-rel';
+        var h=document.createElement('div');h.className='pl-rel-h';
+        h.textContent=v+' is '+shortName(knownSheet(it.pkg,v))+' \u2014 does this change reach further?';
+        panel.appendChild(h);
+        var group=function(label,hint,cls){
+          var g=document.createElement('div');g.className='pl-rel-g';
+          var l=document.createElement('span');l.className='pl-rel-l '+cls;
+          l.textContent=label;l.title=hint;g.appendChild(l);panel.appendChild(g);return g;
+        };
+        if(sibs.length){
+          var g1r=group('Same line, tags and all',
+            'A change that crosses an area boundary is one change drawn twice. The sentence is identical.','r-same');
+          sibs.forEach(function(x){
+            var b=document.createElement('button');b.type='button';b.className='pl-sib';
+            b.innerHTML='<b>'+x.no+'</b> '+escapeHtml(shortName(x.name));
+            b.title=x.name;
+            b.addEventListener('click',function(e2){e2.stopPropagation();
+              list.push({sheet:x.no,view:pl.view||'',no:pl.no||'',room:pl.room||'',
+                         text:pl.text||'',override:''});
+              commitHard();});
+            g1r.appendChild(b);});
+        }
+        if(ov&&!placed(ov.no)){
+          var g2r=group('Shows it, no tags or notes',
+            'Writes "Modified to reflect …" — the form Addendum 1 §4.14.3 uses for a drawing that carries the work without annotating it.','r-untag');
+          var ab=document.createElement('button');ab.type='button';ab.className='pl-ov';
+          ab.innerHTML='<b>'+ov.no+'</b> Overall';ab.title=ov.name;
+          ab.addEventListener('click',function(e2){e2.stopPropagation();
+            var what=companionPhrase(pl.text);
+            list.push({sheet:ov.no,view:'',no:'',room:'',
+              text:'MODIFIED to reflect '+(what?'\u27e8'+what+'\u27e9':'\u27e8the change\u27e9'),
+              override:''});
+            commitHard();});
+          g2r.appendChild(ab);
+        }
+        ask.appendChild(panel);
+      }
       else if(unknown&&pl.newsheet){
         var q2=document.createElement('span');q2.className='pl-ask-new';
         q2.textContent='new drawing \u2014 it will be added to the set \u00b7 ';
@@ -6812,7 +6908,7 @@ function placementEditor(it){
     shNo.addEventListener('input',function(){pl.sheet=shNo.value.trim();
       var reg=sheetNameFor(key,pl.sheet,it.pkg);
       if(reg)shNm.value=reg;                     // the register knows it — stop typing
-      markSheet();fillViews();pairView();refreshRowLines(it,wrap,list);});
+      markSheet();fillViews();pairView('view');refreshRowLines(it,wrap,list);});
     shNo.addEventListener('keydown',function(e){e.stopPropagation();
       if(e.key==='Enter'){pl.sheet=shNo.value.trim();commit();shNo.blur();}});
     shNo.addEventListener('blur',function(){pl.sheet=shNo.value.trim();commit();});
@@ -6856,16 +6952,21 @@ function placementEditor(it){
           +'is actually on it.';
     };
     fillViews();cView.appendChild(vdl);g2.appendChild(cView);
-    setTimeout(function(){pairView();},0);
+    setTimeout(function(){pairView('view');},0);
     var cVno=cell('View no.','The number in the viewport bubble — the 1 in "PLAN 1/A42.31.10". '
       +'Type it and the view name fills itself.');
     var nEl=inp('no','1','pl-no');cVno.appendChild(nEl);g2.appendChild(cVno);
-    pairView=function(){
-      // whichever you touched last is the one that is right
-      if(document.activeElement===vEl){
+    // `src` names the box you touched. Reading document.activeElement instead was wrong twice
+    // over: a datalist pick can blur before the handler runs, and the View no. field never called
+    // this at all — so typing a number filled nothing.
+    pairView=function(src){
+      if(src==='view'){
         var v=viewByName(it.pkg,pl.sheet,pl.view);
-        if(v&&v[2]&&pl.no!==v[2]){pl.no=v[2];nEl.value=v[2];}
-      }else if(document.activeElement===nEl){
+        if(v){
+          if(v[2]&&pl.no!==v[2]){pl.no=v[2];nEl.value=v[2];}
+          if(pl.view!==v[0]){pl.view=v[0];vEl.value=v[0];}   // a raw name normalises to its title
+        }
+      }else if(src==='no'){
         var x=viewByNo(it.pkg,pl.sheet,pl.no);
         if(x&&pl.view!==x[0]){pl.view=x[0];vEl.value=x[0];}
       }
@@ -6956,6 +7057,20 @@ function placementEditor(it){
     list.push({sheet:'',view:'',no:'',room:'',text:(list[0]&&list[0].text)||'',override:''});
     commitHard();});
   addRow.appendChild(b1);
+  // The third case, which is neither of the first two: the same change, on a drawing that shows it
+  // without annotating it.
+  var b3=document.createElement('button');b3.type='button';b3.className='add-item-btn';
+  b3.textContent='+ a drawing that shows this, untagged';
+  b3.title='The wall moved on the area plan and the overall plan shows it too, with no tags or '
+    +'keynotes. That is still a reissue — it just says "Modified to reflect …" instead.';
+  b3.addEventListener('click',function(e){e.stopPropagation();
+    var first=list[0]||{};
+    var what=companionPhrase(first.text);
+    list.push({sheet:'',view:'',no:'',room:'',
+      text:'MODIFIED to reflect '+(what?'\u27e8'+what+'\u27e9':'\u27e8the change\u27e9'),
+      override:''});
+    commitHard();});
+  addRow.appendChild(b3);
   var b2=document.createElement('button');b2.type='button';b2.className='add-item-btn';
   b2.textContent='+ another detail on the same drawing';
   b2.title='Same sheet, a different detail or view';
@@ -7055,6 +7170,10 @@ function wuDrawLine(it,sheet,step){
   // because '; As indicated on drawing X, attached and forms part of this Addendum.' is the only
   // form the issued set ever uses and the dash example carries no attachment at all to argue with.
   if(it.produces!=='drawings')return line+'.';
+  // Addendum 1 §4.14.3: 'PLAN 1/A42.31.10; Modified to reflect changes to washroom ceiling types,
+  // attached and forming part of this Addendum.' — the short clause, no 'As indicated on drawing'.
+  if(/^MODIF/i.test(String(step).replace(/^✓\s*/,'')))
+    return line.replace(/[.;]+$/,'')+', attached and forming part of this Addendum.';
   // a sheet that was never in the set is ISSUED, not re-issued, and the clause says so
   return line+(it.newsheet
     ?'; issue drawing in its entirety attached and forming part of this Addendum.'
@@ -7137,15 +7256,46 @@ function viewsOn(pkg,no){
 }
 // The two halves of a §4 target: the view and its number. Every detail number is unique on its own
 // sheet across all 908 of them, so this resolves either way without ambiguity.
+// Match on the title OR on the untouched Revit name. A line captured before the title rule changed
+// still holds 'CD_TP4.2_ARRIVALS FLOOR PLAN - AREA 2' — that is the same view, not a mistake, and
+// pairView normalises it to the title once it resolves.
 function viewByName(pkg,sheet,name){
   var n=String(name||'').trim().toUpperCase();if(!n)return null;
-  var hit=viewsOn(pkg,sheet).filter(function(x){return x[0].toUpperCase()===n;});
+  var on=viewsOn(pkg,sheet);
+  var hit=on.filter(function(x){return String(x[0]).toUpperCase()===n;});
+  if(hit.length!==1)hit=on.filter(function(x){return String(x[3]||'').toUpperCase()===n;});
   return hit.length===1?hit[0]:null;
 }
 function viewByNo(pkg,sheet,no){
   var n=String(no||'').trim();if(!n)return null;
   var hit=viewsOn(pkg,sheet).filter(function(x){return String(x[2]||'')===n;});
   return hit.length===1?hit[0]:null;
+}
+// A change drawn on an AREA plan usually shows on the OVERALL plan of the same series too — the
+// wall is there, the tags and keynotes are not. The register makes the pair derivable: within a
+// series, `A42.31.11` (Area 1) belongs to `A42.31.10` (Overall). Checked across all three packages:
+// 12 series pair this way and none of them contradict it.
+function overallFor(pkg,no){
+  var m=/^([A-Za-z]?\d+\.\d+\.)(\d)(\d)$/.exec(String(no||''));
+  if(!m||m[3]==='0')return null;                    // already the overall, or not a plan series
+  var cand=m[1]+m[2]+'0';
+  var nm=knownSheet(pkg,cand);
+  if(nm===null)return null;
+  return /OVERALL/i.test(nm)?{no:cand,name:nm}:null;
+}
+// The other AREA plans in the same series. A change that crosses an area boundary is the same
+// change on both — same tags, same notes, the identical sentence. That is a different offer from
+// the overall plan, which carries the work without annotating it.
+function siblingAreas(pkg,no){
+  var m=/^([A-Za-z]?\d+\.\d+\.)(\d)(\d)$/.exec(String(no||''));
+  if(!m||m[3]==='0')return [];
+  var out=[],reg=drawingsFor(pkg);
+  for(var d=1;d<=9;d++){
+    var cand=m[1]+m[2]+d;
+    if(cand===String(no).toUpperCase())continue;
+    if(reg[cand])out.push({no:cand,name:reg[cand]});
+  }
+  return out;
 }
 function knownSheet(pkg,no){
   if(!no)return null;
