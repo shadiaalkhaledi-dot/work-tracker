@@ -283,6 +283,33 @@
   .fresh-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--teal);margin-left:8px;vertical-align:0;}
   .tab-count{display:inline-block;font-size:10px;font-weight:700;background:var(--border-soft);color:var(--muted);border-radius:9px;padding:0 6px;margin-left:5px;vertical-align:1px;}
   .tab-count.warn{background:#f59e0b;color:#fff;}
+  .sh-group{margin:18px 0 6px;font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);}
+  .sh-group .n{font-weight:500;text-transform:none;letter-spacing:0;color:var(--faint);margin-left:8px;}
+  .sh-row{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 13px;margin:7px 0;}
+  .sh-row.untriaged{border-left:3px solid #f59e0b;}
+  .sh-row.verify{border-left:3px dashed #f59e0b;}
+  .sh-head{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;}
+  .sh-no{font-weight:700;font-size:13.5px;color:var(--text);font-variant-numeric:tabular-nums;}
+  .sh-title{font-size:13.5px;color:var(--text);flex:1 1 240px;}
+  .sh-pick{display:inline-flex;gap:0;border:1px solid var(--border);border-radius:7px;overflow:hidden;}
+  .sh-pick button{background:none;border:none;border-right:1px solid var(--border);color:var(--muted);font:inherit;font-size:11px;font-weight:700;padding:2px 9px;cursor:pointer;}
+  .sh-pick button:last-child{border-right:none;}
+  .sh-pick button:hover{background:var(--border-soft);color:var(--text);}
+  .sh-pick button.on{background:var(--teal);color:#fff;}
+  .sh-pick button.on.q{background:#f59e0b;}
+  .sh-steps{margin:7px 0 0 2px;font-size:12.5px;color:var(--muted);}
+  .sh-steps div{padding:1.5px 0;}
+  .sh-steps .proc{color:var(--faint);font-style:italic;}
+  .sh-thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+  .sh-thumbs img{max-width:190px;max-height:130px;border:1px solid var(--border);border-radius:6px;cursor:zoom-in;background:#fff;}
+  .sh-note{margin-top:6px;font-size:12px;color:#b45309;background:rgba(245,158,11,.09);border-radius:6px;padding:5px 9px;}
+  .sh-bar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:4px 0 10px;}
+  .sh-stat{font-size:12px;color:var(--muted);}
+  .sh-stat b{color:var(--text);}
+  .wu-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin:10px 0;}
+  .wu-box textarea{width:100%;min-height:340px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;line-height:1.5;border:1px solid var(--sage);border-radius:8px;padding:9px;background:#fff;color:var(--text);resize:vertical;}
+  .img-modal{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px;cursor:zoom-out;}
+  .img-modal img{max-width:96vw;max-height:92vh;border-radius:6px;background:#fff;}
   .tf-row{font-size:13px;padding:3px 0;cursor:pointer;}
   .tf-row:hover{color:var(--teal);}
   .tf-row.tf-done{text-decoration:line-through;color:var(--muted);}
@@ -995,10 +1022,12 @@
       <button type="button" data-reg="add" class="active" onclick="setRegTab('add')">Addenda</button>
       <button type="button" data-reg="rfi" onclick="setRegTab('rfi')">RFIs</button>
       <button type="button" data-reg="pkg" onclick="setRegTab('pkg')">Packages</button>
+      <button type="button" data-reg="sheets" onclick="setRegTab('sheets')" title="The sheet-by-sheet punch list \u2014 held off the board on purpose">Sheets</button>
     </div>
     <div id="regPaneAdd"><div class="sec-lead">Addenda — what rides each one</div><div id="addRegView"></div></div>
     <div id="regPaneRfi" style="display:none"><div class="sec-lead">RFIs — aging first, because old RFIs become claims</div><div id="rfiRegView"></div></div>
     <div id="regPanePkg" style="display:none"><div class="sec-lead">Packages — where each one stands</div><div id="overviewView"></div></div>
+    <div id="regPaneSheets" style="display:none"><div class="sec-lead">Sheets — the punch list, by what it puts into the addendum</div><div id="sheetsView"></div></div>
   </div>
   <div id="historyView" style="display:none">
     <div class="regtabs" id="histTabs">
@@ -2260,7 +2289,10 @@ var regTab='add';
 // Each lands at the top of its own pane now.
 function setRegTab(k){
   regTab=k;
-  var panes={add:'regPaneAdd',rfi:'regPaneRfi',pkg:'regPanePkg'};
+  // Built on demand: init() does not route through refreshBoard(), so the pane would otherwise be
+  // empty until the first board refresh. Cheap enough to rebuild on every switch.
+  if(k==='sheets')buildSheetsView();
+  var panes={add:'regPaneAdd',rfi:'regPaneRfi',pkg:'regPanePkg',sheets:'regPaneSheets'};
   Object.keys(panes).forEach(function(kk){
     var el=document.getElementById(panes[kk]);if(el)el.style.display=kk===k?'':'none';
   });
@@ -4958,11 +4990,202 @@ function updateTabCounts(){
   setCount('topics',topicsNeedingAttn,true,topicsNeedingAttn+' thread(s) hold something that needs you \u2014 yours, '
     +'and either past due, due within 3 days, or carrying an impact:: signal');
 }
-function refreshBoard(){applyPendingOverlay();buildProgramView();recalcCounts();applyComputedPriorities();buildFocusPanel();buildTodayFocus();buildRadarPanel();buildMyDay();updateTabCounts();setView(activeViewKey());refreshPins();}
+// ---- the sheet punch list -------------------------------------------------------------
+// These items are LANE_ITEMS: they never reach the board, because a sheet is not a question and
+// twenty-seven of them would drown a view built around threads that close. They live here.
+var PRODUCES = [
+  {k:'',         label:'Untriaged',       hint:'no letter yet \u2014 not counted as addendum content'},
+  {k:'drawings', label:'D \u2014 drawing and write-up', hint:'reaches the List of Attachments'},
+  {k:'writeup',  label:'A \u2014 write-up only',        hint:'no drawing issued; the words must be complete'},
+  {k:'none',     label:'N \u2014 no addendum line',     hint:'clean-up only'}
+];
+// A step that tells YOU to do something is not addendum content. Only the drawing verbs render
+// into the write-up; the rest are process and are shown greyed so the exclusion is visible.
+var WU_VERBS = /^(ADD|DELETE|REVISE|UPDATE|REDIMENSION|SET|DRAW|SWEEP|MAKE|RENAME|MOVE)\b/;
+function sheetSortKey(it){
+  var m=String(it.sheet||'').match(/\d+/g)||[];
+  return m.map(function(n){return String(n).padStart(4,'0');}).join('.')+'|'+(it.title||'');
+}
+function laneItems(){return (window.LANE_ITEMS||[]).slice();}
+function setProduces(id,val){
+  var it=(window.LANE_ITEMS||[]).find(function(x){return x.id===id;});if(!it)return;
+  var was=it.produces||'(untriaged)';
+  it.produces=val||undefined; if(!val)delete it.produces;
+  // Queued, not written. The vault stays the source of truth; this folds in at the next check-in.
+  queueLocally({type:'produces',program:it.program||'',pkg:it.pkg||'',itemRef:(it.title||'').slice(0,160),
+    text:(it.sheet?it.sheet+' \u2014 ':'')+'produces: '+was+' \u2192 '+(val||'(untriaged)'),
+    ts:new Date().toISOString()});
+  buildSheetsView();
+  setStatus('Letter changed \u2014 copy for check-in to make it permanent.');
+}
+function toggleVerify(id){
+  var it=(window.LANE_ITEMS||[]).find(function(x){return x.id===id;});if(!it)return;
+  it.verify=it.verify?undefined:'yes'; if(!it.verify)delete it.verify;
+  queueLocally({type:'produces',program:it.program||'',pkg:it.pkg||'',itemRef:(it.title||'').slice(0,160),
+    text:(it.sheet?it.sheet+' \u2014 ':'')+(it.verify?'flagged to verify (?)':'verified \u2014 ? cleared'),
+    ts:new Date().toISOString()});
+  buildSheetsView();
+}
+function showImgModal(src){
+  var m=document.createElement('div');m.className='img-modal';
+  var i=document.createElement('img');i.src=src;m.appendChild(i);
+  m.addEventListener('click',function(){m.remove();});
+  document.addEventListener('keydown',function esc(e){if(e.key==='Escape'){m.remove();document.removeEventListener('keydown',esc);}});
+  document.body.appendChild(m);
+}
+function buildSheetsView(){
+  var c=document.getElementById('sheetsView');if(!c)return;c.innerHTML='';
+  var all=laneItems();
+  if(!all.length){c.innerHTML='<span class="focus-empty">No sheet list loaded.</span>';return;}
+  var untriaged=all.filter(function(i){return !i.produces;}).length;
+  var verify=all.filter(function(i){return i.verify;}).length;
+  var d=all.filter(function(i){return i.produces==='drawings';}).length;
+
+  var bar=document.createElement('div');bar.className='sh-bar';
+  var st=document.createElement('span');st.className='sh-stat';
+  st.innerHTML='<b>'+all.length+'</b> sheets \u00b7 <b>'+d+'</b> carry a drawing \u00b7 <b>'+untriaged+
+    '</b> untriaged \u00b7 <b>'+verify+'</b> to verify';
+  bar.appendChild(st);
+  var wb=document.createElement('button');wb.type='button';wb.className='hist-more';wb.style.margin='0';
+  wb.textContent='addendum write-up \u2709';
+  wb.title='Render \u00a74 Drawings and the List of Attachments from the items that carry a letter';
+  wb.addEventListener('click',buildWriteup);
+  bar.appendChild(wb);
+  c.appendChild(bar);
+  var wu=document.createElement('div');wu.id='wuHost';c.appendChild(wu);
+
+  PRODUCES.forEach(function(g){
+    var rows=all.filter(function(i){return (i.produces||'')===g.k;}).sort(function(a,b){
+      return sheetSortKey(a)<sheetSortKey(b)?-1:1;});
+    if(!rows.length)return;
+    var h=document.createElement('div');h.className='sh-group';
+    h.innerHTML=g.label+'<span class="n">'+rows.length+' \u00b7 '+g.hint+'</span>';
+    c.appendChild(h);
+    rows.forEach(function(it){
+      var row=document.createElement('div');
+      row.className='sh-row'+(!it.produces?' untriaged':'')+(it.verify?' verify':'');
+      var head=document.createElement('div');head.className='sh-head';
+      var no=document.createElement('span');no.className='sh-no';no.textContent=it.sheet||'\u2014 no sheet';
+      var ti=document.createElement('span');ti.className='sh-title';
+      ti.textContent=(it.title||'').replace(/^A\S+\s+\u2014\s+/,'');
+      head.appendChild(no);head.appendChild(ti);
+      var pick=document.createElement('span');pick.className='sh-pick';
+      [['none','N'],['writeup','A'],['drawings','D']].forEach(function(p){
+        var b=document.createElement('button');b.type='button';b.textContent=p[1];
+        b.title=p[0];
+        if(it.produces===p[0])b.classList.add('on');
+        b.addEventListener('click',function(e){e.stopPropagation();setProduces(it.id,it.produces===p[0]?'':p[0]);});
+        pick.appendChild(b);
+      });
+      var q=document.createElement('button');q.type='button';q.textContent='?';q.title='needs verifying';
+      if(it.verify)q.classList.add('on','q');
+      q.addEventListener('click',function(e){e.stopPropagation();toggleVerify(it.id);});
+      pick.appendChild(q);
+      head.appendChild(pick);
+      row.appendChild(head);
+      var det=(window.LAST_DATA&&LAST_DATA.details&&LAST_DATA.details[it.id])||{};
+      var steps=det.subtasks||[];
+      if(steps.length){
+        var sl=document.createElement('div');sl.className='sh-steps';
+        steps.forEach(function(t){
+          var txt=String(t).replace(/^\u2713\s*/,'');
+          var e=document.createElement('div');
+          if(!WU_VERBS.test(txt))e.className='proc';
+          e.textContent='\u2022 '+txt;
+          sl.appendChild(e);
+        });
+        row.appendChild(sl);
+      }
+      (det.images||[]).forEach(function(im,ix){
+        if(ix===0){var th=document.createElement('div');th.className='sh-thumbs';row.appendChild(th);}
+        var th=row.querySelector('.sh-thumbs');
+        var img=document.createElement('img');img.src=im.src;img.alt=im.name;img.loading='lazy';
+        img.addEventListener('click',function(){showImgModal(im.src);});
+        th.appendChild(img);
+      });
+      (det.updates||[]).forEach(function(u){
+        var t=String(u);var b=t.indexOf('|');var body=b>-1?t.slice(b+1):t;
+        if(body.indexOf('\u26a0')===-1)return;
+        var n=document.createElement('div');n.className='sh-note';
+        n.textContent=body.replace(/\[src::[^\]]*\]/,'').trim();
+        row.appendChild(n);
+      });
+      c.appendChild(row);
+    });
+  });
+}
+// ---- the addendum write-up ------------------------------------------------------------------
+// A render, not a guess. Every line comes from a step that already exists; the numbering is
+// positional and computed here, never stored, so inserting an item cannot desynchronise it.
+function wuSentence(txt){
+  var t=String(txt).replace(/^\u2713\s*/,'').trim();
+  var m=t.match(/^([A-Z]{2,})\b(.*)$/);
+  if(m)t=m[1].charAt(0)+m[1].slice(1).toLowerCase()+m[2];
+  return t.replace(/\s+\u2014\s+.*$/,'').replace(/[.;]+$/,'');
+}
+function buildWriteup(){
+  var host=document.getElementById('wuHost');if(!host)return;
+  if(host.firstChild){host.innerHTML='';return;}
+  var all=laneItems().filter(function(i){return i.produces==='drawings'||i.produces==='writeup';})
+    .sort(function(a,b){return sheetSortKey(a)<sheetSortKey(b)?-1:1;});
+  var L=[],att=[],skipped=0,noSheet=[];
+  all.forEach(function(it,ix){
+    var det=(window.LAST_DATA&&LAST_DATA.details&&LAST_DATA.details[it.id])||{};
+    var steps=(det.subtasks||[]).filter(function(t){return WU_VERBS.test(String(t).replace(/^\u2713\s*/,''));});
+    skipped+=(det.subtasks||[]).length-steps.length;
+    if(!it.sheet){noSheet.push(it.title);}
+    var sheet=it.sheet||'[SHEET ___]';
+    var title=(it.title||'').replace(/^A\S+\s+\u2014\s+/,'').toUpperCase();
+    L.push('4.'+(ix+1)+'  DRAWING '+sheet+' - '+title);
+    if(!steps.length){L.push('4.'+(ix+1)+'.1  [NO MARKUP RECORDED \u2014 write the line]');}
+    steps.forEach(function(t,jx){
+      var line='Sheet '+sheet+'; '+wuSentence(t);
+      if(it.produces==='drawings'){line+='; As indicated on drawing '+sheet+', attached and forms part of this Addendum.';}
+      else{line+='.';}
+      L.push('4.'+(ix+1)+'.'+(jx+1)+'  '+line);
+    });
+    // sort key travels with the row: 'A5.100.03' must not sort before 'A5.30.20'
+    if(it.produces==='drawings'&&it.sheet)att.push({k:sheetSortKey(it),t:it.sheet+'    '+title});
+    L.push('');
+  });
+  var head=['ADDENDUM 1 \u2014 Vol 1 \u2013 ARCHITECTURAL','','2  General','','List of Attachments:',''];
+  att.sort(function(a,b){return a.k<b.k?-1:1;}).forEach(function(a){head.push('  '+a.t);});
+  if(!att.length)head.push('  (none \u2014 no item carries a drawing yet)');
+  head.push('','4  Drawings','');
+  var text=head.concat(L).join('\n').replace(/\n{3,}/g,'\n\n');
+
+  var box=document.createElement('div');box.className='wu-box';
+  var note=document.createElement('div');note.className='sh-stat';note.style.marginBottom='8px';
+  note.innerHTML='<b>'+all.length+'</b> item(s) rendered \u00b7 <b>'+att.length+'</b> attachment(s) derived from the D items'
+    +(skipped?' \u00b7 <b>'+skipped+'</b> process step(s) excluded (they are not addendum content)':'')
+    +(noSheet.length?' \u00b7 \u26a0 <b>'+noSheet.length+'</b> item(s) have no sheet number':'');
+  box.appendChild(note);
+  var ta=document.createElement('textarea');ta.value=text;ta.spellcheck=false;box.appendChild(ta);
+  var row=document.createElement('div');row.className='pedit-row';row.style.marginTop='8px';
+  var cp=document.createElement('button');cp.type='button';cp.textContent='Copy';
+  cp.addEventListener('click',function(){copyText(ta.value,'Addendum write-up copied.');});
+  var dl=document.createElement('button');dl.type='button';dl.className='pcancel';dl.textContent='Download .md';
+  dl.addEventListener('click',function(){
+    var b=new Blob([ta.value],{type:'text/markdown'});var u=URL.createObjectURL(b);
+    var a=document.createElement('a');a.href=u;a.download='TP5-Addendum-1-writeup.md';a.click();
+    setTimeout(function(){URL.revokeObjectURL(u);},1000);
+  });
+  var hint=document.createElement('span');hint.className='inline-capture-hint';
+  hint.textContent='Editable \u2014 numbering is computed at render, never stored';
+  row.appendChild(cp);row.appendChild(dl);row.appendChild(hint);box.appendChild(row);
+  host.appendChild(box);
+}
+function refreshBoard(){applyPendingOverlay();buildProgramView();buildSheetsView();recalcCounts();applyComputedPriorities();buildFocusPanel();buildTodayFocus();buildRadarPanel();buildMyDay();updateTabCounts();setView(activeViewKey());refreshPins();}
 var RFI_PROGRAMS={'Concourse B (Onware)':{host:'Concourse B',system:'Onware'},'Centralized / PBS (Planner board)':{host:'Centralized / PBS',system:'Planner board'}};
 var LAST_DATA={};
 function boot(d){LAST_DATA=d;MILESTONES=d.milestones||[];STAKEHOLDERS=d.stakeholders||[];ORGANISATIONS=d.organisations||[];renderSessionData(d);
-  BASE_ITEMS=(d.items||[]).map(function(it){var m=RFI_PROGRAMS[it.program];if(m){it.program=m.host;it.rfiSystem=m.system;}return it;});
+  var _all=(d.items||[]).map(function(it){var m=RFI_PROGRAMS[it.program];if(m){it.program=m.host;it.rfiSystem=m.system;}return it;});
+  // A laned item comes from a side-list source file — a punch list keyed to a drawing sheet rather
+  // than to a question. Splitting here, once, is what keeps it off every existing surface: the board,
+  // Now, My day, the radar, every counter and every filter read BASE_ITEMS and never see it. There is
+  // no per-view exclusion to forget, and a future side-list is held back automatically.
+  window.LANE_ITEMS=_all.filter(function(it){return !!it.lane;});
+  BASE_ITEMS=_all.filter(function(it){return !it.lane;});
   BASE_DETAILS=d.details||{};applyPendingOverlay();init();buildImpactChips();restoreUiState();}
 
 // ---- encrypted data (data.enc.json) — password gate ----
