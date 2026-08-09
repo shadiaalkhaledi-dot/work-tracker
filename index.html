@@ -1239,6 +1239,12 @@ select.pl-in{cursor:pointer}
   .pl-line{grid-template-columns:1fr}
   .pl-line-g{padding-top:0}
 }
+.pl-ask{display:block;padding:0 12px 9px;font-size:11.5px;color:var(--terracotta)}
+.pl-ask .pl-ask-new{color:var(--sage)}
+.pl-ask button{font:inherit;font-size:11px;border:1px solid currentColor;background:none;
+  color:inherit;border-radius:5px;padding:1px 9px;cursor:pointer;margin-left:2px}
+.pl-ask button:hover{background:rgba(181,144,66,.12)}
+.pl-ask:empty{display:none}
 </style>
 </head>
 <body>
@@ -3444,6 +3450,24 @@ function buildExportText(){
       return '- [Answered \u2192] '+(loc?loc+': ':'')+p.text
         +(p.stepRef?' [answers: '+p.stepRef+']':'')+ref
         +(p.next?' [\u2192 next: '+p.next+']':'');
+    }
+    // "Placements: 2 line(s)" told a check-in nothing, so every line typed in the workbench was
+    // lost the moment the queue was cleared. The export now carries the vault syntax itself.
+    if(p.type==='addmeta'&&p.field==='placements'){
+      var pls=[];try{pls=JSON.parse(p.value||'[]')||[];}catch(e){}
+      return '- [Addendum \u00a74] '+(loc?loc+': ':'')+(p.itemRef||'')+'\n'
+        +pls.map(function(pl){return '    '+placementLiteral(pl);}).join('\n')
+        +(pls.length?'':'    (all placements removed)');
+    }
+    if(p.type==='sheetname'){
+      return '- ['+(p.neu?'NEW DRAWING':'Drawing name')+'] '+(p.sheet||'')+' \u2014 '+(p.name||'')
+        +'   \u2192 add to Projects/Drawing List.md'
+        +(p.neu?' (it is not in the issued set — this addendum introduces it)':'');
+    }
+    if(p.type==='inquiry'){
+      return '- [Bid inquiry] Addendum '+addNum((p.addendum||'').split('|')[1]||'')
+        +'\n    Q'+(p.qno||'')+': '+(p.q||'')
+        +'\n    A'+(p.qno||'')+': '+(p.a||'[not answered yet]');
     }
     if(p.type==='image'){
       return '- [Picture] '+(loc?loc+': ':'')+p.name+' ('+p.w+'\u00d7'+p.h+')'+ref
@@ -6025,6 +6049,51 @@ function openAddSheet(anchor,addKey,pkg,program){
 // ---- one row -----------------------------------------------------------------------------------
 // One block, one heading, one job. The body used to be a single flex row, so a two-line textarea
 // stretched to 400px and dragged its label to the vertical middle of nothing.
+// The preview is built on its own so a keystroke can repaint it without rebuilding the row.
+// It was only ever drawn once, at render, which is why picking a drawing left it reading
+// [SHEET ___] until you collapsed the item and opened it again.
+// `live` is the array the editor is mutating right now. Without it the preview reads the queue,
+// which only catches up on blur — so the lines under the fields moved and the block above them
+// did not, which is exactly the disagreement this block exists to prevent.
+function buildRowPreview(it,live){
+    var pv=shBlock('It will read',inDocument(it)?'exactly this, in the document'
+      :(it.produces==='none'?'nothing — Fix only never reaches the bid'
+                            :'nothing yet — pick a state above'));
+    pv.classList.add('sh-preview');
+    if(!inDocument(it))pv.classList.add('sh-preview-off');
+    if(inDocument(it)){
+      var lines=[];
+      var st2=wuStepsOf(it);
+      if(isSpecPart(it)){
+        wuSpecLines(it,st2.keep.length?st2.keep:[it.title||'']).forEach(function(l){
+          lines.push('§3  SECTION '+((it.section||'[SECTION ___]').toUpperCase())+'\n      '+l);});
+      }
+      if(isDrawPart(it)){
+        (live||placementsOf(it)).forEach(function(pl){
+          lines.push('§4  DRAWING '+(pl.sheet||'[SHEET ___]')+'\n      '+placementLine(it,pl));});
+      }
+      lines.forEach(function(l){
+        var d3=document.createElement('div');d3.className='sh-preview-l';d3.textContent=l;pv.appendChild(d3);});
+      if(st2.skipped){
+        var sk=document.createElement('div');sk.className='sh-preview-x';
+        sk.textContent=st2.skipped+' step'+(st2.skipped!==1?'s':'')+' left out — those tell YOU to do '
+          +'something, which is not addendum content.';
+        pv.appendChild(sk);}
+      var psh=live?(function(){var s2={},o=[];live.forEach(function(p){
+          if(p.sheet&&!s2[p.sheet]){s2[p.sheet]=1;o.push(p.sheet);}});return o;})()
+        :placementSheets(it);
+      if(it.produces==='drawings'&&psh.length){
+        var at=document.createElement('div');at.className='sh-preview-a';
+        at.textContent='→ '+psh.join(' and ')+' enter'+(psh.length===1?'s':'')
+          +' the List of Attachments, because the line says "attached".';
+        pv.appendChild(at);}
+      if(it.produces==='writeup'){
+        var at2=document.createElement('div');at2.className='sh-preview-a';
+        at2.textContent='→ nothing is attached. The words have to carry the change on their own.';
+        pv.appendChild(at2);}
+    }
+    return pv;
+}
 function shBlock(title,hint){
   var b=document.createElement('div');b.className='sh-blk';
   var h=document.createElement('div');h.className='sh-blk-h';
@@ -6168,43 +6237,7 @@ function sheetRow(it){
 
   // The answer to "what do these fields do": show the lines. Same renderer as the document, so a
   // preview can never disagree with what gets written.
-  (function(){
-    var pv=shBlock('It will read',inDocument(it)?'exactly this, in the document'
-      :(it.produces==='none'?'nothing — Fix only never reaches the bid'
-                            :'nothing yet — pick a state above'));
-    pv.classList.add('sh-preview');
-    if(!inDocument(it))pv.classList.add('sh-preview-off');
-    if(inDocument(it)){
-      var lines=[];
-      var st2=wuStepsOf(it);
-      if(isSpecPart(it)){
-        wuSpecLines(it,st2.keep.length?st2.keep:[it.title||'']).forEach(function(l){
-          lines.push('§3  SECTION '+((it.section||'[SECTION ___]').toUpperCase())+'\n      '+l);});
-      }
-      if(isDrawPart(it)){
-        placementsOf(it).forEach(function(pl){
-          lines.push('§4  DRAWING '+(pl.sheet||'[SHEET ___]')+'\n      '+placementLine(it,pl));});
-      }
-      lines.forEach(function(l){
-        var d3=document.createElement('div');d3.className='sh-preview-l';d3.textContent=l;pv.appendChild(d3);});
-      if(st2.skipped){
-        var sk=document.createElement('div');sk.className='sh-preview-x';
-        sk.textContent=st2.skipped+' step'+(st2.skipped!==1?'s':'')+' left out — those tell YOU to do '
-          +'something, which is not addendum content.';
-        pv.appendChild(sk);}
-      var psh=placementSheets(it);
-      if(it.produces==='drawings'&&psh.length){
-        var at=document.createElement('div');at.className='sh-preview-a';
-        at.textContent='→ '+psh.join(' and ')+' enter'+(psh.length===1?'s':'')
-          +' the List of Attachments, because the line says "attached".';
-        pv.appendChild(at);}
-      if(it.produces==='writeup'){
-        var at2=document.createElement('div');at2.className='sh-preview-a';
-        at2.textContent='→ nothing is attached. The words have to carry the change on their own.';
-        pv.appendChild(at2);}
-    }
-    body.appendChild(pv);
-  })();
+  body.appendChild(buildRowPreview(it));
 
   if(steps.length){
     var sb=shBlock('Markups','what the sheet list recorded · greyed ones are process, not addendum content');
@@ -6605,9 +6638,17 @@ function derivePlacements(it){
 }
 function placementsOf(it){
   if(it.placements){
-    try{var p=JSON.parse(it.placements);if(Array.isArray(p))return p;}catch(e){}
+    if(Array.isArray(it.placements))return it.placements;            // from the vault
+    try{var p=JSON.parse(it.placements);if(Array.isArray(p))return p;}catch(e){}   // from an op
   }
   return derivePlacements(it);
+}
+// The vault syntax for one placement. The export prints these verbatim so folding a session's work
+// back in is a paste, not a translation.
+function placementLiteral(pl){
+  return '[placement:: '+[pl.sheet||'',pl.view||'',pl.no||'',pl.room||'',
+    (pl.override&&pl.override.trim())?('= '+pl.override.trim()):(pl.text||'')]
+    .join(' | ').replace(/(\s*\|)+\s*$/,'')+']';
 }
 function savePlacements(it,list,quiet){
   setAddMeta(it.id,'placements',JSON.stringify(list),'Placements',quiet);
@@ -6638,6 +6679,12 @@ function refreshRowLines(it,wrap,list){
     tas[i].parentNode.classList.toggle('empty',!(pl.text||'').trim()&&!(pl.override||'').trim());
     tas[i].parentNode.classList.toggle('edited',!!(pl.override||'').trim());
   });
+  // and the "It will read" block above, which is the same sentence seen from the document's side
+  var row=wrap.closest?wrap.closest('.sh-row'):null;
+  if(row){
+    var old=row.querySelector('.sh-preview');
+    if(old){var fresh=buildRowPreview(it,list);old.parentNode.replaceChild(fresh,old);}
+  }
   var foot=wrap.querySelector('.pl-foot');
   if(foot){
     var seen={},sh=[];
@@ -6697,10 +6744,10 @@ function placementEditor(it){
         el.setAttribute('list','viewList-'+ix);
         el.title='Pick a common one or type the view exactly as the drawing names it — '
           +'"DOOR SCHEDULE - BASIC DOORS", "ENLARGED PLAN — WASHROOMS". What you type is what the line says.';
-        el.addEventListener('input',function(){pl[key]=el.value.trim();refreshRowLines(it,wrap,list);});
+        el.addEventListener('input',function(){pl[key]=el.value.trim();pairView();refreshRowLines(it,wrap,list);});
         el.addEventListener('keydown',function(e){e.stopPropagation();
-          if(e.key==='Enter'){pl[key]=el.value.trim();commit();el.blur();}});
-        el.addEventListener('blur',function(){pl[key]=el.value.trim();commit();});
+          if(e.key==='Enter'){pl[key]=el.value.trim();pairView();commit();el.blur();}});
+        el.addEventListener('blur',function(){pl[key]=el.value.trim();pairView();commit();});
       }else{
         el=document.createElement('input');el.type='text';el.className='pl-in '+(cls||'');
         el.value=pl[key]||'';el.placeholder=ph||'';
@@ -6727,6 +6774,20 @@ function placementEditor(it){
     var shNm=document.createElement('input');shNm.type='text';shNm.className='pl-in pl-sheetname';
     shNm.value=sheetNameFor(key,pl.sheet,it.pkg)||'';shNm.placeholder='drawing name';
     shNo.setAttribute('list','sheetList');
+    // "Not on the list" is ambiguous — it is either a typo or a drawing being added. Rather than
+    // leave an amber box and a tooltip, ask, once, inline.
+    var ask=document.createElement('span');ask.className='pl-ask';
+    var askB=document.createElement('button');askB.type='button';askB.textContent='it’s a new drawing';
+    askB.title='Mark it as added by this addendum. The line changes to "issue drawing in its entirety" '
+      +'and the name goes to Projects/Drawing List.md at the next check-in.';
+    askB.addEventListener('click',function(e){e.stopPropagation();
+      pl.newsheet=true;commit();markSheet();
+      if(!(pl.text||'').trim()){pl.text='ADD \u27e8what it shows\u27e9';commit();}
+      refreshRowLines(it,wrap,list);});
+    var undoB=document.createElement('button');undoB.type='button';undoB.textContent='not new';
+    undoB.title='It is an existing drawing — check the number.';
+    undoB.addEventListener('click',function(e){e.stopPropagation();
+      pl.newsheet=false;commit();markSheet();refreshRowLines(it,wrap,list);});
     var markSheet=function(){
       var v=shNo.value.trim();
       var unknown=!!v&&knownSheet(it.pkg,v)===null;
@@ -6735,8 +6796,15 @@ function placementEditor(it){
       shNo.title=!v?'The drawing number.'
         :(!unknown?'On the project drawing list \u2713'
           :(pl.newsheet?'A new drawing \u2014 not in the bid set, and the line says "issue drawing in its entirety".'
-            :'Not on the project drawing list. Check the number, or set the action to '
-             +'"New drawing (not previously issued)".'));
+            :'Not on the project drawing list.'));
+      ask.innerHTML='';
+      if(unknown&&!pl.newsheet){
+        var q=document.createElement('span');q.textContent=v+' is not on the drawing list \u2014 ';
+        ask.appendChild(q);ask.appendChild(askB);}
+      else if(unknown&&pl.newsheet){
+        var q2=document.createElement('span');q2.className='pl-ask-new';
+        q2.textContent='new drawing \u2014 it will be added to the set \u00b7 ';
+        ask.appendChild(q2);ask.appendChild(undoB);}
     };
     markSheet();
     shNm.title='The drawing\u2019s title, as the title block has it. It prints in the \u00a74 heading '
@@ -6744,23 +6812,25 @@ function placementEditor(it){
     shNo.addEventListener('input',function(){pl.sheet=shNo.value.trim();
       var reg=sheetNameFor(key,pl.sheet,it.pkg);
       if(reg)shNm.value=reg;                     // the register knows it — stop typing
-      markSheet();fillViews();refreshRowLines(it,wrap,list);});
+      markSheet();fillViews();pairView();refreshRowLines(it,wrap,list);});
     shNo.addEventListener('keydown',function(e){e.stopPropagation();
       if(e.key==='Enter'){pl.sheet=shNo.value.trim();commit();shNo.blur();}});
     shNo.addEventListener('blur',function(){pl.sheet=shNo.value.trim();commit();});
     shNm.addEventListener('keydown',function(e){e.stopPropagation();
-      if(e.key==='Enter'){setSheetName(key,pl.sheet,shNm.value);shNm.blur();}});
+      if(e.key==='Enter'){setSheetName(key,pl.sheet,shNm.value,it.pkg);shNm.blur();}});
     shNm.addEventListener('blur',function(){
       // only record an override; a name that matches the project register needs no op
       var reg=knownSheet(it.pkg,pl.sheet)||'';
       var v=shNm.value.trim();
       if(sameValue(v,reg)){supersede(function(o){return o.type==='sheetname'&&o.addendum===key
         &&String(o.sheet||'').toUpperCase()===String(pl.sheet||'').toUpperCase();});return;}
-      if(sheetNameFor(key,pl.sheet,it.pkg)!==v)setSheetName(key,pl.sheet,v);});
+      if(sheetNameFor(key,pl.sheet,it.pkg)!==v)setSheetName(key,pl.sheet,v,it.pkg);});
     cNo.appendChild(shNo);cNm.appendChild(shNm);
     g1.appendChild(cNo);g1.appendChild(cNm);
+    // Name and number are one fact wearing two hats. Fill either and the other follows.
+    var pairView=function(){};
     var cView=cell('View name','What the viewport is called on the sheet. Pick a drawing first and '
-      +'this offers the views actually on it, from the Revit export.');
+      +'this offers the views actually on it, from the Revit export. Its number fills itself.');
     var vEl=inp('view','','pl-view',VIEW_TYPES);cView.appendChild(vEl);
     // A per-row datalist, because the offer depends on which drawing this line is on.
     var vdl=document.createElement('datalist');vdl.id='viewList-'+ix;
@@ -6770,7 +6840,7 @@ function placementEditor(it){
       var names=on.map(function(x){return x[0];});
       on.forEach(function(x){
         var o=document.createElement('option');o.value=x[0];
-        if(x[1]==='raw')o.label='untitled viewport — this is its Revit name';
+        o.label=(x[2]?('no. '+x[2]):'')+(x[1]==='raw'?'  ·  no Title on Sheet — this is the Revit view name':'');
         vdl.appendChild(o);});
       VIEW_TYPES.filter(Boolean).forEach(function(t){
         if(names.indexOf(t)>-1)return;
@@ -6786,8 +6856,26 @@ function placementEditor(it){
           +'is actually on it.';
     };
     fillViews();cView.appendChild(vdl);g2.appendChild(cView);
-    var cVno=cell('View no.','The number in the viewport bubble — the 1 in "PLAN 1/A42.31.10".');
-    cVno.appendChild(inp('no','1','pl-no'));g2.appendChild(cVno);
+    setTimeout(function(){pairView();},0);
+    var cVno=cell('View no.','The number in the viewport bubble — the 1 in "PLAN 1/A42.31.10". '
+      +'Type it and the view name fills itself.');
+    var nEl=inp('no','1','pl-no');cVno.appendChild(nEl);g2.appendChild(cVno);
+    pairView=function(){
+      // whichever you touched last is the one that is right
+      if(document.activeElement===vEl){
+        var v=viewByName(it.pkg,pl.sheet,pl.view);
+        if(v&&v[2]&&pl.no!==v[2]){pl.no=v[2];nEl.value=v[2];}
+      }else if(document.activeElement===nEl){
+        var x=viewByNo(it.pkg,pl.sheet,pl.no);
+        if(x&&pl.view!==x[0]){pl.view=x[0];vEl.value=x[0];}
+      }
+      var known=viewByName(it.pkg,pl.sheet,pl.view)||viewByNo(it.pkg,pl.sheet,pl.no);
+      var onSheet=viewsOn(it.pkg,pl.sheet).length;
+      vEl.classList.toggle('pl-unknown',!!pl.view&&onSheet>0&&!viewByName(it.pkg,pl.sheet,pl.view));
+      nEl.classList.toggle('pl-unknown',!!pl.no&&onSheet>0&&!viewByNo(it.pkg,pl.sheet,pl.no));
+      if(known&&known[1]==='raw')vEl.title='This viewport has no Title on Sheet — the drawing prints '
+        +'its Revit name. Worth fixing in the model.';
+    };
     // The issued sets write a room as NAME + NUMBER exactly as the drawing labels it —
     // 'UTILITY CORRIDOR A58T01', 'EXEC WC NW.2.074.F', 'TEAM STORE NW.1.022' — or an element in
     // place of one: 'Door A59R01.1', 'Doors P58M01, P58R01'. Blank is normal: leave it out when
@@ -6828,7 +6916,7 @@ function placementEditor(it){
     x.addEventListener('click',function(e){e.stopPropagation();
       list.splice(ix,1);commitHard();});
     g1.appendChild(x);
-    r.appendChild(g1);r.appendChild(g2);r.appendChild(g3);
+    r.appendChild(g1);r.appendChild(ask);r.appendChild(g2);r.appendChild(g3);
     wrap.appendChild(r);
 
     // the line, editable, right under the row that produces it
@@ -7045,7 +7133,19 @@ function viewsOn(pkg,no){
   var hit=(n&&v[n]&&v[n][k])||null;
   // a line may legitimately point at another package's sheet; do not dead-end on it
   if(!hit)for(var p in v){if(v[p][k]){hit=v[p][k];break;}}
-  return (hit||[]).map(function(x){return (typeof x==='string')?[x,'sheet']:x;});
+  return (hit||[]).map(function(x){return (typeof x==='string')?[x,'sheet','']:x;});
+}
+// The two halves of a §4 target: the view and its number. Every detail number is unique on its own
+// sheet across all 908 of them, so this resolves either way without ambiguity.
+function viewByName(pkg,sheet,name){
+  var n=String(name||'').trim().toUpperCase();if(!n)return null;
+  var hit=viewsOn(pkg,sheet).filter(function(x){return x[0].toUpperCase()===n;});
+  return hit.length===1?hit[0]:null;
+}
+function viewByNo(pkg,sheet,no){
+  var n=String(no||'').trim();if(!n)return null;
+  var hit=viewsOn(pkg,sheet).filter(function(x){return String(x[2]||'')===n;});
+  return hit.length===1?hit[0]:null;
 }
 function knownSheet(pkg,no){
   if(!no)return null;
@@ -7065,14 +7165,16 @@ function sheetNameFor(key,no,pkg){
   var reg=pkg?knownSheet(pkg,no):null;
   return reg||'';
 }
-function setSheetName(key,no,name){
+function setSheetName(key,no,name,pkg){
   if(!no)return;
   var want=String(no).toUpperCase();
   supersede(function(o){return o.type==='sheetname'&&o.addendum===key
     &&String(o.sheet||'').toUpperCase()===want;});
   if(!String(name||'').trim())return;
   queueLocally({type:'sheetname',addendum:key,sheet:no,name:String(name).trim(),
-    program:'',pkg:'',text:'sheet name: '+no+' — '+String(name).trim()});
+    program:'',pkg:pkg||'',
+    neu:(pkg&&knownSheet(pkg,no)===null)?1:0,
+    text:'sheet name: '+no+' — '+String(name).trim()});
 }
 function sheetTitleFor(no,pool,key){
   var typed=key?sheetNameFor(key,no,(pool[0]||{}).pkg):'';
