@@ -6218,9 +6218,17 @@ function buildRowPreview(it,live){
         sk.textContent=st2.skipped+' step'+(st2.skipped!==1?'s':'')+' left out — those tell YOU to do '
           +'something, which is not addendum content.';
         pv.appendChild(sk);}
-      var psh=live?(function(){var s2={},o=[];live.forEach(function(p){
-          if(p.sheet&&!s2[p.sheet]){s2[p.sheet]=1;o.push(p.sheet);}});return o;})()
-        :placementSheets(it);
+      // Same rule as the document: a sheet is attached if one of its lines says so. A placement
+      // still holding ⟨pick an action⟩ carries no clause and therefore attaches nothing.
+      var psh=(function(){
+        var src=live||placementsOf(it), byS={}, order=[];
+        src.forEach(function(p){
+          if(!p.sheet)return;
+          if(!byS[p.sheet]){byS[p.sheet]=[];order.push(p.sheet);}
+          byS[p.sheet].push(placementLine(it,p));
+        });
+        return order.filter(function(sh){return attachesIn(byS[sh]);});
+      })();
       if(it.produces==='drawings'&&psh.length){
         var at=document.createElement('div');at.className='sh-preview-a';
         at.textContent='→ '+psh.join(' and ')+' enter'+(psh.length===1?'s':'')
