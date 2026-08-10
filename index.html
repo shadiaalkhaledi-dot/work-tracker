@@ -6234,10 +6234,12 @@ function buildRowPreview(it,live){
         return /^MODIF/i.test(String((pl.override||pl.text||'')).replace(/^✓\s*/,''));});
       if(mods.length){
         var m3=document.createElement('div');m3.className='sh-preview-x';
-        m3.textContent='→ '+mods.map(function(p){return p.sheet||'?';}).join(', ')
+        m3.textContent='→ '+mods.map(function(p){
+            var src=mirrorsOf(p);
+            return (p.sheet||'?')+(src?' (follows '+src+')':'');
+          }).join(', ')
           +(mods.length===1?' says':' say')+' the drawing was updated to show the change. '
-          +'No tag, note or keynote is claimed — the sheet is reissued because the work moved on it. '
-          +'That is the form Addendum 1 §4.14.3 uses.';
+          +'No tag, note or keynote is claimed — the sheet is reissued because the work moved on it.';
         pv.appendChild(m3);}
     }
     return pv;
@@ -6760,6 +6762,8 @@ var PL_ACTIONS=[
   {k:'update',  label:'Update \u2026',           tpl:'UPDATE \u27e8what\u27e9'},
   {k:'extend',  label:'Extend \u2026',           tpl:'EXTEND \u27e8what\u27e9'},
   {k:'modify',  label:'Modify to reflect \u2026',tpl:'MODIFIED to reflect \u27e8what\u27e9'},
+  {k:'mirror',  label:'Modify to reflect another drawing',
+   tpl:'MODIFIED to reflect modification on sheet \u27e8sheet\u27e9'},
   {k:'reissue', label:'Re-issue the whole sheet',tpl:'RE-ISSUE'},
   // Addendum 1 §4.18 adds a drawing that was never in the bid set, and it does NOT say "re-issue":
   //   Sheet A42.4.19; add section; issue drawing in its entirety attached and forming part of this
@@ -6783,6 +6787,20 @@ function companionPhrase(text){
   if(rest.split(/\s+/).length>9)return '';
   return rest;
 }
+// The referential companion. `mirrors` is deliberately NOT part of the [placement:: …] vault
+// syntax — it is recovered from the line itself, so a placement that round-trips through the vault
+// comes back still knowing which drawing it follows and no grammar had to change to carry it.
+var PL_MIRROR=/^MODIFIED to reflect modification on sheet\s+(\S+)\s*$/i;
+function mirrorText(no){
+  return 'MODIFIED to reflect modification on sheet '
+    +(String(no||'').trim()||'\u27e8sheet\u27e9');
+}
+function mirrorsOf(pl){
+  if(!pl)return '';
+  if(pl.mirrors)return String(pl.mirrors);
+  var m=PL_MIRROR.exec(String(pl.text||'').replace(/^\u2713\s*/,'').trim());
+  return m?m[1]:'';
+}
 function plActionOf(pl){
   var t=String(pl.text||'').toUpperCase();
   if(!t)return '';
@@ -6796,6 +6814,7 @@ function plActionOf(pl){
   if(/^REMOVE|^DELETE/.test(t))return 'remove';
   if(/^UPDATE/.test(t))return 'update';
   if(/^EXTEND/.test(t))return 'extend';
+  if(PL_MIRROR.test(t))return 'mirror';
   if(/^MODIF/.test(t))return 'modify';
   return '';
 }
@@ -6831,6 +6850,10 @@ function savePlacements(it,list,quiet){
 // One placement, one line. The override is verbatim — if you edited it, that IS the line.
 function placementLine(it,pl){
   if(pl.override&&pl.override.trim())return pl.override.trim();
+  // A companion names a drawing. If that drawing was renumbered, the sentence follows it rather
+  // than pointing at a sheet that no longer exists.
+  var mir=mirrorsOf(pl);
+  if(mir&&pl.mirrors&&String(pl.text||'').indexOf(mir)<0)pl.text=mirrorText(mir);
   var proxy={target:pl.target||'',viewtype:pl.view||'',detail:pl.no||'',room:pl.room||'',
              element:pl.element||'',alt:pl.alt||'',produces:it.produces,linestyle:it.linestyle,
              newsheet:!!pl.newsheet};
@@ -7019,13 +7042,14 @@ function placementEditor(it){
         }
         if(ov&&!placed(ov.no)){
           var g2r=group('Shows it, no tags or notes',
-            'Writes "Modified to reflect …" — the form Addendum 1 §4.14.3 uses for a drawing that carries the work without annotating it.','r-untag');
+            'Writes "Modified to reflect modification on sheet …" — it names the drawing the work '
+            +'was done on, so there is nothing to fill in.','r-untag');
           var ab=document.createElement('button');ab.type='button';ab.className='pl-ov';
           ab.innerHTML='<b>'+ov.no+'</b> Overall';ab.title=ov.name;
           ab.addEventListener('click',function(e2){e2.stopPropagation();
-            var what=companionPhrase(pl.text);
-            list.push({sheet:ov.no,view:'',no:'',room:'',
-              text:'MODIFIED to reflect '+(what?'\u27e8'+what+'\u27e9':'\u27e8the change\u27e9'),
+            // Nothing to type. The overall plan is modified to reflect the modification made on
+            // the area plan, and both of those facts are already on screen.
+            list.push({sheet:ov.no,view:'',no:'',room:'',mirrors:v,text:mirrorText(v),
               override:''});
             commitHard();});
           g2r.appendChild(ab);
@@ -7046,7 +7070,21 @@ function placementEditor(it){
       markSheet();fillViews();pairView('view');refreshRowLines(it,wrap,list);});
     shNo.addEventListener('keydown',function(e){e.stopPropagation();
       if(e.key==='Enter'){pl.sheet=shNo.value.trim();commit();shNo.blur();}});
-    shNo.addEventListener('blur',function(){pl.sheet=shNo.value.trim();commit();});
+    // Renumber a drawing and anything that follows it renumbers with it. Done on blur, not on
+    // every keystroke: 'A4' on the way to 'A42.22.12' is not a drawing anyone is following.
+    var followMirrors=function(from,to){
+      if(!from||!to||from===to)return false;
+      var hit=false;
+      list.forEach(function(z){
+        if(z===pl)return;
+        if(String(mirrorsOf(z)).toUpperCase()!==String(from).toUpperCase())return;
+        z.mirrors=to;z.text=mirrorText(to);hit=true;});
+      return hit;
+    };
+    shNo.addEventListener('blur',function(){
+      var was=pl.sheet;pl.sheet=shNo.value.trim();
+      if(followMirrors(was,pl.sheet)){commitHard();return;}
+      commit();});
     shNm.addEventListener('keydown',function(e){e.stopPropagation();
       if(e.key==='Enter'){setSheetName(key,pl.sheet,shNm.value,it.pkg);shNm.blur();}});
     shNm.addEventListener('blur',function(){
@@ -7197,13 +7235,12 @@ function placementEditor(it){
   var b3=document.createElement('button');b3.type='button';b3.className='add-item-btn';
   b3.textContent='+ a drawing that shows this, untagged';
   b3.title='The wall moved on the area plan and the overall plan shows it too, with no tags or '
-    +'keynotes. That is still a reissue — it just says "Modified to reflect …" instead.';
+    +'keynotes. That is still a reissue — the line just says the drawing was modified to '
+    +'reflect the modification made on the drawing above it.';
   b3.addEventListener('click',function(e){e.stopPropagation();
-    var first=list[0]||{};
-    var what=companionPhrase(first.text);
-    list.push({sheet:'',view:'',no:'',room:'',
-      text:'MODIFIED to reflect '+(what?'\u27e8'+what+'\u27e9':'\u27e8the change\u27e9'),
-      override:''});
+    // It follows the FIRST drawing on the item — the one the work was drawn on.
+    var src=(list[0]&&list[0].sheet)||'';
+    list.push({sheet:'',view:'',no:'',room:'',mirrors:src,text:mirrorText(src),override:''});
     commitHard();});
   addRow.appendChild(b3);
   var b2=document.createElement('button');b2.type='button';b2.className='add-item-btn';
