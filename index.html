@@ -1169,6 +1169,9 @@ select.pl-in{cursor:pointer}
 @media(max-width:1000px){.pl-row{grid-template-columns:1fr 1fr}.pl-cols{display:none}}
 .pl-sheetcell{display:flex;flex-direction:column;gap:3px;min-width:0}
 .pl-sheetname{font-size:10.5px!important;padding:3px 6px!important;color:var(--muted)}
+
+.pl-needname{border-color:#f59e0b!important;background:#fef6e7!important;color:#8a6a1f!important}
+.pl-needname::placeholder{color:#b4530f;font-style:italic;opacity:1}
 .pl-sheetname:focus{color:var(--text)}
 .pl-row{grid-template-columns:132px 150px 78px 150px 132px minmax(0,1fr) 24px;align-items:start}
 .pl-cols{align-items:end}
@@ -4227,14 +4230,27 @@ function buildAddendumRegister(){
       var who=document.createElement('span');who.className='ar-who';
       who.textContent=(it.status==='completed'?'done':(courtList(it.court).join(', ')||'—'))+(it.twin?' · +RFI twin':'');r.appendChild(who);
       var x=document.createElement('button');x.type='button';x.className='ar-x';x.textContent='✕';
-      x.title='Drop this item from Addendum '+g.num+' (queues a capture)';
+      x.title=it.pendingLocal?'Delete this item — it was added here and never folded'
+             :('Drop this item from Addendum '+g.num+' — off the list now, out of the vault at check-in');
       x.addEventListener('click',function(e){
         e.stopPropagation();
-        if(!window.confirm('Drop “'+it.title.slice(0,60)+'” from Addendum '+g.num+'?'))return;
+        if(!window.confirm(it.pendingLocal
+              ?('Delete “'+it.title.slice(0,60)+'”? It was added here and never folded, so it goes for good.')
+              :('Drop “'+it.title.slice(0,60)+'” from Addendum '+g.num+'?')))return;
+        if(it.pendingLocal&&it.srcOp){
+          // Added here and never folded — there is nothing to drop it FROM. Delete it outright by
+          // voiding the op that created it, so it goes everywhere rather than lingering as a
+          // permanent tombstone against an item the vault has never heard of.
+          voidOp({id:it.srcOp});
+          buildAddendumRegister();rebuildPendingList();
+          setStatus('Deleted — it was never folded, so it is simply gone.');
+          return;
+        }
         var payload={type:'unaddendum',program:it.program||'',pkg:it.pkg||'',itemRef:it.title.slice(0,160),
                      text:'Remove from Addendum '+g.num,ts:new Date().toISOString()};
         queueLocally(payload);renderPendingRow(payload);
-        setStatus('Queued — drops off Addendum '+g.num+' at check-in.');
+        buildAddendumRegister();
+        setStatus('Dropped from Addendum '+g.num+' — gone from the list now, and from the vault at check-in.');
       });
       r.appendChild(x);
       card.appendChild(r);
@@ -5908,7 +5924,7 @@ function laneItems(){
   (readQueue()||[]).forEach(function(p,ix){
     if(p.type==='sheet'){
       // captured on the site and not yet folded — it is real work the moment you type it
-      all.push({id:'pending-sheet-'+(p.id||ix),title:p.text||'(untitled)',status:'open',
+      all.push({id:'pending-sheet-'+(p.id||ix),srcOp:p.id||'',title:p.text||'(untitled)',status:'open',
         program:p.program||'',pkg:p.pkg||'',addendum:p.addendum||'',sheet:p.sheet||'',
         sheets:p.sheet?String(p.sheet).split(/[,;]+/).map(function(x){return x.trim();}).filter(Boolean):[],
         part:p.part||'drawing',section:p.section||'',scope:p.scope||'AR',disc:p.disc||'AR',
@@ -5931,9 +5947,13 @@ function laneItems(){
       if(p.by)a.byLast=p.by;
     }else if(p.type==='complete'&&p.text){
       var c2=byTitle(p.text);if(c2)c2.pendingComplete=true;
+    }else if(p.type==='unaddendum'&&p.itemRef){
+      // It was queued, synced, and then ignored here — so the row you had just dropped stayed on
+      // screen until the next fold. Honour it now: off the addendum, for everyone, immediately.
+      var d=byTitle(p.itemRef);if(d)d._dropped=true;
     }
   });
-  return all;
+  return all.filter(function(i){return !i._dropped;});
 }
 function addPoolFor(key){
   return laneItems().filter(function(i){
@@ -7021,6 +7041,17 @@ function placementEditor(it){
     var markSheet=function(){
       var v=shNo.value.trim();
       var unknown=!!v&&knownSheet(it.pkg,v)===null;
+      // A new drawing is absent from the register on purpose — that absence is what earns it the
+      // "issue drawing in its entirety" clause. The cost is that nothing can fill its name, and the
+      // name prints twice: the §4 heading and the List of Attachments.
+      var needName=!!pl.newsheet&&!shNm.value.trim();
+      shNm.classList.toggle('pl-needname',needName);
+      shNm.placeholder=pl.newsheet?'name this new drawing — it prints in the heading and the attachment list'
+                                  :'drawing name';
+      shNm.title=pl.newsheet
+        ? 'A new drawing has no entry in the project register, so its name has to come from here. '
+          +'It prints in the \u00a74 heading and in the List of Attachments.'
+        : 'The drawing\u2019s title, as the title block has it.';
       shNo.classList.toggle('pl-unknown',unknown&&!pl.newsheet);
       shNo.classList.toggle('pl-new',unknown&&!!pl.newsheet);
       shNo.title=!v?'The drawing number.'
