@@ -6075,7 +6075,10 @@ function addWorkbench(host,key,pool){
   var ab=document.createElement('button');ab.type='button';ab.className='add-item-btn';
   ab.textContent='+ add an item';
   ab.addEventListener('click',function(e){e.stopPropagation();
-    openAddSheet(sr,key,(pool[0]||{}).pkg||'',(pool[0]||{}).program||'');});
+    // `key` is the composite "4.2|5". The item needs the addendum NUMBER, or addKey() rebuilds a
+    // key that matches nothing and the row is invisible everywhere except the check-in text.
+    var seed=pool[0]||{};
+    openAddSheet(sr,seed.addendum||'',seed.pkg||'',seed.program||'');});
   right.appendChild(ab);
   sr.appendChild(right);
   wb.appendChild(sr);
@@ -6134,7 +6137,7 @@ function addWorkbench(host,key,pool){
   }
   host.appendChild(wb);
 }
-function openAddSheet(anchor,addKey,pkg,program){
+function openAddSheet(anchor,addNo,pkg,program){
   var ex=anchor.parentNode.querySelector(':scope>.sh-addform');if(ex){ex.remove();return;}
   var f=document.createElement('div');f.className='sh-addform';
   var chosen={p:'',q:false,part:'drawing'};
@@ -6147,6 +6150,15 @@ function openAddSheet(anchor,addKey,pkg,program){
       sh.placeholder=chosen.part==='spec'?'Section no. — e.g. 09 06 00':'Sheet no. — comma-separated if several';});
     pseg.appendChild(b);});
   var sh=document.createElement('input');sh.type='text';sh.placeholder='Sheet no. — comma-separated if several';sh.className='sh-in sh-in-no';
+  // the project drawing list, so a sheet is chosen rather than remembered
+  sh.setAttribute('list','sheetList');
+  sh.addEventListener('input',function(){
+    if(chosen.part==='spec')return;
+    var v=sh.value.split(/[,;]+/).pop().trim();
+    var nm=v?knownSheet(pkg,v):null;
+    sh.title=!v?'':(nm!==null?nm:'Not on the project drawing list — check the number, or it is a drawing this addendum adds');
+    sh.classList.toggle('pl-unknown',!!v&&nm===null);
+  });
   var ti=document.createElement('input');ti.type='text';ti.placeholder='What changes on it';ti.className='sh-in';
   var pick=document.createElement('span');pick.className='sh-pick';
   [['drawings','Issue'],['writeup','Write-up'],['none','Fix only']].forEach(function(p){
@@ -6162,11 +6174,11 @@ function openAddSheet(anchor,addKey,pkg,program){
   var save=document.createElement('button');save.type='button';save.textContent='Add';save.className='hist-more';save.style.margin='0';
   var cancel=document.createElement('button');cancel.type='button';cancel.textContent='Cancel';cancel.className='pcancel';
   var hint=document.createElement('span');hint.className='inline-capture-hint';
-  hint.textContent='Appears immediately · queued for the next check-in';
+  hint.textContent='Appears immediately, for everyone · queued for the next check-in';
   function commit(){
     var t=ti.value.trim();if(!t){f.remove();return;}
     var num=sh.value.trim();
-    queueLocally({type:'sheet',program:program||'',pkg:pkg||'',addendum:addKey||'',
+    queueLocally({type:'sheet',program:program||'',pkg:pkg||'',addendum:addNo||'',
       sheet:chosen.part==='spec'?'':num,section:chosen.part==='spec'?num:'',
       part:chosen.part,scope:ADD_DISC==='*'?'AR':ADD_DISC,disc:ADD_DISC==='*'?'AR':ADD_DISC,
       produces:chosen.p||'',verify:chosen.q?'yes':'',
@@ -6870,8 +6882,10 @@ function placementLine(it,pl){
   var proxy={target:pl.target||'',viewtype:pl.view||'',detail:pl.no||'',room:pl.room||'',
              element:pl.element||'',alt:pl.alt||'',produces:it.produces,linestyle:it.linestyle,
              newsheet:!!pl.newsheet};
-  if(!(pl.text||'').trim())
-    return wuTargetFor(proxy,pl.sheet)+(lineStyleOf(it)==='dash'?' - ':'; ')+'\u27e8pick an action\u27e9';
+  if(!(pl.text||'').trim()){
+    var t0=wuTargetFor(proxy,pl.sheet);
+    return (t0?t0+(lineStyleOf(it)==='dash'?' - ':'; '):'')+'\u27e8pick an action\u27e9';
+  }
   return wuDrawLine(proxy,pl.sheet,pl.text);
 }
 function placementSheets(it){
@@ -7124,9 +7138,7 @@ function placementEditor(it){
         var o=document.createElement('option');o.value=x[0];
         o.label=(x[2]?('no. '+x[2]):'')+(x[1]==='raw'?'  ·  no Title on Sheet — this is the Revit view name':'');
         vdl.appendChild(o);});
-      VIEW_TYPES.filter(Boolean).forEach(function(t){
-        if(names.indexOf(t)>-1)return;
-        var o=document.createElement('option');o.value=t;o.label='generic';vdl.appendChild(o);});
+      // no generic fallbacks — the offer is the views actually on this drawing
       var raw=on.filter(function(x){return x[1]==='raw';}).length;
       vEl.placeholder=on.length?(on.length+' view'+(on.length!==1?'s':'')+' on this drawing'
                                  +(raw?' · '+raw+' untitled':''))
@@ -7319,22 +7331,27 @@ var WU_ATTACH_SEC=' is attached hereto and forms part of this Addendum.';
 //   ELEMENT   'Door A59R01.1' · 'Doors P58M01, P58R01'
 //   ALTERNATE 'ALT 02 - Doors A58Q08, A58W02'
 //   SHEET     'Sheet A42.20.10'            ← the fallback when nothing narrower is named
-var VIEW_TYPES=['','PLAN','ENLARGED PLAN','REFLECTED CEILING PLAN','SECTION','SECTION DETAIL',
-  'DETAIL','INTERIOR ELEVATION','ELEVATION','MILLWORK ELEVATION','SCHEDULE','DRAWING LIST'];
+// Deliberately empty. A view is named by the View List — 907 real views with real numbers — or
+// typed. "PLAN" is not the name of a view; it rendered as "PLAN /Sheet A42.31.10", which points at
+// a drawing the heading has already named and at no view in particular.
+var VIEW_TYPES=[];
 function wuTargetFor(it,sheet){
   if(it.target)return it.target;                       // typed by hand — always wins
-  var sh=sheet||'[SHEET ___]';
+  var sh=sheet||'';
   var parts=[];
   if(it.alt)parts.push(String(it.alt).toUpperCase());
+  // A view is named by its title AND its number: 'ARRIVALS FLOOR PLAN - AREA 2 1/A42.22.12'.
+  // A number on its own is still a view reference. A title on its own is the best that can be said.
   var view='';
-  if(it.viewtype&&it.detail)view=it.viewtype+' '+it.detail+'/'+sh;
-  else if(it.viewtype)view=it.viewtype+' /Sheet '+sh;
-  else if(it.detail)view=it.detail+'/'+sh;
+  if(it.viewtype&&it.detail)view=it.viewtype+' '+it.detail+(sh?'/'+sh:'');
+  else if(it.detail)view=it.detail+(sh?'/'+sh:'');
+  else if(it.viewtype)view=String(it.viewtype);
   if(view)parts.push(view);
   if(it.room)parts.push(String(it.room));
   if(it.element)parts.push(String(it.element));
-  if(!parts.length)return 'Sheet '+sh;
-  // ALT is a prefix with a dash; view and room join with an en-dash, the way the issued set does
+  // Nothing narrower than the drawing itself was named, and the §4 heading already names it. The
+  // line is the change and nothing else — a legend redrawn, an arrow moved, a note added.
+  if(!parts.length)return '';
   var head=it.alt?parts.shift()+' - ':'';
   return head+parts.join(' \u2013 ');
 }
@@ -7347,8 +7364,9 @@ function wuDrawLine(it,sheet,step){
   var up=String(step).replace(/^✓\s*/,'').toUpperCase();
   var sep=lineStyleOf(it)==='dash'?' - ':'; ';
   if(WU_REISSUE.test(up))
-    return 'Sheet '+(sheet||'[SHEET ___]')+sep+'Re-issue drawing in its entirety attached and forming part of this Addendum.';
-  var line=wuTargetFor(it,sheet)+sep+wuSentence(step);
+    return 'Re-issue drawing in its entirety attached and forming part of this Addendum.';
+  var tgt=wuTargetFor(it,sheet);
+  var line=(tgt?tgt+sep:'')+wuSentence(step);
   // The attachment clause is what puts the sheet in the List of Attachments, so it is written
   // when — and only when — the state says a drawing is being issued.
   // The separator style governs the TARGET; the attachment clause keeps its semicolon either way,
