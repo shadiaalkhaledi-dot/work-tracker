@@ -6848,9 +6848,14 @@ function placementsOf(it){
 // The vault syntax for one placement. The export prints these verbatim so folding a session's work
 // back in is a paste, not a translation.
 function placementLiteral(pl){
-  return '[placement:: '+[pl.sheet||'',pl.view||'',pl.no||'',pl.room||'',
-    (pl.override&&pl.override.trim())?('= '+pl.override.trim()):(pl.text||'')]
-    .join(' | ').replace(/(\s*\|)+\s*$/,'')+']';
+  // The sixth field is what makes a drawing ADDED rather than re-issued. The parser learned to
+  // read it before this learned to write it, so a new drawing exported at check-in came back as an
+  // ordinary reissue — the wrong clause, in a bid document. Caught by the round-trip test.
+  var bits=[pl.sheet||'',pl.view||'',pl.no||'',pl.room||'',
+    (pl.override&&pl.override.trim())?('= '+pl.override.trim()):(pl.text||'')];
+  var out='[placement:: '+bits.join(' | ').replace(/(\s*\|)+\s*$/,'');
+  if(pl.newsheet)out+=' | new';
+  return out+']';
 }
 function savePlacements(it,list,quiet){
   setAddMeta(it.id,'placements',JSON.stringify(list),'Placements',quiet);
