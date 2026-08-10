@@ -3435,6 +3435,37 @@ function syncBacklog(){
   });
 }
 function syncHeaders(){var h={'Content-Type':'text/plain'};if(SYNC.key)h['x-wt-key']=SYNC.key;return h;}
+// The addendum register is the one screen two people share a row on, so an arriving change has
+// to land there — but never mid-keystroke. Rebuilding it replaces every input, including the one
+// under the caret, which is how a previous build made the fields feel broken. If someone is typing,
+// the repaint waits for focus to leave and then goes.
+function syncRepaintRegisters(){
+  try{
+    var host=document.getElementById('addRegView');
+    if(!host||!host.childNodes.length)return;          // register not open — nothing to repaint
+    var typing=function(el){
+      return !!el&&/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName||'')&&host.contains(el);
+    };
+    if(typing(document.activeElement)){
+      SYNC.dirty=true;
+      if(!SYNC.dirtyHook){
+        SYNC.dirtyHook=true;
+        // on document, not on the host: the host is replaced by every rebuild
+        document.addEventListener('focusout',function(){
+          setTimeout(function(){
+            var h=document.getElementById('addRegView');
+            if(!SYNC.dirty||!h)return;
+            if(typing(document.activeElement))return;
+            SYNC.dirty=false;buildAddendumRegister();
+          },0);
+        },true);
+      }
+      return;
+    }
+    SYNC.dirty=false;
+    buildAddendumRegister();
+  }catch(e){}
+}
 function syncPull(first){
   // jsdom (the test harness) and any browser without fetch would otherwise throw here on boot
   if(!SYNC.on||typeof fetch!=='function')return Promise.resolve();
@@ -3457,7 +3488,7 @@ function syncPull(first){
       // A picture that arrived from someone else is fetched once, then it is local like any other.
       (j.ops||[]).forEach(function(o){
         if(o&&o.type==='image'&&o.imgKey&&!IMG_CACHE[o.imgKey])syncFetchBody(o);});
-      if(fresh){QCACHE=null;rebuildPendingList();refreshBoard();
+      if(fresh){QCACHE=null;rebuildPendingList();refreshBoard();syncRepaintRegisters();
         if(!first)setStatus(fresh+' change'+(fresh!==1?'s':'')+' arrived from someone else.');}
       renderSyncChip();
     })
@@ -4003,7 +4034,12 @@ function jumpToThread(slug){
 }
 function buildAddendumRegister(){
   var c=document.getElementById('addRegView');if(!c)return;c.innerHTML='';
-  var tagged=ITEMS.filter(function(it){return it.addendum;});
+  // laneItems(), not ITEMS: the queue overlay is what makes a change someone else just made
+  // visible here without a reload. Vault lane items are the sheet punch list and belong to the
+  // Sheet work view; a pending capture is not one of those — it is an item on this addendum that
+  // nobody has folded yet, and Contents is the list of what the addendum carries.
+  var tagged=laneItems().filter(function(it){
+    return it.addendum&&(!it.lane||it.pendingLocal);});
   var groups={},order=[];
   tagged.forEach(function(it){
     var k=addKey(it.pkg,it.addendum);
