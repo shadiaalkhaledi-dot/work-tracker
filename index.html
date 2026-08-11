@@ -288,9 +288,10 @@ select.pl-in{cursor:pointer}
 .add-flag-b{font:inherit;font-size:10.5px;padding:1px 8px;border:1px solid var(--line);
   border-radius:9px;background:transparent;color:var(--muted);cursor:pointer;display:inline-flex;
   align-items:center;gap:5px}
-.add-flag-b:hover{border-color:var(--gold);color:var(--text)}
-/* gold, because it is the accent the rest of the page already uses for "this one is on" */
-.add-flag-b.on{background:var(--gold);border-color:var(--gold);color:#fff;font-weight:600}
+.add-flag-b:hover{border-color:var(--teal);color:var(--text)}
+/* gold is already carrying the view and the addendum. A third gold control on the same screen
+   stops meaning "this one is on" and starts being wallpaper, so Show takes the teal. */
+.add-flag-b.on{background:var(--teal);border-color:var(--teal);color:#fff;font-weight:600}
 .add-flag-b .fc{font-variant-numeric:tabular-nums;color:var(--faint);font-weight:400}
 .add-flag-b.on .fc{color:rgba(255,255,255,.75)}
 /* nothing to show is an answer, so the chip stays where it is and goes quiet */
@@ -305,7 +306,7 @@ select.pl-in{cursor:pointer}
 .sh-pill-u{background:rgba(136,135,128,.14);color:var(--muted)}
 
 /* the readiness strip — a sentence you can open */
-.gs{margin:6px 0 10px;border:1px solid var(--border);border-radius:10px;background:var(--card);
+.gs{margin:6px 0 10px;border:1px solid var(--border);border-radius:10px;background:transparent;
   overflow:hidden}
 .gs-sum{display:flex;align-items:center;gap:9px;padding:9px 12px;cursor:pointer;list-style:none;
   flex-wrap:wrap}
@@ -575,7 +576,7 @@ select.pl-in{cursor:pointer}
   .sh-chip.q{border-style:dashed;}
   .sh-row.sh-hit{box-shadow:0 0 0 2px rgba(245,158,11,.55);}
   .sh-row.noSheet{border-left:3px solid var(--mauve);}
-  .sh-addform{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin:7px 0 2px;padding:9px 11px;background:var(--card);border:1px solid var(--sage);border-radius:9px;}
+  .sh-addform{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin:7px 0 2px;padding:9px 11px;background:transparent;border:1px solid var(--sage);border-radius:9px;}
   /* the full form carries the real placement editor, so it stacks rather than sitting on one line */
   .sh-addform-full{display:block;}
   .sh-addform-full .sh-addbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:8px;}
@@ -4239,11 +4240,17 @@ function buildAddendumRegister(){
   discsPresent.sort(function(a,b){return a==='AR'?-1:b==='AR'?1:(a<b?-1:1);});
   {
     var fr=document.createElement('div');fr.className='add-filter add-filter-lead';
-    var flb=document.createElement('span');flb.className='add-filter-lbl';flb.textContent='Discipline';fr.appendChild(flb);
+    // Architecture is what we write. A row of consultant buttons on an addendum that is entirely
+    // architectural is a control with one answer, taking the top of the page. It appears when
+    // there is actually something to choose between.
+    var multi=discsPresent.length>1;
+    if(multi){
+      var flb=document.createElement('span');flb.className='add-filter-lbl';flb.textContent='Discipline';fr.appendChild(flb);
+    }
     // Every filter on this page now reads the same way: a label, chips, a count on each chip. A
     // chip that would return nothing is dimmed rather than removed — a bar that reshuffles as you
     // click it is one you stop trusting, and "none of these" is an answer worth being able to see.
-    discsPresent.concat(['']).forEach(function(dd){
+    (multi?discsPresent.concat(['']):[]).forEach(function(dd){
       var fb=document.createElement('button');fb.type='button';
       fb.className='add-filter-b'+(addDiscFilter_()===dd?' on':'');
       fb.textContent=dd||'Everything';
@@ -4287,6 +4294,7 @@ function buildAddendumRegister(){
       var dd=(it.scope?scopeInfo(it.scope).d:'')||it.disc||'';
       return dd&&addDiscFilter_()&&dd!==addDiscFilter_();}).length;
     var hn=document.createElement('div');hn.className='add-filter-note';
+    if(!multi)hn.style.display='none';
     hn.textContent=addDiscFilter_()
       ?(addDiscFilter_()==='AR'?'Architecture only':'Only '+addDiscFilter_())
         +(hid?' — '+hid+' item(s) from other disciplines hidden':' — nothing else is filed under another discipline')
@@ -4336,6 +4344,8 @@ function buildAddendumRegister(){
   [['reg','Contents','What this addendum carries — the items, by consultant scope'],
    ['threads','Our questions','Design questions WE are chasing — ours to answer. Not bid inquiries: those come from bidders, after the documents go out, and live in §5 of the Write-up.'],
    ['sheets','Sheet work','The sheet-by-sheet punch list — where the states get set'],
+   ['inq','Bid inquiries','Questions from BIDDERS after the documents went out. Each one is answered '
+     +'here, and the answer can also become a drawing revision or a spec note on this addendum.'],
    ['wu','Write-up','\u00a73, \u00a74, the List of Attachments and \u00a75 Bid inquiries']
   ].forEach(function(o){
     var b=document.createElement('button');b.type='button';
@@ -4343,11 +4353,13 @@ function buildAddendumRegister(){
     b.textContent=o[1];b.title=o[2];
     if(o[0]==='threads'){var tn=addQuestionsFor(ADD_OPEN).length;if(tn)b.textContent+='  '+tn;}
     if(o[0]==='sheets'){var sn2=addPoolFor(ADD_OPEN).length;if(sn2)b.textContent+='  '+sn2;}
+    if(o[0]==='inq'){var qn=inquiriesFor(ADD_OPEN).length;if(qn)b.textContent+='  '+qn;}
     b.addEventListener('click',function(){ADD_MODE=o[0];buildAddendumRegister();});
     modeRow.appendChild(b);});
   c.appendChild(modeRow);
   renderGateStrip(ADD_OPEN,c);
 
+  if(ADD_MODE==='inq'){addInquiryBlock(c,ADD_OPEN);return;}
   if(ADD_MODE==='sheets'){addWorkbench(c,ADD_OPEN,addPoolFor(ADD_OPEN));return;}
   if(ADD_MODE==='threads'){addQuestionsPanel(c,ADD_OPEN,groups[ADD_OPEN]);return;}
   if(ADD_MODE==='wu'){
@@ -6341,7 +6353,7 @@ function addWorkbench(host,key,pool){
   // where you already look, and because both were previously invisible: an open question had no
   // surface here at all, and a finished row sat greyed out in the middle of the list with no way
   // to isolate it or to get it out of the way.
-  [['drawings'],['writeup'],['none'],['untriaged'],['verify'],['ask'],['done']].forEach(function(o){
+  [['drawings'],['writeup'],['none']].forEach(function(o){
     var k=o[0];
     var n=parted.filter(function(i){
       if(k==='untriaged')return !i.produces;
@@ -6405,10 +6417,14 @@ function addWorkbench(host,key,pool){
 
   // 3. the rows. Grouped by state so "what can I hand over" is a block, not a scan.
   var rows=parted.filter(function(i){
+    // the page-level Show filter applies here too. It sat above every view and moved only
+    // Contents, which is indistinguishable from being broken.
+    if(ADD_FLAG==='ask'&&!i.ask)return false;
+    if(ADD_FLAG==='done'&&!(i.status==='completed'||i.pendingComplete))return false;
     if(!ADD_STATE)return true;
     if(ADD_STATE==='untriaged')return !i.produces;
     if(ADD_STATE==='verify')return !!i.verify;
-    if(ADD_STATE==='ask')return !!i.ask;
+    if(ADD_STATE==='nosheet')return !placementSheets(i).length;
     if(ADD_STATE==='done')return i.status==='completed'||i.pendingComplete;
     return i.produces===ADD_STATE;});
   if(!rows.length){
