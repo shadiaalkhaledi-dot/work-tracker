@@ -525,6 +525,13 @@ select.pl-in{cursor:pointer}
   .sh-row.sh-hit{box-shadow:0 0 0 2px rgba(245,158,11,.55);}
   .sh-row.noSheet{border-left:3px solid var(--mauve);}
   .sh-addform{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin:7px 0 2px;padding:9px 11px;background:var(--card);border:1px solid var(--sage);border-radius:9px;}
+  /* the full form carries the real placement editor, so it stacks rather than sitting on one line */
+  .sh-addform-full{display:block;}
+  .sh-addform-full .sh-addbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:8px;}
+  .sh-addform-full .sh-addbody{display:block;}
+  .sh-addform-full .sh-f{display:flex;flex-direction:column;gap:3px;margin-bottom:8px;}
+  .sh-addform-full .sh-f label{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);}
+  .sh-addform-full .sh-addbar .inline-capture-hint{margin-left:auto;}
   .sh-in{font:inherit;font-size:12.5px;padding:5px 8px;border:1px solid var(--border);border-radius:7px;background:#fff;color:var(--text);flex:1 1 260px;}
   .sh-in-no{flex:0 0 150px;font-variant-numeric:tabular-nums;}
   .sh-in:focus{outline:none;border-color:var(--teal);}
@@ -6279,74 +6286,108 @@ function addWorkbench(host,key,pool){
 }
 function openAddSheet(anchor,addNo,pkg,program){
   var ex=anchor.parentNode.querySelector(':scope>.sh-addform');if(ex){ex.remove();return;}
-  var f=document.createElement('div');f.className='sh-addform';
-  var chosen={p:'',q:false,part:'drawing'};
-  var pseg=document.createElement('span');pseg.className='sh-pick';
-  [['drawing','§4 Drawing'],['spec','§3 Spec']].forEach(function(o){
-    var b=document.createElement('button');b.type='button';b.textContent=o[1];
-    if(chosen.part===o[0])b.classList.add('on');
-    b.addEventListener('click',function(){chosen.part=o[0];
-      pseg.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');
-      sh.placeholder=chosen.part==='spec'?'Section no. — e.g. 09 06 00':'Sheet no. — comma-separated if several';});
-    pseg.appendChild(b);});
-  var sh=document.createElement('input');sh.type='text';sh.placeholder='Sheet no. — comma-separated if several';sh.className='sh-in sh-in-no';
-  // the project drawing list, so a sheet is chosen rather than remembered
-  sh.setAttribute('list','sheetList');
-  sh.addEventListener('input',function(){
-    if(chosen.part==='spec')return;
-    var v=sh.value.split(/[,;]+/).pop().trim();
-    var nm=v?knownSheet(pkg,v):null;
-    sh.title=!v?'':(nm!==null?nm:'Not on the project drawing list — check the number, or it is a drawing this addendum adds');
-    sh.classList.toggle('pl-unknown',!!v&&nm===null);
-  });
-  var ti=document.createElement('input');ti.type='text';ti.placeholder='What changes on it';ti.className='sh-in';
-  // The number is the one thing you always know, and the drawing list already holds the name that
-  // goes with it. Filling it in is what stops the same sheet being described three different ways.
-  // Anything typed by hand is left alone — `auto` is cleared the moment you edit the field.
-  ti.addEventListener('input',function(){delete ti.dataset.auto;});
-  sh.addEventListener('input',function(){
-    if(chosen.part==='spec')return;
-    if(ti.value&&!ti.dataset.auto)return;
-    var v=sh.value.split(/[,;]+/).pop().trim();
-    var nm=v?knownSheet(pkg,v):null;
-    if(nm){ti.value=nm;ti.dataset.auto='1';}
-    else if(ti.dataset.auto){ti.value='';delete ti.dataset.auto;}
-  });
+  var f=document.createElement('div');f.className='sh-addform sh-addform-full';
+  // A PROVISIONAL ITEM. It carries exactly the fields placementEditor reads, so adding a row and
+  // editing one are the same component — not a simplified copy that drifts out of step with the
+  // real thing. `_save` is the only difference: there is no id to queue an op against yet, so the
+  // list is held here and handed over when the row is created.
+  var prov={id:'new',pkg:pkg||'',program:program||'',addendum:addNo||'',part:'drawing',
+            section:'',title:'',
+            placements:[{sheet:'',view:'',no:'',room:'',element:'',alt:'',text:'',override:''}]};
+  prov._save=function(list){prov.placements=list;};
+  var chosen={p:'',q:false};
+
+  // GOES INTO — the same three the row carries, in the same order, with the same labels
+  var pw=document.createElement('span');pw.className='sh-part';
+  [['drawing','Drawing','4','\u00a74 Drawings \u2014 written here in full, one heading per sheet'],
+   ['spec','Spec','3','\u00a73 Specifications \u2014 you leave a note; the spec writer writes the final words'],
+   ['both','Both','','One change needing a spec note AND a drawing revision. It appears in \u00a73 and \u00a74.']
+  ].forEach(function(o){
+    var b=document.createElement('button');b.type='button';b.title=o[3];b.className='p-'+o[0];
+    b.appendChild(document.createTextNode(o[1]));
+    if(o[2]){var sp=document.createElement('sup');sp.textContent='\u00a7'+o[2];b.appendChild(sp);}
+    if(prov.part===o[0])b.classList.add('on');
+    b.addEventListener('click',function(e){e.stopPropagation();
+      prov.part=o[0];
+      pw.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});
+      b.classList.add('on');paintBody();});
+    pw.appendChild(b);});
+
+  var body=document.createElement('div');body.className='sh-addbody';
+  function paintBody(){
+    body.innerHTML='';
+    if(isSpecPart(prov)){
+      var sw=document.createElement('span');sw.className='sh-f';
+      var sl2=document.createElement('label');sl2.textContent='Specification section';
+      sl2.title='The \u00a73 heading. Written as it appears in the document.';sw.appendChild(sl2);
+      var secIn=document.createElement('input');secIn.type='text';secIn.className='sh-in';
+      secIn.placeholder='09 06 00 \u2013 Schedule for Finishes';secIn.value=prov.section||'';
+      secIn.addEventListener('input',function(){prov.section=secIn.value.trim();});
+      secIn.addEventListener('keydown',function(e){e.stopPropagation();});
+      sw.appendChild(secIn);body.appendChild(sw);
+    }
+    if(isDrawPart(prov))body.appendChild(placementEditor(prov));
+  }
+  paintBody();
+
   var pick=document.createElement('span');pick.className='sh-pick';
-  [['drawings','Issue'],['writeup','Write-up'],['none','Fix only']].forEach(function(p){
-    var b=document.createElement('button');b.type='button';b.textContent=p[1];b.title=produceHint('drawing',p[0]);
-    b.addEventListener('click',function(){
+  [['drawings'],['writeup'],['none']].forEach(function(p){
+    var b=document.createElement('button');b.type='button';
+    b.textContent=produceLabel(prov.part,p[0]);b.title=produceHint(prov.part,p[0]);
+    b.addEventListener('click',function(e){e.stopPropagation();
       chosen.p=chosen.p===p[0]?'':p[0];
       pick.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});
       if(chosen.p)b.classList.add('on');});
     pick.appendChild(b);});
-  var q=document.createElement('button');q.type='button';q.textContent='?';q.title='needs verifying';
-  q.addEventListener('click',function(){chosen.q=!chosen.q;q.classList.toggle('on',chosen.q);q.classList.toggle('q',chosen.q);});
+  var q=document.createElement('button');q.type='button';q.textContent='?';
+  q.title='needs verifying \u2014 Chris H';
+  q.addEventListener('click',function(e){e.stopPropagation();
+    chosen.q=!chosen.q;q.classList.toggle('on',chosen.q);q.classList.toggle('q',chosen.q);});
   pick.appendChild(q);
-  var save=document.createElement('button');save.type='button';save.textContent='Add';save.className='hist-more';save.style.margin='0';
-  var cancel=document.createElement('button');cancel.type='button';cancel.textContent='Cancel';cancel.className='pcancel';
+
+  var save=document.createElement('button');save.type='button';save.textContent='Add';
+  save.className='hist-more';save.style.margin='0';
+  var cancel=document.createElement('button');cancel.type='button';cancel.textContent='Cancel';
+  cancel.className='pcancel';
   var hint=document.createElement('span');hint.className='inline-capture-hint';
-  hint.textContent='Appears immediately, for everyone · queued for the next check-in';
+  hint.textContent='Appears immediately, for everyone \u00b7 queued for the next check-in';
+
   function commit(){
-    var t=ti.value.trim();if(!t){f.remove();return;}
-    var num=sh.value.trim();
-    queueLocally({type:'sheet',program:program||'',pkg:pkg||'',addendum:addNo||'',
-      sheet:chosen.part==='spec'?'':num,section:chosen.part==='spec'?num:'',
-      part:chosen.part,scope:ADD_DISC==='*'?'AR':ADD_DISC,disc:ADD_DISC==='*'?'AR':ADD_DISC,
-      produces:chosen.p||'',verify:chosen.q?'yes':'',
-      text:(num?num+' — ':'')+t});
+    var pls=(prov.placements||[]).filter(function(p){
+      return String(p.sheet||'').trim()||String(p.text||'').trim()||String(p.override||'').trim();});
+    var first=pls[0]||{};
+    var no=String(first.sheet||'').trim();
+    var key=addKey(prov.pkg,prov.addendum);
+    var nm=(typeof sheetNameFor==='function'?sheetNameFor(key,no,prov.pkg):'')||'';
+    var desc=String(first.text||first.override||'').trim();
+    // Same rule as every other row: the name is the first drawing, plus that drawing's name.
+    var title = no ? (no+' \u2014 '+(nm||desc||'(unnamed drawing)'))
+                   : (prov.section?(prov.section+(desc?' \u2014 '+desc:'')):desc);
+    if(!title){f.remove();return;}
+    queueLocally({type:'sheet',program:prov.program,pkg:prov.pkg,addendum:prov.addendum,
+      sheet:isDrawPart(prov)?no:'',section:prov.section||'',part:prov.part,
+      scope:ADD_DISC==='*'?'AR':ADD_DISC,disc:ADD_DISC==='*'?'AR':ADD_DISC,
+      produces:chosen.p||'',verify:chosen.q?'yes':'',text:title});
+    if(isDrawPart(prov)&&pls.length){
+      queueLocally({type:'addmeta',program:prov.program,pkg:prov.pkg,
+        itemRef:title.slice(0,160),field:'placements',value:JSON.stringify(pls),
+        text:(no?no+' \u2014 ':'')+'Placements: '+pls.length+' line(s)'});
+    }
     f.remove();buildAddendumRegister();rebuildPendingList();
-    setStatus('Added — copy for check-in to make it permanent.');
+    setStatus('Added \u2014 copy for check-in to make it permanent.');
   }
-  save.addEventListener('click',commit);
-  cancel.addEventListener('click',function(){f.remove();});
-  [sh,ti].forEach(function(el){el.addEventListener('keydown',function(e){
-    e.stopPropagation();
-    if(e.key==='Enter')commit();
-    if(e.key==='Escape')f.remove();});});
-  f.appendChild(pseg);f.appendChild(sh);f.appendChild(ti);f.appendChild(pick);f.appendChild(save);f.appendChild(cancel);f.appendChild(hint);
+  save.addEventListener('click',function(e){e.stopPropagation();commit();});
+  cancel.addEventListener('click',function(e){e.stopPropagation();f.remove();});
+  f.addEventListener('keydown',function(e){
+    if(e.key==='Escape'){e.stopPropagation();f.remove();}});
+
+  var bar=document.createElement('div');bar.className='sh-addbar';
+  bar.appendChild(pw);bar.appendChild(pick);bar.appendChild(save);bar.appendChild(cancel);
+  bar.appendChild(hint);
+  f.appendChild(bar);f.appendChild(body);
   anchor.insertAdjacentElement('afterend',f);
-  ti.focus();
+  var focus=f.querySelector('.pl-sheet')||f.querySelector('.sh-in');
+  if(focus)focus.focus();
 }
 
 // ---- one row -----------------------------------------------------------------------------------
@@ -7100,7 +7141,32 @@ function placementLiteral(pl){
   return out+']';
 }
 function savePlacements(it,list,quiet){
+  // A provisional row — the add form — is not an item yet, so there is no id to queue an op
+  // against. It keeps its own list and hands it over when the row is created. This is the one
+  // hook that lets the add form use THIS editor rather than a simplified copy of it.
+  if(it&&typeof it._save==='function'){it._save(list);return;}
   setAddMeta(it.id,'placements',JSON.stringify(list),'Placements',quiet);
+}
+// The item's name is the first drawing it lands on, plus that drawing's name. Always — set the
+// number and the name follows, no button to remember and no second version of the truth. What a
+// person typed survives only where the register has nothing to offer: a drawing that is not on the
+// list yet keeps the words already there, behind the new number.
+function followTitleToSheet(it,noNow){
+  if(!it||!it.id)return false;
+  var no=String(noNow||'').trim()||((placementsOf(it)||[])[0]||{}).sheet||itemSheets(it)[0]||'';
+  if(!no)return false;
+  var key=addKey(it.pkg,it.addendum);
+  var nm=(typeof sheetNameFor==='function'?sheetNameFor(key,no,it.pkg):'')||'';
+  if(!nm){
+    // no name for this number yet — carry the existing description across the renumber
+    var m=/^\S+\s+\u2014\s+([\s\S]+)$/.exec((it.title||'').trim());
+    nm=m?m[1].trim():String(it.title||'').trim();
+    if(!nm)return false;
+  }
+  var want=no+' \u2014 '+nm;
+  if(want===(it.title||''))return false;
+  setAddMeta(it.id,'title',want,'Title');
+  return true;
 }
 // One placement, one line. The override is verbatim — if you edited it, that IS the line.
 function placementLine(it,pl){
@@ -7349,10 +7415,19 @@ function placementEditor(it){
         z.mirrors=to;z.text=mirrorText(to);hit=true;});
       return hit;
     };
+    // The number this field held when you arrived in it. Reading it on blur reads what you just
+    // typed — the `input` handler above has already written it to `pl` — so "did the drawing
+    // change?" was always false, and every renumber silently skipped the companions that were
+    // supposed to follow it. Captured on focus instead.
+    shNo.addEventListener('focus',function(){shNo.dataset.was=pl.sheet||'';});
     shNo.addEventListener('blur',function(){
-      var was=pl.sheet;pl.sheet=shNo.value.trim();
-      if(followMirrors(was,pl.sheet)){commitHard();return;}
-      commit();});
+      var was=shNo.dataset.was!==undefined?shNo.dataset.was:pl.sheet;
+      pl.sheet=shNo.value.trim();
+      var first=(list[0]===pl);
+      if(followMirrors(was,pl.sheet)){commitHard();if(first)followTitleToSheet(it,pl.sheet);return;}
+      commit();
+      // the row's name is the first drawing it lands on — it follows, every time
+      if(first)followTitleToSheet(it,pl.sheet);});
     shNm.addEventListener('keydown',function(e){e.stopPropagation();
       if(e.key==='Enter'){setSheetName(key,pl.sheet,shNm.value,it.pkg);shNm.blur();}});
     shNm.addEventListener('blur',function(){
@@ -7361,7 +7436,8 @@ function placementEditor(it){
       var v=shNm.value.trim();
       if(sameValue(v,reg)){supersede(function(o){return o.type==='sheetname'&&o.addendum===key
         &&String(o.sheet||'').toUpperCase()===String(pl.sheet||'').toUpperCase();});return;}
-      if(sheetNameFor(key,pl.sheet,it.pkg)!==v)setSheetName(key,pl.sheet,v,it.pkg);});
+      if(sheetNameFor(key,pl.sheet,it.pkg)!==v)setSheetName(key,pl.sheet,v,it.pkg);
+      if(list[0]===pl)followTitleToSheet(it,pl.sheet);});
     cNo.appendChild(shNo);cNm.appendChild(shNm);
     g1.appendChild(cNo);g1.appendChild(cNm);
     // Name and number are one fact wearing two hats. Fill either and the other follows.
