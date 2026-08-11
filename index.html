@@ -4273,11 +4273,12 @@ function buildAddendumRegister(){
     var flagPool=tagged.filter(function(i){return itemHasDisc(i,ADD_DISC);});
     var flagN=function(k){
       if(!k)return flagPool.length;
-      if(k==='ask')return flagPool.filter(function(i){return !!i.ask;}).length;
+      if(k==='verify')return flagPool.filter(function(i){return !!i.verify;}).length;
       return flagPool.filter(function(i){return i.status==='completed'||i.pendingComplete;}).length;
     };
     [['','All','Every item on this addendum, whatever its state'],
-     ['ask','Questions','An unanswered question sits on these \u2014 out with someone, and it can stall the item. The ? flag is a different thing and lives in Sheet work: that one is ours to confirm.'],
+     ['verify','Questions','The rows carrying a yellow ? \u2014 in the document, but not confirmed yet. '
+        +'Nothing flagged this way can be written until someone answers it.'],
      ['done','Done','Finished work. It stays in the addendum: the state decides what goes in the document, the tick only says the drawing is done.']
     ].forEach(function(o){
       var n2=flagN(o[0]);
@@ -4446,7 +4447,7 @@ function buildAddendumRegister(){
       var inf=scopeInfo(sk==='_none'?'':sk);
       if(addDiscFilter_()&&inf.d!==addDiscFilter_())return;
       var rows=byScope[sk].filter(function(it){
-        if(ADD_FLAG==='ask')return !!it.ask;
+        if(ADD_FLAG==='verify')return !!it.verify;
         if(ADD_FLAG==='done')return it.status==='completed'||it.pendingComplete;
         return true;});
       if(!rows.length)return;
@@ -4503,7 +4504,7 @@ function buildAddendumRegister(){
     });
     if(!shown){
       var nores=document.createElement('div');nores.className='add-row add-none';
-      nores.textContent=ADD_FLAG==='ask'?'Nothing on this addendum is waiting on an answer.'
+      nores.textContent=ADD_FLAG==='verify'?'Nothing on this addendum is flagged with a ?.'
         :ADD_FLAG==='done'?'Nothing on this addendum is finished yet.'
         :(addDiscFilter_()?'Nothing in this addendum is '+addDiscFilter_()+' scope.':'');
       if(nores.textContent)card.appendChild(nores);
@@ -6132,7 +6133,7 @@ var ADD_STATE='';          // '' | drawings | writeup | none | untriaged | verif
 // Contents has its own, because Contents asks a different question: the workbench asks what goes
 // in the document, this asks what is still open. Separate from ADD_STATE so switching view does
 // not carry a filter across with you without saying so.
-var ADD_FLAG='';           // '' | ask | done
+var ADD_FLAG='';           // '' | verify | done   — `verify` is the yellow ? on a row
 var SH_OPEN={};
 var SH_ROW_OPEN={};
 var WU_EXCLUDE={};
@@ -6419,7 +6420,7 @@ function addWorkbench(host,key,pool){
   var rows=parted.filter(function(i){
     // the page-level Show filter applies here too. It sat above every view and moved only
     // Contents, which is indistinguishable from being broken.
-    if(ADD_FLAG==='ask'&&!i.ask)return false;
+    if(ADD_FLAG==='verify'&&!i.verify)return false;
     if(ADD_FLAG==='done'&&!(i.status==='completed'||i.pendingComplete))return false;
     if(!ADD_STATE)return true;
     if(ADD_STATE==='untriaged')return !i.produces;
