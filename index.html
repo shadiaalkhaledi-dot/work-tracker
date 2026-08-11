@@ -135,6 +135,10 @@
   .pending-row .ptype.ptype-subtask{color:var(--sage);border-color:var(--sage);}
   .pending-row .pbody{flex:1 1 auto;min-width:160px;}
   .pending-row .pwhen{color:var(--faint);font-size:11px;flex-shrink:0;margin-top:2px;white-space:nowrap;}
+  /* Who captured it. Two people on one queue and no names on the rows is the same board as one
+     person with a memory problem — the chip is the whole point of the shared store. */
+  .pending-row .pwho{color:var(--teal);font-size:11px;flex-shrink:0;margin-top:2px;white-space:nowrap;font-weight:600;}
+  .pending-row .pwho.pwho-mine{color:var(--faint);font-weight:400;}
   .pending-row .pedit{background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:2px 8px;font-size:11px;cursor:pointer;flex-shrink:0;font-family:inherit;}
   .pending-row .pedit:hover{border-color:var(--muted);color:var(--text);}
   .pending-row.pending-row-editing{flex-direction:column;align-items:stretch;gap:6px;}
@@ -1107,12 +1111,38 @@ select.pl-in{cursor:pointer}
 .sh-row{border-left:3px solid transparent;padding:11px 12px 6px;margin-bottom:7px;
   border-radius:0 8px 8px 0;background:transparent}
 .sh-row:hover{background:rgba(245,158,11,.03)}
-.sh-head{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto auto;gap:10px;align-items:start}
+.sh-head{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto auto auto;gap:10px;align-items:start}
+/* Every cell says which column it is in. Auto-placement was fine until a row could carry a
+   PENDING badge or an author chip, at which point the title slid into an `auto` column, stopped
+   being the flexible one, and a long drawing name pushed the controls off the row. */
+.sh-head>.sh-part{grid-column:1}
+.sh-head>.sh-no{grid-column:2}
+.sh-head>.sh-title{grid-column:3}
+.sh-head>.sh-pick{grid-column:4}
+.sh-head>.sh-done{grid-column:5}
+.sh-head>.sh-x{grid-column:6}
 .sh-row .sh-part{margin-right:0;padding-top:1px;align-self:start}
 .sh-no{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;font-weight:600;
   white-space:nowrap;padding-top:4px}
 .sh-no-empty{color:var(--muted);font-weight:400}
-.sh-title{font-size:13.5px;line-height:1.45;padding-top:2px;min-width:0}
+/* A drawing name is long by nature — "DEPARTURES REFLECTED CEILING PLAN - AREA 1" — so the title
+   wraps inside its cell instead of demanding width the row does not have. */
+.sh-title{font-size:13.5px;line-height:1.45;padding-top:2px;min-width:0;overflow-wrap:anywhere;
+  word-break:break-word}
+.sh-title .badge.p,.sh-title .op-by{margin-left:6px;vertical-align:2px}
+.sh-name-edit{display:inline-flex;gap:6px;width:100%;align-items:center}
+.sh-name-edit input{flex:1 1 auto;min-width:0;font:inherit;padding:3px 6px;border-radius:6px;
+  border:1px solid var(--border);background:var(--card);color:var(--text)}
+.sh-tbtn{background:none;border:none;color:var(--faint);cursor:pointer;font-size:11px;
+  padding:0 3px;font-family:inherit;line-height:1}
+.sh-tbtn:hover{color:var(--teal)}
+.sh-inherit{border:1px solid var(--border);border-radius:5px;padding:1px 6px;font-size:10.5px;
+  color:var(--muted);background:none;cursor:pointer;font-family:inherit;margin-left:6px;
+  white-space:nowrap}
+.sh-inherit:hover{border-color:var(--teal);color:var(--teal)}
+.sh-x{background:none;border:none;color:var(--faint);cursor:pointer;font-size:12px;
+  align-self:start;margin-top:3px;padding:0 2px;font-family:inherit}
+.sh-x:hover{color:var(--terracotta)}
 .sh-head .sh-pick{justify-self:end;align-self:start;flex-wrap:nowrap}
 .sh-head .sh-done{justify-self:end;align-self:start;margin:5px 0 0}
 .sh-head .badge.p{align-self:start;margin-top:3px}
@@ -1160,6 +1190,9 @@ select.pl-in{cursor:pointer}
 .pl-row{grid-template-columns:120px 152px 54px 168px minmax(0,1fr) 24px}
 @media(max-width:900px){
   .sh-head{grid-template-columns:auto minmax(0,1fr) auto}
+  /* the explicit columns above are for the wide layout; narrow reflows by source order */
+  .sh-head>*{grid-column:auto}
+  .sh-head>.sh-title{grid-column:auto}
   .sh-head .sh-pick{grid-column:1/-1;justify-self:start;flex-wrap:wrap;margin-top:4px}
   .pl-row{grid-template-columns:1fr 1fr}
 }
@@ -3278,6 +3311,8 @@ function renderPendingRowView(row,payload){
   }
   else if((payload.type==='note'||payload.type==='blocker'||payload.type==='watch'||payload.type==='subtask')&&payload.itemRef){var ref=payload.itemRef.length>60?payload.itemRef.slice(0,60)+'…':payload.itemRef;txt='<em>Re: '+escapeHtml(ref)+'</em> — '+escapeHtml(payload.text);}else{txt=escapeHtml(payload.text);}
   body.innerHTML=prefix+txt;row.appendChild(body);
+  if(payload.by){var who=document.createElement('span');who.className='pwho'+(payload.by===syncWho()?' pwho-mine':'');
+    who.textContent='\u00b7 '+payload.by;who.title=payload.by===syncWho()?'You captured this':'Captured by '+payload.by+' on their screen';row.appendChild(who);}
   var when=document.createElement('span');when.className='pwhen';when.textContent=formatTs(payload.ts);row.appendChild(when);
   var editBtn=document.createElement('button');editBtn.type='button';editBtn.className='pedit';editBtn.textContent='Edit';editBtn.onclick=function(){renderPendingRowEdit(row,payload);};row.appendChild(editBtn);
   var delBtn=document.createElement('button');delBtn.type='button';delBtn.className='pedit';delBtn.textContent='Remove';delBtn.title='Remove this capture \u2014 it will not be sent at check-in';
@@ -3365,7 +3400,7 @@ function rebuildPendingList(){updateCaptureSummary();
 // rather than bolting collaboration onto one surface. Local writes stay authoritative and
 // instant; remote ops arrive on a poll and merge by id. Nothing is ever edited in place — an
 // edit is a tombstone plus a new op — so the merge has no conflict to resolve.
-var SYNC={url:'',key:'',room:'work-tracker',on:false,since:0,timer:null,at:0,err:'',n:0};
+var SYNC={url:'',key:'',room:'work-tracker',on:false,since:0,timer:null,at:0,err:'',n:0,via:'',idle:0};
 var REMOTE_Q=[];      // ops authored in another browser
 var QCACHE=null;      // merged view, rebuilt on any write or pull
 function syncWho(){
@@ -3401,11 +3436,9 @@ function syncConfigure(d){
   SYNC.url=cfg.url;SYNC.key=cfg.key||'';SYNC.room=cfg.room||'work-tracker';SYNC.on=true;
   syncBacklog();
   syncPull(true);
-  if(SYNC.timer)clearInterval(SYNC.timer);
-  // 8s while you are looking at it. A hidden tab does not poll — two people leaving this open
-  // all day should not be a background request every 8 seconds each.
-  SYNC.timer=setInterval(function(){if(!document.hidden)syncPull();},8000);
-  document.addEventListener('visibilitychange',function(){if(!document.hidden)syncPull();});
+  syncArm();
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden){SYNC.idle=0;syncPull();syncArm();}});
   renderSyncChip();
 }
 // Everything captured before the store existed is sitting in this browser and has never been sent.
@@ -3466,6 +3499,22 @@ function syncRepaintRegisters(){
     buildAddendumRegister();
   }catch(e){}
 }
+// A hidden tab does not poll at all. A visible one polls fast while the board is moving and eases
+// off when it is not — which matters on the KV backend, where every poll is a LIST operation and
+// the free tier allows a thousand a day. Two people at a flat eight seconds spend the whole day's
+// allowance inside an hour, after which sync fails outright until midnight UTC and nothing on the
+// page says why. A Durable Object is billed per request against a far larger ceiling, so it stays
+// at eight seconds and stays live.
+function syncDelay(){
+  if(SYNC.via==='do')return 8000;
+  if(SYNC.idle<8)return 8000;            // roughly the first minute after anything happens
+  if(SYNC.idle<20)return 20000;
+  return 45000;
+}
+function syncArm(){
+  if(SYNC.timer)clearTimeout(SYNC.timer);
+  SYNC.timer=setTimeout(function(){if(!document.hidden)syncPull();syncArm();},syncDelay());
+}
 function syncPull(first){
   // jsdom (the test harness) and any browser without fetch would otherwise throw here on boot
   if(!SYNC.on||typeof fetch!=='function')return Promise.resolve();
@@ -3483,19 +3532,29 @@ function syncPull(first){
         if(o.by&&mine&&o.by===mine&&o.type!=='_void')return;
         REMOTE_Q.push(o);seen[o.id]=1;fresh++;
       });
-      if(j.now)SYNC.since=j.now;
+      // `since` is an OPAQUE cursor — store whatever came back and echo it. Under KV it is a
+      // deliberately lagged clock, under the Durable Object a row id, and a fresh room answers 0.
+      // The old `if(j.now)` refused a zero cursor, which is a real value, not an absent one.
+      if(j.now!==undefined&&j.now!==null)SYNC.since=j.now;
+      SYNC.via=j.via||'';
+      // The store answers in pages. `more` means the cursor moved but there is backlog behind it;
+      // waiting the full 8 seconds per page would trickle a day's work in over several minutes.
+      if(j.more)setTimeout(function(){syncPull();},150);
       SYNC.n=(j.ops||[]).length;
       // A picture that arrived from someone else is fetched once, then it is local like any other.
       (j.ops||[]).forEach(function(o){
         if(o&&o.type==='image'&&o.imgKey&&!IMG_CACHE[o.imgKey])syncFetchBody(o);});
-      if(fresh){QCACHE=null;rebuildPendingList();refreshBoard();syncRepaintRegisters();
+      if(fresh){SYNC.idle=0;QCACHE=null;rebuildPendingList();refreshBoard();syncRepaintRegisters();
         if(!first)setStatus(fresh+' change'+(fresh!==1?'s':'')+' arrived from someone else.');}
+      else SYNC.idle++;
       renderSyncChip();
     })
     .catch(function(e){SYNC.err=String(e&&e.message||e);renderSyncChip();});
 }
 function syncPush(ops,bodies){
   if(!SYNC.on||typeof fetch!=='function'||!ops||!ops.length)return;
+  // something just happened on this screen, so the other one is probably about to answer
+  SYNC.idle=0;syncArm();
   fetch(SYNC.url+'?room='+encodeURIComponent(SYNC.room),
         {method:'POST',headers:syncHeaders(),body:JSON.stringify({ops:ops,bodies:bodies||[]})})
     .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);SYNC.err='';SYNC.at=Date.now();renderSyncChip();})
@@ -3521,7 +3580,8 @@ function renderSyncChip(){
   var who=syncWho();
   el.textContent='Shared'+(who?' · '+who:' · set your name');
   if(!who)el.classList.add('sc-warn');
-  el.title='Shared store on. '+(SYNC.at?('last synced '+Math.round((Date.now()-SYNC.at)/1000)+'s ago'):'connecting')
+  el.title='Shared store on'+(SYNC.via?(' ('+(SYNC.via==='do'?'durable object':'KV')+')'):'')+'. '
+    +(SYNC.at?('last synced '+Math.round((Date.now()-SYNC.at)/1000)+'s ago'):'connecting')
     +'. Click to change your name or the endpoint.';
 }
 // Three chained window.prompts was a bad way to ask for the one thing that turns this site from
@@ -3647,7 +3707,10 @@ function buildExportText(){
         +'  \u2192 save to vault/attachments and add [img:: <path>] to the item';
     }
     return '- ['+typeLabel(p.type)+'] '+(loc?loc+': ':'')+p.text+ref;
-  });
+  // A check-in that cannot tell whose capture it is reading has to ask, which is the one thing
+  // the shared store was supposed to stop. The name rides on the first line of each entry.
+  }).map(function(s,i){var by=(q[i]&&q[i].by)||'';if(!by)return s;
+    var L=s.split('\n');L[0]=L[0]+'  \u00b7 '+by;return L.join('\n');});
   var seq=(typeof mdSeq==='function')?mdSeq():(md.order||[]);
   if(seq.length){
     lines.push('');lines.push('My day plan ('+(md.seededFrom||'today')+'), in order:');
@@ -5885,6 +5948,20 @@ var WU_DELETE_SEC = /^DELETE\b.*\bSECTION\b/;
 // only a text sort produces — a numeric one would file it eighth. Matching the house means the
 // render pastes into the document without being reordered by hand.
 var ADD_ORDER_NUMERIC=false;
+// A5.100 sorted before A5.30 because '1' is less than '3'. Prefixing each run of digits with its
+// own length makes a longer number sort after a shorter one without parsing the sheet into fields,
+// which matters because sheet numbers are not one format: A5.31.21, A42.22.10, §3 09 06 00.
+//
+// This is deliberately NOT sheetSortKey. That one feeds the write-up, where "House order" is text
+// order on purpose — the issued addenda file A42.4.19 between A42.31.13 and A42.6.01 and the
+// document has to match them. The register on screen is for finding a row, so it reads naturally.
+function natSheetKey(s){
+  return String(s||'').toUpperCase().replace(/\d+/g,function(n){return String(n.length)+n;});
+}
+function sheetRowSortKey(it){
+  var sh=(typeof it==='string')?it:(it&&it.sheet)||'';
+  return natSheetKey(sh)+'|'+((typeof it==='string')?'':((it&&it.title)||''));
+}
 function sheetSortKey(it){
   var sh=(typeof it==='string')?it:(it&&it.sheet)||'';
   if(ADD_ORDER_NUMERIC){
@@ -5954,9 +6031,14 @@ function laneItems(){
   var extra=(window.ITEMS||[]).filter(function(i){return i.addendum;})
                               .map(function(i){return Object.assign({},i);});
   var all=lane.concat(extra);
+  // Ops are keyed by title, so renaming an item would orphan everything already queued against
+  // the old name. The rename records the name it replaced and the alias keeps those ops pointed at
+  // the same row. Without it, editing a title silently dropped that item's placements.
+  var alias={};
   var byTitle=function(t){
-    for(var i=0;i<all.length;i++){if((all[i].title||'').slice(0,60)===String(t||'').slice(0,60))return all[i];}
-    return null;};
+    var k=String(t||'').slice(0,60);
+    for(var i=0;i<all.length;i++){if((all[i].title||'').slice(0,60)===k)return all[i];}
+    return alias[k]||null;};
   (readQueue()||[]).forEach(function(p,ix){
     if(p.type==='sheet'){
       // captured on the site and not yet folded — it is real work the moment you type it
@@ -5979,6 +6061,8 @@ function laneItems(){
       if(p.field==='sheets'){
         var list=String(p.value||'').split(/[,;]+/).map(function(x){return x.trim();}).filter(Boolean);
         a.sheets=list;a.sheet=list[0]||'';
+      }else if(p.field==='title'){
+        if(p.value){alias[String(a.title||'').slice(0,60)]=a;a.title=p.value;}
       }else{a[p.field]=p.value;}
       if(p.by)a.byLast=p.by;
     }else if(p.type==='complete'&&p.text){
@@ -6177,7 +6261,7 @@ function addWorkbench(host,key,pool){
   var groups=ADD_PART==='spec'?['drawings','writeup','none','']:['drawings','writeup','none',''];
   groups.forEach(function(g){
     var grp=rows.filter(function(i){return (i.produces||'')===g;})
-      .sort(function(a,b){return sheetSortKey(a)<sheetSortKey(b)?-1:1;});
+      .sort(function(a,b){return sheetRowSortKey(a)<sheetRowSortKey(b)?-1:1;});
     if(!grp.length)return;
     var h=document.createElement('div');h.className='sh-group g-'+(g||'untriaged');
     h.innerHTML=escapeHtml(produceLabel(partForLabels,g))+' <span class="n">'+grp.length+' · '
@@ -6216,6 +6300,18 @@ function openAddSheet(anchor,addNo,pkg,program){
     sh.classList.toggle('pl-unknown',!!v&&nm===null);
   });
   var ti=document.createElement('input');ti.type='text';ti.placeholder='What changes on it';ti.className='sh-in';
+  // The number is the one thing you always know, and the drawing list already holds the name that
+  // goes with it. Filling it in is what stops the same sheet being described three different ways.
+  // Anything typed by hand is left alone — `auto` is cleared the moment you edit the field.
+  ti.addEventListener('input',function(){delete ti.dataset.auto;});
+  sh.addEventListener('input',function(){
+    if(chosen.part==='spec')return;
+    if(ti.value&&!ti.dataset.auto)return;
+    var v=sh.value.split(/[,;]+/).pop().trim();
+    var nm=v?knownSheet(pkg,v):null;
+    if(nm){ti.value=nm;ti.dataset.auto='1';}
+    else if(ti.dataset.auto){ti.value='';delete ti.dataset.auto;}
+  });
   var pick=document.createElement('span');pick.className='sh-pick';
   [['drawings','Issue'],['writeup','Write-up'],['none','Fix only']].forEach(function(p){
     var b=document.createElement('button');b.type='button';b.textContent=p[1];b.title=produceHint('drawing',p[0]);
@@ -6345,9 +6441,10 @@ function sheetRow(it){
   else if(sheets.length){no.textContent=sheets[0];}
   else{no.textContent=it.lane?'— no sheet':'◇ from the board';}
   if(it.detail)no.textContent=it.detail+'/'+(sheets[0]||'?');
+  var pb=null;
   if(it.pendingLocal){row.classList.add('pendingRow');
-    var pb=document.createElement('span');pb.className='badge p';pb.textContent='PENDING';
-    pb.title='Captured here, not yet folded into the vault';head.appendChild(pb);}
+    pb=document.createElement('span');pb.className='badge p';pb.textContent='PENDING';
+    pb.title='Captured here, not yet folded into the vault';}
   // It was buried in the expander. "Is this a spec item or a drawing item?" is the FIRST question
   // about a row, not a detail of it, so it sits at the front of the row where it reads as a switch.
   var pw=document.createElement('span');pw.className='sh-part';
@@ -6365,10 +6462,59 @@ function sheetRow(it){
     pw.appendChild(b);});
   head.appendChild(pw);
   var ti=document.createElement('span');ti.className='sh-title';
-  ti.textContent=(it.title||'').replace(/^A\S+\s+—\s+/,'');
   head.appendChild(no);head.appendChild(ti);
-  if(it.byLast){var bb=document.createElement('span');bb.className='op-by';bb.textContent='· '+it.byLast;
-    bb.title='Last changed by '+it.byLast;head.appendChild(bb);}
+  // The name a drawing already has. Typing it again by hand is how A5.31.21 ends up called three
+  // different things in one addendum, so the row offers the register's own wording in one click.
+  var inheritName=(function(){
+    var no0=sheets[0]||'';if(!no0||(isSpecPart(it)&&!itemSheets(it).length))return '';
+    var nm=(typeof sheetNameFor==='function')
+      ? (sheetNameFor(addKey(it.pkg,it.addendum),no0,it.pkg)||'') : '';
+    if(!nm)return '';
+    var want=no0+' \u2014 '+nm;
+    return (it.title||'')===want?'':want;
+  })();
+  function paintTitle(){
+    ti.innerHTML='';
+    ti.appendChild(document.createTextNode((it.title||'').replace(/^A\S+\s+\u2014\s+/,'')||'(untitled)'));
+    if(pb)ti.appendChild(pb);
+    if(it.byLast){var bb=document.createElement('span');bb.className='op-by';
+      bb.textContent='\u00b7 '+it.byLast;bb.title='Last changed by '+it.byLast;ti.appendChild(bb);}
+    var pen=document.createElement('button');pen.type='button';pen.className='sh-tbtn';
+    pen.textContent='\u270e';pen.title='Rename this item';
+    pen.addEventListener('click',function(e){e.stopPropagation();editTitle();});
+    ti.appendChild(pen);
+    if(inheritName){
+      var ib=document.createElement('button');ib.type='button';ib.className='sh-inherit';
+      ib.textContent='use drawing name';
+      ib.title='Rename to \u201c'+inheritName+'\u201d \u2014 the name this sheet carries on the drawing list';
+      ib.addEventListener('click',function(e){e.stopPropagation();
+        setAddMeta(it.id,'title',inheritName,'Title');});
+      ti.appendChild(ib);
+    }
+  }
+  function editTitle(){
+    ti.innerHTML='';
+    var w=document.createElement('span');w.className='sh-name-edit';
+    var inp=document.createElement('input');inp.type='text';inp.value=it.title||'';
+    var save=document.createElement('button');save.type='button';save.className='sh-tbtn';
+    save.textContent='\u2713';save.title='Save the new name';
+    var cx=document.createElement('button');cx.type='button';cx.className='sh-tbtn';
+    cx.textContent='\u2715';cx.title='Leave the name as it was';
+    function commitName(){
+      var v=inp.value.trim();
+      if(!v||v===(it.title||'')){paintTitle();return;}
+      setAddMeta(it.id,'title',v,'Title');
+    }
+    save.addEventListener('click',function(e){e.stopPropagation();commitName();});
+    cx.addEventListener('click',function(e){e.stopPropagation();paintTitle();});
+    inp.addEventListener('keydown',function(e){e.stopPropagation();
+      if(e.key==='Enter')commitName();
+      if(e.key==='Escape')paintTitle();});
+    inp.addEventListener('click',function(e){e.stopPropagation();});
+    w.appendChild(inp);w.appendChild(save);w.appendChild(cx);
+    ti.appendChild(w);inp.focus();inp.select();
+  }
+  paintTitle();
   var pick=document.createElement('span');pick.className='sh-pick';
   [['drawings'],['writeup'],['none']].forEach(function(p){
     var b=document.createElement('button');b.type='button';
@@ -6401,6 +6547,34 @@ function sheetRow(it){
     buildAddendumRegister();
   });
   head.appendChild(cb);
+  // Contents had a delete and Sheet work did not, so a row added on the wrong sheet could only be
+  // removed by switching views to find the same item again. Same two meanings as there: a capture
+  // that was never folded is voided outright, anything the vault knows is dropped at check-in.
+  var xb=document.createElement('button');xb.type='button';xb.className='sh-x';
+  xb.textContent='\u2715';
+  xb.title=it.pendingLocal?'Delete this item \u2014 it was added here and never folded'
+    :('Drop this item from Addendum '+addNum(it.addendum)
+      +' \u2014 off the list now, out of the vault at check-in');
+  xb.addEventListener('click',function(e){
+    e.stopPropagation();
+    if(!window.confirm(it.pendingLocal
+      ?('Delete \u201c'+(it.title||'').slice(0,60)+'\u201d? It was added here and never folded, so it goes for good.')
+      :('Drop \u201c'+(it.title||'').slice(0,60)+'\u201d from Addendum '+addNum(it.addendum)+'?')))return;
+    if(it.pendingLocal&&it.srcOp){
+      voidOp({id:it.srcOp});
+      buildAddendumRegister();rebuildPendingList();
+      setStatus('Deleted \u2014 it was never folded, so it is simply gone.');
+      return;
+    }
+    var payload={type:'unaddendum',program:it.program||'',pkg:it.pkg||'',
+                 itemRef:(it.title||'').slice(0,160),
+                 text:'Remove from Addendum '+addNum(it.addendum),ts:new Date().toISOString()};
+    queueLocally(payload);renderPendingRow(payload);
+    buildAddendumRegister();
+    setStatus('Dropped from Addendum '+addNum(it.addendum)
+      +' \u2014 gone from the list now, and from the vault at check-in.');
+  });
+  head.appendChild(xb);
   row.appendChild(head);
 
   var det=(window.LAST_DATA&&LAST_DATA.details&&LAST_DATA.details[it.id])||{};
