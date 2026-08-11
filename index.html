@@ -1170,16 +1170,31 @@ select.pl-in{cursor:pointer}
 .sh-row{border-left:3px solid transparent;padding:11px 12px 6px;margin-bottom:7px;
   border-radius:0 8px 8px 0;background:transparent}
 .sh-row:hover{background:rgba(245,158,11,.03)}
-.sh-head{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto auto auto;gap:10px;align-items:start}
+.sh-head{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto auto auto auto;gap:10px;align-items:start}
 /* Every cell says which column it is in. Auto-placement was fine until a row could carry a
    PENDING badge or an author chip, at which point the title slid into an `auto` column, stopped
    being the flexible one, and a long drawing name pushed the controls off the row. */
 .sh-head>.sh-part{grid-column:1}
 .sh-head>.sh-no{grid-column:2}
 .sh-head>.sh-title{grid-column:3}
-.sh-head>.sh-pick{grid-column:4}
-.sh-head>.sh-done{grid-column:5}
-.sh-head>.sh-x{grid-column:6}
+.sh-head>.sh-move{grid-column:4}
+.sh-head>.sh-pick{grid-column:5}
+.sh-head>.sh-done{grid-column:6}
+.sh-head>.sh-x{grid-column:7}
+/* Which addendum a row rides. A select rather than a button because the answer is "which one",
+   not "yes or no" — and because a package can grow a third instrument without the control
+   changing shape. It only appears when there is more than one to choose between. */
+.sh-move{font:inherit;font-size:10.5px;font-weight:600;color:var(--muted);background:var(--card);
+  border:1px solid var(--line);border-radius:5px;padding:2px 4px;cursor:pointer;align-self:start;
+  margin-top:2px;justify-self:end;max-width:104px}
+.sh-move:hover{color:var(--gold);border-color:var(--gold)}
+.wb-move{align-items:center}
+.wb-move .sh-move{margin-top:0;justify-self:start;max-width:180px}
+.wb-move-h{font-weight:400;text-transform:none;letter-spacing:0;opacity:.75}
+/* A bid inquiry that turned into document work says so on its own row, in the same two-button
+   shape Sheet work uses — so "is this a spec item or a drawing item?" looks the same everywhere. */
+.inq-part{margin:5px 0 0 0}
+.inq-made{font-size:11px;color:var(--teal);margin-top:4px;line-height:1.45}
 .sh-row .sh-part{margin-right:0;padding-top:1px;align-self:start}
 .sh-no{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;font-weight:600;
   white-space:nowrap;padding-top:4px}
@@ -1253,6 +1268,7 @@ select.pl-in{cursor:pointer}
   .sh-head>*{grid-column:auto}
   .sh-head>.sh-title{grid-column:auto}
   .sh-head .sh-pick{grid-column:1/-1;justify-self:start;flex-wrap:wrap;margin-top:4px}
+  .sh-move{justify-self:start;max-width:none}
   .pl-row{grid-template-columns:1fr 1fr}
 }
 .pl-row{grid-template-columns:112px 140px 48px 150px 150px minmax(0,1fr) 24px}
@@ -4171,6 +4187,13 @@ function addDiscFilter_(){return ADD_DISC==='*'?'':ADD_DISC;}
 // here, so any future spelling lands on the same key.
 function addNum(num){return String(num==null?'':num).toLowerCase().replace(/^tp[\d.]*-a/,'').replace(/^0+(?=\w)/,'');}
 function addKey(pkg,num){return (pkgNum(pkg)||pkg||'?')+'|'+addNum(num);}
+// The short name a chip or a card uses. Milestones spell a package 'Package 5 (TP5) — Departures
+// Level' and items spell it 'Package 5 — Departures Level', so an addendum with no items yet was
+// labelled 'Pkg 5 (TP5)' while its sibling read 'Pkg 5'. One function, one answer.
+function pkgChip(name){
+  return String(name||'').split('\u2014')[0].split('—')[0]
+    .replace(/\s*\([^)]*\)\s*/g,' ').replace(/^Package /,'Pkg ').trim();
+}
 function addendumDateFor(pkgName,num){
   var ms=milestoneFor(pkgName,'');if(!ms)return null;
   var want=addNum(num);
@@ -4319,6 +4342,8 @@ function buildAddendumRegister(){
   // you open a card to reach the sheet list, which buried the work you actually came to do one
   // click deep and made the sheets feel like a sub-feature of the register. They are the same
   // instrument; neither is inside the other.
+  // the move controls need to know every addendum this package has, and how each is spelled
+  ADD_GROUPS=groups;ADD_ORDER=order;
   if(!ADD_OPEN||order.indexOf(ADD_OPEN)===-1){
     var best=order.slice().sort(function(a,b){
       return addPoolFor(b).length-addPoolFor(a).length;})[0];
@@ -4331,8 +4356,7 @@ function buildAddendumRegister(){
     var g=groups[k],n=addPoolFor(k).length;
     var b=document.createElement('button');b.type='button';
     b.className='add-pick'+(ADD_OPEN===k?' on':'');
-    b.textContent=(g.pkg||'').replace(/Package /,'Pkg ').split('\u2014')[0].trim()+' · Add '+g.num
-      +(n?'  '+n:'');
+    b.textContent=pkgChip(g.pkg)+' \u00b7 Add '+g.num+(n?'  '+n:'');
     var dr=addendumDateFor(g.pkg,g.num);
     b.title=(dr&&/^\d{4}-\d{2}-\d{2}/.test(dr.date))?('issues '+dr.date):'no date yet';
     b.addEventListener('click',function(){ADD_OPEN=k;buildAddendumRegister();});
@@ -4373,7 +4397,7 @@ function buildAddendumRegister(){
     var card=document.createElement('div');card.className='add-card';
     var head=document.createElement('div');head.className='add-card-head';
     var nm=document.createElement('span');nm.className='add-card-name';
-    nm.textContent=(g.pkg||'').replace(/Package /,'Pkg ').split('—')[0].trim()+' · Addendum '+g.num;
+    nm.textContent=pkgChip(g.pkg)+' \u00b7 Addendum '+g.num;
     head.appendChild(nm);
     var dt=document.createElement('span');dt.className='add-card-date';
     if(row&&/^\d{4}-\d{2}-\d{2}/.test(row.date)){dt.textContent=row.date;}
@@ -6231,6 +6255,62 @@ function laneItems(){
   });
   return all.filter(function(i){return !i._dropped;});
 }
+// ---- moving an item between addenda -------------------------------------------------------
+// The addendum an item rides is a TAG in the vault, so moving it is an ordinary field edit — one
+// addmeta op, superseded like every other, folded at the next check-in. The one thing the control
+// must not do is invent a spelling: Package 5 writes `TP5-A1` and Package 4.2 writes `5`, and a
+// tag that disagrees with what Milestones says draws two cards for one instrument.
+var ADD_GROUPS={},ADD_ORDER=[];
+function addendaForPkg(pkg){
+  var p=String(pkgNum(pkg)||pkg||'?');
+  return ADD_ORDER.filter(function(k){return k.split('|')[0]===p;})
+    .sort(function(a,b){
+      var na=parseFloat(a.split('|')[1]),nb=parseFloat(b.split('|')[1]);
+      if(isNaN(na)||isNaN(nb))return a<b?-1:1;
+      return na-nb;});
+}
+// The raw tag for a destination, read off an item already riding it — so the spelling comes from
+// the vault rather than from here. An addendum with no items yet inherits the shape its siblings
+// in the same package use: TP5-A<n> where that is the house form, otherwise the bare number.
+function rawAddendumFor(key){
+  var num=key.split('|')[1],pkgP=key.split('|')[0],all=laneItems();
+  for(var i=0;i<all.length;i++){
+    if(all[i].addendum&&addKey(all[i].pkg,all[i].addendum)===key)return all[i].addendum;}
+  for(var j=0;j<all.length;j++){
+    if(!all[j].addendum)continue;
+    if(addKey(all[j].pkg,all[j].addendum).split('|')[0]!==pkgP)continue;
+    var m=/^(tp[\d.]*-a)/i.exec(String(all[j].addendum));
+    if(m)return m[1].toUpperCase()+num;}
+  return num;
+}
+function addLabelFor(key){
+  var g=ADD_GROUPS[key];
+  return g?(pkgChip(g.pkg)+' \u00b7 Add '+g.num):('Addendum '+key.split('|')[1]);
+}
+function moveToAddendum(id,key,quiet){
+  var it=findLane(id);if(!it)return false;
+  if(addKey(it.pkg,it.addendum)===key)return false;
+  setAddMeta(id,'addendum',rawAddendumFor(key),'Addendum',quiet);
+  if(!quiet)setStatus('Moved to '+addLabelFor(key)
+    +' — on that register now, retagged in the vault at check-in.');
+  return true;
+}
+// The whole reason for splitting one addendum into two: work that is FINISHED goes out on the
+// earlier instrument instead of waiting for the later one. Doing that one row at a time across
+// forty items is how it quietly does not get done.
+function moveDoneToAddendum(fromKey,toKey){
+  var pool=addPoolFor(fromKey).filter(function(i){
+    return i.pendingComplete||i.status==='completed';});
+  if(!pool.length){setStatus('Nothing finished on this addendum to move.');return 0;}
+  if(!window.confirm('Move '+pool.length+' finished item'+(pool.length!==1?'s':'')+' to '
+    +addLabelFor(toKey)+'?\n\nOpen work stays where it is.'))return 0;
+  var n=0;
+  pool.forEach(function(i){if(moveToAddendum(i.id,toKey,true))n++;});
+  buildAddendumRegister();
+  setStatus(n+' finished item'+(n!==1?'s':'')+' moved to '+addLabelFor(toKey)
+    +' — queued for check-in. Open work stayed on '+addLabelFor(fromKey)+'.');
+  return n;
+}
 function addPoolFor(key){
   return laneItems().filter(function(i){
     if(addKey(i.pkg,i.addendum)!==key)return false;
@@ -6327,6 +6407,31 @@ function addWorkbench(host,key,pool){
     +'says it in words with nothing attached, <b>Fix only</b> means we correct it and the bid never '
     +'sees it. Open a row to see the exact lines it will produce.';
   wb.appendChild(lede0);
+
+  // Splitting one addendum into two is only worth doing if the finished half can actually be moved
+  // across in one action. This bar appears exactly when both conditions hold: the package has
+  // somewhere else to move to, and there is finished work sitting here.
+  (function(){
+    var pk=(pool[0]||{}).pkg||((ADD_GROUPS[key]||{}).pkg||'');
+    var dests=addendaForPkg(pk).filter(function(k){return k!==key;});
+    var doneN=pool.filter(function(i){return i.pendingComplete||i.status==='completed';}).length;
+    if(!dests.length||!doneN)return;
+    var mb=document.createElement('div');mb.className='wb-bar wb-move';
+    var ml=document.createElement('span');ml.className='wb-lbl';ml.textContent='Move finished';
+    mb.appendChild(ml);
+    var sel=document.createElement('select');sel.className='sh-move';
+    dests.forEach(function(k){
+      var o=document.createElement('option');o.value=k;o.textContent=addLabelFor(k);sel.appendChild(o);});
+    mb.appendChild(sel);
+    var go=document.createElement('button');go.type='button';go.className='wb-seg';
+    go.textContent='Move '+doneN+' finished →';
+    go.title='Finished work rides the instrument you pick. Open work stays on this one.';
+    go.addEventListener('click',function(){moveDoneToAddendum(key,sel.value);});
+    mb.appendChild(go);
+    var hint=document.createElement('span');hint.className='wb-lbl wb-move-h';
+    hint.textContent='open work stays here';mb.appendChild(hint);
+    wb.appendChild(mb);
+  })();
 
   // 1. Specification or Drawing — the axis the letters never carried. §3 is written by the spec
   //    writer from what you note here; §4 is written here in full.
@@ -6764,6 +6869,24 @@ function sheetRow(it){
   if(it.verify)q.classList.add('on','q');
   q.addEventListener('click',function(e){e.stopPropagation();toggleVerify(it.id);});
   pick.appendChild(q);
+  // Which addendum this row rides. Shown only when the package has more than one — a control with
+  // a single answer is a control you learn to ignore. Changing it queues the retag; it does not
+  // touch the vault until the next check-in, same as every other field on this row.
+  var dests=addendaForPkg(it.pkg),here=addKey(it.pkg,it.addendum);
+  if(dests.length>1){
+    var mv=document.createElement('select');mv.className='sh-move';
+    mv.title='Which addendum this item rides. Changing it queues a retag for the next check-in — '
+      +'the state still decides what the document says, this only decides which document.';
+    mv.setAttribute('aria-label','Addendum for '+(it.title||''));
+    dests.forEach(function(k){
+      var o=document.createElement('option');o.value=k;
+      o.textContent='Add '+(ADD_GROUPS[k]?ADD_GROUPS[k].num:k.split('|')[1]);
+      if(here===k)o.selected=true;
+      mv.appendChild(o);});
+    mv.addEventListener('click',function(e){e.stopPropagation();});
+    mv.addEventListener('change',function(e){e.stopPropagation();moveToAddendum(it.id,mv.value);});
+    head.appendChild(mv);
+  }
   head.appendChild(pick);
   var cb=document.createElement('input');cb.type='checkbox';cb.className='sh-done';
   cb.title='Mark the WORK done. The item stays in the addendum — its state decides that, not this.';
@@ -6999,9 +7122,53 @@ function addQuestionsPanel(host,key,g){
 // is a question from the design side during the work, a bid inquiry is a question from a BIDDER
 // after the documents go out. They arrive post-bid and fold into the first addendum after close.
 // Auto-filling §5 from the RFIs would have shipped eleven fabricated Q/A pairs into a bid document.
+// A bid inquiry used to exist ONLY as a queued op, which meant §5 emptied itself the moment a
+// check-in folded the queue away. They have a vault file now — Projects/Bid Inquiries.md — and this
+// reads both: what the vault knows, plus anything typed here and not yet folded. Same shape as
+// every other register on this page.
 function inquiriesFor(key){
-  return (readQueue()||[]).filter(function(p){
+  var vault=((window.LAST_DATA&&LAST_DATA.inquiries)||[]).filter(function(q){
+    return addKey(q.pkg,q.addendum)===key;}).map(function(q){
+      return {type:'inquiry',addendum:key,qno:q.qno,q:q.q,a:q.a,pkg:q.pkg||'',
+              program:q.program||'',by:q.by||'',fromVault:true,id:'vq-'+key+'-'+q.qno};});
+  var queued=(readQueue()||[]).filter(function(p){
     return p.type==='inquiry'&&p.addendum===key;});
+  var seen={};queued.forEach(function(p){seen[String(p.qno||'')]=1;});
+  return vault.filter(function(v){return !seen[String(v.qno||'')];}).concat(queued)
+    .sort(function(a,b){
+      var na=parseFloat(a.qno),nb=parseFloat(b.qno);
+      if(isNaN(na)||isNaN(nb))return String(a.qno)<String(b.qno)?-1:1;
+      return na-nb;});
+}
+// An answer that requires a document change is not the same as an answer. This is the bridge:
+// tick the row and the change becomes a real item on this addendum, carrying the Q number so the
+// §3 note or the §4 line can say where it came from. It is a DECISION you make one inquiry at a
+// time — not a derivation, which is the thing this register has always refused to do.
+function inqItemOp(p){
+  var q=(readQueue()||[]).filter(function(o){
+    return o.type==='sheet'&&o.inqRef===String(p.qno||'')&&o.addendum===addRawOf(p.addendum);});
+  return q[0]||null;
+}
+function addRawOf(key){return rawAddendumFor(key);}
+function inqPromote(p,part){
+  var key=p.addendum,g=ADD_GROUPS[key]||{};
+  var cur=inqItemOp(p);
+  if(cur){
+    // same button again = untick; the other button = change which half it lands in
+    if((cur.part||'drawing')===part){
+      voidOp(cur);buildAddendumRegister();
+      setStatus('Q'+p.qno+' is back to being just an answer — no document change on this addendum.');
+      return;}
+    voidOp(cur);
+  }
+  queueLocally({type:'sheet',program:g.program||p.program||'Concourse B',pkg:g.pkg||p.pkg||'',
+    addendum:addRawOf(key),sheet:'',section:'',part:part,scope:'AR',disc:'AR',
+    produces:'',verify:'',inqRef:String(p.qno||''),
+    text:'Bid inquiry Q'+p.qno+' — '+String(p.q||'').replace(/\s+/g,' ').slice(0,120),
+    ts:new Date().toISOString()});
+  buildAddendumRegister();
+  setStatus('Q'+p.qno+' is now a '+(part==='spec'?'\u00a73 specification':'\u00a74 drawing')
+    +' item on '+addLabelFor(key)+' \u2014 give it a sheet and a state in Sheet work.');
 }
 function addInquiryBlock(host,key){
   var box=document.createElement('div');box.className='inq-box';
@@ -7025,11 +7192,40 @@ function addInquiryBlock(host,key){
     if(!p.a)a.classList.add('inq-unanswered');
     r.appendChild(a);
     if(p.by){var by=document.createElement('span');by.className='op-by';by.textContent='· '+p.by;r.appendChild(by);}
-    var x=document.createElement('button');x.type='button';x.className='ar-x';x.textContent='✕';
-    x.title='Remove this inquiry';
+    // Answering a bidder is one thing; changing a document because of the answer is another. These
+    // two ticks are where you say which. One click and it becomes a real row on this addendum,
+    // titled with the Q number so the line it eventually writes can point back here.
+    var made=inqItemOp(p);
+    var pw=document.createElement('span');pw.className='sh-part inq-part';
+    [['drawing','Drawing','4','Make this a §4 drawing item on this addendum — it will need a sheet and a state'],
+     ['spec','Spec','3','Make this a §3 specification item — you leave the note, Specifications writes the words']
+    ].forEach(function(o){
+      var b=document.createElement('button');b.type='button';b.title=o[3];
+      b.className='p-'+o[0];
+      b.appendChild(document.createTextNode(o[1]));
+      var sp=document.createElement('sup');sp.textContent='\u00a7'+o[2];b.appendChild(sp);
+      if(made&&(made.part||'drawing')===o[0])b.classList.add('on');
+      b.addEventListener('click',function(e){e.stopPropagation();inqPromote(p,o[0]);});
+      pw.appendChild(b);});
+    r.appendChild(pw);
+    if(made){
+      var mn=document.createElement('div');mn.className='inq-made';
+      mn.textContent='\u2192 on this addendum as a '+((made.part||'drawing')==='spec'
+        ?'\u00a73 specification item':'\u00a74 drawing item')+' \u2014 it needs a sheet and a state before it can be written.';
+      r.appendChild(mn);}
+    if(p.fromVault){
+      var vb=document.createElement('span');vb.className='op-by';vb.textContent='· in the vault';
+      vb.title='Folded at a previous check-in — this one is permanent';r.appendChild(vb);}
+    var x=document.createElement('button');x.type='button';x.className='ar-x';x.textContent='\u2715';
+    x.title=p.fromVault?'Remove at the next check-in':'Remove this inquiry';
     x.addEventListener('click',function(){
       if(!window.confirm('Remove Q'+(p.qno||(ix+1))+'?'))return;
-      voidOp(p);buildAddendumRegister();});
+      if(p.fromVault){
+        queueLocally({type:'inquiry',addendum:key,qno:p.qno,q:p.q,a:p.a,drop:1,
+          program:'',pkg:p.pkg||'',text:'\u00a75 drop Q'+p.qno});
+      }else{voidOp(p);}
+      if(made)voidOp(made);
+      buildAddendumRegister();});
     r.appendChild(x);
     box.appendChild(r);
   });
