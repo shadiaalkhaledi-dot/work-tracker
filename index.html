@@ -1567,7 +1567,33 @@ select.pl-in{cursor:pointer}
       <p class="g-p">When something sits in someone else's court, the card says <b>what you are waiting for and how long</b>. That is derived too, read from the open <code>WAIT …</code> step, the Next line, or an outstanding ask — you don't fill in a field.</p>
     </div>
 
-    <div class="g-sec"><div class="g-h">5 · Matters — why something jumps the queue</div>
+    <div class="g-sec"><div class="g-h">5 · The four fields that say whose move it is</div>
+      <p class="g-p">They look redundant and are not. Collapsing any two of them loses something the
+      board then cannot tell you. Only these are typed — <b>agency</b> is worked out from them.</p>
+      <table class="g-t">
+        <tr><td><code>court:: X</code></td><td>Who the item is <b>with</b>. Relational and stable —
+          it is what you prep a meeting against. It does <b>not</b> claim whose turn it is.</td></tr>
+        <tr><td><code>ask:: X</code></td><td>An unanswered question out to X. Additive: it never
+          moves the item, it only records that something is outstanding.</td></tr>
+        <tr><td><code>then:: X</code></td><td>Who picks it up after your part. The handoff, not the
+          current holder.</td></tr>
+        <tr><td><code>with:: X</code></td><td>Execution sits with X; <b>accountability stays
+          yours</b>. This is what makes an item <b>shared</b> — and why shared work is a check-in
+          after 3 days, not a chase after 5. (<code>delegate::</code> still parses, but write
+          <code>with::</code>.)</td></tr>
+      </table>
+      <p class="g-p"><b>Whose turn it is is never typed.</b> It is read from the next unticked step:
+      a step beginning <code>WAIT …</code> means theirs, any other verb means yours, and
+      <code>with::</code> overrides both. Tick a step and it moves — which is why it cannot go
+      stale, and why there is no field to forget to update.</p>
+      <p class="g-p">One more clock, and it is not a date: <code>horizon::</code> says what
+      <i>kind</i> of clock an item is on — <code>today</code>, <code>week</code>,
+      <code>sprint</code> (it rides its package's next submission), or <code>watch</code>.
+      <b>Watch is deliberately unclocked</b>, and it is what exempts an item from due-date and
+      staleness nagging. The 📅 date is the only actual deadline.</p>
+    </div>
+
+    <div class="g-sec"><div class="g-h">6 · Matters — why something jumps the queue</div>
       <p class="g-p"><b>One job:</b> a signal lifts an item one priority tier. It is not a topic —
       <code>cat::</code> and <code>disc::</code> already say what a thing is. It is the reason this
       should come first when its date does not say so. <b>Absent is normal</b>, and the common case.</p>
@@ -1592,7 +1618,7 @@ select.pl-in{cursor:pointer}
       <code>code</code>).</p>
     </div>
 
-    <div class="g-sec"><div class="g-h">6 · "Coordinating with" — the derived lens</div>
+    <div class="g-sec"><div class="g-h">7 · "Coordinating with" — the derived lens</div>
       <p class="g-p">The <b>Discipline</b> filter shows what an item is <i>about</i>. "Coordinating with" answers a different question: <b>which discipline is this item with?</b> It's never tagged — the item's <b>court</b> names a person or a firm → Stakeholders says what hat they wear → the item lands in that group. This is about the <i>counterparty</i>, not whose turn it is — that is <b>agency</b>, and an item can be yours to move while still sitting with Mechanical. Use it to batch conversations: before the mechanical call, everything with a mechanical counterparty is one list.</p>
       <div class="g-flow">
         <span class="g-box">item: court = Greg Pink</span><span class="g-arr">→</span>
@@ -1601,7 +1627,7 @@ select.pl-in{cursor:pointer}
       </div>
     </div>
 
-    <div class="g-sec"><div class="g-h">7 · RFIs — their own little machine</div>
+    <div class="g-sec"><div class="g-h">8 · RFIs — their own little machine</div>
       <div class="g-flow">
         <span class="g-box">open<br><small>contractor raises</small></span><span class="g-arr">→</span>
         <span class="g-box">answered<br><small>design responds</small></span><span class="g-arr">→</span>
@@ -1611,6 +1637,24 @@ select.pl-in{cursor:pointer}
       <p class="g-p">This is the RFI's <b>own</b> lifecycle and it runs <i>alongside</i> whether the item is still live, not instead of it — an RFI can be <b>answered</b> and still leave you work to do.</p>
       <p class="g-p"><b>Addenda</b> get the same treatment: the <b>date</b> lives in Milestones, the <b>contents</b> in the addendum register on the Progress tab — one card per upcoming addendum, every item tagged <code>addendum::</code> gathered under it.</p>
       <p class="g-p">RFIs live inside their package and in the RFI Log register. Concourse B's run in Onware, Centralized's on the Planner board. <b>The package's phase decides the closing instrument:</b> in <b>bid</b> the answer rides an Addendum; after IFC (<b>construction</b>) a scope/cost answer closes via PCN or SI — the chip on each package header says which world you're in.</p>
+    </div>
+
+    <div class="g-sec"><div class="g-h">9 · Two people, one board</div>
+      <p class="g-p">Everything you do here is an <b>op in a shared queue</b> — a letter, a ticked
+      step, a state, a completion, a new sheet. The other person sees it within about eight seconds
+      and it arrives <b>with your name on it</b>. Set your name once: the chip in the check-in
+      queue header. Without it your captures land on their screen anonymous.</p>
+      <p class="g-p"><b>Shared is not saved.</b> A capture is visible to everyone the moment you
+      type it, and it is still only a capture — it carries a <span class="badge p">P</span> until
+      a check-in folds it into the vault. The vault is the record; this page is a view of it plus
+      whatever has not been folded yet.</p>
+      <p class="g-p">Two consequences worth knowing before they surprise you.
+      <b>Clearing the queue clears it for everyone</b> — only do it after a check-in has taken the
+      work. And two people editing the <i>same field</i> within a few seconds is last-writer-wins;
+      there is no lock. In practice you divide the sheet list rather than negotiate it.</p>
+      <p class="g-p">If the header chip reads <b>Sync error</b>, nothing is lost — the site falls
+      back to this browser alone and keeps working. If it reads <b>Local only</b>, no shared store
+      is configured and your captures are going nowhere but here.</p>
     </div>
 
     <p class="g-p" style="color:var(--faint);">Source of truth for all of this: the Obsidian vault. This page just renders it — the daily check-in with Claude is where things change.</p>
@@ -2608,23 +2652,17 @@ function recalcCounts(){
     else{overdueEl.textContent=overdueCount;overdueEl.title='Open items with a \ud83d\udcc5 due date in the past, in your court';}}
 }
 
-function computePriority(item){
-  if(item.classList.contains('blocking'))return'high';
-  var due=item.getAttribute('data-due');
-  var hz=(item.getAttribute('data-horizon')||'');
-  // An explicit date outranks an inherited one, but it must not silence horizon:today. Re-dating an
-  // item to a distant addendum without changing its horizon used to drop it straight to 'low' — the
-  // lowest tier, excluded from the Focus panel — which is the opposite of what the flag means.
-  if(due){var days=Math.ceil((new Date(due+'T00:00:00').getTime()-Date.now())/86400000);
-    if(days<=3)return'high';if(days<=10)return'med';return hz==='today'?'med':'low';}
-  if(hz==='today')return'high';
-  // no explicit date: inherit the package's next submission, capped at med —
-  // package pressure is real but shouldn't scream like an item's own deadline
-  var inhDate=item.getAttribute('data-due-inherited');
-  if(inhDate&&!item.classList.contains('watch')){var d2=Math.ceil((new Date(inhDate+'T00:00:00').getTime()-Date.now())/86400000);if(d2<=10)return'med';}
-  return'low';
-}
-function priorityOf(item){return item.getAttribute('data-priority')||computePriority(item);}
+// `computePriority()` used to live here, and it was the second answer to a question that now has
+// one. The generator emits `priority` for every item — urgency from dates and package pressure,
+// importance from `impact::`, an impact signal lifting one tier — and writes it onto the card. The
+// copy here predated that: it took `blocking` as the whole of importance, and `blocking` is
+// retired. It read no `impact::` at all, which is the precise gap the generated one exists to
+// close. So the two could disagree, and the stale one was the one on screen.
+//
+// Nothing is lost by deleting it. Every item in the payload carries `priority`, so the fallback
+// only ever fired for a capture made on the site and not yet folded — which has no date, no
+// impact and no horizon, and which both versions therefore scored `low`.
+function priorityOf(item){return item.getAttribute('data-priority')||'low';}
 function applyComputedPriorities(){document.querySelectorAll('#programView .item').forEach(function(item){item.setAttribute('data-pri-computed',priorityOf(item));});}
 
 function setBadgeComplete(item){var row=item.querySelector(':scope>.item-badges');var existing=row?row.querySelector('.badge'):item.querySelector(':scope>.badge');if(item.dataset.origBadge===undefined)item.dataset.origBadge=existing?existing.outerHTML:'';if(existing)existing.outerHTML='<span class="badge c">C</span>';else{var b=makeBadge('c','C');if(row){row.insertBefore(b,row.firstChild);row.style.marginBottom='5px';}else item.insertBefore(b,item.firstChild);}}
@@ -4992,7 +5030,10 @@ function applyPendingOverlay(){
     var ds=(p.ts||'').slice(0,10)||isoToday();
     if(p.type==='item'){
       var id='pending-'+i;
-      items.push({id:id,title:p.text,status:'open',program:p.program||'',pkg:p.pkg||'',pendingLocal:true});
+      // `low` explicitly: an unfolded capture carries no date, no impact and no horizon, so it is
+      // what the generator would score it. Stated here rather than left to a fallback.
+      items.push({id:id,title:p.text,status:'open',program:p.program||'',pkg:p.pkg||'',
+                  priority:'low',pendingLocal:true});
       details[id]={next:null,subtasks:[],updates:[ds+'|Captured on the site \u2014 folds into the vault at check-in']};
     }else if(p.type==='court'&&p.itemRef){
       for(var c2=0;c2<items.length;c2++){if(items[c2].title.slice(0,60)===p.itemRef.slice(0,60)){items[c2].court=p.text.indexOf(',')>-1?p.text.split(',').map(function(x){return x.trim();}):p.text;break;}}
@@ -7668,6 +7709,12 @@ function wuTargetFor(it,sheet){
   if(it.element)parts.push(String(it.element));
   // Nothing narrower than the drawing itself was named, and the §4 heading already names it. The
   // line is the change and nothing else — a legend redrawn, an arrow moved, a note added.
+  //
+  // The issued addenda DO open these lines with "Sheet A42.22.11;" — see the §4 transcription
+  // above, and the companion pair in tests/verify_addendum.js. This is a deliberate departure,
+  // confirmed 2026-08-11: the heading two lines up says DRAWING A42.22.11, so repeating it opens
+  // every line with the word the reader has just read. Do not "restore" it from the transcription
+  // without asking; verify_roundtrip.js asserts its absence on purpose.
   if(!parts.length)return '';
   var head=it.alt?parts.shift()+' - ':'';
   return head+parts.join(' \u2013 ');
