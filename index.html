@@ -1418,6 +1418,17 @@ select.pl-in{cursor:pointer}
   border:1px solid var(--border);border-radius:999px;padding:2px 9px;cursor:pointer}
 .pl-vask-b:hover{border-color:var(--faint)}
 .pl-vnew{color:var(--sage,#5f7a52);font-weight:600}
+/* which details on this drawing — the answers are already loaded, so ask with them on screen */
+.pl-vpick{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin:2px 0 0}
+.pl-vpick-l{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;
+  color:var(--faint);margin-right:4px}
+.pl-vchip{font:inherit;font-size:10.5px;min-width:24px;color:var(--muted);background:var(--raise);
+  border:1px solid var(--border);border-radius:999px;padding:1px 7px;cursor:pointer}
+.pl-vchip:hover{border-color:var(--faint);color:var(--text)}
+.pl-vchip.on{background:var(--p4);border-color:var(--p4);color:#fff}
+.pl-vnote{grid-column:1/-1;display:block;font-size:10.5px;color:var(--faint);margin:3px 0 2px}
+.pl-vnote b{color:var(--text)}
+.pl-vbad{color:var(--stop)}
 .pl-line{display:grid;grid-template-columns:50px minmax(0,1fr) auto;gap:9px;align-items:start;
   padding:9px 12px 2px;border-top:1px dashed var(--border);margin:0}
 .pl-line-g{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:var(--gold);padding-top:8px}
@@ -2279,6 +2290,27 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
       <i>+</i> beside any line, adds another detail on the same sheet — the drawing number carries
       over and you type the view or the detail number. <b>✕</b> takes that view off; the drawing
       stays as long as another line still lands on it.</p>
+      <p class="g-p"><b>One change, several details, one drawing.</b> The <b>View no.</b> field
+      counts: type <span class="mono">1-5</span>, or <span class="mono">1-5, 8</span>, or tick the
+      details straight off the drawing — every view the Revit export has on that sheet is offered
+      as a chip. Two or more become <b>one</b> §4 line reading
+      <span class="mono">PLAN DETAIL 1-5/A5.94.06</span>, which is how the issued addenda say it,
+      and the name is only filled in when every view in the range shares it. The row checks the
+      numbers against the drawing and names any that are not on it. When the details are <i>not</i>
+      all getting the same change, <i>split into N lines</i> gives each its own. And if the action
+      is still <b>Re-issue the whole sheet</b>, the row says so — re-issue swallows the numbers, and
+      the printed line would drop them without a word.</p>
+      <p class="g-p"><b>Naming several details changes how the line ends.</b> One detail gets the
+      pointed clause the issued sets use —
+      <span class="mono">…; As indicated on drawing A5.94.06, attached and forms part of this
+      Addendum.</span> — because that is honest when a bidder only has to look in one place. Name
+      two or more and the sheet they are holding is superseded, so the line ends
+      <span class="mono">…; Re-issue drawing in its entirety attached and forming part of this
+      Addendum.</span> instead. You do not choose it: type the numbers, choose <b>Revise</b>, say
+      what changed, and the range earns the clause. A drawing that was never in the bid set is
+      <i>issued</i>, not re-issued, however many details it carries — and <b>Write-up only</b>
+      attaches nothing whatever the numbers say, because the state decides that and nothing else
+      does.</p>
       <p class="g-p"><b>A view you are ADDING is not a typo.</b> The Revit export cannot contain a
       view that does not exist yet, so when you type a name or number the sheet does not have, the
       line asks rather than marking it wrong. Say it is new and two things follow: your name and
@@ -9553,17 +9585,95 @@ function placementEditor(it){
     fillViews();cView.appendChild(vdl);g2.appendChild(cView);
     setTimeout(function(){pairView('view');},0);
     var cVno=cell('View no.','The number in the viewport bubble — the 1 in "PLAN 1/A42.31.10". '
-      +'Type it and the view name fills itself.');
-    var nEl=inp('no','1','pl-no');cVno.appendChild(nEl);g2.appendChild(cVno);
+      +'Type it and the view name fills itself. More than one detail? Type a range — 1-5, or '
+      +'1-5, 8 — or tick them below.');
+    var nEl=inp('no','1  or  1-5','pl-no');cVno.appendChild(nEl);g2.appendChild(cVno);
+    nEl.title='One detail, or several: 3 · 1-5 · 1-5, 8. A range writes one §4 line reading '
+      +'"PLAN DETAIL 1-5/'+(pl.sheet||'A5.94.06')+'", which is how the issued addenda say it.';
     // The same question the drawing number already asks, one level down: a view that is not in the
     // export is either a typo or a view being ADDED. Guessing "typo" and painting it amber was
     // wrong for the second case, which is a normal thing an addendum does.
     var vask=document.createElement('span');vask.className='pl-vask';g2.appendChild(vask);
+    // Which details on this drawing are you fixing? The sheet's views are already loaded, so the
+    // question can be asked with the answers on screen instead of asked in prose and typed back.
+    var vpick=document.createElement('span');vpick.className='pl-vpick';g2.appendChild(vpick);
+    var vnote=document.createElement('span');vnote.className='pl-vnote';g2.appendChild(vnote);
+    var markRange=function(){
+      var on=viewsOn(it.pkg,pl.sheet);
+      vpick.innerHTML='';vnote.innerHTML='';
+      if(pl.newview||!on.length)return;
+      var many=parseViewNos(pl.no);
+      var picked={};many.list.forEach(function(n){picked[n]=1;});
+      var lab=document.createElement('span');lab.className='pl-vpick-l';
+      lab.textContent='details on '+pl.sheet;
+      lab.title='Every view the Revit export has on this drawing. Tick the ones this change lands '
+        +'on — two or more become a range on one §4 line.';
+      vpick.appendChild(lab);
+      on.slice().sort(function(a,b){return (Number(a[2])||99)-(Number(b[2])||99);})
+        .forEach(function(v){
+          var n=String(v[2]||'');if(!n)return;
+          var b=document.createElement('button');b.type='button';
+          b.className='pl-vchip'+(picked[n]?' on':'');
+          b.innerHTML='<b>'+escapeHtml(n)+'</b>';
+          b.title=v[0]||'';
+          b.addEventListener('click',function(e2){e2.stopPropagation();
+            var cur=parseViewNos(pl.no).list.slice();
+            var ix2=cur.indexOf(n);
+            if(ix2>=0)cur.splice(ix2,1);else cur.push(n);
+            pl.no=compactNos(cur);
+            // the name has to be re-earned every time the set changes — it may no longer be shared
+            var com=commonViewName(it.pkg,pl.sheet,parseViewNos(pl.no).list);
+            pl.view=com.name||(cur.length===1?((viewByNo(it.pkg,pl.sheet,cur[0])||[])[0]||''):'');
+            commitHard();});
+          vpick.appendChild(b);});
+      if(!many.raw)return;
+      if(!many.ok){
+        vnote.innerHTML='<span class="pl-vbad">'+escapeHtml(many.raw)
+          +' is not a number or a range — try 3, or 1-5, or 1-5, 8.</span>';
+        return;}
+      if(!many.range)return;
+      var com2=commonViewName(it.pkg,pl.sheet,many.list);
+      var bits=[];
+      bits.push('<b>'+many.list.length+' details</b> — '+escapeHtml(compactNos(many.list)));
+      if(com2.missing.length)
+        bits.push('<span class="pl-vbad">'+escapeHtml(com2.missing.join(', '))
+          +' '+(com2.missing.length===1?'is':'are')+' not on '+escapeHtml(pl.sheet)+'</span>');
+      else if(!com2.name)
+        bits.push('<span class="pl-vbad">these are not all the same kind of view — the line can '
+          +'only carry one name, so say it in the sentence instead of the title</span>');
+      else bits.push('all on this drawing ✓');
+      // Naming five details and then telling the document to re-issue the whole sheet is a
+      // disagreement the reader never sees: RE-ISSUE short-circuits the target, so the numbers are
+      // silently dropped. Say it here rather than let the line quietly ignore the work.
+      if(WU_REISSUE.test(String(pl.text||'').replace(/^✓\s*/,'').toUpperCase()))
+        bits.push('<span class="pl-vbad">but the action re-issues the whole sheet, which drops '
+          +'these numbers from the line — choose <b>Revise</b> instead and say what changed; '
+          +'naming several details earns the re-issue clause on its own</span>');
+      else if(!com2.missing.length&&it.produces==='drawings')
+        bits.push('the line will end <i>Re-issue drawing in its entirety attached and forming '
+          +'part of this Addendum</i> — several details means the sheet supersedes');
+      vnote.innerHTML=bits.join(' · ');
+      // One line for five details is the house style, and it is right when they take the same
+      // change. When they do not, the honest shape is five lines.
+      var sp=document.createElement('button');sp.type='button';sp.className='pl-vask-b';
+      sp.textContent='split into '+many.list.length+' lines';
+      sp.title='Give each detail its own §4 line — the right shape when they are not all getting '
+        +'the same change.';
+      sp.addEventListener('click',function(e2){e2.stopPropagation();
+        var made=many.list.map(function(n){
+          var v=viewByNo(it.pkg,pl.sheet,n);
+          return {sheet:pl.sheet||'',view:(v&&v[0])||'',no:n,room:pl.room||'',
+                  text:pl.text||'',override:''};});
+        var args=[ix,1].concat(made);list.splice.apply(list,args);commitHard();});
+      vnote.appendChild(document.createTextNode(' '));vnote.appendChild(sp);
+    };
     var markNewView=function(){
       vask.innerHTML='';
       var onSheet=viewsOn(it.pkg,pl.sheet).length;
       var named=!!String(pl.view||'').trim()||!!String(pl.no||'').trim();
-      var known=!!viewByName(it.pkg,pl.sheet,pl.view)||!!viewByNo(it.pkg,pl.sheet,pl.no);
+      // "does this drawing have such a view", not "which one" — a name shared by eight viewports is
+      // still a name the drawing has
+      var known=viewNameExists(it.pkg,pl.sheet,pl.view)||!!viewByNo(it.pkg,pl.sheet,pl.no);
       if(pl.newview){
         var t=document.createElement('span');t.className='pl-vnew';
         t.textContent='new view — your name and number, verbatim';
@@ -9576,6 +9686,9 @@ function placementEditor(it){
         vask.appendChild(un);
         return;
       }
+      // A range of details that all exist is the opposite of a new view.
+      var manyN=parseViewNos(pl.no);
+      if(manyN.range&&!commonViewName(it.pkg,pl.sheet,manyN.list).missing.length)return;
       if(!named||known||!onSheet)return;
       var q=document.createElement('span');
       q.textContent='not on '+(pl.sheet||'this drawing')+' — ';
@@ -9590,6 +9703,10 @@ function placementEditor(it){
         commitHard();});
       vask.appendChild(nb);
     };
+    // Draw them now, not on the next tick. pairView is called from a setTimeout so that the whole
+    // card exists before it runs, which is fine for a browser and wrong for anything that reads the
+    // DOM straight after a rebuild — the picker was simply not there yet.
+    markRange();markNewView();
     // `src` names the box you touched. Reading document.activeElement instead was wrong twice
     // over: a datalist pick can blur before the handler runs, and the View no. field never called
     // this at all — so typing a number filled nothing.
@@ -9607,6 +9724,17 @@ function placementEditor(it){
         markNewView();return;
       }
       vEl.classList.remove('pl-new');nEl.classList.remove('pl-new');
+      // A range names several views at once. Resolving it as if it were one number would find
+      // nothing and mark it wrong, which is what pushed "1-5" into the Room field in the first place.
+      var many=parseViewNos(pl.no);
+      if(many.range){
+        var com=commonViewName(it.pkg,pl.sheet,many.list);
+        if(src==='no'&&com.name&&!String(pl.view||'').trim()){pl.view=com.name;vEl.value=com.name;}
+        var onSheet0=viewsOn(it.pkg,pl.sheet).length;
+        nEl.classList.toggle('pl-unknown',onSheet0>0&&com.missing.length>0);
+        vEl.classList.remove('pl-unknown');
+        markRange();markNewView();return;
+      }
       if(src==='view'){
         var v=viewByName(it.pkg,pl.sheet,pl.view);
         if(v){
@@ -9619,9 +9747,10 @@ function placementEditor(it){
       }
       var known=viewByName(it.pkg,pl.sheet,pl.view)||viewByNo(it.pkg,pl.sheet,pl.no);
       var onSheet=viewsOn(it.pkg,pl.sheet).length;
-      vEl.classList.toggle('pl-unknown',!!pl.view&&onSheet>0&&!viewByName(it.pkg,pl.sheet,pl.view));
+      vEl.classList.toggle('pl-unknown',
+        !!pl.view&&onSheet>0&&!viewNameExists(it.pkg,pl.sheet,pl.view));
       nEl.classList.toggle('pl-unknown',!!pl.no&&onSheet>0&&!viewByNo(it.pkg,pl.sheet,pl.no));
-      markNewView();
+      markRange();markNewView();
       if(known&&known[1]==='raw')vEl.title='This viewport has no Title on Sheet — the drawing prints '
         +'its Revit name. Worth fixing in the model.';
     };
@@ -9632,6 +9761,33 @@ function placementEditor(it){
     var cRoom=cell('Room or item','Optional');
     var rin=inp('room','TEAM STORE NW.1.022','pl-room');
     cRoom.appendChild(rin);g2.appendChild(cRoom);
+    // "PLAN DETAIL 1-5/A5.94.06" in the Room box is not a room — it is a view reference that had
+    // nowhere else to go before the number field could count. Offer to put it where it belongs
+    // rather than leave it printing as a room in a bid document.
+    (function(){
+      var mv=document.createElement('span');mv.className='pl-vask';g2.appendChild(mv);
+      var check=function(){
+        mv.innerHTML='';
+        var v=String(pl.room||'').trim();if(!v)return;
+        var m=/^(.*?)\s*([\d]+(?:\s*[-–—]\s*[\d]+)?(?:\s*,\s*[\d]+(?:\s*[-–—]\s*[\d]+)?)*)\s*\/\s*(\S+)\s*$/.exec(v);
+        if(!m)return;
+        var nm=m[1].trim(),nos=m[2].trim();
+        if(!parseViewNos(nos).ok)return;
+        var b=document.createElement('button');b.type='button';b.className='pl-vask-b';
+        b.textContent='move “'+nos+'” into the view fields';
+        b.title='This looks like a view reference, not a room. The line already prints the view '
+          +'and number over the sheet — leaving it here says it twice, once in the wrong place.';
+        b.addEventListener('click',function(e2){e2.stopPropagation();
+          pl.no=nos;
+          if(nm&&!String(pl.view||'').trim())pl.view=nm;
+          pl.room='';commitHard();});
+        var q=document.createElement('span');
+        q.textContent='that reads like a view, not a room — ';
+        mv.appendChild(q);mv.appendChild(b);
+      };
+      check();
+      rin.addEventListener('blur',function(){setTimeout(check,0);});
+    })();
     rin.title='Optional. The room as the drawing labels it — name AND number — or an element '
       +'instead (Door A59R01.1). Leave blank when the change is to the whole view.';
     // Choosing a verb writes the skeleton of the sentence into the text field and puts the cursor
@@ -9854,9 +10010,16 @@ function wuDrawLine(it,sheet,step){
   if(/^MODIF/i.test(String(step).replace(/^✓\s*/,'')))
     return line.replace(/[.;]+$/,'')+', attached and forming part of this Addendum.';
   // a sheet that was never in the set is ISSUED, not re-issued, and the clause says so
-  return line+(it.newsheet
-    ?'; issue drawing in its entirety attached and forming part of this Addendum.'
-    :'; As indicated on drawing '+(sheet||'[SHEET ___]')+WU_ATTACH_DWG);
+  if(it.newsheet)
+    return line+'; issue drawing in its entirety attached and forming part of this Addendum.';
+  // Naming SEVERAL details on one drawing changes what the clause has to say. "As indicated on
+  // drawing X" points a bidder at the drawing; when five of its eight details have moved, the sheet
+  // supersedes the one they are holding, and the clause that says so is the re-issue clause. Shadi,
+  // 2026-08-12: type the numbers, choose Revise, and the range earns the re-issue on its own.
+  // One detail keeps the pointed form, which is what the issued Pkg 4.2 Add 1 §4 uses.
+  if(parseViewNos(it.detail).range)
+    return line+'; Re-issue drawing in its entirety attached and forming part of this Addendum.';
+  return line+'; As indicated on drawing '+(sheet||'[SHEET ___]')+WU_ATTACH_DWG;
 }
 // §3 is NOT written here. Shadi hands Specifications the information and they write the clause,
 // so a spec item renders its note verbatim, marked as a note. The one sentence the machine does
@@ -9945,10 +10108,81 @@ function viewByName(pkg,sheet,name){
   if(hit.length!==1)hit=on.filter(function(x){return String(x[3]||'').toUpperCase()===n;});
   return hit.length===1?hit[0]:null;
 }
+// viewByName resolves a name to ONE view and returns nothing when several answer to it. That is
+// right for pairing — you cannot fill a detail number from an ambiguous name — and wrong for asking
+// "does this drawing have such a view at all". A5.94.06 carries eight views all called PLAN DETAIL,
+// so the exact-match lookup found none of them and the row offered to treat a name printed eight
+// times on the sheet as something new.
+function viewNameExists(pkg,sheet,name){
+  var n=String(name||'').trim().toUpperCase();if(!n)return false;
+  return viewsOn(pkg,sheet).some(function(x){
+    return String(x[0]||'').toUpperCase()===n||String(x[3]||'').toUpperCase()===n;});
+}
 function viewByNo(pkg,sheet,no){
   var n=String(no||'').trim();if(!n)return null;
   var hit=viewsOn(pkg,sheet).filter(function(x){return String(x[2]||'')===n;});
   return hit.length===1?hit[0]:null;
+}
+// ---- more than one detail on one drawing --------------------------------------------------
+// One placement spoke for one view, and a real change routinely lands on five details of the same
+// drawing. With nowhere to say that, the honest options were five near-identical lines or
+// re-issuing the whole sheet — so the range got typed into "Room or item" as
+// `PLAN DETAIL 1-5/A5.94.06` and the state was set to re-issue to cover it. The field just had to
+// learn to count.
+function parseViewNos(s){
+  var raw=String(s||'').trim();
+  if(!raw)return {list:[],range:false,ok:true,raw:raw};
+  if(!/^[\d\s,–—-]+$/.test(raw))return {list:[],range:false,ok:false,raw:raw};
+  var out=[],ok=true;
+  raw.split(/\s*,\s*/).forEach(function(part){
+    if(!part)return;
+    var m=/^(\d+)\s*[-–—]\s*(\d+)$/.exec(part);
+    if(m){
+      var a=parseInt(m[1],10),b=parseInt(m[2],10);
+      if(a>b){ok=false;return;}
+      if(b-a>60){ok=false;return;}          // a typo, not a drawing
+      for(var i=a;i<=b;i++)out.push(String(i));
+      return;
+    }
+    if(/^\d+$/.test(part)){out.push(part);return;}
+    ok=false;
+  });
+  var seen={},uniq=[];
+  out.forEach(function(n){if(!seen[n]){seen[n]=1;uniq.push(n);}});
+  return {list:uniq,range:uniq.length>1,ok:ok&&uniq.length>0,raw:raw};
+}
+// "1,2,3,4,5,8" reads as a list somebody typed. "1-5, 8" reads as a decision. The issued addenda
+// write the second one.
+function compactNos(list){
+  var ns=(list||[]).map(Number).filter(function(n){return !isNaN(n);})
+                   .sort(function(a,b){return a-b;});
+  if(!ns.length)return '';
+  var parts=[],i=0;
+  while(i<ns.length){
+    var j=i;while(j+1<ns.length&&ns[j+1]===ns[j]+1)j++;
+    parts.push(j-i>=2?(ns[i]+'-'+ns[j]):ns.slice(i,j+1).join(', '));
+    i=j+1;
+  }
+  return parts.join(', ');
+}
+// A range can only carry ONE name, so it may only be given one when every view in it shares it.
+// "PLAN DETAIL 1-5" where view 3 is a section is a wrong word in a legal drawing set.
+function commonViewName(pkg,sheet,list){
+  var on=viewsOn(pkg,sheet),names=[],missing=[];
+  (list||[]).forEach(function(n){
+    var hit=on.filter(function(x){return String(x[2]||'')===String(n);})[0];
+    if(!hit){missing.push(n);return;}
+    names.push(String(hit[0]||''));
+  });
+  if(missing.length||!names.length)return {name:'',missing:missing,names:names};
+  var all=names.every(function(n){return n===names[0];});
+  if(all)return {name:names[0],missing:[],names:names};
+  // not identical — but "PLAN DETAIL - WC 1" and "PLAN DETAIL - WC 2" share the thing they are
+  var pre=names[0];
+  names.forEach(function(n){
+    var i=0;while(i<pre.length&&i<n.length&&pre[i]===n[i])i++;pre=pre.slice(0,i);});
+  pre=pre.replace(/[\s\-–:,/]+$/,'').trim();
+  return {name:(pre.length>=4?pre:''),missing:[],names:names};
 }
 // A change drawn on an AREA plan usually shows on the OVERALL plan of the same series too — the
 // wall is there, the tags and keynotes are not. The register makes the pair derivable: within a
