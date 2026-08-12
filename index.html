@@ -4839,7 +4839,15 @@ function buildAddendumRegister(){
     // that is the difference between a list and a worklist.
     var flagLbl=document.createElement('span');flagLbl.className='add-filter-lbl';
     flagLbl.style.marginLeft='10px';flagLbl.textContent='Show';fr.appendChild(flagLbl);
-    var flagPool=tagged.filter(function(i){return itemHasDisc(i,ADD_DISC);});
+    // A count on a filter must count the list that filter FILTERS. This one was built from
+    // `tagged` — board items only — while in Sheet work it narrows addPoolFor(), which is the
+    // lane items as well. On Pkg 5 Addendum 2 that put four contradictions on one screen: the
+    // list showed 29 rows, the bar said All 24, it said Done 9 where exactly 1 is done, and
+    // Questions 1 where 3 carry a ?. Clicking Questions then returned three rows against a chip
+    // promising one. Numbers that disagree with each other in one glance cost you every other
+    // number on the page, so the pool follows the view.
+    var flagPool=(ADD_MODE==='sheets'?addPoolFor(ADD_OPEN)
+                 :tagged.filter(function(i){return itemHasDisc(i,ADD_DISC);}));
     var isDone_=function(i){return i.status==='completed'||i.pendingComplete;};
     var flagN=function(k){
       if(!k)return flagPool.length;
