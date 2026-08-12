@@ -1210,6 +1210,8 @@ select.pl-in{cursor:pointer}
 .inq-row.inq-open{border-left:3px solid rgba(245,158,11,.55);padding-left:9px}
 .sh-row.clashRow{border-left:3px solid var(--terracotta,#c07a4a)}
 .sh-clash{font-size:11px;color:var(--terracotta,#c07a4a);margin-top:6px;line-height:1.45}
+.seg-open{margin-left:6px;font-size:9.5px;font-weight:800;letter-spacing:.03em;border-radius:999px;
+  padding:1px 6px;background:rgba(245,158,11,.18);color:var(--gold)}
 .sh-row .sh-part{margin-right:0;padding-top:1px;align-self:start}
 .sh-no{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;font-weight:600;
   white-space:nowrap;padding-top:4px}
@@ -4423,7 +4425,15 @@ function buildAddendumRegister(){
     b.textContent=o[1];b.title=o[2];
     if(o[0]==='threads'){var tn=addQuestionsFor(ADD_OPEN).length;if(tn)b.textContent+='  '+tn;}
     if(o[0]==='sheets'){var sn2=addPoolFor(ADD_OPEN).length;if(sn2)b.textContent+='  '+sn2;}
-    if(o[0]==='inq'){var qn=inquiriesFor(ADD_OPEN).length;if(qn)b.textContent+='  '+qn;}
+    if(o[0]==='inq'){
+      var qs=inquiriesFor(ADD_OPEN),un=qs.filter(function(q){return !String(q.a||'').trim();});
+      if(qs.length)b.textContent+='  '+qs.length;
+      // "6" reads as six answers on file. The number that matters is how many are still open.
+      if(un.length){var ub=document.createElement('span');ub.className='seg-open';
+        // "6  6 open" reads as twelve. When none of them is answered, the total has nothing to add.
+        ub.textContent=(un.length===qs.length)?'none answered':(un.length+' open');b.appendChild(ub);
+        b.title=o[2]+'  \u2014  '+un.length+' of '+qs.length+' still unanswered.';}
+    }
     b.addEventListener('click',function(){ADD_MODE=o[0];buildAddendumRegister();});
     modeRow.appendChild(b);});
   c.appendChild(modeRow);
@@ -5402,7 +5412,16 @@ function eventsFor(items,opts){
       if(/^\d{4}-\d{2}-\d{2}$/.test(ds))events.push({date:ds,kind:'update',itemId:it.id,itemTitle:it.title,program:it.program||'',pkg:it.pkg||'',topic:it.topic||'',court:courtList(it.court),text:tx});
     });
     if(it.status==='completed'){
-      var dd=det&&det.updates&&det.updates.length?det.updates[det.updates.length-1].split('|')[0]:(it.date||'');
+      // When an item was resolved is the LATEST thing that happened on it, not the last line in
+      // the file. Vault rows are not all written in the same order — a fold that puts today's
+      // update directly under the item line makes the newest entry FIRST — so reading the last
+      // element dated a closure to the day it was raised, and the stream then showed almost no
+      // resolutions in any recent window. Take the maximum; ordering stops mattering.
+      var dd='';
+      if(det&&det.updates)det.updates.forEach(function(u){
+        var ds=String(u).split('|')[0];
+        if(/^\d{4}-\d{2}-\d{2}$/.test(ds)&&ds>dd)dd=ds;});
+      if(!dd)dd=it.date||'';
       if(/^\d{4}-\d{2}-\d{2}$/.test(dd))events.push({date:dd,kind:'resolved',itemId:it.id,itemTitle:it.title,program:it.program||'',pkg:it.pkg||'',topic:it.topic||'',court:courtList(it.court),text:'resolved'});
     }
   });
@@ -8585,6 +8604,16 @@ function issueGate(key){
   if(un2.length)blockers.push({n:un2.length,t:'attached drawing'+(un2.length!==1?'s':'')+' with no name',
     w:'The name prints in the \u00a74 heading and again in the List of Attachments \u2014 '+un2.join(', ')+'.',
     go:function(){ADD_MODE='sheets';buildAddendumRegister();}});
+  // §5 prints "[NOT ANSWERED — write the response]" for a question nobody has answered. That is a
+  // placeholder reaching a bid document, which is the same failure as an unfinished §4 line — and
+  // the gate was silent about it while six of them sat on an addendum three days from issue.
+  var unans=inquiriesFor(key).filter(function(q){return !String(q.a||'').trim();});
+  if(unans.length)blockers.push({n:unans.length,
+    t:'bid inquir'+(unans.length!==1?'ies':'y')+' unanswered',
+    w:'\u00a75 would print "[NOT ANSWERED \u2014 write the response]" against '
+      +(unans.length!==1?'each of them':'it')+' \u2014 Q'
+      +unans.map(function(q){return q.qno;}).join(', Q')+'.',
+    go:function(){ADD_MODE='inq';buildAddendumRegister();}});
   var verify=pool.filter(function(i){return i.verify&&inDocument(i);});
   if(verify.length)cautions.push({n:verify.length,t:'still flagged ?',
     w:'In the document, but not yet confirmed with Chris H.',
