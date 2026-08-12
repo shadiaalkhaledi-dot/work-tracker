@@ -1754,6 +1754,48 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
 .kbd-hint{font-size:10.5px;color:var(--faint);margin:0 0 8px;}
 .kbd-hint kbd{font:inherit;font-size:10px;border:1px solid var(--border);border-radius:4px;
   padding:0 4px;background:var(--raise);color:var(--muted);margin:0 1px;}
+
+/* ── no filter may be a dead end ──────────────────────────────────────────────────────────────
+   The gate could arm ADD_STATE (untriaged · flagged · no drawing) and the state bar only draws
+   buttons for the three produces values — so "take me there" left you filtered with nothing on
+   screen able to turn it off. This strip appears whenever anything is narrowing the list. */
+.filt-strip{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:11.5px;
+  color:var(--muted);background:var(--sink);border:1px solid var(--border);border-radius:10px;
+  padding:7px 10px;margin:8px 0 4px;}
+.filt-strip b{color:var(--text);}
+.filt-chip{font:inherit;font-size:11px;border:1px solid var(--border);background:var(--raise);
+  color:var(--text);border-radius:999px;padding:2px 9px;cursor:pointer;}
+.filt-chip span{color:var(--faint);margin-left:3px;}
+.filt-chip:hover{border-color:var(--stop);color:var(--stop);}
+.filt-chip:hover span{color:var(--stop);}
+.filt-clear{font:inherit;font-size:11px;border:1px solid var(--deep);background:var(--sel);
+  color:var(--sel-fg);border-radius:999px;padding:2px 10px;cursor:pointer;margin-left:2px;}
+
+/* the "— filter" suffix belonged to the two filter bars, not to every label in the card */
+.wb>.wb-bar .wb-lbl::after{content:none;}
+.wb>.wb-bar.wb-filter .wb-lbl::after{content:" \2014 filter";letter-spacing:0;text-transform:none;opacity:.65;}
+.kbd-hint{margin:6px 0 2px;}
+.kbd-hint>summary{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);
+  cursor:pointer;list-style:none;padding:2px 0;}
+.kbd-hint>summary::-webkit-details-marker{display:none;}
+.kbd-hint>summary::before{content:"\2328";margin-right:6px;font-size:12px;}
+.kbd-hint>summary:hover{color:var(--muted);}
+.kbd-hint>div{margin-top:6px;}
+
+/* ── the stagger ──────────────────────────────────────────────────────────────────────────────
+   The head was centring its children. When the title wrapped to two lines — title plus the
+   "use drawing name" chip — everything short next to it centred against a two-line block, so the
+   sheet number sat half a line low and the row looked broken. Align to the TOP and give each
+   child the same first-line offset, so every element lines up on the title's first line however
+   many lines follow it. */
+.sh-head{align-items:flex-start!important;}
+.sh-head>.sh-no{padding-top:2px;align-self:flex-start;}
+.sh-head>.sh-title{padding-top:1px;}
+.sh-head>.sh-part{margin-top:0;align-self:flex-start;}
+.sh-head>.sh-pick,.sh-head>.sh-move{align-self:flex-start;margin-top:0;}
+.sh-head>.sh-done{align-self:flex-start;margin-top:3px;}
+.sh-head>.sh-x{align-self:flex-start;margin-top:1px;}
+.sh-title .sh-inherit{margin-left:8px;vertical-align:1px;}
 </style>
 </head>
 <body>
@@ -3772,7 +3814,13 @@ function n_(n,one,many){return n+' '+(n===1?one:(many||one+'s'));}
 // which also means it can never drift out of date, because it is derived rather than written.
 function syncFootKey(){
   var fk=document.getElementById('footKey');if(!fk)return;
-  var view=document.querySelector('.view:not([style*="display: none"])')||document.body;
+  // The old selector looked for `.view`, which nothing on this page has — so it fell through to
+  // document.body, found every badge in every HIDDEN view, and hid nothing. The views are keyed by
+  // id in VIEW_IDS; ask that.
+  var vk=(typeof activeViewKey==='function')?activeViewKey():'';
+  var showKey=(vk==='board'&&typeof boardMode!=='undefined')?boardMode:vk;
+  var view=document.getElementById(VIEW_IDS[showKey]||'')
+        ||document.getElementById(VIEW_IDS[vk]||'')||document.body;
   var here={};
   ['p','w','i','n','pend','c'].forEach(function(cl){
     here[cl]=!!view.querySelector('.badge.'+cl);});
@@ -4815,7 +4863,12 @@ function buildAddendumRegister(){
       fb2.appendChild(document.createTextNode(o[1]));
       var cn=document.createElement('span');cn.className='fc';cn.textContent=n2;fb2.appendChild(cn);
       fb2.title=o[2]+(n2?'':' \u2014 none on this addendum right now');
-      fb2.addEventListener('click',function(){ADD_FLAG=o[0];buildAddendumRegister();});
+      fb2.addEventListener('click',function(){
+        ADD_FLAG=o[0];
+        // "All" has to mean all. It cleared its own filter and left the other two armed, which is
+        // how you end up looking at one row with every visible control saying nothing is filtered.
+        if(!o[0]){ADD_STATE='';ADD_PART='';}
+        buildAddendumRegister();});
       fr.appendChild(fb2);
     });
     hFilt.appendChild(fr);
@@ -7046,31 +7099,15 @@ function addWorkbench(host,key,pool){
   // Splitting one addendum into two is only worth doing if the finished half can actually be moved
   // across in one action. This bar appears exactly when both conditions hold: the package has
   // somewhere else to move to, and there is finished work sitting here.
-  (function(){
-    var pk=(pool[0]||{}).pkg||((ADD_GROUPS[key]||{}).pkg||'');
-    var dests=addendaForPkg(pk).filter(function(k){return k!==key;});
-    var doneN=pool.filter(function(i){return i.pendingComplete||i.status==='completed';}).length;
-    if(!dests.length||!doneN)return;
-    var mb=document.createElement('div');mb.className='wb-bar wb-move';
-    var ml=document.createElement('span');ml.className='wb-lbl';ml.textContent='Move finished';
-    mb.appendChild(ml);
-    var sel=document.createElement('select');sel.className='sh-move';
-    dests.forEach(function(k){
-      var o=document.createElement('option');o.value=k;o.textContent=addLabelFor(k);sel.appendChild(o);});
-    mb.appendChild(sel);
-    var go=document.createElement('button');go.type='button';go.className='wb-seg';
-    go.textContent='Move '+doneN+' finished →';
-    go.title='Finished work rides the instrument you pick. Open work stays on this one.';
-    go.addEventListener('click',function(){moveDoneToAddendum(key,sel.value);});
-    mb.appendChild(go);
-    var hint=document.createElement('span');hint.className='wb-lbl wb-move-h';
-    hint.textContent='open work stays here';mb.appendChild(hint);
-    wb.appendChild(mb);
-  })();
+  // The bulk "move finished" bar is gone. Shadi, 2026-08-11: the dropdown on each row is enough,
+  // and a second way to do the same thing — in a different shape, in the busiest part of the page —
+  // is a control you have to think about rather than one you use. moveDoneToAddendum() stays for
+  // the check-in path; it just no longer takes up the top of the list.
+
 
   // 1. Specification or Drawing — the axis the letters never carried. §3 is written by the spec
   //    writer from what you note here; §4 is written here in full.
-  var pr=document.createElement('div');pr.className='wb-bar';
+  var pr=document.createElement('div');pr.className='wb-bar wb-filter';
   // These two are FILTERS. The identical-looking controls on every row are SETTERS. Sitting one
   // above the other in the same card, in the same shape, they read as the same control printed
   // twice — so they move down to the filter band with the other filters and say "Show only".
@@ -7097,18 +7134,44 @@ function addWorkbench(host,key,pool){
       sp.innerHTML='<i></i><b>'+counts[o[0]]+'</b> '+o[1];k.appendChild(sp);});
     if(k.children.length>1)wb.appendChild(k);
   })();
-  // A shortcut nobody is told about is a shortcut nobody uses.
+  // No filter may ever be a dead end. The gate could arm ADD_STATE — untriaged, verify, nosheet —
+  // and the state bar only draws buttons for drawings/writeup/none, so there was literally nothing
+  // on screen that could turn it off again. This strip appears the moment anything is narrowing
+  // the list, says what and by how much, and clears everything in one click.
   (function(){
-    var h=document.createElement('p');h.className='kbd-hint';
-    h.innerHTML='<kbd>j</kbd><kbd>k</kbd> walk the list \u00b7 <kbd>1</kbd> issue drawing '
-      +'<kbd>2</kbd> write-up <kbd>3</kbd> fix only \u00b7 <kbd>?</kbd> flag \u00b7 '
-      +'<kbd>d</kbd> done \u00b7 <kbd>Enter</kbd> open \u00b7 <kbd>Ctrl</kbd>+<kbd>Z</kbd> undo';
-    wb.appendChild(h);
+    var on=[];
+    if(ADD_FLAG)on.push({t:({open:'Open',verify:'Questions',done:'Done'})[ADD_FLAG]||ADD_FLAG,
+                         c:function(){ADD_FLAG='';}});
+    if(ADD_STATE)on.push({t:({untriaged:'No state yet',verify:'Flagged ?',nosheet:'No drawing',
+                              ask:'Waiting on an answer',done:'Finished',drawings:'Issue drawing',
+                              writeup:'Write-up only',none:'Fix only'})[ADD_STATE]||ADD_STATE,
+                          c:function(){ADD_STATE='';}});
+    if(ADD_PART)on.push({t:(ADD_PART==='spec'?'Specifications \u00a73':'Drawings \u00a74'),
+                         c:function(){ADD_PART='';}});
+    if(ADD_DISC&&ADD_DISC!=='AR'&&ADD_DISC!=='*')on.push({t:ADD_DISC,c:function(){ADD_DISC='AR';}});
+    if(!on.length)return;
+    var strip=document.createElement('div');strip.className='filt-strip';
+    var txt=document.createElement('span');txt.className='fs-count';
+    strip.appendChild(txt);
+    on.forEach(function(o,ix){
+      var b=document.createElement('button');b.type='button';b.className='filt-chip';
+      b.innerHTML=escapeHtml(o.t)+' <span>\u2715</span>';
+      b.title='Remove this filter';
+      b.addEventListener('click',function(){o.c();buildAddendumRegister();});
+      strip.appendChild(b);});
+    var all=document.createElement('button');all.type='button';all.className='filt-clear';
+    all.textContent='Clear all';
+    all.addEventListener('click',function(){
+      ADD_FLAG='';ADD_STATE='';ADD_PART='';ADD_DISC='AR';buildAddendumRegister();});
+    strip.appendChild(all);
+    wb.appendChild(strip);
+    // the count is only knowable after the rows are filtered — filled in below
+    wb.dataset.filtStrip='1';
   })();
   var parted=ADD_PART?pool.filter(function(i){return itemPart(i)===ADD_PART;}):pool;
 
   // 2. the three states, then the ? — counts come from what the part switch left standing
-  var sr=document.createElement('div');sr.className='wb-bar';
+  var sr=document.createElement('div');sr.className='wb-bar wb-filter';
   var sl=document.createElement('span');sl.className='wb-lbl';sl.textContent='State';sr.appendChild(sl);
   var partForLabels=ADD_PART||'drawing';
   // `ask` and `done` are filters on the WORK, not on what the item produces — an item can be
@@ -7178,6 +7241,22 @@ function addWorkbench(host,key,pool){
     wb.appendChild(ub);
   }
 
+  // A shortcut nobody is told about is a shortcut nobody uses.
+  (function(){
+    var h=document.createElement('details');h.className='kbd-hint';
+    // Every other localStorage read on this page is wrapped, and for good reason: it throws
+    // outright under a blocked-cookies or opaque-origin context, and an unguarded read here took
+    // the entire register down with it rather than just losing a preference.
+    try{h.open=(localStorage.getItem('wt-kbd-open')==='1');}catch(e){h.open=false;}
+    h.addEventListener('toggle',function(){try{localStorage.setItem('wt-kbd-open',h.open?'1':'0');}catch(e){}});
+    var sm=document.createElement('summary');sm.textContent='Keyboard';h.appendChild(sm);
+    var body=document.createElement('div');
+    body.innerHTML='<kbd>j</kbd><kbd>k</kbd> walk the list \u00b7 <kbd>1</kbd> issue drawing '
+      +'<kbd>2</kbd> write-up <kbd>3</kbd> fix only \u00b7 <kbd>?</kbd> flag \u00b7 '
+      +'<kbd>d</kbd> done \u00b7 <kbd>Enter</kbd> open \u00b7 <kbd>Ctrl</kbd>+<kbd>Z</kbd> undo';
+    h.appendChild(body);
+    wb.appendChild(h);
+  })();
   // 3. the rows. Grouped by state so "what can I hand over" is a block, not a scan.
   var rows=parted.filter(function(i){
     // the page-level Show filter applies here too. It sat above every view and moved only
@@ -7191,9 +7270,14 @@ function addWorkbench(host,key,pool){
     if(ADD_STATE==='nosheet')return !placementSheets(i).length;
     if(ADD_STATE==='done')return i.status==='completed'||i.pendingComplete;
     return i.produces===ADD_STATE;});
+  (function(){
+    var fc=wb.querySelector('.fs-count');
+    if(fc)fc.innerHTML='Showing <b>'+rows.length+'</b> of <b>'+pool.length+'</b> \u2014 filtered by ';
+  })();
   if(!rows.length){
     var e=document.createElement('div');e.className='wb-empty';
-    e.textContent='Nothing here with those filters.';wb.appendChild(e);host.appendChild(wb);return;}
+    e.textContent='Nothing matches these filters \u2014 clear one above to get the list back.';
+    wb.appendChild(e);host.appendChild(wb);return;}
 
   // Grouping is by what the row PRODUCES. Filtering by question or by done cuts across that, so
   // those two render as a single list — three empty headings above one populated one is not a
@@ -9202,7 +9286,7 @@ function issueGate(key){
   if(untriaged.length)blockers.push({n:untriaged.length,
     t:'item'+(untriaged.length!==1?'s':'')+' with no state',
     w:'Nothing is written for them, so the document is short by that much.',
-    go:function(){ADD_MODE='sheets';ADD_STATE='untriaged';buildAddendumRegister();}});
+    go:function(){ADD_MODE='sheets';ADD_STATE='untriaged';ADD_FLAG='';buildAddendumRegister();}});
   var slots=[],noSheet=[],unnamed=[];
   pool.filter(inDocument).forEach(function(i){
     if(isSpecPart(i)&&!(i.note||'').trim())slots.push(i);
@@ -9237,7 +9321,9 @@ function issueGate(key){
   var verify=pool.filter(function(i){return i.verify&&inDocument(i);});
   if(verify.length)cautions.push({n:verify.length,t:'still flagged ?',
     w:'In the document, but not yet confirmed with Chris H.',
-    go:function(){ADD_MODE='sheets';ADD_STATE='verify';buildAddendumRegister();}});
+    // ADD_FLAG, not ADD_STATE: the Questions chip in the Show bar IS this filter, visible and
+    // clickable off. Arming the invisible one left you filtered with nothing on screen to undo it.
+    go:function(){ADD_MODE='sheets';ADD_FLAG='verify';ADD_STATE='';buildAddendumRegister();}});
   var unknown=[];
   pool.filter(isDrawPart).filter(inDocument).forEach(function(i){
     placementsOf(i).forEach(function(pl){
