@@ -9278,7 +9278,8 @@ function buildAddendumDoc(key,opts){
     +undecided.slice(0,6).map(function(i){return i.sheet||(i.title||'').slice(0,26);}).join(' · ')
     +(undecided.length>6?' …':''));
   var vq=pool.filter(function(i){return i.verify&&inDocument(i);});
-  if(vq.length)warn.push(n_(vq.length,'item')+' in the document are still flagged ? — verify with Chris H before issue');
+  if(vq.length)warn.push(n_(vq.length,'item')+' in the document '+(vq.length===1?'is':'are')
+    +' still flagged ? — verify with Chris H before issue');
   return {text:out.join('\n').replace(/\n{3,}/g,'\n\n'),
           att:att,warn:warn,skipped:skipped,n:live.length,undecided:undecided,pool:pool,
           nSpec:secOrder.length,nSheet:shOrder.length,inq:inqs.length,
@@ -9428,9 +9429,13 @@ function buildWriteup(key,hostEl){
   var doc=buildAddendumDoc(key,{});
   var box=document.createElement('div');box.className='wu-box';
   var note=document.createElement('div');note.className='sh-stat';note.style.marginBottom='8px';
-  note.innerHTML='<b>'+doc.n+'</b> item(s) in the document · <b>'+doc.nSpec+'</b> §3 section(s) · <b>'
-    +doc.nSheet+'</b> §4 sheet(s) · <b>'+(doc.att.sec.length+doc.att.dwg.length)+'</b> attachment(s), derived'
-    +(doc.skipped?' · <b>'+doc.skipped+'</b> process step(s) excluded':'');
+  // the last of the "(s)" — a machine apologising for not knowing English
+  note.innerHTML='<b>'+doc.n+'</b> '+(doc.n===1?'item':'items')+' in the document \u00b7 '
+    +'<b>'+doc.nSpec+'</b> \u00a73 '+(doc.nSpec===1?'section':'sections')+' \u00b7 '
+    +'<b>'+doc.nSheet+'</b> \u00a74 '+(doc.nSheet===1?'sheet':'sheets')+' \u00b7 '
+    +'<b>'+(doc.att.sec.length+doc.att.dwg.length)+'</b> '
+    +((doc.att.sec.length+doc.att.dwg.length)===1?'attachment':'attachments')+', derived'
+    +(doc.skipped?' \u00b7 <b>'+doc.skipped+'</b> process '+(doc.skipped===1?'step':'steps')+' excluded':'');
   box.appendChild(note);
   doc.warn.forEach(function(w){
     var d=document.createElement('div');d.className='wu-warn';d.textContent='⚠ '+w;box.appendChild(d);});
