@@ -6,13 +6,64 @@
 <title>Work Tracker — Quick Capture</title>
 <style>
   :root{color-scheme:light;
-    --bg:#ffffff; --card:#ffffff; --border:#e6e2d8; --border-soft:#efece4;
-    --text:#2b2a27; --muted:#8a8579; --faint:#b3aea2;
-    --mauve:rgb(168,118,142); --sage:rgb(120,148,104); --taupe:rgb(150,134,118); --olive:rgb(150,148,96);
-    --terracotta:rgb(176,122,100); --teal:rgb(94,158,149); --gold:rgb(181,144,66); --rose:rgb(196,120,110); --rfi:#2b2a27;
+    /* ── colour has ONE rule here: a hue means a thing, and nothing else may borrow it. ─────
+       Measured before it was chosen (validate_palette, light, surface #fffdfa):
+         · classification pair  #0d9488 / #7c3fae — ALL CHECKS PASS · CVD ΔE 16.5 · normal 26.4
+         · status ladder        #a07a00 / #bf2c22 / #2b7d55 — passes; amber↔stop sits in the
+           6–8 CVD band, legal because every status here ships with a word beside it.
+       The palette this replaces failed on its own terms: five of its six accents were UNDER the
+       chroma floor — they read as grey — terracotta↔sage separated by ΔE 2.4, gold↔terracotta by
+       8.2 against a floor of 15. Gold did not take over because it was over-used. It was the only
+       accent with enough chroma to be seen at all, so the eye went to it and nowhere else. */
+
+    /* MEANING — reserved. Never chrome, never selection, never decoration. */
+    --gold:#a07a00;      /* a decision is owed BY YOU — untriaged, flagged ?, unanswered   */
+    --stop:#bf2c22;      /* this would ship wrong — gate blockers, name collisions         */
+    --ok:#2b7d55;        /* settled · ready · done                                         */
+    --p4:#0d9488;        /* §4 Drawings                                                    */
+    --p3:#7c3fae;        /* §3 Specifications                                              */
+
+    /* GROUND — hierarchy is carried by surface, depth and size. A selected thing rises out of
+       the page; it is never a coloured chip, because a coloured chip must borrow a meaning to
+       be seen, and every meaning here is already spoken for. */
+    --bg:#f3efe6; --card:rgba(255,254,251,.82); --card-solid:#fffdfa;
+    --raise:rgba(255,255,255,.78); --sink:rgba(240,236,226,.66); --deep:#4a453b;
+    --sel:#4a453b; --sel-fg:#fffdfa;
+    --glass-edge:rgba(255,255,255,.85);
+    --shadow-1:0 1px 2px rgba(64,56,42,.06), 0 1px 1px rgba(64,56,42,.04);
+    --shadow-2:0 2px 6px rgba(64,56,42,.07), 0 8px 24px -8px rgba(64,56,42,.14);
+    --shadow-3:0 3px 10px rgba(64,56,42,.09), 0 18px 42px -14px rgba(64,56,42,.22);
+    --border:#e4dfd2; --border-soft:#efece4;
+    --text:#2b2721; --muted:#6f6a5e; --faint:#a9a294;
+
+    /* legacy names, repointed so nothing is left dangling */
+    --teal:var(--p4); --mauve:var(--p3); --sage:var(--ok); --terracotta:var(--stop);
+    --taupe:#8a8276; --olive:#6f6a5e; --rose:var(--stop); --rfi:#2b2721;
     /* aliases: `--line` was referenced three times and never defined; `--fg` came in with
        the addendum work. Naming them here beats sprinkling the raw tokens around. */
     --line:var(--border); --fg:var(--text);
+  }
+  body{
+    background:
+      radial-gradient(1200px 640px at 12% -8%, rgba(13,148,136,.045), transparent 62%),
+      radial-gradient(1000px 560px at 92% 4%, rgba(124,63,174,.038), transparent 58%),
+      radial-gradient(900px 700px at 50% 108%, rgba(160,122,0,.035), transparent 60%),
+      var(--bg);
+    background-attachment:fixed;
+  }
+  /* One surface treatment, three depths. Everything that is "a thing you can act on" wears it. */
+  .glass{
+    background:var(--card);
+    -webkit-backdrop-filter:blur(14px) saturate(1.25);
+    backdrop-filter:blur(14px) saturate(1.25);
+    border:1px solid var(--border);
+    box-shadow:var(--shadow-1), inset 0 1px 0 var(--glass-edge);
+    border-radius:14px;
+  }
+  .glass-2{box-shadow:var(--shadow-2), inset 0 1px 0 var(--glass-edge);}
+  .glass-3{box-shadow:var(--shadow-3), inset 0 1px 0 var(--glass-edge);}
+  @media (prefers-reduced-transparency:reduce){
+    .glass,.glass-2,.glass-3{background:var(--card-solid);backdrop-filter:none;-webkit-backdrop-filter:none;}
   }
   *{box-sizing:border-box;}
   body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.55;}
@@ -1418,6 +1469,206 @@ select.pl-in{cursor:pointer}
 .sync-stat.bad{color:var(--rose)}
 .sync-row{display:flex;gap:8px;align-items:center}
 .sync-note{margin:14px 0 0;padding-top:12px;border-top:1px solid var(--border-soft);font-size:11.5px}
+
+/* ══════════════════════════════════════════════════════════════════════════════════════════
+   DESIGN SYSTEM — 2026-08-11. Appended last so it wins, and kept in one block so the rules can
+   be read as a set rather than hunted for.
+
+   THE PROBLEM IT FIXES. Gold was doing seven jobs — selection, focus, warning, pending, "Both",
+   panel chrome and content accents — across 126 declarations. A colour with seven meanings has
+   none, and every screen reads as equally urgent. Meanwhile the other five accents were below
+   the chroma floor and collapsed into beige, so gold was also the only thing you could see.
+
+   THE RULE. Hue is spent on MEANING only:
+       gold  a decision is owed by you        stop  this would ship wrong        ok  settled
+       p4    §4 Drawings                      p3    §3 Specifications
+   Everything else — selection, focus, grouping, "you are here" — is carried by DEPTH: a raised
+   translucent surface on a soft ground. Depth is unlimited and means nothing, which is exactly
+   what you want from hierarchy. Colour is scarce and means everything.
+   ══════════════════════════════════════════════════════════════════════════════════════════ */
+
+/* ── surfaces ─────────────────────────────────────────────────────────────────────────────── */
+.sh-row,.add-card,.inq-row,.gs,.wb,.inq-box,.q-row,.add-scope{
+  background:var(--card);
+  -webkit-backdrop-filter:blur(12px) saturate(1.2);backdrop-filter:blur(12px) saturate(1.2);
+  border:1px solid var(--border);border-radius:14px;
+  box-shadow:var(--shadow-1), inset 0 1px 0 var(--glass-edge);
+}
+.sh-row{padding:12px 14px 8px;margin:9px 0;transition:box-shadow .16s ease, transform .16s ease;}
+.sh-row:hover{background:var(--raise);box-shadow:var(--shadow-2), inset 0 1px 0 var(--glass-edge);}
+.wb,.inq-box{padding:16px 16px 6px;}
+.gs{border-radius:14px;}
+.add-card{padding:14px 16px;margin:10px 0;}
+
+/* A left edge is a MEANING channel now, so it is never spent on decoration. Three states only. */
+.sh-row.untriaged,.sh-row.verify,.inq-row.inq-open{border-left:3px solid var(--gold);}
+.sh-row.clashRow,.gs-no{border-left:3px solid var(--stop);}
+.sh-row.sh-doneRow{border-left:3px solid var(--ok);opacity:.72;}
+.sh-row.pt-drawing,.sh-row.pt-spec,.sh-row.pt-both{border-left-color:transparent;}
+/* provenance is not an alarm — a capture that has not been folded is dashed, not gold */
+.sh-row.pendingRow{background:var(--card);border-left:3px dashed var(--faint);}
+
+/* ── selection is elevation, never hue ────────────────────────────────────────────────────── */
+.add-pick.on,.wb-seg.on,.wb-chip.on,.add-open.on,.add-filter-b.on,.regtabs button.active,
+.fchip.active,.add-flag-b.on{
+  background:var(--sel);border-color:var(--sel);color:var(--sel-fg);
+  box-shadow:var(--shadow-2);
+}
+.add-pick,.wb-seg,.wb-chip,.add-open,.add-filter-b,.regtabs button,.add-flag-b{
+  background:var(--raise);border:1px solid var(--border);color:var(--muted);
+  border-radius:10px;transition:all .14s ease;
+}
+.add-pick:hover,.wb-seg:hover,.wb-chip:hover,.add-open:hover,.add-filter-b:hover,
+.regtabs button:hover,.add-flag-b:hover{
+  color:var(--text);border-color:var(--faint);box-shadow:var(--shadow-1);
+}
+/* a filter that selects a STATUS wears that status — the bar explains itself */
+.add-flag-b[data-k="verify"]:not(.on){color:var(--gold);border-color:rgba(160,122,0,.35);}
+.add-flag-b[data-k="done"]:not(.on){color:var(--ok);border-color:rgba(43,125,85,.35);}
+
+/* ── §4 / §3 / Both — the one place classification hue is spent ───────────────────────────── */
+.sh-part button{background:var(--raise);border:1px solid var(--border);color:var(--faint);}
+.sh-part button.p-drawing.on{background:var(--p4);border-color:var(--p4);color:#fff;}
+.sh-part button.p-spec.on{background:var(--p3);border-color:var(--p3);color:#fff;}
+/* Both IS both. It was gold — a third colour for a thing that is not a third thing. */
+.sh-part button.p-both.on{
+  background:linear-gradient(100deg,var(--p4) 0 48%,var(--p3) 52% 100%);
+  border-color:var(--p3);color:#fff;}
+.sh-part button.p-drawing:hover{color:var(--p4);border-color:var(--p4);background:var(--raise);}
+.sh-part button.p-spec:hover{color:var(--p3);border-color:var(--p3);background:var(--raise);}
+.sh-part button.p-both:hover{color:var(--text);border-color:var(--faint);background:var(--raise);}
+
+/* ── state is consequence, not category: filled → outlined → ghost, no hue ────────────────── */
+.sh-pick button{background:transparent;border:1px solid var(--border);color:var(--muted);
+  border-radius:9px;}
+.sh-pick button.on{background:var(--sel);border-color:var(--sel);color:var(--sel-fg);}
+.sh-pick button.q{color:var(--gold);border-color:rgba(160,122,0,.4);background:rgba(160,122,0,.07);}
+.sh-pick button.q.on{background:var(--gold);border-color:var(--gold);color:#fff;}
+
+/* ── the row's content should be the loudest thing in the row ─────────────────────────────── */
+.sh-no{color:var(--text);font-weight:700;}
+.sh-title{color:var(--text);font-size:13.5px;line-height:1.4;}
+.sh-row.sh-doneRow .sh-no,.sh-row.sh-doneRow .sh-title{text-decoration:none;color:var(--muted);}
+.sh-head{grid-template-columns:auto auto minmax(320px,1fr) auto auto auto auto;}
+
+/* ── the gate is the one place status runs at full strength ───────────────────────────────── */
+.gs-chip-b{border-color:rgba(191,44,34,.35);background:rgba(191,44,34,.06);}
+.gs-chip-b b{color:var(--stop);}
+.gs-chip-c{border-color:rgba(160,122,0,.35);background:rgba(160,122,0,.06);}
+.gs-chip-c b{color:var(--gold);}
+.gs-yes .gs-dot{background:var(--ok);} .gs-warn .gs-dot{background:var(--gold);}
+.gs-no .gs-dot{background:var(--stop);}
+
+/* ── chrome stops shouting ────────────────────────────────────────────────────────────────── */
+.add-card-name,.sh-blk-h,.pl-head b,.sh-preview-h,.untag-h,.q-vs b{color:var(--text);}
+.sh-preview{border-left:3px solid var(--border);background:var(--sink);}
+.sh-group{color:var(--muted);}
+.sh-group.g-untriaged{border-left:3px solid var(--gold);}
+.wb-lede,.g-p{color:var(--muted);}
+
+/* ── corrections after looking at the render (step 7: render it and LOOK) ─────────────────── */
+/* The state buttons lost their compactness when the fill rule was replaced, wrapped to three
+   lines each, and walked over the title. A control that changes shape when you restyle it was
+   relying on the fill for its geometry. */
+.sh-pick{display:inline-flex;gap:0;flex-wrap:nowrap;}
+.sh-pick button{white-space:nowrap;padding:3px 9px;font-size:10.5px;font-weight:600;
+  line-height:1.5;border-radius:0;}
+.sh-pick button:first-child{border-radius:9px 0 0 9px;}
+.sh-pick button:last-child{border-radius:0 9px 9px 0;}
+.sh-pick button+button{border-left:none;}
+.sh-pick button.on{box-shadow:none;}
+
+/* An ACTION is not a status. "Write the addendum" was gold, which said "a decision is owed" —
+   it is the opposite: it is the thing you do when none is. Primary actions wear depth. */
+.wb-write,.gate-go,.hist-more.primary{
+  background:var(--sel);border:1px solid var(--sel);color:var(--sel-fg);
+  box-shadow:var(--shadow-2);}
+.wb-write:hover,.gate-go:hover{background:#3a352d;border-color:#3a352d;color:var(--sel-fg);}
+
+/* Section headings were gold — chrome borrowing a meaning. They are structure; they get ink. */
+.sec-head,.section,.sec-lead,.add-filter-lbl,.wb-lbl{color:var(--muted);}
+h2.sec-head,.sec-head b{color:var(--text);}
+
+/* Cards float because the page is a shade deeper than they are — that is what makes glass read
+   as glass rather than as a grey rectangle. */
+.sh-row,.add-card,.inq-row,.gs,.wb,.inq-box{background:var(--card);}
+.wb,.inq-box{box-shadow:var(--shadow-2), inset 0 1px 0 var(--glass-edge);}
+
+/* ── the four bands, each shaped like what it is ──────────────────────────────────────────── */
+.reg-head{
+  background:var(--card);-webkit-backdrop-filter:blur(14px) saturate(1.25);
+  backdrop-filter:blur(14px) saturate(1.25);
+  border:1px solid var(--border);border-radius:16px 16px 0 0;border-bottom:none;
+  box-shadow:var(--shadow-2), inset 0 1px 0 var(--glass-edge);
+  padding:16px 18px 12px;margin-top:10px;}
+.reg-title{font-size:20px;font-weight:700;letter-spacing:-.015em;color:var(--text);margin:0;}
+.reg-sub{font-size:12.5px;color:var(--muted);margin:3px 0 12px;}
+.reg-sub b{color:var(--text);font-weight:650;}
+.reg-sub b.needs{color:var(--gold);}
+.reg-head .add-pick-row{margin:0;gap:6px;row-gap:7px;}
+.reg-prog{font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);
+  margin-left:10px;align-self:center;}
+.reg-prog:first-of-type{margin-left:0;}
+.reg-head .add-pick{font-size:11.5px;padding:4px 10px;}
+
+/* the gate is welded to the header: "can this issue" is a fact ABOUT the instrument */
+.reg-head+div>.gs{border-radius:0;border-top:1px solid var(--border);margin:0;box-shadow:none;}
+.reg-head+div>.gs.gs-no{border-left:3px solid var(--stop);}
+
+/* tabs sit ON the card, not in a row of pills */
+.reg-tabs{background:var(--card);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border:1px solid var(--border);border-top:none;border-radius:0 0 16px 16px;
+  box-shadow:var(--shadow-2);padding:8px 12px;margin-bottom:14px;}
+.reg-tabs .add-mode-row{margin:0;gap:2px;}
+.reg-tabs .add-filter-lbl{display:none;}
+.reg-tabs .wb-seg{background:transparent;border:none;border-radius:9px;padding:7px 12px;
+  font-size:12.5px;color:var(--muted);box-shadow:none;}
+.reg-tabs .wb-seg:hover{background:var(--sink);color:var(--text);box-shadow:none;}
+.reg-tabs .wb-seg.on{background:var(--sink);color:var(--text);font-weight:650;box-shadow:none;
+  border:none;}
+.reg-tabs .wb-seg.on::after{content:"";display:block;height:2px;border-radius:2px;
+  background:var(--deep);margin:6px -4px -3px;}
+
+/* filters are the quietest band on the page, and sit UNDER the work they narrow */
+.reg-filters{margin:0 0 10px;}
+.reg-filters .add-filter{gap:5px;margin:0;}
+.reg-filters .add-filter-b,.reg-filters .add-flag-b{font-size:11px;padding:3px 9px;}
+.reg-filters .add-filter-note{font-size:11px;color:var(--faint);margin:5px 0 0;}
+
+/* ── the row head is a flex line, not a seven-column grid ─────────────────────────────────── */
+/* The grid was fragile: restyling one control changed its intrinsic width and the addendum
+   select ended up printed on top of the state buttons. A flex line cannot overlap. */
+.sh-head{display:flex!important;flex-wrap:wrap;align-items:center;gap:10px;}
+.sh-head>.sh-title{flex:1 1 260px;min-width:200px;}
+.sh-head>.sh-part,.sh-head>.sh-no{flex:0 0 auto;}
+.sh-head>.sh-move,.sh-head>.sh-pick,.sh-head>.sh-done,.sh-head>.sh-x{flex:0 0 auto;margin-left:0;}
+.sh-head>.sh-move{margin-left:auto;background:var(--raise);}
+
+/* ── last pass over the render ────────────────────────────────────────────────────────────── */
+.wb-lede-d{border:none;background:none;padding:0;margin:0 0 10px;}
+.wb-lede-d>summary{font-size:11.5px;color:var(--faint);cursor:pointer;list-style:none;padding:2px 0;}
+.wb-lede-d>summary::-webkit-details-marker{display:none;}
+.wb-lede-d>summary::before{content:"?";display:inline-flex;align-items:center;justify-content:center;
+  width:15px;height:15px;border:1px solid var(--border);border-radius:50%;font-size:9.5px;
+  font-weight:700;margin-right:7px;vertical-align:-2px;}
+.wb-lede-d>summary:hover{color:var(--muted);}
+.wb-lede-d>div{font-size:12.5px;line-height:1.6;color:var(--muted);margin-top:7px;max-width:78ch;}
+
+/* the ? is the one control that is ALWAYS a decision owed — it keeps its amber in every state */
+.sh-pick button.q{color:var(--gold);border-color:rgba(160,122,0,.4);background:rgba(160,122,0,.07);}
+.sh-pick button.q.on{background:var(--gold);border-color:var(--gold);color:#fff;}
+
+/* the row's two control clusters read as one line, and the addendum select stops floating away */
+.sh-head>.sh-move{margin-left:8px;}
+.sh-head>.sh-title{flex:1 1 320px;}
+.gs-meta{color:var(--faint);font-size:11px;}
+
+/* On the live build the "none answered" badge was gold on gold — the one number you most need to
+   read, invisible inside the tab that was selected. A badge inside a selected control inverts. */
+.wb-seg.on .seg-open,.add-pick.on .seg-open{background:rgba(255,255,255,.22);color:var(--sel-fg);}
+.reg-tabs .wb-seg.on .seg-open{background:rgba(160,122,0,.16);color:var(--gold);}
+.seg-open{white-space:nowrap;}
+.sh-group .n b.needs{color:var(--gold);}
 </style>
 </head>
 <body>
@@ -1590,7 +1841,7 @@ select.pl-in{cursor:pointer}
       <button type="button" data-reg="pkg" onclick="setRegTab('pkg')">Packages</button>
       
     </div>
-    <div id="regPaneAdd"><div class="sec-lead">Addenda — what rides each one, and the sheet-by-sheet work that fills it</div><div id="addRegView"></div><div id="sheetsView" style="display:none"></div></div>
+    <div id="regPaneAdd"><div id="addRegView"></div><div id="sheetsView" style="display:none"></div></div>
     <div id="regPaneRfi" style="display:none"><div class="sec-lead">RFIs — aging first, because old RFIs become claims</div><div id="rfiRegView"></div></div>
     <div id="regPanePkg" style="display:none"><div class="sec-lead">Packages — where each one stands</div><div id="overviewView"></div></div>
   </div>
@@ -3365,6 +3616,8 @@ function toggleUrgencyColors(){var on=document.getElementById('urgencyToggle').c
 function onProgramHeadClick(e){var prog=e.currentTarget.closest('.program');if(prog)prog.classList.toggle('collapsed');}
 function toggleCollapseAll(){var collapse=document.getElementById('collapseAllToggle').checked;document.querySelectorAll('#programView>.program').forEach(function(p){p.classList.toggle('collapsed',collapse);});document.querySelectorAll('#programView details.pkg').forEach(function(d){d.open=!collapse;});}
 
+// "13 item(s)" is a machine apologising for not knowing English. It costs one function to stop.
+function n_(n,one,many){return n+' '+(n===1?one:(many||one+'s'));}
 function setStatus(msg){var cs=document.getElementById('capStatus');if(cs)cs.textContent=msg;toast(msg);}
 // Every control on the register rebuilds the whole tab, which on a forty-row punch list scrolls you
 // back to the top — so the ? read as a button that does nothing, because the row you clicked was no
@@ -4297,11 +4550,27 @@ function buildAddendumRegister(){
     });
   });
   if(!order.length)return;
-  sectionHead(c,'Addendum register — what each upcoming addendum actually carries','var(--gold)');
+  // ── the order the eye meets things ────────────────────────────────────────────────────────
+  // Was: filters, two paragraphs of prose, the addendum picker, the view tabs, and only then the
+  // gate — fourteen bands of chrome before the first row of work, every one of them the same
+  // shape. Choosing WHICH ADDENDUM you are working on is navigation and the biggest decision on
+  // the page; choosing a discipline filter is a nicety. They looked identical.
+  // Now: which instrument → can it issue → which view of it → narrowing. Four bands, and each
+  // one looks like what it is.
+  var hHead=document.createElement('div');hHead.className='reg-head';
+  var hGate=document.createElement('div');
+  var hTabs=document.createElement('div');hTabs.className='reg-tabs';
+  var hFilt=document.createElement('div');hFilt.className='reg-filters';
+  c.appendChild(hHead);c.appendChild(hGate);c.appendChild(hTabs);c.appendChild(hFilt);
   var discsPresent=[];
   // `disc::` is occasionally multi-valued ('ME,AR') and `scope::` and `disc::` can name the same
   // discipline twice. Split, trim, dedupe — a filter bar with two AR buttons is a bug you click.
-  tagged.concat((window.LANE_ITEMS||[])).forEach(function(it){
+  // Only the disciplines THIS addendum carries. The bar listed every discipline in the vault, so
+  // an architectural addendum offered EL, ME, ST, safety, security and signage — six buttons that
+  // could only ever return nothing, on the one screen where you are trying to see less.
+  var discPool=(window.LANE_ITEMS||[]).concat(tagged).filter(function(it){
+    return addKey(it.pkg,it.addendum)===ADD_OPEN;});
+  (discPool.length?discPool:tagged.concat((window.LANE_ITEMS||[]))).forEach(function(it){
     var raw=((it.scope?scopeInfo(it.scope).d:'')||'')+','+(it.disc||'');
     raw.split(/[,;/]+/).forEach(function(x){
       var dd=x.trim();
@@ -4353,6 +4622,7 @@ function buildAddendumRegister(){
     ].forEach(function(o){
       var n2=flagN(o[0]);
       var fb2=document.createElement('button');fb2.type='button';
+      fb2.setAttribute('data-k',o[0]||'all');
       fb2.className='add-flag-b'+(ADD_FLAG===o[0]?' on':'')+((!n2&&o[0])?' is-zero':'');
       fb2.appendChild(document.createTextNode(o[1]));
       var cn=document.createElement('span');cn.className='fc';cn.textContent=n2;fb2.appendChild(cn);
@@ -4360,7 +4630,7 @@ function buildAddendumRegister(){
       fb2.addEventListener('click',function(){ADD_FLAG=o[0];buildAddendumRegister();});
       fr.appendChild(fb2);
     });
-    c.appendChild(fr);
+    hFilt.appendChild(fr);
     var hid=tagged.concat((window.LANE_ITEMS||[])).filter(function(it){
       var dd=(it.scope?scopeInfo(it.scope).d:'')||it.disc||'';
       return dd&&addDiscFilter_()&&dd!==addDiscFilter_();}).length;
@@ -4368,14 +4638,10 @@ function buildAddendumRegister(){
     if(!multi)hn.style.display='none';
     hn.textContent=addDiscFilter_()
       ?(addDiscFilter_()==='AR'?'Architecture only':'Only '+addDiscFilter_())
-        +(hid?' — '+hid+' item(s) from other disciplines hidden':' — nothing else is filed under another discipline')
+        +(hid?' \u2014 '+n_(hid,'item')+' from other disciplines hidden':' — nothing else is filed under another discipline')
       :'Every discipline showing. The write-up is Vol 1 – ARCHITECTURAL, so only AR items belong in it.';
-    c.appendChild(hn);
+    hFilt.appendChild(hn);
   }
-  var note=document.createElement('p');note.className='g-p';
-  note.style.cssText='font-size:11.5px;color:var(--muted);margin:2px 0 4px;';
-  note.textContent='Dates live in Milestones; contents live here. Add or drop an item and it queues as a capture — Claude folds it into the vault at the next check-in.';
-  c.appendChild(note);
   order.sort(function(a,b){
     var ga=groups[a],gb=groups[b];
     var da=addendumDateFor(ga.pkg,ga.num),db=addendumDateFor(gb.pkg,gb.num);
@@ -4396,10 +4662,43 @@ function buildAddendumRegister(){
       return addPoolFor(b).length-addPoolFor(a).length;})[0];
     ADD_OPEN=best||order[0];
   }
+  // The instrument, as a title rather than a chip in a row of chips. Nothing else on the page is
+  // a title, which makes it the strongest possible "you are here" — and it costs no colour.
+  (function(){
+    var g=groups[ADD_OPEN]||{},row=addendumDateFor(g.pkg,g.num);
+    var pool=addPoolFor(ADD_OPEN);
+    var done=pool.filter(function(i){return i.status==='completed'||i.pendingComplete;}).length;
+    var qs=inquiriesFor(ADD_OPEN),un=qs.filter(function(q){return !String(q.a||'').trim();}).length;
+    var t=document.createElement('h2');t.className='reg-title';
+    t.textContent=pkgChip(g.pkg)+' \u00b7 Addendum '+g.num;
+    hHead.appendChild(t);
+    var sub=document.createElement('div');sub.className='reg-sub';
+    var bits=[];
+    if(row&&/^\d{4}-\d{2}-\d{2}/.test(row.date||'')){
+      var dd=new Date(row.date+'T00:00:00');
+      bits.push('<b>issues '+dd.toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'long'})+'</b>');
+    } else bits.push('<b class="needs">no issue date yet</b>');
+    bits.push(pool.length+' item'+(pool.length!==1?'s':''));
+    if(done)bits.push(done+' finished');
+    if(un)bits.push('<b class="needs">'+un+' question'+(un!==1?'s':'')+' unanswered</b>');
+    sub.innerHTML=bits.join(' \u00b7 ');
+    hHead.appendChild(sub);
+  })();
   var pickRow=document.createElement('div');pickRow.className='add-filter add-pick-row';
-  var pl=document.createElement('span');pl.className='add-filter-lbl';pl.textContent='Addendum';
-  pickRow.appendChild(pl);
+  // Grouped by programme, because Concourse B is not the only programme that issues documents —
+  // a flat row of chips silently claims there is only one project.
+  var progOf={};
+  (window.ITEMS||[]).concat(window.LANE_ITEMS||[]).forEach(function(i){
+    if(i.pkg&&i.program&&!progOf[i.pkg])progOf[i.pkg]=i.program;});
+  var byProg={},progOrder=[];
   order.forEach(function(k){
+    var pg=progOf[(groups[k]||{}).pkg]||'Concourse B';
+    if(!byProg[pg]){byProg[pg]=[];progOrder.push(pg);}
+    byProg[pg].push(k);});
+  progOrder.forEach(function(pg){
+    var gl=document.createElement('span');gl.className='add-filter-lbl reg-prog';
+    gl.textContent=pg;pickRow.appendChild(gl);
+    byProg[pg].forEach(function(k){
     var g=groups[k],n=addPoolFor(k).length;
     var b=document.createElement('button');b.type='button';
     b.className='add-pick'+(ADD_OPEN===k?' on':'');
@@ -4407,8 +4706,8 @@ function buildAddendumRegister(){
     var dr=addendumDateFor(g.pkg,g.num);
     b.title=(dr&&/^\d{4}-\d{2}-\d{2}/.test(dr.date))?('issues '+dr.date):'no date yet';
     b.addEventListener('click',function(){ADD_OPEN=k;buildAddendumRegister();});
-    pickRow.appendChild(b);});
-  c.appendChild(pickRow);
+    pickRow.appendChild(b);});});
+  hHead.appendChild(pickRow);
 
   var modeRow=document.createElement('div');modeRow.className='add-filter add-mode-row';
   var ml=document.createElement('span');ml.className='add-filter-lbl';ml.textContent='View';
@@ -4436,8 +4735,8 @@ function buildAddendumRegister(){
     }
     b.addEventListener('click',function(){ADD_MODE=o[0];buildAddendumRegister();});
     modeRow.appendChild(b);});
-  c.appendChild(modeRow);
-  renderGateStrip(ADD_OPEN,c);
+  hTabs.appendChild(modeRow);
+  renderGateStrip(ADD_OPEN,hGate);
 
   if(ADD_MODE==='inq'){addInquiryBlock(c,ADD_OPEN);return;}
   if(ADD_MODE==='sheets'){addWorkbench(c,ADD_OPEN,addPoolFor(ADD_OPEN));return;}
@@ -6152,8 +6451,8 @@ function updateTabCounts(){
   // 'upcoming' was the Schedule tab's key. Deleting that tab left this call writing to a button that
   // no longer exists — setCount returns early on a miss, so the overdue badge has silently rendered
   // nowhere ever since. It belongs on Now, where the overdue stat card already lives.
-  setCount('court',coming,false,coming+' item(s) come back to you once someone else moves');
-  setCount('now',overdue,true,overdue+' item(s) in your court are past due');
+  setCount('court',coming,false,n_(coming,'item')+' come back to you once someone else moves');
+  setCount('now',overdue,true,n_(overdue,'item')+' in your court are past due');
   setCount('topics',topicsNeedingAttn,true,topicsNeedingAttn+' thread(s) hold something that needs you \u2014 yours, '
     +'and either past due, due within 3 days, or carrying an impact:: signal');
 }
@@ -6511,8 +6810,13 @@ function addWorkbench(host,key,pool){
   var live=pool.filter(function(i){return !i.pendingComplete&&i.status!=='completed';});
   var done=pool.length-live.length;
   var wb=document.createElement('div');wb.className='wb';
-  var lede0=document.createElement('div');lede0.className='wb-lede';
-  lede0.innerHTML='One row per thing that changes. Give each a <b>state</b> and the document writes '
+  // Five lines of teaching text at the top of the work, every single time. It is the right text
+  // for someone's first week and noise for everyone else, so it folds away and stays folded.
+  var lede0=document.createElement('details');lede0.className='wb-lede wb-lede-d';
+  var ls=document.createElement('summary');ls.textContent='How a row becomes a line in the document';
+  lede0.appendChild(ls);
+  var lede0b=document.createElement('div');lede0.appendChild(lede0b);
+  lede0b.innerHTML='One row per thing that changes. Give each a <b>state</b> and the document writes '
     +'itself: <b>Issue drawing</b> puts the sheet in the List of Attachments, <b>Write-up only</b> '
     +'says it in words with nothing attached, <b>Fix only</b> means we correct it and the bid never '
     +'sees it. Open a row to see the exact lines it will produce.';
@@ -7318,8 +7622,12 @@ function addInquiryBlock(host,key){
   var box=document.createElement('div');box.className='inq-box';
   var h=document.createElement('div');h.className='sh-group';
   var list=inquiriesFor(key);
-  h.innerHTML='§5 Bid Inquiries — from BIDDERS <span class="n">'+list.length+' · '
-    +'typed in one at a time — never derived from a thread or the RFI register</span>';
+  // The subtitle carried the design rationale — true, and read two hundred times by people who
+  // already know it. What you come here for is the count and the gap; the reasoning is one click
+  // away in the note below.
+  var unN=list.filter(function(q){return !String(q.a||'').trim();}).length;
+  h.innerHTML='Bid inquiries <span class="n">'+n_(list.length,'question')
+    +(unN?' \u00b7 <b class="needs">'+unN+' still unanswered</b>':' \u00b7 all answered')+'</span>';
   box.appendChild(h);
   var lede=document.createElement('div');lede.className='wb-lede';
   lede.innerHTML='A bid inquiry is a <b>bidder’s</b> question after the documents go out, with '
@@ -8562,11 +8870,11 @@ function buildAddendumDoc(key,opts){
   if(inq.length)out=out.concat(['','5      Bid Inquiries & Responses','']).concat(inq);
   out.push('');out.push('                        END OF ADDENDUM (VOL 1)');
 
-  if(undecided.length)warn.push(undecided.length+' item(s) have no state and cannot be in the document: '
+  if(undecided.length)warn.push(n_(undecided.length,'item')+' have no state and cannot be in the document: '
     +undecided.slice(0,6).map(function(i){return i.sheet||(i.title||'').slice(0,26);}).join(' · ')
     +(undecided.length>6?' …':''));
   var vq=pool.filter(function(i){return i.verify&&inDocument(i);});
-  if(vq.length)warn.push(vq.length+' item(s) in the document are still flagged ? — verify with Chris H before issue');
+  if(vq.length)warn.push(n_(vq.length,'item')+' in the document are still flagged ? — verify with Chris H before issue');
   return {text:out.join('\n').replace(/\n{3,}/g,'\n\n'),
           att:att,warn:warn,skipped:skipped,n:live.length,undecided:undecided,pool:pool,
           nSpec:secOrder.length,nSheet:shOrder.length,inq:inqs.length,
@@ -8663,8 +8971,8 @@ function renderGateStrip(key,host){
     chips.appendChild(el);});
   sm.appendChild(chips);
   var meta=document.createElement('span');meta.className='gs-meta';
-  meta.textContent=g.doc.n+' item(s) \u00b7 '+g.doc.nSheet+' drawing(s) \u00b7 '
-    +(g.doc.att.sec.length+g.doc.att.dwg.length)+' attachment(s)';
+  meta.textContent=n_(g.doc.n,'item')+' \u00b7 '+n_(g.doc.nSheet,'drawing')+' \u00b7 '
+    +n_(g.doc.att.sec.length+g.doc.att.dwg.length,'attachment');
   sm.appendChild(meta);
   d.appendChild(sm);
   var body=document.createElement('div');body.className='gs-body';
@@ -8682,7 +8990,7 @@ function renderIssueGate(key,host){
     : 'Ready to issue';
   box.appendChild(h);
   var sub=document.createElement('div');sub.className='gate-sub';
-  sub.textContent=g.doc.n+' item(s) \u00b7 '+g.doc.nSpec+' \u00a73 section(s) \u00b7 '+g.doc.nSheet
+  sub.textContent=n_(g.doc.n,'item')+' \u00b7 '+n_(g.doc.nSpec,'\u00a73 section')+' \u00b7 '+g.doc.nSheet
     +' \u00a74 drawing(s) \u00b7 '+(g.doc.att.sec.length+g.doc.att.dwg.length)+' attachment(s)'
     +(g.doc.inq?' \u00b7 '+g.doc.inq+' bid inquir'+(g.doc.inq!==1?'ies':'y'):'');
   box.appendChild(sub);
