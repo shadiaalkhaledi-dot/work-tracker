@@ -1692,6 +1692,25 @@ input[type=checkbox],input[type=radio]{accent-color:var(--deep);}
 
 .item.completed,.card.completed,.inq-row.inq-done{opacity:.46;filter:saturate(.35);box-shadow:none;}
 .item.completed:hover,.card.completed:hover{opacity:1;filter:none;}
+
+/* ── the edge key ─────────────────────────────────────────────────────────────────────────────
+   One channel, five states, strict precedence — see rowEdge(). Everything else on the row says
+   what it IS; the edge says whether it needs you. */
+.sh-row.e-stop {border-left:3px solid var(--stop);}
+.sh-row.e-ask  {border-left:3px solid var(--gold);}
+.sh-row.e-ready{border-left:3px solid var(--ok);opacity:1;}
+.sh-row.e-quiet{border-left:3px solid var(--faint);}
+.sh-row.e-done {border-left:3px solid var(--ok);}
+.sh-row.e-ready{border-left-color:rgba(43,125,85,.32);}   /* ready is calm, not celebratory */
+.sh-row.pendingRow{border-left-style:dashed;}             /* provenance rides on top of meaning */
+.edge-key{display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-size:10.5px;
+  color:var(--faint);margin:2px 0 8px;}
+.edge-key b{font-weight:600;color:var(--muted);}
+.edge-key i{display:inline-block;width:3px;height:11px;border-radius:2px;margin-right:5px;
+  vertical-align:-1px;}
+.ek-stop i{background:var(--stop);} .ek-ask i{background:var(--gold);}
+.ek-ready i{background:rgba(43,125,85,.32);} .ek-quiet i{background:var(--faint);}
+.ek-done i{background:var(--ok);}
 </style>
 </head>
 <body>
@@ -4593,12 +4612,24 @@ function buildAddendumRegister(){
   // could only ever return nothing, on the one screen where you are trying to see less.
   var discPool=(window.LANE_ITEMS||[]).concat(tagged).filter(function(it){
     return addKey(it.pkg,it.addendum)===ADD_OPEN;});
-  (discPool.length?discPool:tagged.concat((window.LANE_ITEMS||[]))).forEach(function(it){
+  var discSeen=[];
+  discPool.forEach(function(it){
     var raw=((it.scope?scopeInfo(it.scope).d:'')||'')+','+(it.disc||'');
     raw.split(/[,;/]+/).forEach(function(x){
       var dd=x.trim();
-      if(dd&&discsPresent.indexOf(dd)===-1)discsPresent.push(dd);});});
-  if(discsPresent.indexOf('AR')===-1)discsPresent.unshift('AR');
+      if(dd&&discSeen.indexOf(dd)===-1)discSeen.push(dd);});});
+  // PRESENT is not the same as WOULD RETURN SOMETHING. `disc:: ME, AR` puts ME in the list on an
+  // addendum where selecting ME shows nothing, because the filter that runs on click is
+  // itemHasDisc() and it reads scope first. So the bar is built by running the real filter and
+  // keeping the buttons that come back with rows — a chip that cannot return anything is not a
+  // choice, it is a dead end with a label.
+  var discCount={};
+  discSeen.forEach(function(dd){
+    discCount[dd]=discPool.filter(function(it){return itemHasDisc(it,dd);}).length;});
+  discsPresent=discSeen.filter(function(dd){return discCount[dd]>0;});
+  // never strand the selection: the chip you are standing on stays clickable even at zero
+  if(ADD_DISC&&ADD_DISC!=='*'&&discsPresent.indexOf(ADD_DISC)===-1)discsPresent.push(ADD_DISC);
+  if(discsPresent.indexOf('AR')===-1&&discCount['AR'])discsPresent.unshift('AR');
   discsPresent.sort(function(a,b){return a==='AR'?-1:b==='AR'?1:(a<b?-1:1);});
   {
     var fr=document.createElement('div');fr.className='add-filter add-filter-lead';
@@ -4615,7 +4646,9 @@ function buildAddendumRegister(){
     (multi?discsPresent.concat(['']):[]).forEach(function(dd){
       var fb=document.createElement('button');fb.type='button';
       fb.className='add-filter-b'+(addDiscFilter_()===dd?' on':'');
-      fb.textContent=dd||'Everything';
+      fb.appendChild(document.createTextNode(dd||'Everything'));
+      if(dd&&discCount[dd]){var dc=document.createElement('span');dc.className='fc';
+        dc.textContent=discCount[dd];fb.appendChild(dc);}
       fb.title=dd==='AR'?'Architecture — the discipline this addendum is written for. The default.'
         :(dd?('Show only '+dd+' — tracking, not write-up material'):'Every consultant, including the ones you do not write');
       if(dd==='AR')fb.classList.add('af-ar');
@@ -6885,6 +6918,17 @@ function addWorkbench(host,key,pool){
     pr.appendChild(b);});
   wb.appendChild(pr);
 
+  // A colour column you have to work out is a colour column nobody reads. Five words, once.
+  (function(){
+    var k=document.createElement('div');k.className='edge-key';
+    var counts={};pool.forEach(function(i){var e=rowEdge(i);counts[e]=(counts[e]||0)+1;});
+    [['stop','would ship wrong'],['ask','needs you'],['ready','ready'],
+     ['quiet','writes nothing'],['done','finished']].forEach(function(o){
+      if(!counts[o[0]])return;
+      var sp=document.createElement('span');sp.className='ek-'+o[0];
+      sp.innerHTML='<i></i><b>'+counts[o[0]]+'</b> '+o[1];k.appendChild(sp);});
+    if(k.children.length>1)wb.appendChild(k);
+  })();
   var parted=ADD_PART?pool.filter(function(i){return itemPart(i)===ADD_PART;}):pool;
 
   // 2. the three states, then the ? — counts come from what the part switch left standing
@@ -7194,13 +7238,52 @@ function shBlock(title,hint){
   if(hint){var sp=document.createElement('span');sp.textContent=hint;h.appendChild(sp);}
   b.appendChild(h);return b;
 }
+// ── the left edge ────────────────────────────────────────────────────────────────────────────
+// A row already tells you what it is (§4/§3, at the front) and what it does (the state group). The
+// edge is the only channel you can read WITHOUT reading the row — a column you scan down — so it
+// carries the one thing nothing else on the row says: does this need me, and how badly.
+//
+// Five states, in strict precedence, because a row can be several at once and the edge must answer
+// with the most urgent. All five come from the reserved status set — no new colour is invented.
+//
+//   stop   would ship wrong   two rows share this name · in the document with no sheet, or a line
+//                             still holding a ⟨slot⟩ — it would print as a placeholder
+//   ask    a decision is owed no state yet, or flagged ?  — nothing can be written until you say
+//   none   ready              in the document, complete, nothing owed. Calm IS the information.
+//   quiet  writes nothing     Fix only — real work, deliberately not addendum content
+//   done   finished           ticked
+function rowEdge(it){
+  if(it.titleClash)return 'stop';
+  if(it.pendingComplete||it.status==='completed')return 'done';
+  if(!it.produces)return 'ask';
+  if(it.verify)return 'ask';
+  if(it.produces==='none')return 'quiet';
+  if(inDocument(it)){
+    if(isSpecPart(it)&&!(it.note||'').trim())return 'stop';
+    if(isDrawPart(it)){
+      var pls=placementsOf(it);
+      if(!pls.length)return 'stop';
+      for(var i=0;i<pls.length;i++){
+        var ln=(pls[i].override||'').trim()||(pls[i].text||'').trim();
+        if(!pls[i].sheet||!ln||PL_SLOT.test(ln))return 'stop';
+      }
+    }
+  }
+  return 'ready';
+}
 function sheetRow(it){
   var part=itemPart(it),sheets=(itemPart(it)==='spec')?itemSheets(it):placementSheets(it);
   var nLines=isDrawPart(it)?placementsOf(it).length:0;
   var row=document.createElement('div');
   row.id='sh-'+it.id;
-  row.className='sh-row pt-'+part+(!it.produces?' untriaged':'')+(it.verify?' verify':'')
+  var edge=rowEdge(it);
+  row.className='sh-row pt-'+part+' e-'+edge+(!it.produces?' untriaged':'')+(it.verify?' verify':'')
     +(sheets.length?'':' noSheet')+(it.pendingComplete||it.status==='completed'?' sh-doneRow':'');
+  row.title=({stop:'Would ship wrong — see the gate above',
+              ask:'Needs a decision from you before anything can be written',
+              ready:'Ready — in the document, nothing outstanding',
+              quiet:'Fix only — real work, but it writes nothing into the addendum',
+              done:'Finished'})[edge]||'';
   var head=document.createElement('div');head.className='sh-head';
   var no=document.createElement('span');no.className='sh-no';
   if(isSpecPart(it)&&!itemSheets(it).length){
@@ -8158,6 +8241,13 @@ function placementEditor(it){
       var l=document.createElement('label');l.textContent=label;if(hint)l.title=hint;
       c.appendChild(l);return c;
     }
+    // Every open row built a datalist called `viewList-0`, `viewList-1` … numbered WITHIN the row.
+    // Open two rows and the document holds several elements under one id, so the browser resolves
+    // `list="viewList-0"` to whichever came first — another row's drawing, or an empty list. The
+    // field looked like it simply had nothing to offer. Typing the detail number still worked,
+    // because that path reads the data directly instead of going through the datalist, which is
+    // exactly the shape of the complaint: "I have to pick the detail number for the name to show up."
+    var vlId='viewList-'+String(it.id||'x').replace(/[^\w-]/g,'')+'-'+ix;
     function inp(key,ph,cls,opts){
       var el;
       if(opts){
@@ -8165,7 +8255,7 @@ function placementEditor(it){
         // Addendum 1 §4.2 actually writes. So it is a free field with the common ones offered.
         el=document.createElement('input');el.type='text';el.className='pl-in '+(cls||'');
         el.value=pl[key]||'';el.placeholder='type it, or pick';
-        el.setAttribute('list','viewList-'+ix);
+        el.setAttribute('list',vlId);
         el.title='Pick a common one or type the view exactly as the drawing names it — '
           +'"DOOR SCHEDULE - BASIC DOORS", "ENLARGED PLAN — WASHROOMS". What you type is what the line says.';
         var vsync=function(fire){pl[key]=el.value.trim();pairView(key);
@@ -8349,7 +8439,7 @@ function placementEditor(it){
       +'this offers the views actually on it, from the Revit export. Its number fills itself.');
     var vEl=inp('view','','pl-view',VIEW_TYPES);cView.appendChild(vEl);
     // A per-row datalist, because the offer depends on which drawing this line is on.
-    var vdl=document.createElement('datalist');vdl.id='viewList-'+ix;
+    var vdl=document.createElement('datalist');vdl.id=vlId;
     var fillViews=function(){
       vdl.innerHTML='';
       var on=viewsOn(it.pkg,pl.sheet);
@@ -8358,11 +8448,15 @@ function placementEditor(it){
         var o=document.createElement('option');o.value=x[0];
         o.label=(x[2]?('no. '+x[2]):'')+(x[1]==='raw'?'  ·  no Title on Sheet — this is the Revit view name':'');
         vdl.appendChild(o);});
-      // no generic fallbacks — the offer is the views actually on this drawing
+      // NO generic fallback, and the reason is written at VIEW_TYPES: "PLAN" is not the name of a
+      // view — it renders as "PLAN /Sheet A42.31.10", which points at a drawing the heading has
+      // already named and at no view in particular. An empty offer here is correct. What was
+      // wrong is that it did not SAY it was empty, so it read as a broken control.
       var raw=on.filter(function(x){return x[1]==='raw';}).length;
-      vEl.placeholder=on.length?(on.length+' view'+(on.length!==1?'s':'')+' on this drawing'
-                                 +(raw?' · '+raw+' untitled':''))
-                               :'type it, or pick';
+      vEl.placeholder=on.length
+        ?(n_(on.length,'view')+' on this drawing'+(raw?' \u00b7 '+raw+' untitled':''))
+        :(pl.sheet?(pl.sheet+' is not in the view export \u2014 type the view name')
+                  :'pick a drawing first, then this offers its views');
       vEl.title=on.length
         ? on.length+' view(s) are on '+pl.sheet+', from the Revit export. Title on Sheet where it '
           +'is filled in, the view name where it is not.'
