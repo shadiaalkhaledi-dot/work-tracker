@@ -3362,6 +3362,33 @@ function onProgramHeadClick(e){var prog=e.currentTarget.closest('.program');if(p
 function toggleCollapseAll(){var collapse=document.getElementById('collapseAllToggle').checked;document.querySelectorAll('#programView>.program').forEach(function(p){p.classList.toggle('collapsed',collapse);});document.querySelectorAll('#programView details.pkg').forEach(function(d){d.open=!collapse;});}
 
 function setStatus(msg){var cs=document.getElementById('capStatus');if(cs)cs.textContent=msg;toast(msg);}
+// Every control on the register rebuilds the whole tab, which on a forty-row punch list scrolls you
+// back to the top — so the ? read as a button that does nothing, because the row you clicked was no
+// longer under the cursor. The state was changing correctly the whole time; you just could not see it.
+function keepPlace(fn){
+  var y=(window.pageYOffset||document.documentElement.scrollTop||0);
+  var r=fn();
+  if(window.scrollTo)window.scrollTo(0,y);
+  return r;
+}
+// Everything you do here is an op, and an op can be voided — so undo is one keystroke rather than a
+// feature. It only ever takes back YOUR most recent change: two people share this board, and undoing
+// someone else's edit from your keyboard is not undo, it is deletion.
+function undoLast(){
+  var me=(syncWho()||'').trim();
+  var mine=(readQueue()||[]).filter(function(o){
+    if(!o||o.type==='_void')return false;
+    return me?String(o.by||'')===me:true;});
+  if(!mine.length){
+    setStatus(me?('Nothing of yours left to undo, '+me+'.'):'Nothing left to undo.');return false;}
+  var last=mine[mine.length-1];
+  voidOp(last);
+  var what=(last.text||last.type||'that').replace(/\s+/g,' ').slice(0,80);
+  buildAddendumRegister();
+  if(typeof rebuildPendingList==='function')rebuildPendingList();
+  setStatus('Undone — ' + what + (mine.length>1?('  ('+(mine.length-1)+' left)'):'  (that was the last one)'));
+  return true;
+}
 function toast(msg,actionLabel,actionFn){
   var w=document.getElementById('toastWrap');if(!w)return;
   while(w.children.length>=3)w.removeChild(w.firstChild);
@@ -5091,6 +5118,16 @@ function buildMsStrip(){
   });
   strip.style.display='';
 }
+// Undo. Not bound inside a field — Ctrl+Z there is the browser's, and taking it would be worse
+// than not having this at all.
+document.addEventListener('keydown',function(e){
+  if(!(e.key==='z'||e.key==='Z'))return;
+  if(!(e.ctrlKey||e.metaKey)||e.shiftKey||e.altKey)return;
+  var t=e.target||{},tag=(t.tagName||'').toLowerCase();
+  if(tag==='input'||tag==='textarea'||tag==='select'||t.isContentEditable)return;
+  e.preventDefault();
+  undoLast();
+});
 document.addEventListener('keydown',function(e){
   if(e.key==='/'&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){e.preventDefault();var sb=document.getElementById('searchBox');if(sb){sb.focus();sb.select();}}
 });
@@ -6362,24 +6399,32 @@ function setProduces(id,val){
   var base=baseLaneItem(id)||{};
   supersede(function(o){return o.type==='produces'&&o.itemRef===ref&&/produces:/.test(o.text||'');});
   if(sameValue(val,base.produces)){
-    buildAddendumRegister();
+    keepPlace(buildAddendumRegister);
     setStatus('Back to what the vault says — nothing left queued for this one.');return;}
   // Queued, not written. The vault stays the source of truth; this folds in at the next check-in.
   queueLocally({type:'produces',program:it.program||'',pkg:it.pkg||'',itemRef:ref,
     text:(it.sheet?it.sheet+' — ':'')+'produces: '+(base.produces||'(untriaged)')+' → '+(val||'(untriaged)')});
-  buildAddendumRegister();
+  keepPlace(buildAddendumRegister);
   setStatus(produceLabel(itemPart(it),val)+' — '+(SYNC.on?'shared, and copy for check-in to make it permanent.':'copy for check-in to make it permanent.'));
 }
 function toggleVerify(id){
   var it=findLane(id);if(!it)return;
   var ref=(it.title||'').slice(0,160),base=baseLaneItem(id)||{};
   var next=it.verify?'':'yes';
+  var wasOn=!!it.verify;
   supersede(function(o){return o.type==='produces'&&o.itemRef===ref&&/verify|\? cleared/.test(o.text||'');});
-  if(sameValue(next,base.verify)){buildAddendumRegister();
-    setStatus('Back to what the vault says — nothing left queued.');return;}
+  if(sameValue(next,base.verify)){
+    keepPlace(buildAddendumRegister);
+    setStatus((wasOn?'? cleared':'? set')+' — back to what the vault says, so nothing is queued.');return;}
   queueLocally({type:'produces',program:it.program||'',pkg:it.pkg||'',itemRef:ref,
-    text:(it.sheet?it.sheet+' — ':'')+(it.verify?'verified — ? cleared':'flagged to verify (?)')});
-  buildAddendumRegister();
+    text:(it.sheet?it.sheet+' — ':'')+(wasOn?'verified — ? cleared':'flagged to verify (?)')});
+  keepPlace(buildAddendumRegister);
+  // Clearing the ? while the Questions filter is on removes the row from the list you are looking
+  // at. That is the filter working, but it looks exactly like the row being deleted.
+  setStatus(wasOn
+    ? ('? cleared on '+(it.sheet||it.title||'').slice(0,40)
+       +(ADD_FLAG==='verify'?' — and it has left the Questions filter, which is why the row is gone.':''))
+    : ('? set on '+(it.sheet||it.title||'').slice(0,40)+' — nothing on it can be written until it is answered.'));
 }
 // `quiet` means: record it, but do NOT rebuild the register. Every field used to commit on blur
 // and then re-render the entire tab, which tore out the input you had just tabbed into — so a
