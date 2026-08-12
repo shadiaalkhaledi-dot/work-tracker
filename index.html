@@ -1802,6 +1802,25 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
   color:var(--ok);border-radius:999px;padding:1px 9px;cursor:pointer;margin-left:2px;}
 .inq-go:hover{background:var(--ok);border-color:var(--ok);color:#fff;}
 .inq-keeps{color:var(--faint);font-size:11px;margin-top:3px;}
+
+/* ── who has it ───────────────────────────────────────────────────────────────────────────────
+   A person is identity, not status, so this wears no meaning colour. An unassigned row says so
+   quietly — "nobody has picked this up" is worth seeing, but it is not an alarm. */
+.sh-who{font:inherit;font-size:10.5px;font-weight:600;color:var(--text);background:var(--raise);
+  border:1px solid var(--border);border-radius:999px;padding:2px 6px;cursor:pointer;
+  max-width:96px;align-self:flex-start;margin-top:1px;}
+.sh-who:hover{border-color:var(--faint);}
+.sh-who-none{color:var(--faint);font-weight:500;border-style:dashed;}
+.who-key{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:10.5px;
+  color:var(--faint);margin:2px 0 8px;}
+.who-key>b{font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;font-weight:700;}
+.who-chip{font:inherit;font-size:10.5px;color:var(--muted);background:transparent;
+  border:1px solid var(--border);border-radius:999px;padding:1px 8px;cursor:pointer;}
+.who-chip b{color:var(--text);font-weight:700;margin-right:3px;}
+.who-chip:hover{border-color:var(--faint);color:var(--text);}
+.who-chip.on{background:var(--sel);border-color:var(--sel);color:var(--sel-fg);}
+.who-chip.on b{color:var(--sel-fg);}
+.who-chip.who-none{border-style:dashed;}
 </style>
 </head>
 <body>
@@ -2163,10 +2182,18 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
       <b>never derived</b> from another register: inventing a bidder's words inside a bid document
       is the one thing this machine refuses to do.</p>
       <p class="g-p"><b>A package can issue more than one addendum, and rows move between them.</b>
-      The dropdown on each row changes which one it rides; the workbench has a bulk
-      <i>move finished</i>, which is the whole point of splitting one instrument into two — work
-      that is done goes out on the earlier one instead of waiting. Moving a row changes which
-      document it appears in and <b>nothing about what it says</b>; the state decides that.</p>
+      The dropdown on each row changes which one it rides — which is the whole point of splitting
+      one instrument into two: work that is done goes out on the earlier one instead of waiting.
+      Moving a row changes which document it appears in and <b>nothing about what it says</b>;
+      the state decides that.</p>
+      <p class="g-p"><b>“Who?” on a row is who is doing it — not who owes you an answer.</b> It is
+      the same <span class="mono">with::</span> the rest of the board uses (section 7): execution
+      sits with them, <b>accountability stays with you</b>, and it never changes whose move an item
+      is. The names offered are the architecture team plus anyone already named on this addendum,
+      so nobody maintains a second list. The <b>Who</b> line above the rows counts what each person
+      is carrying and how many have <b>nobody yet</b> — click either to see just those. It exists
+      so an imbalance or an unassigned pile is visible at a glance, not to run a resourcing
+      report.</p>
       <p class="g-p"><b>Ctrl+Z undoes your last change.</b> Every edit here is already an op, so
       undo is one keystroke — and it only ever takes back <i>your</i> newest change, because
       undoing someone else's edit from your keyboard is deletion, not undo.</p>
@@ -4881,7 +4908,7 @@ function buildAddendumRegister(){
         ADD_FLAG=o[0];
         // "All" has to mean all. It cleared its own filter and left the other two armed, which is
         // how you end up looking at one row with every visible control saying nothing is filtered.
-        if(!o[0]){ADD_STATE='';ADD_PART='';}
+        if(!o[0]){ADD_STATE='';ADD_PART='';ADD_WHO='';}
         buildAddendumRegister();});
       fr.appendChild(fb2);
     });
@@ -6814,6 +6841,7 @@ var ADD_OPEN=null;         // which addendum is selected — one is always selec
 var ADD_MODE='reg';        // reg | sheets | inq | wu
 var ADD_DISC='AR';         // Architecture is the default and says so. This is an ARCH addendum.
 var ADD_PART='';           // '' both · 'spec' §3 · 'drawing' §4
+var ADD_WHO='';            // '' = everyone · a first name · '—' = nobody assigned yet
 var ADD_STATE='';          // '' | drawings | writeup | none | untriaged | verify | ask | done
 // Contents has its own, because Contents asks a different question: the workbench asks what goes
 // in the document, this asks what is still open. Separate from ADD_STATE so switching view does
@@ -7147,6 +7175,31 @@ function addWorkbench(host,key,pool){
       var sp=document.createElement('span');sp.className='ek-'+o[0];
       sp.innerHTML='<i></i><b>'+counts[o[0]]+'</b> '+o[1];k.appendChild(sp);});
     if(k.children.length>1)wb.appendChild(k);
+    // Who is carrying what. One line, counts only — the point is to notice an imbalance or an
+    // unassigned pile, not to run a resourcing report.
+    var by={},none=0;
+    pool.forEach(function(i){
+      if(i.delegate)by[firstName(i.delegate)]=(by[firstName(i.delegate)]||0)+1;else none++;});
+    var names=Object.keys(by).sort(function(a,b){return by[b]-by[a];});
+    if(names.length||none){
+      var wk=document.createElement('div');wk.className='who-key';
+      var lb=document.createElement('b');lb.textContent='Who';wk.appendChild(lb);
+      names.forEach(function(n){
+        var sp=document.createElement('button');sp.type='button';sp.className='who-chip'
+          +(ADD_WHO===n?' on':'');
+        sp.innerHTML='<b>'+by[n]+'</b> '+escapeHtml(n);
+        sp.title='Show only what '+n+' is carrying';
+        sp.addEventListener('click',function(){ADD_WHO=(ADD_WHO===n)?'':n;buildAddendumRegister();});
+        wk.appendChild(sp);});
+      if(none){
+        var sp2=document.createElement('button');sp2.type='button';
+        sp2.className='who-chip who-none'+(ADD_WHO==='\u2014'?' on':'');
+        sp2.innerHTML='<b>'+none+'</b> nobody yet';
+        sp2.title='Rows with no one on them';
+        sp2.addEventListener('click',function(){
+          ADD_WHO=(ADD_WHO==='\u2014')?'':'\u2014';buildAddendumRegister();});
+        wk.appendChild(sp2);}
+      wb.appendChild(wk);}
   })();
   // No filter may ever be a dead end. The gate could arm ADD_STATE — untriaged, verify, nosheet —
   // and the state bar only draws buttons for drawings/writeup/none, so there was literally nothing
@@ -7160,6 +7213,8 @@ function addWorkbench(host,key,pool){
                               ask:'Waiting on an answer',done:'Finished',drawings:'Issue drawing',
                               writeup:'Write-up only',none:'Fix only'})[ADD_STATE]||ADD_STATE,
                           c:function(){ADD_STATE='';}});
+    if(ADD_WHO)on.push({t:(ADD_WHO==='\u2014'?'Nobody assigned':ADD_WHO),
+                        c:function(){ADD_WHO='';}});
     if(ADD_PART)on.push({t:(ADD_PART==='spec'?'Specifications \u00a73':'Drawings \u00a74'),
                          c:function(){ADD_PART='';}});
     if(ADD_DISC&&ADD_DISC!=='AR'&&ADD_DISC!=='*')on.push({t:ADD_DISC,c:function(){ADD_DISC='AR';}});
@@ -7176,7 +7231,7 @@ function addWorkbench(host,key,pool){
     var all=document.createElement('button');all.type='button';all.className='filt-clear';
     all.textContent='Clear all';
     all.addEventListener('click',function(){
-      ADD_FLAG='';ADD_STATE='';ADD_PART='';ADD_DISC='AR';buildAddendumRegister();});
+      ADD_FLAG='';ADD_STATE='';ADD_PART='';ADD_WHO='';ADD_DISC='AR';buildAddendumRegister();});
     strip.appendChild(all);
     wb.appendChild(strip);
     // the count is only knowable after the rows are filtered — filled in below
@@ -7275,6 +7330,8 @@ function addWorkbench(host,key,pool){
   var rows=parted.filter(function(i){
     // the page-level Show filter applies here too. It sat above every view and moved only
     // Contents, which is indistinguishable from being broken.
+    if(ADD_WHO==='\u2014'&&i.delegate)return false;
+    if(ADD_WHO&&ADD_WHO!=='\u2014'&&firstName(i.delegate)!==ADD_WHO)return false;
     if(ADD_FLAG==='verify'&&!i.verify)return false;
     if(ADD_FLAG==='open'&&(i.status==='completed'||i.pendingComplete))return false;
     if(ADD_FLAG==='done'&&!(i.status==='completed'||i.pendingComplete))return false;
@@ -7546,6 +7603,27 @@ function rowEdge(it){
   }
   return 'ready';
 }
+// Who is doing this. NOT a new field — the vault already has one: `with::`, which the generator
+// normalises to `delegate`, and which means exactly the thing being asked for — execution sits
+// with them, accountability stays with you. The rows in the sheet file already carry it. All that
+// was missing was a way to see and change it here.
+//
+// The list is DIALOG + AR from Stakeholders, plus whoever is already named on this addendum — so
+// "Kirk Gomez" appears even though Stakeholders says "Kirk", and nobody has to maintain a second
+// list of names that goes stale the week someone joins.
+function internalTeam(key){
+  var out=[],seen={};
+  var add=function(n){
+    n=String(n||'').trim();if(!n)return;
+    var k=n.toLowerCase().split(/\s+/)[0];
+    if(seen[k])return;seen[k]=1;out.push(n);};
+  (window.STAKEHOLDERS||[]).forEach(function(p){
+    if((p.org||'')==='DIALOG'&&(p.disc||'')==='AR')add(p.name);});
+  if(key)addPoolFor(key).forEach(function(i){add(i.delegate);});
+  add(syncWho());
+  return out.sort(function(a,b){return a<b?-1:1;});
+}
+function firstName(n){return String(n||'').trim().split(/\s+/)[0];}
 function sheetRow(it){
   var part=itemPart(it),sheets=(itemPart(it)==='spec')?itemSheets(it):placementSheets(it);
   var nLines=isDrawPart(it)?placementsOf(it).length:0;
@@ -7690,6 +7768,30 @@ function sheetRow(it){
     mv.addEventListener('change',function(e){e.stopPropagation();moveToAddendum(it.id,mv.value);});
     head.appendChild(mv);
   }
+  // Who has it. A person is identity, not status, so it wears no meaning colour — an unassigned
+  // row says so quietly rather than raising an alarm about it.
+  (function(){
+    var team=internalTeam(ADD_OPEN);
+    if(!team.length)return;
+    var wsel=document.createElement('select');wsel.className='sh-who'+(it.delegate?'':' sh-who-none');
+    wsel.title='Who is doing this. It writes `with::` in the vault \u2014 execution sits with them, '
+      +'accountability stays with you.';
+    wsel.setAttribute('aria-label','Who is doing '+(it.title||''));
+    var o0=document.createElement('option');o0.value='';o0.textContent='who?';wsel.appendChild(o0);
+    var have=false;
+    team.forEach(function(n){
+      var o=document.createElement('option');o.value=n;o.textContent=firstName(n);
+      if(String(it.delegate||'').toLowerCase()===n.toLowerCase()){o.selected=true;have=true;}
+      wsel.appendChild(o);});
+    // someone named on the row who is not on the team list still has to show
+    if(it.delegate&&!have){
+      var ox=document.createElement('option');ox.value=it.delegate;ox.textContent=firstName(it.delegate);
+      ox.selected=true;wsel.appendChild(ox);}
+    wsel.addEventListener('click',function(e){e.stopPropagation();});
+    wsel.addEventListener('change',function(e){e.stopPropagation();
+      setAddMeta(it.id,'delegate',wsel.value,'With');});
+    head.appendChild(wsel);
+  })();
   head.appendChild(pick);
   var cb=document.createElement('input');cb.type='checkbox';cb.className='sh-done';
   cb.title='Mark the WORK done. The item stays in the addendum — its state decides that, not this.';
@@ -7994,7 +8096,7 @@ function saveInquiry(p,q,a){
 // applied to the one place the register creates something you cannot see.
 function jumpToSheetRow(key,title){
   ADD_OPEN=key;ADD_MODE='sheets';
-  ADD_FLAG='';ADD_STATE='';ADD_PART='';   // never land somewhere a filter is hiding the thing
+  ADD_FLAG='';ADD_STATE='';ADD_PART='';ADD_WHO='';  // never land somewhere a filter is hiding the thing
   buildAddendumRegister();
   var want=String(title||'').slice(0,60);
   var hit=null;
