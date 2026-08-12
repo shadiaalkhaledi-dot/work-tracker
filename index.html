@@ -1796,6 +1796,12 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
 .sh-head>.sh-done{align-self:flex-start;margin-top:3px;}
 .sh-head>.sh-x{align-self:flex-start;margin-top:1px;}
 .sh-title .sh-inherit{margin-left:8px;vertical-align:1px;}
+
+.inq-made{font-size:11.5px;color:var(--ok);margin-top:6px;line-height:1.5;}
+.inq-go{font:inherit;font-size:11px;border:1px solid rgba(43,125,85,.45);background:rgba(43,125,85,.07);
+  color:var(--ok);border-radius:999px;padding:1px 9px;cursor:pointer;margin-left:2px;}
+.inq-go:hover{background:var(--ok);border-color:var(--ok);color:#fff;}
+.inq-keeps{color:var(--faint);font-size:11px;margin-top:3px;}
 </style>
 </head>
 <body>
@@ -7984,6 +7990,22 @@ function saveInquiry(p,q,a){
   setStatus(a?('Q'+p.qno+' answered — it writes into §5 and folds at check-in.')
              :('Q'+p.qno+' saved, still unanswered — §5 will say so out loud.'));
 }
+// Take me to the row this made. The same courtesy the gate chips give — a count you can click —
+// applied to the one place the register creates something you cannot see.
+function jumpToSheetRow(key,title){
+  ADD_OPEN=key;ADD_MODE='sheets';
+  ADD_FLAG='';ADD_STATE='';ADD_PART='';   // never land somewhere a filter is hiding the thing
+  buildAddendumRegister();
+  var want=String(title||'').slice(0,60);
+  var hit=null;
+  addPoolFor(key).forEach(function(i){if(String(i.title||'').slice(0,60)===want)hit=i;});
+  if(!hit){setStatus('It is on this addendum, but not under that name any more.');return;}
+  var el=document.getElementById('sh-'+hit.id);
+  if(!el){setStatus('Made it \u2014 it is in the list.');return;}
+  el.classList.add('sh-hit');
+  if(el.scrollIntoView)try{el.scrollIntoView({block:'center',behavior:'smooth'});}catch(e){}
+  setTimeout(function(){el.classList.remove('sh-hit');},2200);
+}
 function inqPromote(p,part){
   var key=p.addendum,g=ADD_GROUPS[key]||{};
   var cur=inqItemOp(p);
@@ -8000,9 +8022,10 @@ function inqPromote(p,part){
     produces:'',verify:'',inqRef:String(p.qno||''),
     text:inqRef(p),ts:new Date().toISOString()});
   buildAddendumRegister();
-  setStatus('Q'+p.qno+' is now a '+(part==='spec'?'\u00a73 specification'
+  setStatus('Q'+p.qno+' also became a '+(part==='spec'?'\u00a73 specification'
       :part==='both'?'\u00a73 + \u00a74':'\u00a74 drawing')
-    +' item on '+addLabelFor(key)+' \u2014 give it a sheet and a state in Sheet work.');
+    +' item on '+addLabelFor(key)+' \u2014 give it a sheet and a state in Sheet work. '
+    +'The question and answer stay in \u00a75.');
 }
 function addInquiryBlock(host,key){
   var box=document.createElement('div');box.className='inq-box';
@@ -8081,11 +8104,22 @@ function addInquiryBlock(host,key){
       pw.appendChild(b);});
     r.appendChild(pw);
     if(made){
+      // The item appeared on another tab, silently. The row now says what it made, says plainly
+      // that the QUESTION IS NOT CONSUMED — §5 still prints Q and A whether or not a drawing
+      // changes — and offers the way there rather than describing it.
       var mn=document.createElement('div');mn.className='inq-made';
       var mp=made.part||'drawing';
-      mn.textContent='\u2192 on this addendum as '+(mp==='spec'?'a \u00a73 specification item'
-        :mp==='both'?'a \u00a73 + \u00a74 item':'a \u00a74 drawing item')
-        +' \u2014 it needs a sheet and a state before it can be written.';
+      mn.appendChild(document.createTextNode('\u2713 Q'+p.qno+' also became '
+        +(mp==='spec'?'a \u00a73 specification item':mp==='both'?'a \u00a73 + \u00a74 item'
+          :'a \u00a74 drawing item')+' on '+addLabelFor(key)+'. '));
+      var go=document.createElement('button');go.type='button';go.className='inq-go';
+      go.textContent='open it in Sheet work \u2192';
+      go.addEventListener('click',function(e){e.stopPropagation();jumpToSheetRow(key,made.text);});
+      mn.appendChild(go);
+      var keep=document.createElement('div');keep.className='inq-keeps';
+      keep.textContent='The question and your answer stay here either way \u2014 \u00a75 prints '
+        +'both whether or not a document changes.';
+      mn.appendChild(keep);
       r.appendChild(mn);}
     if(p.fromVault){
       var vb=document.createElement('span');vb.className='op-by';vb.textContent='· in the vault';
