@@ -26,14 +26,20 @@
     /* GROUND — hierarchy is carried by surface, depth and size. A selected thing rises out of
        the page; it is never a coloured chip, because a coloured chip must borrow a meaning to
        be seen, and every meaning here is already spoken for. */
-    --bg:#f3efe6; --card:rgba(255,254,251,.82); --card-solid:#fffdfa;
-    --raise:rgba(255,255,255,.78); --sink:rgba(240,236,226,.66); --deep:#4a453b;
+    /* Shadi, 2026-08-11: white, or super off-white. The beige ground was doing the separating —
+       so the separating moves to LIGHT instead. Page is a hair off pure white, cards are pure
+       white, and the gap between them is carried by shadow rather than by tone. That is the more
+       honest version of glass anyway: it should look lit, not tinted. */
+    --bg:#fdfcfb; --card:rgba(255,255,255,.94); --card-solid:#ffffff;
+    --raise:#ffffff; --sink:rgba(244,242,237,.8); --deep:#4a453b;
     --sel:#4a453b; --sel-fg:#fffdfa;
     --glass-edge:rgba(255,255,255,.85);
-    --shadow-1:0 1px 2px rgba(64,56,42,.06), 0 1px 1px rgba(64,56,42,.04);
-    --shadow-2:0 2px 6px rgba(64,56,42,.07), 0 8px 24px -8px rgba(64,56,42,.14);
-    --shadow-3:0 3px 10px rgba(64,56,42,.09), 0 18px 42px -14px rgba(64,56,42,.22);
-    --border:#e4dfd2; --border-soft:#efece4;
+    /* On a near-white page the shadow IS the edge, so it has to do real work — a tight contact
+       shadow for the lift, a wide soft one for the depth. */
+    --shadow-1:0 1px 2px rgba(58,52,42,.05), 0 2px 6px -2px rgba(58,52,42,.07);
+    --shadow-2:0 1px 2px rgba(58,52,42,.06), 0 6px 18px -6px rgba(58,52,42,.13);
+    --shadow-3:0 2px 4px rgba(58,52,42,.07), 0 16px 40px -12px rgba(58,52,42,.20);
+    --border:#eae7e0; --border-soft:#f2f0eb;
     --text:#2b2721; --muted:#6f6a5e; --faint:#a9a294;
 
     /* legacy names, repointed so nothing is left dangling */
@@ -45,9 +51,8 @@
   }
   body{
     background:
-      radial-gradient(1200px 640px at 12% -8%, rgba(13,148,136,.045), transparent 62%),
-      radial-gradient(1000px 560px at 92% 4%, rgba(124,63,174,.038), transparent 58%),
-      radial-gradient(900px 700px at 50% 108%, rgba(160,122,0,.035), transparent 60%),
+      radial-gradient(1200px 640px at 12% -8%, rgba(13,148,136,.018), transparent 62%),
+      radial-gradient(1000px 560px at 92% 4%, rgba(124,63,174,.015), transparent 58%),
       var(--bg);
     background-attachment:fixed;
   }
@@ -1503,7 +1508,17 @@ select.pl-in{cursor:pointer}
 /* A left edge is a MEANING channel now, so it is never spent on decoration. Three states only. */
 .sh-row.untriaged,.sh-row.verify,.inq-row.inq-open{border-left:3px solid var(--gold);}
 .sh-row.clashRow,.gs-no{border-left:3px solid var(--stop);}
-.sh-row.sh-doneRow{border-left:3px solid var(--ok);opacity:.72;}
+/* Finished work should recede, not merely fade a little. A done row stops being raised — it sinks
+   into the page, loses its shadow and its contrast, and keeps only the green edge that says why. */
+.sh-row.sh-doneRow{
+  border-left:3px solid var(--ok);
+  background:var(--sink);
+  box-shadow:none;
+  opacity:.46;
+  filter:saturate(.35);}
+.sh-row.sh-doneRow:hover{opacity:1;filter:none;background:var(--raise);
+  box-shadow:var(--shadow-2), inset 0 1px 0 var(--glass-edge);}
+.sh-row.sh-doneRow .sh-no,.sh-row.sh-doneRow .sh-title{color:var(--muted);text-decoration:none;}
 .sh-row.pt-drawing,.sh-row.pt-spec,.sh-row.pt-both{border-left-color:transparent;}
 /* provenance is not an alarm — a capture that has not been folded is dashed, not gold */
 .sh-row.pendingRow{background:var(--card);border-left:3px dashed var(--faint);}
@@ -1669,6 +1684,14 @@ h2.sec-head,.sec-head b{color:var(--text);}
 .reg-tabs .wb-seg.on .seg-open{background:rgba(160,122,0,.16);color:var(--gold);}
 .seg-open{white-space:nowrap;}
 .sh-group .n b.needs{color:var(--gold);}
+
+/* Native form controls ship their own blue/red. On a page where every colour is spoken for, an
+   OS-default accent is a hue nobody assigned a meaning to. */
+input[type=checkbox],input[type=radio]{accent-color:var(--deep);}
+.sh-done{accent-color:var(--ok);}
+
+.item.completed,.card.completed,.inq-row.inq-done{opacity:.46;filter:saturate(.35);box-shadow:none;}
+.item.completed:hover,.card.completed:hover{opacity:1;filter:none;}
 </style>
 </head>
 <body>
