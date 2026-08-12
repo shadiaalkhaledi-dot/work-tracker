@@ -1208,6 +1208,8 @@ select.pl-in{cursor:pointer}
 .inq-f.inq-a .inq-in:focus{color:var(--fg)}
 .inq-gap{font-size:11px;color:var(--terracotta,#c07a4a);margin:1px 0 4px 33px}
 .inq-row.inq-open{border-left:3px solid rgba(245,158,11,.55);padding-left:9px}
+.sh-row.clashRow{border-left:3px solid var(--terracotta,#c07a4a)}
+.sh-clash{font-size:11px;color:var(--terracotta,#c07a4a);margin-top:6px;line-height:1.45}
 .sh-row .sh-part{margin-right:0;padding-top:1px;align-self:start}
 .sh-no{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;font-weight:600;
   white-space:nowrap;padding-top:4px}
@@ -6268,10 +6270,19 @@ function laneItems(){
   // the old name. The rename records the name it replaced and the alias keeps those ops pointed at
   // the same row. Without it, editing a title silently dropped that item's placements.
   var alias={};
+  // Two rows under one title is not a cosmetic problem: EVERY op here is keyed by title, so the
+  // second row's ? and state controls silently drive the first one and the row you clicked never
+  // changes. That is what "the ? will not unclick" was. Rows that collide are marked so the screen
+  // can say so, rather than leaving you clicking a button that works on something else.
+  // Scanned live, not from an index: a title op RENAMES a row mid-loop, and later ops key on the
+  // new name. An index built up front would answer for the name the row no longer has.
   var byTitle=function(t){
-    var k=String(t||'').slice(0,60);
-    for(var i=0;i<all.length;i++){if((all[i].title||'').slice(0,60)===k)return all[i];}
-    return alias[k]||null;};
+    var k=String(t||'').slice(0,60),first=null;
+    for(var i=0;i<all.length;i++){
+      if((all[i].title||'').slice(0,60)!==k)continue;
+      if(String(all[i].title||'')===String(t||''))return all[i];   // exact beats prefix
+      if(!first)first=all[i];}
+    return first||alias[k]||null;};
   (readQueue()||[]).forEach(function(p,ix){
     if(p.type==='sheet'){
       // captured on the site and not yet folded — it is real work the moment you type it
@@ -6306,7 +6317,14 @@ function laneItems(){
       var d=byTitle(p.itemRef);if(d)d._dropped=true;
     }
   });
-  return all.filter(function(i){return !i._dropped;});
+  var live=all.filter(function(i){return !i._dropped;});
+  // Marked LAST, once every queued op has been applied — a row that only exists because someone
+  // captured it a minute ago collides just as badly as one from the vault.
+  var seen={};
+  live.forEach(function(x){var k=String(x.title||'').slice(0,60);(seen[k]=seen[k]||[]).push(x);});
+  Object.keys(seen).forEach(function(k){
+    if(seen[k].length>1)seen[k].forEach(function(x){x.titleClash=seen[k].length;});});
+  return live;
 }
 // ---- moving an item between addenda -------------------------------------------------------
 // The addendum an item rides is a TAG in the vault, so moving it is an ordinary field edit — one
@@ -6432,6 +6450,18 @@ function toggleVerify(id){
 // deleting a placement) still rebuild; typing into one does not.
 function setAddMeta(id,field,value,label,quiet){
   var it=findLane(id);if(!it)return;
+  // A title is an id here. Renaming onto a name that already exists does not merge the two rows —
+  // it makes both unaddressable, because every op after it hits whichever one comes first.
+  if(field==='title'&&value){
+    var k=String(value).slice(0,60),clash=null;
+    laneItems().forEach(function(x){
+      if(x.id!==id&&String(x.title||'').slice(0,60)===k)clash=x;});
+    if(clash){
+      setStatus('Not renamed — “'+String(value).slice(0,50)+'” is already the name of another row on '
+        +(addLabelFor(addKey(clash.pkg,clash.addendum)))+'. Titles are ids here: two rows under one '
+        +'name means neither can be edited. Give it a name of its own.');
+      buildAddendumRegister();return;}
+  }
   var ref=(it.title||'').slice(0,160),base=baseLaneItem(id)||{};
   // one field, one op — the newest wins and the rest stop existing
   supersede(function(o){return o.type==='addmeta'&&o.itemRef===ref&&o.field===field;});
@@ -6837,6 +6867,14 @@ function sheetRow(it){
   else{no.textContent=it.lane?'— no sheet':'◇ from the board';}
   if(it.detail)no.textContent=it.detail+'/'+(sheets[0]||'?');
   var pb=null;
+  if(it.titleClash){
+    row.classList.add('clashRow');
+    var cw=document.createElement('div');cw.className='sh-clash';
+    cw.textContent='\u26a0 '+it.titleClash+' rows share this exact name. Every control here is keyed '
+      +'by title, so these buttons may be driving the other row — rename one of them before trusting '
+      +'the state on either.';
+    row.appendChild(cw);
+  }
   if(it.pendingLocal){row.classList.add('pendingRow');
     pb=document.createElement('span');pb.className='badge p';pb.textContent='PENDING';
     pb.title='Captured here, not yet folded into the vault';}
