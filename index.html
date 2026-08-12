@@ -1429,6 +1429,10 @@ select.pl-in{cursor:pointer}
 .pl-vnote{grid-column:1/-1;display:block;font-size:10.5px;color:var(--faint);margin:3px 0 2px}
 .pl-vnote b{color:var(--text)}
 .pl-vbad{color:var(--stop)}
+/* a second command on the same line — quieter than the Action list, because it is the rarer move */
+.pl-and{margin-top:4px;font-size:11px;color:var(--muted);background:transparent;
+  border:1px dashed var(--border);border-radius:999px;padding:2px 6px;cursor:pointer;max-width:190px}
+.pl-and:hover{border-style:solid;border-color:var(--faint);color:var(--text)}
 .pl-line{display:grid;grid-template-columns:50px minmax(0,1fr) auto;gap:9px;align-items:start;
   padding:9px 12px 2px;border-top:1px dashed var(--border);margin:0}
 .pl-line-g{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:var(--gold);padding-top:8px}
@@ -1821,6 +1825,8 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
 .sh-title .sh-inherit{margin-left:8px;vertical-align:1px;}
 
 .inq-made{font-size:11.5px;color:var(--ok);margin-top:6px;line-height:1.5;}
+.inq-made-at{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--text);
+  background:var(--border-soft);border-radius:4px;padding:1px 6px;}
 .inq-go{font:inherit;font-size:11px;border:1px solid rgba(43,125,85,.45);background:rgba(43,125,85,.07);
   color:var(--ok);border-radius:999px;padding:1px 9px;cursor:pointer;margin-left:2px;}
 .inq-go:hover{background:var(--ok);border-color:var(--ok);color:#fff;}
@@ -2267,6 +2273,13 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
       real item carrying the Q number so the line can point back at the question. §5 is
       <b>never derived</b> from another register: inventing a bidder's words inside a bid document
       is the one thing this machine refuses to do.</p>
+      <p class="g-p"><b>The tick creates the item — you do not go and add it.</b> Click
+      <i>Drawing §4</i> and a row appears on this addendum called “Bid inquiry Q5 — …”, and the row
+      you clicked says so, names where it landed, and offers the way there. If your answer names a
+      drawing — <i>“Refer to updated Detail 6 /A5.94.02”</i> — it arrives already pointing at
+      A5.94.02 detail 6, with the view name read from the Revit export. That is a <b>seed, not a
+      decision</b>: it has no state, so it cannot reach the document until you have looked at it.
+      The question and your answer stay in §5 either way.</p>
       <p class="g-p"><b>A package can issue more than one addendum, and rows move between them.</b>
       The dropdown on each row changes which one it rides — which is the whole point of splitting
       one instrument into two: work that is done goes out on the earlier one instead of waiting.
@@ -2300,6 +2313,14 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
       all getting the same change, <i>split into N lines</i> gives each its own. And if the action
       is still <b>Re-issue the whole sheet</b>, the row says so — re-issue swallows the numbers, and
       the printed line would drop them without a word.</p>
+      <p class="g-p"><b>One line can carry two commands.</b> The <b>Action</b> list replaces the
+      verb the line opens with — right when you picked the wrong one, wrong when you meant a second.
+      <b>+ and …</b> beneath it appends instead: <i>ADD wall tag</i> plus <i>Revise …</i> becomes
+      <span class="mono">Add wall tag and revise the dimension string</span>. Only the verb that
+      opens the sentence is capitalised; the ones after it read in lower case, which is how the
+      issued Pkg 4.2 Add 1 §4 says it — <i>“Revise wall type and add new wall type to W2a1”</i>.
+      WA4, SSB1 and AV keep their capitals: only verbs are lowered, never every shouting word in a
+      drawing note.</p>
       <p class="g-p"><b>Naming several details changes how the line ends.</b> One detail gets the
       pointed clause the issued sets use —
       <span class="mono">…; As indicated on drawing A5.94.06, attached and forms part of this
@@ -8608,6 +8629,25 @@ function addRawOf(key){return rawAddendumFor(key);}
 function inqRef(p){
   return ('Bid inquiry Q'+p.qno+' — '+String(p.q||'').replace(/\s+/g,' ')).slice(0,160);
 }
+// An answer that changes a drawing nearly always SAYS which drawing — "Refer to updated Detail 6
+// /A5.94.02". Making the promoted item arrive empty, and asking for a sheet and a detail number
+// that are sitting in the sentence above the button, is work the machine can do and the person
+// should not have to. It is a seed, not a claim: the item still has no state, so nothing about it
+// can ship until it has been looked at.
+//
+// The ANSWER, never the question. The question points at the drawing the bidder was reading; the
+// answer points at the one being changed, and those are routinely different — Q5 asks about
+// 3/A5.100.01 and is answered with Detail 6 /A5.94.02.
+var INQ_REF=/(?:detail\s*)?(\d+)\s*\/\s*([A-Za-z]{1,2}\d+(?:\.\d+)+)/i;
+var INQ_SHEET=/\b([A-Za-z]{1,2}\d+(?:\.\d+){1,3})\b/;
+function inqSeedFrom(answer){
+  var s=String(answer||'');
+  var m=INQ_REF.exec(s);
+  if(m)return {sheet:m[2].toUpperCase(),no:m[1],from:m[0].trim()};
+  var m2=INQ_SHEET.exec(s);
+  if(m2)return {sheet:m2[1].toUpperCase(),no:'',from:m2[1]};
+  return null;
+}
 // A bid inquiry ALWAYS has an answer — an unanswered one is an open gap, not a finished row — and it
 // MAY also change a document, as a spec note, a drawing revision, or both. Those are two different
 // questions, which is why the answer is a field and the change is a switch.
@@ -8654,23 +8694,48 @@ function jumpToSheetRow(key,title){
 function inqPromote(p,part){
   var key=p.addendum,g=ADD_GROUPS[key]||{};
   var cur=inqItemOp(p);
+  // Ops are keyed by title, and the promoted item's title is derived from the Q number — so a
+  // placements op survives its item and re-attaches to the next one born under the same name. Left
+  // alone, un-ticking Drawing and ticking Spec gave a §3 item a drawing's placements.
+  var dropSeed=function(){
+    var ref=inqRef(p);
+    supersede(function(o){return o.type==='addmeta'&&o.field==='placements'&&o.itemRef===ref;});
+  };
   if(cur){
     // same button again = untick; the other button = change which half it lands in
     if((cur.part||'drawing')===part){
-      voidOp(cur);buildAddendumRegister();
+      voidOp(cur);dropSeed();buildAddendumRegister();
       setStatus('Q'+p.qno+' is back to being just an answer — no document change on this addendum.');
       return;}
-    voidOp(cur);
+    voidOp(cur);dropSeed();
   }
+  // What the answer already told us about where this lands. Spec items name a section, not a
+  // drawing, so only the \u00a74 half is seeded.
+  var seed=(part==='spec')?null:inqSeedFrom(p.a);
   queueLocally({type:'sheet',program:g.program||p.program||'Concourse B',pkg:g.pkg||p.pkg||'',
-    addendum:addRawOf(key),sheet:'',section:'',part:part,scope:'AR',disc:'AR',
+    addendum:addRawOf(key),sheet:(seed&&seed.sheet)||'',section:'',part:part,scope:'AR',disc:'AR',
     produces:'',verify:'',inqRef:String(p.qno||''),
     text:inqRef(p),ts:new Date().toISOString()});
   buildAddendumRegister();
+  if(seed&&seed.no){
+    // a detail number as well as a sheet \u2014 enough to write the target of the \u00a74 line
+    var mk=laneItems().filter(function(i){
+      return addKey(i.pkg,i.addendum)===key
+        &&String(i.title||'').slice(0,60)===inqRef(p).slice(0,60);})[0];
+    if(mk){
+      var v=viewByNo(mk.pkg,seed.sheet,seed.no);
+      setAddMeta(mk.id,'placements',JSON.stringify([{sheet:seed.sheet,view:(v&&v[0])||'',
+        no:seed.no,room:'',text:'',override:''}]),'Placements',true);
+    }
+  }
+  buildAddendumRegister();
   setStatus('Q'+p.qno+' also became a '+(part==='spec'?'\u00a73 specification'
       :part==='both'?'\u00a73 + \u00a74':'\u00a74 drawing')
-    +' item on '+addLabelFor(key)+' \u2014 give it a sheet and a state in Sheet work. '
-    +'The question and answer stay in \u00a75.');
+    +' item on '+addLabelFor(key)
+    +(seed?' \u2014 pointed at '+seed.sheet+(seed.no?' detail '+seed.no:'')
+           +', read out of your answer. Check it, then give it a state in Sheet work.'
+          :' \u2014 give it a sheet and a state in Sheet work.')
+    +' The question and answer stay in \u00a75.');
 }
 function addInquiryBlock(host,key){
   var box=document.createElement('div');box.className='inq-box';
@@ -8746,9 +8811,18 @@ function addInquiryBlock(host,key){
     // titled with the Q number so the line it eventually writes can point back here.
     var made=inqItemOp(p);
     var pw=document.createElement('span');pw.className='sh-part inq-part';
-    [['drawing','Drawing','4','The answer changes a drawing — makes a §4 item on this addendum, which will need a sheet and a state'],
-     ['spec','Spec','3','The answer changes the specification — makes a §3 item; you leave the note, Specifications writes the words'],
-     ['both','Both','','The answer changes both — one item, appearing in §3 and in §4']
+    // "makes a §4 item… which will need a sheet and a state" left it open who was doing the making.
+    // Say it in the first person of the tool: click and it creates the row for you, here, now.
+    var seedNow=inqSeedFrom(p.a);
+    [['drawing','Drawing','4','Click and I create a §4 drawing item on this addendum, titled '
+      +'“Bid inquiry Q'+p.qno+' — …”. '
+      +(seedNow?('I will point it at '+seedNow.sheet+(seedNow.no?' detail '+seedNow.no:'')
+                 +', which your answer names. ')
+              :'You give it a sheet. ')
+      +'You give it a state; nothing ships without one.'],
+     ['spec','Spec','3','Click and I create a §3 item on this addendum. You leave the note, '
+      +'Specifications writes the words.'],
+     ['both','Both','','Click and I create one item that appears in both §3 and §4.']
     ].forEach(function(o){
       var b=document.createElement('button');b.type='button';b.title=o[3];
       b.className='p-'+o[0];
@@ -8767,6 +8841,22 @@ function addInquiryBlock(host,key){
       mn.appendChild(document.createTextNode('\u2713 Q'+p.qno+' also became '
         +(mp==='spec'?'a \u00a73 specification item':mp==='both'?'a \u00a73 + \u00a74 item'
           :'a \u00a74 drawing item')+' on '+addLabelFor(key)+'. '));
+      // Where it landed, and how much of it is still owed. An item created on another tab with no
+      // state is the one thing on this board that can be forgotten completely.
+      (function(){
+        var mi=laneItems().filter(function(i){
+          return addKey(i.pkg,i.addendum)===key
+            &&String(i.title||'').slice(0,60)===inqRef(p).slice(0,60);})[0];
+        if(!mi)return;
+        var sh=(placementsOf(mi)[0]||{});
+        var b=document.createElement('b');b.className='inq-made-at';
+        b.textContent=sh.sheet?(sh.sheet+(sh.no?' detail '+sh.no:'')):'no drawing named yet';
+        if(sh.sheet)b.title='Read out of your answer \u2014 check it before it ships.';
+        mn.appendChild(b);
+        mn.appendChild(document.createTextNode(mi.produces?', ':' \u00b7 still needs a state. '));
+        if(mi.produces)mn.appendChild(document.createTextNode(
+          produceLabel(itemPart(mi),mi.produces).toLowerCase()+'. '));
+      })();
       var go=document.createElement('button');go.type='button';go.className='inq-go';
       go.textContent='open it in Sheet work \u2192';
       go.addEventListener('click',function(e){e.stopPropagation();jumpToSheetRow(key,made.text);});
@@ -9816,6 +9906,35 @@ function placementEditor(it){
       try{if(m)tin.setSelectionRange(m.index,m.index+m[0].length);
           else tin.setSelectionRange(pl.text.length,pl.text.length);}catch(e){}
     });
+    // One line often carries two commands — the issued Pkg 4.2 Add 1 §4 says "Revise wall type and
+    // add new wall type to W2a1". The Action list REPLACES the verb, which is right when you picked
+    // the wrong one and destructive when you meant to add a second: type "ADD wall tag", pick
+    // Revise, and the ADD was gone. This appends instead.
+    var andB=document.createElement('select');andB.className='pl-in pl-and';
+    var a0=document.createElement('option');a0.value='';a0.textContent='+ and …';
+    andB.appendChild(a0);
+    PL_ACTIONS.forEach(function(a){
+      // a whole-sheet re-issue is not something you do as well as something else
+      if(!a.k||a.k==='reissue'||a.k==='mirror'||a.k==='newsheet')return;
+      var o=document.createElement('option');o.value=a.k;o.textContent=a.label;andB.appendChild(o);});
+    andB.title='Add a SECOND command to this same line, joined with "and" — the shape the issued '
+      +'addenda use. The Action list on the left replaces the first verb; this one keeps it.';
+    andB.addEventListener('change',function(){
+      var a=PL_ACTIONS.filter(function(x){return x.k===andB.value;})[0];
+      andB.value='';
+      if(!a||!a.k)return;
+      var cur=String(pl.text||'').replace(/[.;]+$/,'').trim();
+      if(!cur){pl.text=a.tpl;}
+      else pl.text=cur+' and '+a.tpl;
+      tin.value=pl.text;commit();
+      tin.focus();
+      // land in the new slot, which is the second one now
+      var mm,last=null,rx=/⟨[^⟩]*⟩/g;
+      while((mm=rx.exec(pl.text)))last=mm;
+      try{if(last)tin.setSelectionRange(last.index,last.index+last[0].length);
+          else tin.setSelectionRange(pl.text.length,pl.text.length);}catch(e){}
+    });
+    cAct.appendChild(andB);
     // Remove lived on the line; add lived at the bottom of the whole editor, third in a row of four
     // buttons, past every other card. So the line you wanted to add to showed you exactly one
     // control — the one that deletes it — and "I see remove but not add" is the only possible
@@ -9937,10 +10056,23 @@ function placementEditor(it){
 // appear under each. Numbering is positional and computed at render, never stored, so inserting
 // an item cannot desynchronise it.
 function padNum(n,w){n=String(n);while(n.length<w)n+=' ';return n;}
+// The verbs this machine writes in capitals while you are working, and in ordinary case once they
+// are a sentence. Kept as a list because the second verb in a joined line has to be found and
+// lowered without touching WA4, SSB1, AV, GD1 or any of the other shouting that belongs in a
+// drawing note.
+var PL_VERBS=['ADD','REVISE','REMOVE','DELETE','UPDATE','EXTEND','REPLACE','RENUMBER',
+              'MODIFY','MODIFIED','RE-ISSUE','REISSUE','ISSUE','RELOCATE','PROVIDE'];
 function wuSentence(txt){
   var t=String(txt).replace(/^✓\s*/,'').trim();
   var m=t.match(/^([A-Z][A-Z/-]{1,})\b(.*)$/);
   if(m)t=m[1].charAt(0)+m[1].slice(1).toLowerCase()+m[2];
+  // One line, two commands — "Revise wall type and add new wall type to W2a1" is the issued Pkg 4.2
+  // Add 1 §4 sentence. Only the first verb opens the sentence; every verb after a joining word is
+  // mid-sentence and reads in lower case, exactly as that document has it.
+  // Fully lower, not title case: the issued sentence is "Revise wall type and add new wall type to
+  // W2a1" — only the verb that opens the sentence is capitalised, and only because it opens it.
+  t=t.replace(/(\b(?:and|then|,)\s+)([A-Z][A-Z/-]{1,})\b/g,function(all,join,verb){
+    return PL_VERBS.indexOf(verb.toUpperCase())===-1?all:join+verb.toLowerCase();});
   // "REVISE the A5.3.23 reference to A5.0.08 — confirm first" ends in commentary, and it must go.
   // "REVISE detail 11/A5.94.17 — Typical section detail — to 6/A5.94.17" uses the dash as a
   // parenthesis, and cutting at the first one loses the destination. One dash = commentary; two or
