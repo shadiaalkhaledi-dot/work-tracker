@@ -1195,6 +1195,8 @@ select.pl-in{cursor:pointer}
    shape Sheet work uses — so "is this a spec item or a drawing item?" looks the same everywhere. */
 .inq-part{margin:5px 0 0 0}
 .inq-made{font-size:11px;color:var(--teal);margin-top:4px;line-height:1.45}
+.inq-img{display:block;max-width:100%;width:420px;margin:7px 0 2px;border:1px solid var(--line);
+  border-radius:6px;background:#fff}
 .sh-row .sh-part{margin-right:0;padding-top:1px;align-self:start}
 .sh-no{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;font-weight:600;
   white-space:nowrap;padding-top:4px}
@@ -7130,7 +7132,8 @@ function inquiriesFor(key){
   var vault=((window.LAST_DATA&&LAST_DATA.inquiries)||[]).filter(function(q){
     return addKey(q.pkg,q.addendum)===key;}).map(function(q){
       return {type:'inquiry',addendum:key,qno:q.qno,q:q.q,a:q.a,pkg:q.pkg||'',
-              program:q.program||'',by:q.by||'',fromVault:true,id:'vq-'+key+'-'+q.qno};});
+              program:q.program||'',by:q.by||'',img:q.img||null,
+              fromVault:true,id:'vq-'+key+'-'+q.qno};});
   var queued=(readQueue()||[]).filter(function(p){
     return p.type==='inquiry'&&p.addendum===key;});
   var seen={};queued.forEach(function(p){seen[String(p.qno||'')]=1;});
@@ -7191,6 +7194,12 @@ function addInquiryBlock(host,key){
     a.textContent='A'+(p.qno||(ix+1))+': '+(p.a||'[not answered yet]');
     if(!p.a)a.classList.add('inq-unanswered');
     r.appendChild(a);
+    // Where the bidder marked up a drawing, the picture is the question — a row that prints only
+    // the words is asking half of what was asked.
+    if(p.img&&p.img.src){
+      var fig=document.createElement('img');fig.className='inq-img';
+      fig.src=p.img.src;fig.alt=p.img.name||('Q'+p.qno+' markup');
+      fig.title=p.img.name||'';r.appendChild(fig);}
     if(p.by){var by=document.createElement('span');by.className='op-by';by.textContent='· '+p.by;r.appendChild(by);}
     // Answering a bidder is one thing; changing a document because of the answer is another. These
     // two ticks are where you say which. One click and it becomes a real row on this addendum,
