@@ -1406,6 +1406,18 @@ select.pl-in{cursor:pointer}
 .pl-x{align-self:end;margin-bottom:5px;font:inherit;font-size:12px;border:none;background:none;
   color:var(--faint);cursor:pointer;padding:4px}
 .pl-x:hover{color:var(--rose)}
+/* add and remove are a pair and sit together on the line they act on */
+.pl-plus{align-self:end;margin-bottom:4px;font:inherit;font-size:13px;font-weight:700;line-height:1;
+  color:var(--muted);background:var(--raise);border:1px solid var(--border);border-radius:999px;
+  cursor:pointer;padding:2px 7px 3px}
+.pl-plus:hover{color:var(--p4);border-color:var(--p4)}
+/* is this view a typo, or one you are adding? — the same question the drawing number asks */
+.pl-vask{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:6px;
+  font-size:10.5px;color:var(--muted);margin:-2px 0 2px}
+.pl-vask-b{font:inherit;font-size:10.5px;font-weight:600;color:var(--text);background:var(--raise);
+  border:1px solid var(--border);border-radius:999px;padding:2px 9px;cursor:pointer}
+.pl-vask-b:hover{border-color:var(--faint)}
+.pl-vnew{color:var(--sage,#5f7a52);font-weight:600}
 .pl-line{display:grid;grid-template-columns:50px minmax(0,1fr) auto;gap:9px;align-items:start;
   padding:9px 12px 2px;border-top:1px dashed var(--border);margin:0}
 .pl-line-g{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:var(--gold);padding-top:8px}
@@ -1821,6 +1833,30 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
 .who-chip.on{background:var(--sel);border-color:var(--sel);color:var(--sel-fg);}
 .who-chip.on b{color:var(--sel-fg);}
 .who-chip.who-none{border-style:dashed;}
+/* you, first and named as such — not a colour, just a little more presence than the others */
+.who-chip.who-mine{font-weight:600;border-color:var(--faint);}
+/* + view — an action, not a state, so it stays quiet until you go near it */
+.sh-addview{font:inherit;font-size:10.5px;font-weight:600;color:var(--faint);background:transparent;
+  border:1px dashed var(--border);border-radius:999px;padding:2px 8px;cursor:pointer;
+  align-self:flex-start;margin-top:1px;}
+.sh-addview:hover{color:var(--p4);border-color:var(--p4);border-style:solid;}
+/* a drawing number that already went to bidders */
+.pl-issued{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+  font-size:11px;color:var(--stop);background:var(--stop-wash,#fdf3f2);
+  border:1px solid var(--stop);border-radius:8px;padding:6px 9px;margin:2px 0 4px;}
+/* a question is not an alarm — it wears the decision-owed colour until you answer it */
+.pl-issued.pl-asking{color:var(--gold);border-color:var(--gold);background:#fdf9ed;}
+.pl-issued.pl-asking .pl-iss-b{background:var(--gold);border-color:var(--gold);}
+.pl-iss-t b{font-family:var(--mono,ui-monospace,monospace);}
+.pl-iss-n{color:var(--muted);}
+.pl-iss-b{font:inherit;font-size:10.5px;font-weight:600;color:#fff;background:var(--stop);
+  border:1px solid var(--stop);border-radius:999px;padding:3px 10px;cursor:pointer;}
+.pl-iss-b:hover{filter:brightness(1.08);}
+.pl-iss-x{font:inherit;font-size:10.5px;color:var(--muted);background:transparent;
+  border:1px solid var(--border);border-radius:999px;padding:3px 9px;cursor:pointer;}
+.pl-iss-x:hover{color:var(--text);border-color:var(--faint);}
+.who-chip.is-zero{opacity:.45;}
+.who-chip.is-zero:hover{opacity:.7;}
 
 /* ── searching the register ───────────────────────────────────────────────────────────────────
    One box, above the filters, because it narrows the same list they do. It is wide on purpose:
@@ -2225,6 +2261,12 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
       one instrument into two: work that is done goes out on the earlier one instead of waiting.
       Moving a row changes which document it appears in and <b>nothing about what it says</b>;
       the state decides that.</p>
+      <p class="g-p"><b>Every edit here is live the moment you make it.</b> A state, a ?, a name in
+      “who?”, a move between addenda — it goes to the shared store immediately and the other people
+      on this board have it in about eight seconds. They do not wait for a check-in, and neither do
+      you. What a check-in does is fold the change into the <b>vault</b>, which is permanence, not
+      visibility: until then it is real and shared but unwritten, which is what the
+      <span class="badge pend">PENDING</span> mark and the dashed edge mean.</p>
       <p class="g-p"><b>“Who?” on a row is who is doing it — not who owes you an answer.</b> It is
       the same <span class="mono">with::</span> the rest of the board uses (section 7): execution
       sits with them, <b>accountability stays with you</b>, and it never changes whose move an item
@@ -2233,6 +2275,28 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
       is carrying and how many have <b>nobody yet</b> — click either to see just those. It exists
       so an imbalance or an unassigned pile is visible at a glance, not to run a resourcing
       report.</p>
+      <p class="g-p"><b>One line = one view on one drawing.</b> <i>+ view</i> on a row, or the
+      <i>+</i> beside any line, adds another detail on the same sheet — the drawing number carries
+      over and you type the view or the detail number. <b>✕</b> takes that view off; the drawing
+      stays as long as another line still lands on it.</p>
+      <p class="g-p"><b>A view you are ADDING is not a typo.</b> The Revit export cannot contain a
+      view that does not exist yet, so when you type a name or number the sheet does not have, the
+      line asks rather than marking it wrong. Say it is new and two things follow: your name and
+      your number are used <b>verbatim</b> — typing a detail number an existing view already uses
+      will not swap your name for theirs — and the sentence opens <span class="mono">ADD NEW ⟨detail,
+      view or elevation⟩</span>, with the word left as a slot, because a detail and an elevation are
+      not the same thing in a drawing set. The line reads
+      <span class="mono">WASHROOM INTERIOR ELEVATION 12/A5.90.01; Add new interior elevation.</span>
+      Nothing new was added to the vault to carry this: it is recovered from the line itself.</p>
+      <p class="g-p"><b>Changing a drawing number means one of two things, and the row asks which.</b>
+      Usually you put the change on the wrong sheet and you are just moving it — that is nobody's
+      business but yours. Occasionally the drawing itself went out misnumbered, and bidders are
+      holding a sheet with the wrong number on it. Once a number is out — either its addendum has
+      issued, or, more often, the <b>bid set</b> has — the row stops guessing and asks. Say it was
+      misnumbered and it offers to write the correction into the addendum you are building:
+      <span class="mono">DRAWING A5.31.12, ISSUED UNDER THE BID SET, IS RENUMBERED A5.31.13.</span>
+      It arrives <b>Write-up only</b> and <b>flagged ?</b> — whether you are also reissuing the
+      sheet is a decision about drawings, and nothing here makes those for you.</p>
       <p class="g-p"><b>The search box reads what a row carries, not what it prints.</b> A sheet
       number, a room, a phrase inside a placement line, a spec section, who has it, a bidder's
       answer, a sentence from a check-in three weeks ago — all of it is searchable, so you can find
@@ -4797,6 +4861,69 @@ function addendumDateFor(pkgName,num){
   }
   return null;
 }
+// Has this instrument already gone to bidders? Everything downstream of a sheet-number correction
+// turns on this one fact: before it issues, a wrong number is a typo; after it issues, the number
+// is in a document somebody is pricing against, and changing it quietly makes the register lie
+// about what was sent.
+function addendumIssued(key){
+  var g=(ADD_GROUPS||{})[key];
+  var pkg=(g&&g.pkg)||'',num=key.split('|')[1]||'';
+  if(!pkg){
+    // the register may not have grouped it yet — fall back to whatever item carries the tag
+    var any=laneItems().filter(function(i){return addKey(i.pkg,i.addendum)===key;})[0];
+    pkg=(any&&any.pkg)||'';
+  }
+  var row=pkg?addendumDateFor(pkg,num):null;
+  if(!row)return null;
+  var out=(row.status==='submitted');
+  return {issued:out,date:row.date||'',label:addLabelFor(key),row:row,pkg:pkg};
+}
+// The addendum is not the only way a drawing number reaches a bidder — the BID set is the first and
+// biggest. For Package 5 that went out on 2026-07-31, so every sheet number in it is already in
+// someone's hands whether or not any addendum has issued yet.
+function bidSetIssued(pkg){
+  var ms=milestoneFor(pkg,'');if(!ms)return null;
+  for(var i=0;i<(ms.rows||[]).length;i++){
+    var r=ms.rows[i];
+    if(r.status!=='submitted')continue;
+    if(!/\bbid\b/i.test(r.what||'')||/inquir|quer/i.test(r.what||''))continue;
+    return {date:r.date||'',what:r.what||''};
+  }
+  return null;
+}
+// Is this drawing number in somebody else's hands? Either its addendum has issued, or the bid set
+// it belongs to has. Both make a number a fact rather than a field.
+function sheetIsOut(it){
+  var key=addKey(it.pkg,it.addendum);
+  var a=addendumIssued(key);
+  if(a&&a.issued)return {via:'addendum',label:a.label,date:a.date};
+  var b=bidSetIssued(it.pkg);
+  if(b)return {via:'bid',label:'the bid set',date:b.date};
+  return null;
+}
+// Where a correction can still be said. The instrument that carried the mistake is out of reach —
+// so it is this addendum if this one has not issued, otherwise the next one for the package. If
+// there is none, that is a real gap worth saying out loud rather than a button that does nothing.
+function correctionRidesOn(it){
+  var key=addKey(it.pkg,it.addendum);
+  var a=addendumIssued(key);
+  if(!a||!a.issued)return {key:key,label:addLabelFor(key),same:true};
+  var nx=nextAddendumFor(it.pkg,addNum(it.addendum));
+  return nx?{key:nx.key,label:nx.label,same:false}:null;
+}
+function nextAddendumFor(pkg,afterNum){
+  var ms=milestoneFor(pkg,'');if(!ms)return null;
+  var best=null;
+  (ms.rows||[]).forEach(function(r){
+    if(r.status==='submitted')return;
+    var m=/addendum\s*0?(\d+[\w.]*)/i.exec(r.what||'');if(!m)return;
+    var n=addNum(m[1]);
+    if(addNum(afterNum)===n)return;
+    var k=addKey(pkg,n);
+    if(!best||String(n)<String(best.num))best={num:n,key:k,date:r.date||'',label:addLabelFor(k)};
+  });
+  return best;
+}
 // Open a thread where it lives -- the Board's Threads mode -- rather than duplicating it here.
 // One home, many doors: the register names the thread, the Board renders it.
 function jumpToThread(slug){
@@ -7253,8 +7380,19 @@ function setAddMeta(id,field,value,label,quiet){
     text:(it.sheet?it.sheet+' — ':'')+(label||field)+': '
       +(field==='placements'?((JSON.parse(value||'[]')||[]).length+' line(s)'):(value||'(cleared)'))});
   if(quiet){setStatus((label||field)+' recorded.');return;}
-  buildAddendumRegister();
-  setStatus((label||field)+' set — queued for check-in.');
+  keepPlace(buildAddendumRegister);
+  // "Queued for check-in" was true and it was the wrong half of the truth. Every edit here goes to
+  // the shared store the instant it is made — the other people on this board have it in about eight
+  // seconds. What check-in does is fold it into the VAULT, which is permanence, not visibility.
+  // Saying only the second half taught people that assigning someone was invisible until Claude ran,
+  // which is the opposite of what it is for.
+  var who=(field==='delegate')
+    ? (value?firstName(value)+' has it':'nobody on it')
+    : ((label||field)+' set');
+  setStatus(who+' — '+(SYNC.on
+    ? 'the team sees this now. Check-in folds it into the vault to make it permanent.'
+    : 'sharing is off, so this is on your screen only until it is switched on. '
+      +'Check-in folds it into the vault.'));
 }
 
 // ---- the workbench render ----------------------------------------------------------------------
@@ -7322,17 +7460,27 @@ function addWorkbench(host,key,pool){
     var by={},none=0;
     pool.forEach(function(i){
       if(i.delegate)by[firstName(i.delegate)]=(by[firstName(i.delegate)]||0)+1;else none++;});
-    var names=Object.keys(by).sort(function(a,b){return by[b]-by[a];});
-    if(names.length||none){
+    // You first, always, and called what it is. "Which of these are mine" is the question this line
+    // gets asked most, and hunting your own name among four others to answer it is a worse tool
+    // than one chip. It stays at zero rather than disappearing: "none of this is mine" is an answer.
+    var me=firstName(syncWho()||'');
+    var names=Object.keys(by).sort(function(a,b){return by[b]-by[a];})
+                             .filter(function(n){return n!==me;});
+    if(names.length||none||me){
       var wk=document.createElement('div');wk.className='who-key';
       var lb=document.createElement('b');lb.textContent='Who';wk.appendChild(lb);
-      names.forEach(function(n){
-        var sp=document.createElement('button');sp.type='button';sp.className='who-chip'
-          +(ADD_WHO===n?' on':'');
-        sp.innerHTML='<b>'+by[n]+'</b> '+escapeHtml(n);
-        sp.title='Show only what '+n+' is carrying';
+      var chip=function(n,label,cls){
+        var sp=document.createElement('button');sp.type='button';
+        sp.className='who-chip'+(cls||'')+(ADD_WHO===n?' on':'')+((by[n]||0)?'':' is-zero');
+        sp.innerHTML='<b>'+(by[n]||0)+'</b> '+escapeHtml(label);
+        sp.title=(by[n]||0)
+          ?('Show only what '+(label==='mine'?'you are':n+' is')+' carrying')
+          :(label==='mine'?'Nothing on this addendum is assigned to you'
+                          :'Nothing here is '+n+'’s');
         sp.addEventListener('click',function(){ADD_WHO=(ADD_WHO===n)?'':n;buildAddendumRegister();});
-        wk.appendChild(sp);});
+        wk.appendChild(sp);};
+      if(me)chip(me,'mine',' who-mine');
+      names.forEach(function(n){chip(n,n,'');});
       if(none){
         var sp2=document.createElement('button');sp2.type='button';
         sp2.className='who-chip who-none'+(ADD_WHO==='\u2014'?' on':'');
@@ -7356,7 +7504,8 @@ function addWorkbench(host,key,pool){
                               writeup:'Write-up only',none:'Fix only'})[ADD_STATE]||ADD_STATE,
                           c:function(){ADD_STATE='';}});
     if(ADD_Q)on.push({t:'\u201c'+ADD_Q+'\u201d',c:function(){ADD_Q='';}});
-    if(ADD_WHO)on.push({t:(ADD_WHO==='\u2014'?'Nobody assigned':ADD_WHO),
+    if(ADD_WHO)on.push({t:(ADD_WHO==='\u2014'?'Nobody assigned'
+                          :(ADD_WHO===firstName(syncWho()||'')?'Mine':ADD_WHO)),
                         c:function(){ADD_WHO='';}});
     if(ADD_PART)on.push({t:(ADD_PART==='spec'?'Specifications \u00a73':'Drawings \u00a74'),
                          c:function(){ADD_PART='';}});
@@ -8093,8 +8242,9 @@ function sheetRow(it){
     var team=internalTeam(ADD_OPEN);
     if(!team.length)return;
     var wsel=document.createElement('select');wsel.className='sh-who'+(it.delegate?'':' sh-who-none');
-    wsel.title='Who is doing this. It writes `with::` in the vault \u2014 execution sits with them, '
-      +'accountability stays with you.';
+    wsel.title='Who is doing this. Everyone on the board sees it within seconds \u2014 it does not wait '
+      +'for a check-in. It writes `with::` in the vault: execution sits with them, accountability '
+      +'stays with you.';
     wsel.setAttribute('aria-label','Who is doing '+(it.title||''));
     var o0=document.createElement('option');o0.value='';o0.textContent='who?';wsel.appendChild(o0);
     var have=false;
@@ -8111,6 +8261,36 @@ function sheetRow(it){
       setAddMeta(it.id,'delegate',wsel.value,'With');});
     head.appendChild(wsel);
   })();
+  // Adding a detail to a drawing is the single most common edit on this list, and it was two clicks
+  // and a scan down a card to reach: open the body, find "+ another detail on the same drawing".
+  // One button, on the row, that opens the body and puts the empty line there waiting.
+  if(!isSpecPart(it)){
+    var av=document.createElement('button');av.type='button';av.className='sh-addview';
+    av.textContent='+ view';
+    av.title='Add another view or detail on this drawing — a second line in §4 on the same sheet. '
+      +'Opens the lines below with an empty one ready.';
+    av.setAttribute('aria-label','Add a view to '+(it.title||''));
+    av.addEventListener('click',function(e){
+      e.stopPropagation();e.preventDefault();
+      var cur=placementsOf(it).map(function(p){return Object.assign({},p);});
+      var last=cur[cur.length-1]||{};
+      cur.push({sheet:last.sheet||(itemSheets(it)[0]||''),view:'',no:'',
+                room:last.room||'',text:'',override:''});
+      SH_ROW_OPEN[it.id]=true;               // never add a line into a drawer you cannot see
+      setAddMeta(it.id,'placements',JSON.stringify(cur),'Placements',true);
+      keepPlace(buildAddendumRegister);
+      setStatus('A line added on '+(last.sheet||itemSheets(it)[0]||'this drawing')
+        +' — give it a view or a detail number below.');
+      // land the cursor in the field the click was about
+      setTimeout(function(){
+        var rows2=document.querySelectorAll('#sh-'+it.id+' .pl-card');
+        var lastRow=rows2[rows2.length-1];
+        var f=lastRow&&lastRow.querySelector('.pl-view,.pl-in');
+        if(f&&f.focus)try{f.focus();}catch(e2){}
+      },30);
+    });
+    head.appendChild(av);
+  }
   head.appendChild(pick);
   var cb=document.createElement('input');cb.type='checkbox';cb.className='sh-done';
   cb.title='Mark the WORK done. The item stays in the addendum — its state decides that, not this.';
@@ -8800,6 +8980,10 @@ var PL_ACTIONS=[
   {k:'reviseto',label:'Revise \u2026 to read \u2026',tpl:'REVISE \u27e8what\u27e9 to read \u27e8new value\u27e9'},
   {k:'renumber',label:'Renumber a call-out',  tpl:'REVISE the reference call-out from \u27e8a\u27e9 to \u27e8b\u27e9'},
   {k:'newdet',  label:'New detail',           tpl:'ADD new detail showing \u27e8what\u27e9'},
+  // A detail is not the only thing you add to a sheet. The slot is deliberately not pre-filled with
+  // "detail" \u2014 an elevation called a detail in a bid document is a wrong word in a legal drawing set.
+  {k:'newview', label:'New view / detail / elevation',
+   tpl:'ADD new \u27e8detail, view or elevation\u27e9'},
   {k:'update',  label:'Update \u2026',           tpl:'UPDATE \u27e8what\u27e9'},
   {k:'extend',  label:'Extend \u2026',           tpl:'EXTEND \u27e8what\u27e9'},
   {k:'modify',  label:'Modify to reflect \u2026',tpl:'MODIFIED to reflect \u27e8what\u27e9'},
@@ -8847,6 +9031,8 @@ function plActionOf(pl){
   if(!t)return '';
   if(/^RE-?ISSUE/.test(t))return 'reissue';
   if(/^ADD NEW DETAIL/.test(t))return 'newdet';
+  // must be tested before the bare ADD, and before newdet cannot claim it
+  if(/^ADD NEW\b/.test(t))return 'newview';
   if(/^DELETE/.test(t))return 'delview';
   if(/^REVISE THE REFERENCE CALL-?OUT/.test(t))return 'renumber';
   if(/^REVISE .* TO READ/.test(t))return 'reviseto';
@@ -8889,6 +9075,54 @@ function placementLiteral(pl){
   var out='[placement:: '+bits.join(' | ').replace(/(\s*\|)+\s*$/,'');
   if(pl.newsheet)out+=' | new';
   return out+']';
+}
+// A renumbering is one line of work with one name, so the name IS the check for "has this already
+// been said". Titles are ids on this board; that property is usually a hazard and here it is the tool.
+function renumberTitle(was,now){
+  return (String(now||'').toUpperCase()+' — renumbered from '+String(was||'').toUpperCase()).slice(0,160);
+}
+function renumberItemFor(key,was,now){
+  var want=renumberTitle(was,now).slice(0,60);
+  var hit=null;
+  laneItems().forEach(function(i){
+    if(addKey(i.pkg,i.addendum)!==key)return;
+    if(String(i.title||'').slice(0,60)===want)hit=i;});
+  return hit;
+}
+// The correction, written where it can actually reach a bidder. It arrives flagged and stated in
+// words rather than attached: whether the sheet is being REISSUED under the corrected number is a
+// decision about drawings, and this machine does not make those on your behalf.
+function writeRenumber(it,pl,iss,nx){
+  if(!nx||!pl.wasSheet)return;
+  var title=renumberTitle(pl.wasSheet,pl.sheet);
+  if(renumberItemFor(nx.key,pl.wasSheet,pl.sheet)){
+    setStatus('Already on '+nx.label+' — one renumbering, one line.');
+    buildAddendumRegister();return;}
+  // Two rows under one title makes both unaddressable. Refuse rather than create the collision.
+  var clash=null,k60=title.slice(0,60);
+  laneItems().forEach(function(x){if(String(x.title||'').slice(0,60)===k60)clash=x;});
+  if(clash){
+    setStatus('Not written — “'+title.slice(0,50)+'” is already the name of a row on '
+      +addLabelFor(addKey(clash.pkg,clash.addendum))+'. Titles are ids here.');
+    return;}
+  queueLocally({type:'sheet',program:it.program||'',pkg:it.pkg||'',
+    addendum:addRawOf(nx.key),sheet:pl.sheet||'',section:'',part:'drawing',
+    scope:it.scope||'AR',disc:it.disc||'AR',
+    produces:'writeup',verify:'yes',text:title,ts:new Date().toISOString()});
+  buildAddendumRegister();
+  var made=renumberItemFor(nx.key,pl.wasSheet,pl.sheet);
+  if(made){
+    // The wording is the whole deliverable here, so it is written as an override — printed verbatim,
+    // and sitting in an editable box the moment you go and look at it.
+    setAddMeta(made.id,'placements',JSON.stringify([{
+      sheet:pl.sheet||'',view:'',no:'',room:'',text:'',
+      override:'DRAWING '+String(pl.wasSheet).toUpperCase()+', ISSUED UNDER '
+        +String(iss&&iss.label||'the previous addendum').toUpperCase()+', IS RENUMBERED '
+        +String(pl.sheet).toUpperCase()+'.'}]),'Placements',true);
+  }
+  setStatus('Renumbering queued on '+nx.label+', flagged ? — read the wording before it ships. '
+    +'It says it in words; switch it to Issue drawing if you are reissuing the sheet too.');
+  buildAddendumRegister();
 }
 function savePlacements(it,list,quiet){
   // A provisional row — the add form — is not an item yet, so there is no id to queue an op
@@ -8996,6 +9230,12 @@ function placementEditor(it){
     // A placement is a small card in three bands: which DRAWING, which VIEW on it, and what
     // HAPPENS there. Drawing names run to 60 characters and view names to 45 — they were never
     // going to share one row with five other fields.
+    // `newview` has no [placement:: …] field of its own, and it does not need one — the line it
+    // produces already says ADD NEW, and a view being added is by definition absent from the export.
+    // So it is recovered from the line on the way back in, exactly the way `mirrors` is, and the
+    // vault grammar stays as it is.
+    if(!pl.newview&&/^ADD NEW\b/i.test(pl.text||'')&&String(pl.view||'').trim()
+       &&!viewByName(it.pkg,pl.sheet,pl.view))pl.newview=true;
     var r=document.createElement('div');r.className='pl-card';
     var g1=document.createElement('div');g1.className='pl-g pl-g1';
     var g2=document.createElement('div');g2.className='pl-g pl-g2';
@@ -9060,6 +9300,7 @@ function placementEditor(it){
     // "Not on the list" is ambiguous — it is either a typo or a drawing being added. Rather than
     // leave an amber box and a tooltip, ask, once, inline.
     var ask=document.createElement('span');ask.className='pl-ask';
+    var issued=document.createElement('span');issued.className='pl-issued';issued.style.display='none';
     var askB=document.createElement('button');askB.type='button';askB.textContent='it’s a new drawing';
     askB.title='Mark it as added by this addendum. The line changes to "issue drawing in its entirety" '
       +'and the name goes to Projects/Drawing List.md at the next check-in.';
@@ -9147,6 +9388,75 @@ function placementEditor(it){
         }
         ask.appendChild(panel);
       }
+      // A drawing number that already went out to bidders is not a field any more — it is a fact
+      // in someone else's hands. Correct it here and the register still says what was sent, and
+      // offers the one thing that makes the correction real: a line on the NEXT addendum.
+      issued.innerHTML='';issued.style.display='none';
+      var out=sheetIsOut(it);
+      // Stage one: the question. Neither answer is assumed and neither is destructive.
+      if(pl.askedSheet&&pl.askedSheet!==pl.sheet&&out){
+        issued.style.display='';issued.classList.add('pl-asking');
+        var q2=document.createElement('span');q2.className='pl-iss-t';
+        q2.innerHTML='<b>'+escapeHtml(pl.askedSheet)+'</b> already went out in '
+          +escapeHtml(out.label)+(out.date?' ('+escapeHtml(out.date)+')':'')+'. Which happened?';
+        issued.appendChild(q2);
+        var bMoved=document.createElement('button');bMoved.type='button';bMoved.className='pl-iss-x';
+        bMoved.textContent='I moved the change to '+pl.sheet;
+        bMoved.title='The drawing numbers are both right — this change belongs on a different one. '
+          +'Nobody needs telling; that is just where the work is.';
+        bMoved.addEventListener('click',function(e2){e2.stopPropagation();
+          delete pl.askedSheet;pl.retarget=true;commitHard();});
+        issued.appendChild(bMoved);
+        var bWrong=document.createElement('button');bWrong.type='button';bWrong.className='pl-iss-b';
+        bWrong.textContent=pl.askedSheet+' was numbered wrong';
+        bWrong.title='The drawing itself went out under the wrong number. Bidders are holding a '
+          +'sheet labelled '+pl.askedSheet+', so the correction has to be said in an addendum.';
+        bWrong.addEventListener('click',function(e2){e2.stopPropagation();
+          pl.wasSheet=pl.askedSheet;delete pl.askedSheet;commitHard();});
+        issued.appendChild(bWrong);
+      }
+      // Stage two: you said it was misnumbered, so now there is something to write.
+      else if(pl.wasSheet&&pl.wasSheet!==pl.sheet&&out){
+        issued.style.display='';issued.classList.remove('pl-asking');
+        var msg=document.createElement('span');msg.className='pl-iss-t';
+        msg.innerHTML='⚠ went out as <b>'+escapeHtml(pl.wasSheet)+'</b> in '
+          +escapeHtml(out.label)+(out.date?' on '+escapeHtml(out.date):'')
+          +' — bidders are pricing against that number.';
+        issued.appendChild(msg);
+        var rides=correctionRidesOn(it);
+        var done=rides&&renumberItemFor(rides.key,pl.wasSheet,pl.sheet);
+        if(!rides){
+          var no2=document.createElement('span');no2.className='pl-iss-n';
+          no2.textContent=(it.pkg||'This package')+' has no upcoming addendum to carry the '
+            +'correction. Until Milestones has one, there is nowhere honest to say it.';
+          issued.appendChild(no2);
+        }else if(done){
+          var ok2=document.createElement('span');ok2.className='pl-iss-n';
+          ok2.textContent='Recorded on '+rides.label+'.';
+          issued.appendChild(ok2);
+          var go=document.createElement('button');go.type='button';go.className='pl-iss-x';
+          go.textContent='take me to it';
+          go.addEventListener('click',function(e2){e2.stopPropagation();
+            jumpToSheetRow(rides.key,done.title||'');});
+          issued.appendChild(go);
+        }else{
+          var wb2=document.createElement('button');wb2.type='button';wb2.className='pl-iss-b';
+          wb2.textContent='write the renumber into '+rides.label;
+          wb2.title='Creates a §4 item on '+rides.label+' saying the drawing issued as '
+            +pl.wasSheet+' is renumbered '+pl.sheet+'. It arrives flagged ? so it cannot ship '
+            +'before you have read the wording, and set to Write-up only — switch it to Issue '
+            +'drawing if you are reissuing the sheet as well.';
+          wb2.addEventListener('click',function(e2){e2.stopPropagation();
+            writeRenumber(it,pl,out,rides);});
+          issued.appendChild(wb2);
+        }
+        var undo2=document.createElement('button');undo2.type='button';undo2.className='pl-iss-x';
+        undo2.textContent='never mind';
+        undo2.title='I mis-read the issued set — nothing was renumbered. Drops the note.';
+        undo2.addEventListener('click',function(e2){e2.stopPropagation();
+          delete pl.wasSheet;pl.retarget=true;commitHard();});
+        issued.appendChild(undo2);
+      }
       else if(unknown&&pl.newsheet){
         var q2=document.createElement('span');q2.className='pl-ask-new';
         q2.textContent='new drawing \u2014 it will be added to the set \u00b7 ';
@@ -9181,6 +9491,19 @@ function placementEditor(it){
       var was=shNo.dataset.was!==undefined?shNo.dataset.was:pl.sheet;
       pl.sheet=shNo.value.trim();
       var first=(list[0]===pl);
+      // Changing this number means one of two completely different things, and the field cannot
+      // tell them apart: usually you put the change on the wrong drawing and you are RETARGETING
+      // it, which is nobody's business but yours — occasionally the drawing itself went out
+      // misnumbered, which is a correction a bidder has to be told about. Guessing either way is
+      // wrong, so once the number is in someone's hands the row asks, the way it already asks
+      // whether an unknown number is a typo or a new drawing.
+      (function(){
+        if(!was||!pl.sheet||was===pl.sheet)return;
+        if(pl.wasSheet&&pl.wasSheet===pl.sheet){delete pl.wasSheet;delete pl.askedSheet;return;}
+        if(pl.wasSheet||pl.retarget)return;              // already answered for this one
+        if(!sheetIsOut(it))return;                       // not out yet — a number is still a field
+        pl.askedSheet=was;
+      })();
       if(followMirrors(was,pl.sheet)){commitHard();if(first)followTitleToSheet(it,pl.sheet);return;}
       commit();
       // the row's name is the first drawing it lands on — it follows, every time
@@ -9232,10 +9555,58 @@ function placementEditor(it){
     var cVno=cell('View no.','The number in the viewport bubble — the 1 in "PLAN 1/A42.31.10". '
       +'Type it and the view name fills itself.');
     var nEl=inp('no','1','pl-no');cVno.appendChild(nEl);g2.appendChild(cVno);
+    // The same question the drawing number already asks, one level down: a view that is not in the
+    // export is either a typo or a view being ADDED. Guessing "typo" and painting it amber was
+    // wrong for the second case, which is a normal thing an addendum does.
+    var vask=document.createElement('span');vask.className='pl-vask';g2.appendChild(vask);
+    var markNewView=function(){
+      vask.innerHTML='';
+      var onSheet=viewsOn(it.pkg,pl.sheet).length;
+      var named=!!String(pl.view||'').trim()||!!String(pl.no||'').trim();
+      var known=!!viewByName(it.pkg,pl.sheet,pl.view)||!!viewByNo(it.pkg,pl.sheet,pl.no);
+      if(pl.newview){
+        var t=document.createElement('span');t.className='pl-vnew';
+        t.textContent='new view — your name and number, verbatim';
+        vask.appendChild(t);
+        var un=document.createElement('button');un.type='button';un.className='pl-vask-b';
+        un.textContent='not new';
+        un.title='It already exists on the sheet — let the export fill the name again.';
+        un.addEventListener('click',function(e2){e2.stopPropagation();
+          pl.newview=false;commitHard();});
+        vask.appendChild(un);
+        return;
+      }
+      if(!named||known||!onSheet)return;
+      var q=document.createElement('span');
+      q.textContent='not on '+(pl.sheet||'this drawing')+' — ';
+      vask.appendChild(q);
+      var nb=document.createElement('button');nb.type='button';nb.className='pl-vask-b';
+      nb.textContent='it’s a new view I’m adding';
+      nb.title='You are adding this view to the drawing. Nothing will overwrite the name or the '
+        +'number you type, and the line opens with ADD.';
+      nb.addEventListener('click',function(e2){e2.stopPropagation();
+        pl.newview=true;
+        if(!(pl.text||'').trim())pl.text='ADD new ⟨detail, view or elevation⟩';
+        commitHard();});
+      vask.appendChild(nb);
+    };
     // `src` names the box you touched. Reading document.activeElement instead was wrong twice
     // over: a datalist pick can blur before the handler runs, and the View no. field never called
     // this at all — so typing a number filled nothing.
     pairView=function(src){
+      // A view you are ADDING does not exist in the Revit export yet — that is the whole point of
+      // adding it. Pairing must not touch it: typing detail number 12 on a sheet that already has a
+      // view 12 would otherwise replace the name you just invented with the one already there, and
+      // the line would go out naming the wrong view. Your words win, both of them.
+      if(pl.newview){
+        vEl.classList.remove('pl-unknown');nEl.classList.remove('pl-unknown');
+        vEl.classList.add('pl-new');nEl.classList.add('pl-new');
+        vEl.title='A new view — it is not in the Revit export because it does not exist yet. '
+          +'What you type is what the line says, exactly.';
+        nEl.title='The number you are giving the new view. Nothing will overwrite it.';
+        markNewView();return;
+      }
+      vEl.classList.remove('pl-new');nEl.classList.remove('pl-new');
       if(src==='view'){
         var v=viewByName(it.pkg,pl.sheet,pl.view);
         if(v){
@@ -9250,6 +9621,7 @@ function placementEditor(it){
       var onSheet=viewsOn(it.pkg,pl.sheet).length;
       vEl.classList.toggle('pl-unknown',!!pl.view&&onSheet>0&&!viewByName(it.pkg,pl.sheet,pl.view));
       nEl.classList.toggle('pl-unknown',!!pl.no&&onSheet>0&&!viewByNo(it.pkg,pl.sheet,pl.no));
+      markNewView();
       if(known&&known[1]==='raw')vEl.title='This viewport has no Title on Sheet — the drawing prints '
         +'its Revit name. Worth fixing in the model.';
     };
@@ -9288,12 +9660,32 @@ function placementEditor(it){
       try{if(m)tin.setSelectionRange(m.index,m.index+m[0].length);
           else tin.setSelectionRange(pl.text.length,pl.text.length);}catch(e){}
     });
+    // Remove lived on the line; add lived at the bottom of the whole editor, third in a row of four
+    // buttons, past every other card. So the line you wanted to add to showed you exactly one
+    // control — the one that deletes it — and "I see remove but not add" is the only possible
+    // reading of that. They are a pair now, in the same place, on the line they act on.
+    var plus=document.createElement('button');plus.type='button';plus.className='pl-plus';
+    plus.textContent='+';
+    plus.title='Another view or detail on '+(pl.sheet||'this drawing')+' — a second line in §4 on '
+      +'the same sheet. The drawing number carries over; give the new line its view or detail no.';
+    plus.setAttribute('aria-label','Add a view on '+(pl.sheet||'this drawing'));
+    plus.addEventListener('click',function(e){e.stopPropagation();
+      list.splice(ix+1,0,{sheet:pl.sheet||'',view:'',no:'',room:pl.room||'',text:'',override:''});
+      commitHard();
+      // straight into the field the click was about, on the line that was just made
+      setTimeout(function(){
+        var cards=document.querySelectorAll('#sh-'+it.id+' .pl-card');
+        var made=cards[ix+1];var f=made&&made.querySelector('.pl-view');
+        if(f&&f.focus)try{f.focus();}catch(e2){}
+      },30);});
+    g1.appendChild(plus);
     var x=document.createElement('button');x.type='button';x.className='pl-x';x.textContent='✕';
-    x.title='Remove this placement';
+    x.title='Remove this line — the view or detail comes off this drawing. The drawing stays if '
+      +'other lines still land on it.';
     x.addEventListener('click',function(e){e.stopPropagation();
       list.splice(ix,1);commitHard();});
     g1.appendChild(x);
-    r.appendChild(g1);r.appendChild(ask);r.appendChild(g2);r.appendChild(g3);
+    r.appendChild(g1);r.appendChild(ask);r.appendChild(issued);r.appendChild(g2);r.appendChild(g3);
     wrap.appendChild(r);
 
     // the line, editable, right under the row that produces it
