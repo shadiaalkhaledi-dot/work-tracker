@@ -9414,8 +9414,16 @@ function followTitleToSheet(it,noNow){
   return true;
 }
 // One placement, one line. The override is verbatim — if you edited it, that IS the line.
+// Does this sentence already say the drawing is attached? The clause exists in three forms across
+// the issued sets, and any of them means the job is done — appending a second one is how a line ends
+// "…attached and forms part of this Addendum; As indicated on drawing A5.31.21, attached and forms
+// part of this Addendum."
+var WU_HAS_ATTACH=/attach(?:ed)?\s+(?:hereto\s+)?and\s+form/i;
 function placementLine(it,pl){
-  if(pl.override&&pl.override.trim())return pl.override.trim();
+  // `= ` is the vault's marker for "these are my words, print them" — it belongs to the syntax, not
+  // to the sentence. A placement that came back from the vault still wearing it printed the equals
+  // sign into the document.
+  if(pl.override&&pl.override.trim())return pl.override.trim().replace(/^=\s*/,'');
   // A companion names a drawing. If that drawing was renumbered, the sentence follows it rather
   // than pointing at a sheet that no longer exists.
   var mir=mirrorsOf(pl);
@@ -10289,6 +10297,8 @@ function wuDrawLine(it,sheet,step){
   // because '; As indicated on drawing X, attached and forms part of this Addendum.' is the only
   // form the issued set ever uses and the dash example carries no attachment at all to argue with.
   if(it.produces!=='drawings')return line+'.';
+  // You already wrote the clause into the sentence. Saying it twice is not more attached.
+  if(WU_HAS_ATTACH.test(line))return line.replace(/[.;]+$/,'')+'.';
   // Addendum 1 §4.14.3: 'PLAN 1/A42.31.10; Modified to reflect changes to washroom ceiling types,
   // attached and forming part of this Addendum.' — the short clause, no 'As indicated on drawing'.
   if(/^MODIF/i.test(String(step).replace(/^✓\s*/,'')))
