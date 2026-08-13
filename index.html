@@ -7226,6 +7226,19 @@ function docxFromWriteup(text,title){
     {name:'word/document.xml',data:doc}
   ]);
 }
+// The name a file lands under is how it is found again six weeks later, so it is the house name,
+// not the register's internal key. Shadi, 2026-08-13: "Package 5 Addendum 01 _ AR _ Write up".
+// The addendum number pads to two digits — 01 sorts before 10 in every file list there is, and
+// "Addendum 1" next to "Addendum 10" does not.
+function writeupFileName(key,ext){
+  var bits=String(key||'').split('|');
+  var pk=bits[0]||'?',num=bits[1]||'';
+  var n=/^\d+$/.test(num)?(num.length<2?('0'+num):num):(num||'?');
+  var disc=(ADD_DISC&&ADD_DISC!=='*')?ADD_DISC:'AR';
+  return ('Package '+pk+' Addendum '+n+' _ '+disc+' _ Write up'+(ext||''))
+    // whatever a package is ever called, a file name may not carry these
+    .replace(/[\\/:*?"<>|]+/g,'-').replace(/\s{2,}/g,' ').trim();
+}
 function mkCopyChaseBtn(it,cls){
   var b=document.createElement('button');b.type='button';b.className=(cls||'nudge-btn')+' chase-btn';b.textContent='copy chase \u2709';
   b.title='Copy a ready-to-send follow-up message built from this item\u2019s history';
@@ -11192,10 +11205,10 @@ function buildWriteup(key,hostEl){
     +'paste can. Open it and copy into your addendum — Word to Word carries the list definitions.';
   dw.addEventListener('click',function(){
     try{
-      var blob=docxFromWriteup(ta.value,'Addendum '+(addLabelFor(key)||''));
+      var blob=docxFromWriteup(ta.value,writeupFileName(key,''));
       var u=URL.createObjectURL(blob);
       var a=document.createElement('a');a.href=u;
-      a.download=String(key).replace(/[^A-Za-z0-9.-]+/g,'-')+'-addendum.docx';a.click();
+      a.download=writeupFileName(key,'.docx');a.click();
       setTimeout(function(){URL.revokeObjectURL(u);},1500);
       setStatus('Word file downloaded — 4.1 / 4.1.1 are real numbering in it, the same in Teams '
         +'and on the desktop.');
@@ -11205,7 +11218,7 @@ function buildWriteup(key,hostEl){
   dl.addEventListener('click',function(){
     var b=new Blob([ta.value],{type:'text/markdown'});var u=URL.createObjectURL(b);
     var a=document.createElement('a');a.href=u;
-    a.download=String(key).replace(/[^A-Za-z0-9.-]+/g,'-')+'-addendum-writeup.md';a.click();
+    a.download=writeupFileName(key,'.md');a.click();
     setTimeout(function(){URL.revokeObjectURL(u);},1000);
   });
   var hint=document.createElement('span');hint.className='inline-capture-hint';
