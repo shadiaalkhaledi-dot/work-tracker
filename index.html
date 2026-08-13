@@ -1442,6 +1442,15 @@ select.pl-in{cursor:pointer}
 .wu-help-d{margin-top:6px}
 .wu-help-d p{margin:0 0 7px}
 .wu-help-d p:last-child{margin-bottom:0;color:var(--faint)}
+/* work that belongs to no addendum — the only thing here that can be lost completely */
+.orphan-strip{border:1px solid var(--stop);border-left-width:3px;border-radius:10px;
+  background:var(--stop-wash,#fdf3f2);padding:10px 13px;margin:0 0 14px}
+.orph-h{font-size:11.5px;color:var(--stop);line-height:1.5;margin-bottom:6px}
+.orph-h b{font-size:13px}
+.orph-h code{font-family:ui-monospace,Menlo,monospace;font-size:10.5px}
+.orph-row{display:flex;flex-wrap:wrap;gap:10px;align-items:baseline;padding:2px 0}
+.orph-t{font-size:11.5px;color:var(--text);font-weight:600}
+.orph-m{font-size:10.5px;color:var(--muted)}
 .pl-line{display:grid;grid-template-columns:50px minmax(0,1fr) auto;gap:9px;align-items:start;
   padding:9px 12px 2px;border-top:1px dashed var(--border);margin:0}
 .pl-line-g{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:var(--gold);padding-top:8px}
@@ -5345,6 +5354,38 @@ function buildAddendumRegister(){
   hTabs.appendChild(modeRow);
   renderGateStrip(ADD_OPEN,hGate);
 
+  // A sheet row with a state, an owner and a ? that belongs to NO addendum is the one thing this
+  // board could lose completely: it is not in Contents, not in Sheet work, not in any write-up, and
+  // its question can never be answered because there is no page it appears on. Five of them sat in
+  // the Package 5 list for two days after a retag dropped their tag, and nothing said a word.
+  // Nothing that is real work may be invisible. This says it, in every mode, above everything.
+  (function(){
+    var orph=laneItems().filter(function(i){
+      return i.lane&&!i.pendingLocal&&!i.addendum&&(i.produces||i.verify||placementsOf(i).length);});
+    if(!orph.length)return;
+    var s=document.createElement('div');s.className='orphan-strip';
+    var h=document.createElement('div');h.className='orph-h';
+    h.innerHTML='<b>'+orph.length+'</b> '+(orph.length===1?'row is':'rows are')
+      +' on no addendum — real work, with a state, appearing in no register and no document. '
+      +'An <code>addendum::</code> tag is missing from '+(orph.length===1?'it':'them')
+      +' in the vault; nothing here can reach '+(orph.length===1?'it':'them')+' to fix it.';
+    s.appendChild(h);
+    orph.forEach(function(i){
+      var r=document.createElement('div');r.className='orph-row';
+      var t=document.createElement('span');t.className='orph-t';
+      t.textContent=(i.title||'').slice(0,80);
+      r.appendChild(t);
+      var m=document.createElement('span');m.className='orph-m';
+      var bits=[];
+      if(i.due)bits.push('due '+i.due);
+      if(i.produces)bits.push(produceLabel(itemPart(i),i.produces).toLowerCase());
+      if(i.verify)bits.push('flagged ?');
+      if(i.delegate)bits.push(firstName(i.delegate));
+      m.textContent=bits.join(' · ');
+      r.appendChild(m);
+      s.appendChild(r);});
+    c.appendChild(s);
+  })();
   // Paint the words wherever they landed, once, after whichever tab has finished drawing. The
   // filter bar is skipped — highlighting the search box's own echo of what you typed is noise.
   var paint=function(){if(ADD_Q)hiliteQ(c);};
