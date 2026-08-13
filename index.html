@@ -4597,7 +4597,62 @@ function exportCaptures(){
   var out=buildExportText();
   if(!out){setStatus('Nothing to copy yet.');return;}
   var q=readQueue();if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(out).then(function(){setStatus('Copied '+q.length+' capture(s) + plan \u2014 paste to Claude at check-in.');},function(){window.prompt('Copy these and paste to Claude:',out);});}else{window.prompt('Copy these and paste to Claude:',out);}}
-function clearCaptures(){if(!readQueue().length){setStatus('Queue already empty.');return;}if(window.confirm('Clear captured items? Only do this after copying them to Claude. This clears them for everyone sharing the board.')){var _tomb=readQueue().filter(function(o){return o.id;}).map(function(o){return {id:opId(),type:'_void',voids:o.id,by:syncWho()||'',ts:new Date().toISOString()};});REMOTE_Q=[];writeLocalQueue(_tomb);syncPush(_tomb);document.getElementById('pendingList').innerHTML='<span class="pending-empty">Nothing pending yet.</span>';refreshBoard();setStatus('Local queue cleared.');}}
+// Which queued ops carry content the VAULT does not have yet? Clearing voids every op for
+// everyone, and an op the fold never took is not "already saved somewhere" — it is the only copy.
+// A §4 sentence was lost exactly this way on 2026-08-11: typed on the board, never folded onto its
+// placement, cleared on the assumption the fold had taken it. The queue had no way to say otherwise.
+function unfoldedOps(){
+  var base={},out=[];
+  (window.LANE_ITEMS||[]).concat(window.ITEMS||[]).forEach(function(i){
+    base[String(i.title||'').slice(0,60)]=i;});
+  (readQueue()||[]).forEach(function(p){
+    if(!p||p.type==='_void')return;
+    var b=base[String(p.itemRef||p.text||'').slice(0,60)];
+    if(p.type==='sheet'){out.push({p:p,what:'a row that exists only here: “'
+      +String(p.text||'').slice(0,60)+'”'});return;}
+    if(p.type==='inquiry'){out.push({p:p,what:'bid inquiry Q'+(p.qno||'')});return;}
+    if(p.type==='addmeta'&&p.field){
+      if(!b){out.push({p:p,what:(p.field)+' on “'+String(p.itemRef||'').slice(0,50)+'”'});return;}
+      var cur;
+      try{cur=(p.field==='placements')?JSON.stringify(placementsOf(b)):String(b[p.field]||'');}
+      catch(e){cur='';}
+      var val=String(p.value||'');
+      // placements compare loosely — the vault may hold the same lines in a different order
+      var same=(p.field==='placements')
+        ? val.replace(/\s+/g,'')===String(cur).replace(/\s+/g,'')
+        : val.trim()===cur.trim();
+      if(!same)out.push({p:p,what:(p.field==='placements'?'the lines':p.field)
+        +' on “'+String(p.itemRef||'').slice(0,50)+'”'});
+      return;
+    }
+    if(p.type==='produces'||p.type==='complete')return;   // state, recoverable from the row itself
+  });
+  return out;
+}
+function clearCaptures(){
+  if(!readQueue().length){setStatus('Queue already empty.');return;}
+  var risky=unfoldedOps();
+  var msg='Clear captured items? This clears them for everyone sharing the board.';
+  if(risky.length){
+    msg=risky.length+' of these have NOT been folded into the vault yet. Clearing deletes them '
+      +'permanently — this is the only copy:\n\n'
+      +risky.slice(0,12).map(function(r){return '  • '+r.what+(r.p.by?'  ('+r.p.by+')':'');}).join('\n')
+      +(risky.length>12?'\n  … and '+(risky.length-12)+' more':'')
+      +'\n\nFold them first — copy the queue to Claude and let the check-in write them to the '
+      +'vault. Clear anyway?';
+  }else{
+    msg='Everything queued is already in the vault. Clear it for everyone?';
+  }
+  if(!window.confirm(msg))return;
+  var _tomb=readQueue().filter(function(o){return o.id;}).map(function(o){
+    return {id:opId(),type:'_void',voids:o.id,by:syncWho()||'',ts:new Date().toISOString()};});
+  REMOTE_Q=[];writeLocalQueue(_tomb);syncPush(_tomb);
+  var pl=document.getElementById('pendingList');
+  if(pl)pl.innerHTML='<span class="pending-empty">Nothing pending yet.</span>';
+  refreshBoard();
+  setStatus(risky.length?('Queue cleared — '+risky.length+' unfolded change'
+      +(risky.length===1?'':'s')+' went with it.'):'Queue cleared; everything in it was already folded.');
+}
 
 // ---- 2026-07-04 views: Court / Overview / History ----
 function pkgNum(name){var m=/Package\s+([\d.]+)/i.exec(name||'');return m?m[1]:null;}
