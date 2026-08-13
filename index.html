@@ -2358,6 +2358,18 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
       issued Pkg 4.2 Add 1 §4 says it — <i>“Revise wall type and add new wall type to W2a1”</i>.
       WA4, SSB1 and AV keep their capitals: only verbs are lowered, never every shouting word in a
       drawing note.</p>
+      <p class="g-p"><b>A range names no view.</b> One detail borrows its view's name —
+      <span class="mono">PLAN DETAIL 1/A5.94.06</span>. Two or more do not, because seventeen details
+      are rarely all the same kind of view and <i>“PLAN DETAIL 1-17”</i> would say they are. A range
+      opens the line with the numbers alone: <span class="mono">1-17/A5.94.17</span>. If they DO
+      share something, type the word yourself and it stays — <i>“Details 1, 5, 7 and 11/A5.94.17”</i>
+      is a sentence you chose, and only a name the export supplied is ever dropped for you.</p>
+      <p class="g-p"><b>An unanswered bid inquiry stays out of the write-up.</b> §5 used to print
+      <span class="mono">[NOT ANSWERED — write the response]</span> as a loud placeholder, but the
+      write-up gets copied into the addendum and a placeholder in a document is one careless paste
+      away from a bidder reading it. The question is held out, the warnings say which ones and why,
+      and the gate still refuses to issue while any of them is open — so nothing is hidden, it is
+      just kept out of the deliverable until it is real.</p>
       <p class="g-p"><b>Naming several details changes how the line ends.</b> One detail gets the
       pointed clause the issued sets use —
       <span class="mono">…; As indicated on drawing A5.94.06, attached and forms part of this
@@ -10172,9 +10184,14 @@ function placementEditor(it){
             var ix2=cur.indexOf(n);
             if(ix2>=0)cur.splice(ix2,1);else cur.push(n);
             pl.no=compactNos(cur);
-            // the name has to be re-earned every time the set changes — it may no longer be shared
-            var com=commonViewName(it.pkg,pl.sheet,parseViewNos(pl.no).list);
-            pl.view=com.name||(cur.length===1?((viewByNo(it.pkg,pl.sheet,cur[0])||[])[0]||''):'');
+            // One detail can borrow its view's name; several cannot share one honestly. Going from
+            // one to many drops a name the EXPORT supplied — but never a word you typed yourself,
+            // because "Details 1, 5, 7 and 11/A5.94.17" is a sentence you chose.
+            if(cur.length===1){
+              pl.view=(viewByNo(it.pkg,pl.sheet,cur[0])||[])[0]||'';
+            }else if(viewNameExists(it.pkg,pl.sheet,pl.view)){
+              pl.view='';
+            }
             commitHard();});
           vpick.appendChild(b);});
       if(!many.raw)return;
@@ -10189,10 +10206,12 @@ function placementEditor(it){
       if(com2.missing.length)
         bits.push('<span class="pl-vbad">'+escapeHtml(com2.missing.join(', '))
           +' '+(com2.missing.length===1?'is':'are')+' not on '+escapeHtml(pl.sheet)+'</span>');
-      else if(!com2.name)
-        bits.push('<span class="pl-vbad">these are not all the same kind of view — the line can '
-          +'only carry one name, so say it in the sentence instead of the title</span>');
       else bits.push('all on this drawing ✓');
+      // what the line will actually open with, so there is no surprise in the document
+      bits.push('the line reads <b>'+escapeHtml(String(pl.view||'').trim()
+        ? String(pl.view).trim()+' '+compactNos(many.list)+'/'+pl.sheet
+        : compactNos(many.list)+'/'+pl.sheet)+'</b>'
+        +(String(pl.view||'').trim()?'':' — a range names no view; type one only if they share it'));
       // Naming five details and then telling the document to re-issue the whole sheet is a
       // disagreement the reader never sees: RE-ISSUE short-circuits the target, so the numbers are
       // silently dropped. Say it here rather than let the line quietly ignore the work.
@@ -10279,8 +10298,10 @@ function placementEditor(it){
       // nothing and mark it wrong, which is what pushed "1-5" into the Room field in the first place.
       var many=parseViewNos(pl.no);
       if(many.range){
+        // Seventeen details do not share a name, and borrowing the first one's says they do —
+        // "PLAN DETAIL 1-17" asserts that every one of the seventeen is a plan detail. A range
+        // names itself: 1-17/A5.94.17. Anything in the name box is there because you typed it.
         var com=commonViewName(it.pkg,pl.sheet,many.list);
-        if(src==='no'&&com.name&&!String(pl.view||'').trim()){pl.view=com.name;vEl.value=com.name;}
         var onSheet0=viewsOn(it.pkg,pl.sheet).length;
         nEl.classList.toggle('pl-unknown',onSheet0>0&&com.missing.length>0);
         vEl.classList.remove('pl-unknown');
@@ -11008,13 +11029,25 @@ function buildAddendumDoc(key,opts){
   // question after the documents go out. That version would have shipped eleven fabricated Q/A
   // pairs into a bid document. §5 is now absent unless a real inquiry exists.
   var inqs=inquiriesFor(key);
+  // An unanswered question does not go in. §5 printing "[NOT ANSWERED — write the response]" was
+  // meant as a loud placeholder, but the write-up is copied into the addendum, and a placeholder in
+  // a document is only ever one careless paste away from a bidder reading it. Better to leave the
+  // question out and say so in the warnings: the gate already refuses to let the addendum issue
+  // while one is open, so nothing is being hidden — it is being kept out of the deliverable.
+  var answered=inqs.filter(function(p){return String(p.a||'').trim();});
+  var openQ=inqs.filter(function(p){return !String(p.a||'').trim();});
   var inq=[];
-  inqs.forEach(function(p,ix){
+  answered.forEach(function(p,ix){
     var n=String(p.qno||(ix+1)).replace(/^Q/i,'');
     inq.push('       '+padNum('5.'+(ix+1),8)+'Q'+n+': '+(p.q||''));
-    inq.push('               '+'A'+n+': '+(p.a||'[NOT ANSWERED — write the response]'));
+    inq.push('               '+'A'+n+': '+p.a);
     inq.push('');
   });
+  if(openQ.length)warn.push(n_(openQ.length,'bid inquiry','bid inquiries')
+    +' still unanswered and held out of §5: '
+    +openQ.map(function(p){return 'Q'+p.qno;}).join(', ')
+    +' — answer '+(openQ.length===1?'it':'them')+' and '+(openQ.length===1?'it':'they')
+    +' will appear');
   if(inq.length)out=out.concat(['','5      Bid Inquiries & Responses','']).concat(inq);
   out.push('');out.push('                        END OF ADDENDUM (VOL 1)');
 
