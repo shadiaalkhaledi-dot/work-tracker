@@ -7045,6 +7045,156 @@ function copyRich(html,plain,okMsg){
   }
   legacy();
 }
+// ---- a real Word file ------------------------------------------------------------------------
+// The HTML clipboard was the wrong bet. Word for the WEB — which is what a Teams-shared document
+// opens in — throws away almost all of the `mso-` list metadata on paste, so the levels it invents
+// come out scrambled: 1.6, 2.6, 5.1.1, and two sections both numbered 5. Desktop Word honours far
+// more of it, which is exactly why the same paste behaved differently in the two places.
+//
+// A .docx has no such ambiguity. It IS Word's format: the numbering lives in numbering.xml, both
+// Words read the same bytes, and copying from the opened file into the addendum is a Word-to-Word
+// paste, which carries list definitions faithfully. So the write-up is written as a real file.
+//
+// A .docx is a ZIP. Everything below is stored (compression method 0) — no DEFLATE needed, the
+// files are small, and a stored ZIP is a few dozen lines instead of a dependency.
+var CRC_T=null;
+function crc32(bytes){
+  if(!CRC_T){CRC_T=new Int32Array(256);
+    for(var n=0;n<256;n++){var c=n;
+      for(var k=0;k<8;k++)c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);
+      CRC_T[n]=c;}}
+  var crc=-1;
+  for(var i=0;i<bytes.length;i++)crc=(crc>>>8)^CRC_T[(crc^bytes[i])&0xFF];
+  return (crc^-1)>>>0;
+}
+function zipStore(files){
+  var enc=new TextEncoder(),parts=[],central=[],offset=0;
+  var u16=function(v){return [v&255,(v>>>8)&255];};
+  var u32=function(v){return [v&255,(v>>>8)&255,(v>>>16)&255,(v>>>24)&255];};
+  files.forEach(function(f){
+    var name=enc.encode(f.name),data=(typeof f.data==='string')?enc.encode(f.data):f.data;
+    var crc=crc32(data);
+    var local=[].concat([0x50,0x4b,0x03,0x04],u16(20),u16(0),u16(0),u16(0),u16(0),
+      u32(crc),u32(data.length),u32(data.length),u16(name.length),u16(0));
+    parts.push(new Uint8Array(local),name,data);
+    central.push({name:name,crc:crc,len:data.length,off:offset});
+    offset+=local.length+name.length+data.length;
+  });
+  var cdir=[],cstart=offset;
+  central.forEach(function(c){
+    var h=[].concat([0x50,0x4b,0x01,0x02],u16(20),u16(20),u16(0),u16(0),u16(0),u16(0),
+      u32(c.crc),u32(c.len),u32(c.len),u16(c.name.length),u16(0),u16(0),u16(0),u16(0),
+      u32(0),u32(c.off));
+    cdir.push(new Uint8Array(h),c.name);
+    offset+=h.length+c.name.length;
+  });
+  var end=new Uint8Array([].concat([0x50,0x4b,0x05,0x06],u16(0),u16(0),
+    u16(central.length),u16(central.length),u32(offset-cstart),u32(cstart),u16(0)));
+  var all=parts.concat(cdir,[end]),total=0;
+  all.forEach(function(p){total+=p.length;});
+  var out=new Uint8Array(total),at=0;
+  all.forEach(function(p){out.set(p,at);at+=p.length;});
+  return new Blob([out],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+}
+function xEsc(s){
+  return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+// One abstract list for the numbered tiers and one for the bullets. Keeping them apart is what
+// stops a bullet from consuming a counter — a bullet belongs to the clause above it and must not
+// advance 4.1.1 to 4.1.2.
+function docxNumbering(){
+  var lv=function(i,txt){
+    return '<w:lvl w:ilvl="'+i+'"><w:start w:val="'+(i===0?2:1)+'"/>'
+      +'<w:numFmt w:val="decimal"/><w:lvlText w:val="'+xEsc(txt)+'"/><w:lvlJc w:val="left"/>'
+      +'<w:pPr><w:ind w:left="'+(720*(i+1))+'" w:hanging="720"/></w:pPr></w:lvl>';};
+  var rest='';
+  for(var i=4;i<9;i++)rest+=lv(i,'%'+(i+1));
+  return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<w:numbering xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+    +'<w:abstractNum w:abstractNumId="0"><w:multiLevelType w:val="multilevel"/>'
+    // the document opens at section 2 — section 1 is in the template above anything we write
+    +lv(0,'%1')+lv(1,'%1.%2')+lv(2,'%1.%2.%3')+lv(3,'%1.%2.%3.%4')+rest
+    +'</w:abstractNum>'
+    +'<w:abstractNum w:abstractNumId="1"><w:multiLevelType w:val="hybridMultilevel"/>'
+    +'<w:lvl w:ilvl="0"><w:start w:val="1"/><w:numFmt w:val="bullet"/>'
+    +'<w:lvlText w:val=""/><w:lvlJc w:val="left"/>'
+    +'<w:pPr><w:ind w:left="3600" w:hanging="360"/></w:pPr>'
+    +'<w:rPr><w:rFonts w:ascii="Symbol" w:hAnsi="Symbol" w:hint="default"/></w:rPr></w:lvl>'
+    +'</w:abstractNum>'
+    +'<w:num w:numId="1"><w:abstractNumId w:val="0"/></w:num>'
+    +'<w:num w:numId="2"><w:abstractNumId w:val="1"/></w:num>'
+    +'</w:numbering>';
+}
+function docxPara(text,opts){
+  opts=opts||{};
+  var pPr='<w:pPr>';
+  if(opts.numId)pPr+='<w:numPr><w:ilvl w:val="'+opts.ilvl+'"/>'
+    +'<w:numId w:val="'+opts.numId+'"/></w:numPr>';
+  if(opts.indent)pPr+='<w:ind w:left="'+opts.indent+'"/>';
+  pPr+='<w:spacing w:after="0" w:line="240" w:lineRule="auto"/>';
+  if(opts.bold||opts.size)pPr+='<w:rPr>'+(opts.bold?'<w:b/>':'')
+    +(opts.size?'<w:sz w:val="'+opts.size+'"/>':'')+'</w:rPr>';
+  pPr+='</w:pPr>';
+  var rPr=(opts.bold||opts.size)?('<w:rPr>'+(opts.bold?'<w:b/>':'')
+    +(opts.size?'<w:sz w:val="'+opts.size+'"/>':'')+'</w:rPr>'):'';
+  return '<w:p>'+pPr+'<w:r>'+rPr+'<w:t xml:space="preserve">'+xEsc(text)+'</w:t></w:r></w:p>';
+}
+// Read the finished document back, exactly as the Copy buttons do, so the file and the text on
+// screen can never say different things.
+function docxFromWriteup(text,title){
+  var body=[];
+  String(text||'').split('\n').forEach(function(raw,ix){
+    var line=raw.replace(/\s+$/,'');
+    if(!line.trim()){body.push(docxPara(''));return;}
+    if(ix===0){body.push(docxPara(line.trim(),{bold:true,size:26}));return;}
+    var bl=/^\s*[•·*]\s+(.+)$/.exec(line);
+    if(bl){body.push(docxPara(bl[1],{numId:2,ilvl:0}));return;}
+    var m=WU_NUMBERED.exec(line);
+    if(m){
+      var lvl=m[2].split('.').length;
+      body.push(docxPara(m[3],{numId:1,ilvl:lvl-1}));
+      return;
+    }
+    var lead=(/^(\s*)/.exec(line)||['',''])[1].length;
+    body.push(docxPara(line.trim(),{indent:Math.round(lead/8)*720,
+      bold:/^(List of Attachments|SECTION\b|END OF ADDENDUM)/i.test(line.trim())}));
+  });
+  var doc='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+    +'<w:body>'+body.join('')
+    +'<w:sectPr><w:pgSz w:w="12240" w:h="15840"/>'
+    +'<w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440"/></w:sectPr>'
+    +'</w:body></w:document>';
+  return zipStore([
+    {name:'[Content_Types].xml',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      +'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+      +'<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+      +'<Default Extension="xml" ContentType="application/xml"/>'
+      +'<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>'
+      +'<Override PartName="/word/numbering.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml"/>'
+      +'<Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>'
+      +'</Types>'},
+    {name:'_rels/.rels',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      +'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+      +'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>'
+      +'</Relationships>'},
+    {name:'word/_rels/document.xml.rels',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      +'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+      +'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering" Target="numbering.xml"/>'
+      +'<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>'
+      +'</Relationships>'},
+    {name:'word/styles.xml',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      +'<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+      +'<w:docDefaults><w:rPrDefault><w:rPr>'
+      +'<w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="22"/>'
+      +'</w:rPr></w:rPrDefault></w:docDefaults>'
+      +'<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style>'
+      +'</w:styles>'},
+    {name:'word/numbering.xml',data:docxNumbering()},
+    {name:'word/document.xml',data:doc}
+  ]);
+}
 function mkCopyChaseBtn(it,cls){
   var b=document.createElement('button');b.type='button';b.className=(cls||'nudge-btn')+' chase-btn';b.textContent='copy chase \u2709';
   b.title='Copy a ready-to-send follow-up message built from this item\u2019s history';
@@ -9318,10 +9468,21 @@ function derivePlacements(it){
   });
   return out;
 }
+// Every placement is normalised on the way in, so a `= …` that a previous parser left sitting in
+// the text field is recognised for what it is rather than printed as an equals sign into a bid
+// document. Done here rather than only in the pipeline: the data.json already published carries
+// them, and the fix has to reach the page without waiting for a regeneration.
+function plNorm(list){
+  (list||[]).forEach(function(p){
+    if(p&&!p.override&&typeof p.text==='string'&&/^\s*=/.test(p.text)){
+      p.override=p.text.replace(/^\s*=\s*/,'');p.text='';}
+  });
+  return list;
+}
 function placementsOf(it){
   if(it.placements){
-    if(Array.isArray(it.placements))return it.placements;            // from the vault
-    try{var p=JSON.parse(it.placements);if(Array.isArray(p))return p;}catch(e){}   // from an op
+    if(Array.isArray(it.placements))return plNorm(it.placements);     // from the vault
+    try{var p=JSON.parse(it.placements);if(Array.isArray(p))return plNorm(p);}catch(e){}  // an op
   }
   return derivePlacements(it);
 }
@@ -10993,6 +11154,22 @@ function buildWriteup(key,hostEl){
     copyRich(writeupWordHtml(ta.value,'Addendum '+(addLabelFor(key)||'')),ta.value,
       'Copied as numbered rows — paste into Word and 4.5 / 4.5.1 become a real list, '
       +'renumbering itself when anything moves.');});
+  var dw=document.createElement('button');dw.type='button';dw.className='wu-word';
+  dw.textContent='Download .docx';
+  dw.title='A real Word file, with the numbering in Word’s own format. Both Word for the web '
+    +'(Teams) and desktop Word read the same bytes, so it cannot come out scrambled the way a '
+    +'paste can. Open it and copy into your addendum — Word to Word carries the list definitions.';
+  dw.addEventListener('click',function(){
+    try{
+      var blob=docxFromWriteup(ta.value,'Addendum '+(addLabelFor(key)||''));
+      var u=URL.createObjectURL(blob);
+      var a=document.createElement('a');a.href=u;
+      a.download=String(key).replace(/[^A-Za-z0-9.-]+/g,'-')+'-addendum.docx';a.click();
+      setTimeout(function(){URL.revokeObjectURL(u);},1500);
+      setStatus('Word file downloaded — 4.1 / 4.1.1 are real numbering in it, the same in Teams '
+        +'and on the desktop.');
+    }catch(e){setStatus('Could not build the Word file: '+(e&&e.message||e));}
+  });
   var dl=document.createElement('button');dl.type='button';dl.className='pcancel';dl.textContent='Download .md';
   dl.addEventListener('click',function(){
     var b=new Blob([ta.value],{type:'text/markdown'});var u=URL.createObjectURL(b);
@@ -11002,8 +11179,8 @@ function buildWriteup(key,hostEl){
   });
   var hint=document.createElement('span');hint.className='inline-capture-hint';
   hint.textContent='Editable · numbering computed at render · attachments derived from the clause, never typed';
-  row.appendChild(cpw);row.appendChild(cp);row.appendChild(dl);row.appendChild(hint);
-  box.appendChild(row);
+  row.appendChild(dw);row.appendChild(cpw);row.appendChild(cp);row.appendChild(dl);
+  row.appendChild(hint);box.appendChild(row);
   host.appendChild(box);
   var hand=specHandoverText(key);
   if(hand){
