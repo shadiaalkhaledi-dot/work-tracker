@@ -1433,6 +1433,10 @@ select.pl-in{cursor:pointer}
 .pl-and{margin-top:4px;font-size:11px;color:var(--muted);background:transparent;
   border:1px dashed var(--border);border-radius:999px;padding:2px 6px;cursor:pointer;max-width:190px}
 .pl-and:hover{border-style:solid;border-color:var(--faint);color:var(--text)}
+/* the copy that actually lands in Word — the primary of the three, so it leads */
+.wu-word{font:inherit;font-size:11.5px;font-weight:700;color:var(--sel-fg);background:var(--sel);
+  border:1px solid var(--sel);border-radius:999px;padding:5px 12px;cursor:pointer}
+.wu-word:hover{filter:brightness(1.12)}
 .pl-line{display:grid;grid-template-columns:50px minmax(0,1fr) auto;gap:9px;align-items:start;
   padding:9px 12px 2px;border-top:1px dashed var(--border);margin:0}
 .pl-line-g{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:var(--gold);padding-top:8px}
@@ -2313,6 +2317,19 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
       all getting the same change, <i>split into N lines</i> gives each its own. And if the action
       is still <b>Re-issue the whole sheet</b>, the row says so — re-issue swallows the numbers, and
       the printed line would drop them without a word.</p>
+      <p class="g-p"><b>Copy for Word pastes as a real list.</b> The write-up is a textarea, so
+      <span class="mono">4.5</span> in it is four characters — Word only builds a list if the
+      <i>clipboard</i> carries list markup. <b>Copy for Word</b> puts both flavours on at once: Word
+      takes the markup and every row becomes a genuine numbered item that indents and
+      <b>renumbers itself</b> when anything moves; email and Teams take the plain text and still
+      read 4.5.1. <i>Copy as text</i> is the old one, unchanged, for when the numbers should stay
+      exactly where they are.</p>
+      <p class="g-p"><b>A §3 note keeps the shape you type into it.</b> Write a schedule revision on
+      several lines and it comes out as several levels: an unindented SHOUTING first line becomes the
+      block's heading, each indent steps one number deeper, and a line starting with <b>•</b> stays a
+      bullet and takes no number, because it belongs to the clause above it. A note with no shape in
+      it behaves exactly as it always did. Nothing new was added to the vault — the structure is the
+      whitespace.</p>
       <p class="g-p"><b>One line can carry two commands.</b> The <b>Action</b> list replaces the
       verb the line opens with — right when you picked the wrong one, wrong when you meant a second.
       <b>+ and …</b> beneath it appends instead: <i>ADD wall tag</i> plus <i>Revise …</i> becomes
@@ -6913,6 +6930,121 @@ function copyText(txt,okMsg){
     navigator.clipboard.writeText(txt).then(function(){setStatus(okMsg);},function(){window.prompt('Copy this:',txt);});
   }else{window.prompt('Copy this:',txt);}
 }
+// ---- copying the write-up into Word ---------------------------------------------------------
+// "the numbering that comes in doesn't integrate with Word — 4.5, 4.5.1 are just text, not actual
+// numbered rows." True, and it was never going to be otherwise: the write-up is a textarea, and a
+// textarea holds characters. Word only makes a real list out of a paste if the CLIPBOARD carries
+// list markup — so the clipboard gets two flavours at once, and Word takes the richer one.
+//
+// The markup is Word's own dialect, not generic HTML. A bare <ol> pastes as a list but numbers it
+// 1. / a. / i., which is not what an addendum looks like. The `@list` block below is the same thing
+// Word writes when it saves a numbered document as HTML: mso-level-text "%1.%2.%3" is what makes
+// 4.5.1 come out as 4.5.1 — and, being a real list, everything after a row you move renumbers itself.
+var WORD_LIST_CSS=[
+'@list l0{mso-list-id:2026081;mso-list-type:hybrid;mso-list-template-ids:2026081;}',
+// the document opens at section 2 — section 1 lives in the template, above anything we write
+'@list l0:level1{mso-level-start-at:2;mso-level-number-format:decimal;mso-level-text:"%1";',
+'  mso-level-tab-stop:none;mso-level-number-position:left;margin-left:36.0pt;text-indent:-36.0pt;}',
+'@list l0:level2{mso-level-number-format:decimal;mso-level-text:"%1.%2";',
+'  mso-level-tab-stop:none;mso-level-number-position:left;margin-left:72.0pt;text-indent:-36.0pt;}',
+'@list l0:level3{mso-level-number-format:decimal;mso-level-text:"%1.%2.%3";',
+'  mso-level-tab-stop:none;mso-level-number-position:left;margin-left:108.0pt;text-indent:-36.0pt;}',
+// a schedule revision goes one deeper: 3.1.1.1 CZ1: Concrete, Sealed
+'@list l0:level4{mso-level-number-format:decimal;mso-level-text:"%1.%2.%3.%4";',
+'  mso-level-tab-stop:none;mso-level-number-position:left;margin-left:144.0pt;text-indent:-36.0pt;}',
+// and the bullets under it take no number — they belong to the clause above them
+'@list l1{mso-list-id:2026082;mso-list-type:hybrid;mso-list-template-ids:2026082;}',
+'@list l1:level1{mso-level-number-format:bullet;mso-level-text:•;mso-level-tab-stop:none;',
+'  mso-level-number-position:left;margin-left:180.0pt;text-indent:-18.0pt;',
+'  font-family:Symbol;}'
+].join('\n');
+function wEsc(s){
+  return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+// One numbered line becomes one list paragraph. The literal number is kept inside the
+// `supportLists` comment, which Word strips and replaces with its own — and which every other
+// target (Gmail, Teams, a plain editor) shows as ordinary text, so nothing loses the numbering.
+function wBullet(body){
+  return '<p class=MsoListParagraph style=\'margin-left:180.0pt;text-indent:-18.0pt;'
+    +'mso-list:l1 level1 lfo2\'>'
+    +'<![if !supportLists]><span style=\'font-family:Symbol\'>·'
+    +'<span style=\'font:7.0pt "Times New Roman"\'>&nbsp;&nbsp;&nbsp;&nbsp;</span></span><![endif]>'
+    +wEsc(body)+'</p>';
+}
+function wListRow(level,num,body){
+  var ind=[36,72,108,144][level-1]||36;
+  return '<p class=MsoListParagraph style=\'margin-left:'+ind+'.0pt;text-indent:-36.0pt;'
+    +'mso-list:l0 level'+level+' lfo1\'>'
+    +'<![if !supportLists]><span style=\'mso-list:Ignore\'>'+wEsc(num)
+    +'<span style=\'font:7.0pt "Times New Roman"\'>&nbsp;&nbsp;&nbsp;&nbsp;</span></span><![endif]>'
+    +wEsc(body)+'</p>';
+}
+function wPlain(text,indentSpaces,bold){
+  var pt=Math.round((indentSpaces||0)/8)*36;
+  var b=bold?'font-weight:bold;':'';
+  if(!String(text).trim())return '<p class=MsoNormal style=\'margin:0\'>&nbsp;</p>';
+  return '<p class=MsoNormal style=\'margin:0;margin-left:'+pt+'.0pt;'+b+'\'>'
+    +wEsc(text.replace(/^\s+/,'').replace(/\s{2,}/g,'  '))+'</p>';
+}
+// Read the finished document back rather than building a second one beside it. Whatever is in the
+// textarea — including anything you typed over the top — is what goes to Word, so the two can
+// never drift.
+var WU_NUMBERED=/^(\s*)((?:\d+\.)*\d+)\s{2,}(.+)$/;
+function writeupWordHtml(text,title){
+  var out=[];
+  String(text||'').split('\n').forEach(function(raw,ix){
+    var line=raw.replace(/\s+$/,'');
+    if(!line.trim()){out.push(wPlain(''));return;}
+    if(ix===0){out.push('<p class=MsoNormal style=\'margin:0;font-weight:bold;font-size:13.0pt\'>'
+      +wEsc(line.trim())+'</p>');return;}
+    var bl=/^\s*[••·*]\s+(.+)$/.exec(line);
+    if(bl){out.push(wBullet(bl[1]));return;}
+    var m=WU_NUMBERED.exec(line);
+    if(m){
+      var lvl=m[2].split('.').length;
+      if(lvl>=1&&lvl<=4){out.push(wListRow(lvl,m[2],m[3]));return;}
+    }
+    var lead=(/^(\s*)/.exec(line)||['',''])[1].length;
+    out.push(wPlain(line,lead,/^(List of Attachments|SECTION\b)/i.test(line.trim())));
+  });
+  return '<html xmlns:o="urn:schemas-microsoft-com:office:office" '
+    +'xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8">'
+    +'<title>'+wEsc(title||'Addendum')+'</title><style>'
+    +'p.MsoNormal,p.MsoListParagraph{font-family:"Calibri",sans-serif;font-size:11.0pt;margin:0}\n'
+    +WORD_LIST_CSS+'</style></head><body>'+out.join('\n')+'</body></html>';
+}
+// Two flavours on one clipboard: Word takes the HTML, everything else takes the text. The async
+// API needs both in a single write() — a second call replaces the first rather than adding to it.
+function copyRich(html,plain,okMsg){
+  var done=function(){setStatus(okMsg);};
+  var legacy=function(){
+    // Older Safari and any browser without ClipboardItem: a hidden, selected, contenteditable node
+    // still puts real HTML on the clipboard, because the copy comes from a DOM selection.
+    try{
+      var host=document.createElement('div');
+      host.setAttribute('contenteditable','true');
+      host.style.cssText='position:fixed;left:-9999px;top:0;white-space:pre-wrap;';
+      host.innerHTML=html;
+      document.body.appendChild(host);
+      var sel=window.getSelection(),rng=document.createRange();
+      rng.selectNodeContents(host);sel.removeAllRanges();sel.addRange(rng);
+      var ok=document.execCommand('copy');
+      sel.removeAllRanges();host.remove();
+      if(ok){done();return;}
+    }catch(e){}
+    copyText(plain,okMsg);
+  };
+  if(window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write){
+    try{
+      navigator.clipboard.write([new ClipboardItem({
+        'text/html':new Blob([html],{type:'text/html'}),
+        'text/plain':new Blob([plain],{type:'text/plain'})
+      })]).then(done,legacy);
+      return;
+    }catch(e){}
+  }
+  legacy();
+}
 function mkCopyChaseBtn(it,cls){
   var b=document.createElement('button');b.type='button';b.className=(cls||'nudge-btn')+' chase-btn';b.textContent='copy chase \u2709';
   b.title='Copy a ready-to-send follow-up message built from this item\u2019s history';
@@ -8109,7 +8241,13 @@ function addSearchSet(v,caret){
 // inside a <select> or a textarea would edit the thing rather than annotate it.
 function hiliteQ(root){
   var t=qTerms();if(!t.length||!root)return;
-  var SKIP={SCRIPT:1,STYLE:1,SELECT:1,OPTION:1,TEXTAREA:1,INPUT:1,BUTTON:0};
+  // BUTTON was listed at 0 — falsy, so buttons were walked and painted. A pale yellow highlight
+  // inside a filled dark button is unreadable, and the words in a control are the tool talking about
+  // itself, not content you searched for. Nothing interactive gets painted.
+  var SKIP={SCRIPT:1,STYLE:1,SELECT:1,OPTION:1,TEXTAREA:1,INPUT:1,BUTTON:1,LABEL:1,KBD:1};
+  // Neither does generated chrome that happens to quote a sheet number back at you.
+  var SKIPCLASS=['filt-strip','pl-issued','pl-vask','pl-vnote','pl-vpick','rf-scope','reg-find',
+                 'wb-empty','who-key','edge-key','inq-made'];
   var rx;
   try{rx=new RegExp('('+t.map(function(x){
     return x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}).join('|')+')','ig');}catch(e){return;}
@@ -8121,6 +8259,7 @@ function hiliteQ(root){
       if(n.nodeType===1){
         if(SKIP[n.tagName])continue;
         if(n.classList&&n.classList.contains('q-hit'))continue;
+        if(n.classList&&SKIPCLASS.some(function(c){return n.classList.contains(c);}))continue;
         walk(n);
       } else if(n.nodeType===3&&n.nodeValue&&n.nodeValue.trim()){
         targets.push(n);
@@ -9624,6 +9763,19 @@ function placementEditor(it){
         if(pl.wasSheet&&pl.wasSheet===pl.sheet){delete pl.wasSheet;delete pl.askedSheet;return;}
         if(pl.wasSheet||pl.retarget)return;              // already answered for this one
         if(!sheetIsOut(it))return;                       // not out yet — a number is still a field
+        // And only a number the VAULT carried can have reached a bidder. `was` is whatever the box
+        // held a moment ago, which is just as often something you typed thirty seconds earlier and
+        // are now correcting — asking about your own uncommitted typo as though a drawing had gone
+        // out under it is worse than not asking at all. Measured against what the vault says this
+        // item is, not against the last keystroke.
+        var base=baseLaneItem(it.id)||{};
+        var known={};
+        try{placementsOf(base).forEach(function(p){
+          if(p.sheet)known[String(p.sheet).toUpperCase()]=1;});}catch(e){}
+        try{(itemSheets(base)||[]).forEach(function(s){
+          if(s)known[String(s).toUpperCase()]=1;});}catch(e){}
+        if(base.sheet)known[String(base.sheet).toUpperCase()]=1;
+        if(!known[String(was).toUpperCase()])return;
         pl.askedSheet=was;
       })();
       if(followMirrors(was,pl.sheet)){commitHard();if(first)followTitleToSheet(it,pl.sheet);return;}
@@ -10168,7 +10320,34 @@ function wuSpecLines(it,steps){
     out.push(isNew?('Section '+sec+', not previously issued'+WU_ATTACH_SEC)
                   :('Section '+sec+' revised and re-issued,'+WU_ATTACH_SEC));
   }
-  if(note){out.push('[FOR SPECIFICATIONS] '+note);return out;}
+  // A note used to be one line, so a schedule revision — a heading, the section it refers to, the
+  // material code, and three bullets under it — had nowhere to go but a single run-on sentence.
+  // A note may now be written with its own shape and it keeps it: indent a line and it numbers one
+  // level deeper, start it with a bullet and it stays a bullet. Nothing new in the vault; the
+  // structure is the whitespace you already type.
+  if(note){
+    var multi=/\n/.test(note);
+    if(!multi){out.push('[FOR SPECIFICATIONS] '+note);return out;}
+    note.split('\n').forEach(function(raw,nix){
+      var line=raw.replace(/\s+$/,'');
+      if(!line.trim())return;
+      // A schedule revision names the schedule first. That line is the HEADING of the block, not
+      // its first clause — printing "SECTION 03 35 41" above it and demoting the schedule to 3.1.1
+      // inverts what the page is about. Only an unindented, unbulleted, shouting first line earns
+      // this, and never one that is itself a section reference.
+      if(!out.length&&!/^\s/.test(line)&&!/^([••*]|-\s)/.test(line.trim())
+         &&!/^section\b/i.test(line.trim())
+         &&(line.trim()===line.trim().toUpperCase()||/schedule\s*$/i.test(line.trim()))){
+        out.push({t:line.trim(),head:true});return;}
+      var lead=(/^(\s*)/.exec(line)||['',''])[1].replace(/\t/g,'  ').length;
+      var body=line.trim();
+      var bm=/^([••*]|-\s)\s*/.exec(body);
+      if(bm){out.push({t:body.replace(/^([••*]|-)\s*/,''),bullet:true,
+                       lvl:Math.min(1,Math.floor(lead/2))});return;}
+      out.push({t:body,lvl:Math.min(1,Math.max(0,Math.round(lead/2)))});
+    });
+    return out;
+  }
   if(out.length)return out;
   return ['[NO NOTE FOR SPECIFICATIONS YET — say what changed and why]'];
 }
@@ -10411,9 +10590,28 @@ function buildAddendumDoc(key,opts){
       wuSpecLines(it,st.keep.length?st.keep:[it.title||'']).forEach(function(l){lines.push(l);});
       if(!it.section)warn.push('§3 "'+(it.title||'').slice(0,44)+'" has no section number');
     });
-    L3.push('       '+padNum('3.'+(ix+1),8)+'SECTION '+sk.toUpperCase());
-    lines.forEach(function(l,jx){L3.push('               '+padNum('3.'+(ix+1)+'.'+(jx+1),9)+l);});
-    if(attachesIn(lines))att.sec.push('SECTION '+sk);
+    // the block may name itself; if it does not, it is filed under its section, as it always was
+    var headLine='';
+    lines=lines.filter(function(l){
+      if(l&&typeof l==='object'&&l.head&&!headLine){headLine=l.t;return false;}
+      return true;});
+    L3.push('       '+padNum('3.'+(ix+1),8)+(headLine?headLine.toUpperCase()
+                                                     :'SECTION '+sk.toUpperCase()));
+    // Numbering runs down the tiers, and a bullet takes no number at all — it belongs to the
+    // numbered line above it and printing 3.1.2.3 beside a dash would say otherwise.
+    var n2=0,n3=0,flat=[];
+    lines.forEach(function(l){
+      var o=(typeof l==='string')?{t:l,lvl:0}:l;
+      flat.push(o.t);
+      if(o.bullet){
+        L3.push('                       •  '+o.t);return;}
+      if(o.lvl>0){
+        if(!n2){n2=1;L3.push('               '+padNum('3.'+(ix+1)+'.1',9)+'');}
+        n3++;L3.push('                   '+padNum('3.'+(ix+1)+'.'+n2+'.'+n3,11)+o.t);return;}
+      n2++;n3=0;
+      L3.push('               '+padNum('3.'+(ix+1)+'.'+n2,9)+o.t);
+    });
+    if(attachesIn(flat))att.sec.push('SECTION '+sk);
   });
 
   // ---- §4 Drawings, grouped by sheet ----------------------------------------------------------
@@ -10771,7 +10969,20 @@ function buildWriteup(key,hostEl){
   box.appendChild(ta);
   var row=document.createElement('div');row.className='pedit-row';row.style.marginTop='8px';
   var cp=document.createElement('button');cp.type='button';cp.textContent='Copy';
+  cp.textContent='Copy as text';
+  cp.title='The characters, exactly as they read here — for email, Teams, or anywhere the numbers '
+    +'should stay put.';
   cp.addEventListener('click',function(){copyText(ta.value,'Addendum write-up copied — hand it to Specifications to package.');});
+  // The one that answers "4.5 is just text in Word".
+  var cpw=document.createElement('button');cpw.type='button';cpw.className='wu-word';
+  cpw.textContent='Copy for Word';
+  cpw.title='Puts list markup on the clipboard, so §3, §4 and §5 arrive as real numbered rows that '
+    +'renumber and indent themselves — not characters. Paste into Word with Ctrl+V; if your '
+    +'template has its own list format, Keep Source Formatting first, then apply your style.';
+  cpw.addEventListener('click',function(){
+    copyRich(writeupWordHtml(ta.value,'Addendum '+(addLabelFor(key)||'')),ta.value,
+      'Copied as numbered rows — paste into Word and 4.5 / 4.5.1 become a real list, '
+      +'renumbering itself when anything moves.');});
   var dl=document.createElement('button');dl.type='button';dl.className='pcancel';dl.textContent='Download .md';
   dl.addEventListener('click',function(){
     var b=new Blob([ta.value],{type:'text/markdown'});var u=URL.createObjectURL(b);
@@ -10781,7 +10992,8 @@ function buildWriteup(key,hostEl){
   });
   var hint=document.createElement('span');hint.className='inline-capture-hint';
   hint.textContent='Editable · numbering computed at render · attachments derived from the clause, never typed';
-  row.appendChild(cp);row.appendChild(dl);row.appendChild(hint);box.appendChild(row);
+  row.appendChild(cpw);row.appendChild(cp);row.appendChild(dl);row.appendChild(hint);
+  box.appendChild(row);
   host.appendChild(box);
   var hand=specHandoverText(key);
   if(hand){
