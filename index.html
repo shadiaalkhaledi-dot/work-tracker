@@ -1437,6 +1437,11 @@ select.pl-in{cursor:pointer}
 .wu-word{font:inherit;font-size:11.5px;font-weight:700;color:var(--sel-fg);background:var(--sel);
   border:1px solid var(--sel);border-radius:999px;padding:5px 12px;cursor:pointer}
 .wu-word:hover{filter:brightness(1.12)}
+.wu-help{font-size:11.5px;color:var(--muted);margin:8px 0 0;line-height:1.55}
+.wu-help b{color:var(--text)}
+.wu-help-d{margin-top:6px}
+.wu-help-d p{margin:0 0 7px}
+.wu-help-d p:last-child{margin-bottom:0;color:var(--faint)}
 .pl-line{display:grid;grid-template-columns:50px minmax(0,1fr) auto;gap:9px;align-items:start;
   padding:9px 12px 2px;border-top:1px dashed var(--border);margin:0}
 .pl-line-g{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:var(--gold);padding-top:8px}
@@ -2317,13 +2322,19 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
       all getting the same change, <i>split into N lines</i> gives each its own. And if the action
       is still <b>Re-issue the whole sheet</b>, the row says so — re-issue swallows the numbers, and
       the printed line would drop them without a word.</p>
-      <p class="g-p"><b>Copy for Word pastes as a real list.</b> The write-up is a textarea, so
-      <span class="mono">4.5</span> in it is four characters — Word only builds a list if the
-      <i>clipboard</i> carries list markup. <b>Copy for Word</b> puts both flavours on at once: Word
-      takes the markup and every row becomes a genuine numbered item that indents and
-      <b>renumbers itself</b> when anything moves; email and Teams take the plain text and still
-      read 4.5.1. <i>Copy as text</i> is the old one, unchanged, for when the numbers should stay
-      exactly where they are.</p>
+      <p class="g-p"><b>Use Download .docx for the addendum.</b> The write-up is a textarea, so
+      <span class="mono">4.5</span> in it is four characters. A <b>.docx</b> is Word's own format —
+      the numbering lives in the file the way Word stores it, so 4.1 and 4.1.1 are genuine list
+      numbers that renumber themselves, and they read identically in Word for the web (Teams) and on
+      the desktop. Open it and copy into your addendum; Word-to-Word carries the list definitions
+      intact.</p>
+      <p class="g-p"><b>The other three are for other journeys.</b> <i>Copy for Word</i> puts the
+      same structure on the clipboard — quick, and fine in <b>desktop</b> Word, but Word for the
+      <b>web</b> discards most list information on paste, which is what turns 4.1 into 1.6 and gives
+      two sections one number. <i>Copy as text</i> is the characters exactly as they read, for email
+      and chat. <i>Download .md</i> is that same text as a file. All four say the same words and all
+      four read from the box, so whatever you have edited there is what you get — they differ only
+      in how much structure survives the trip.</p>
       <p class="g-p"><b>A §3 note keeps the shape you type into it.</b> Write a schedule revision on
       several lines and it comes out as several levels: an unindented SHOUTING first line becomes the
       block's heading, each indent steps one number deeper, and a line starting with <b>•</b> stays a
@@ -6973,7 +6984,10 @@ function wBullet(body){
 }
 function wListRow(level,num,body){
   var ind=[36,72,108,144][level-1]||36;
+  // same air as the .docx, so the two copies do not disagree about where a section starts
+  var top=level===1?14:(level===2?8:0);
   return '<p class=MsoListParagraph style=\'margin-left:'+ind+'.0pt;text-indent:-36.0pt;'
+    +'margin-top:'+top+'.0pt;'+(level===1?'font-weight:bold;':'')
     +'mso-list:l0 level'+level+' lfo1\'>'
     +'<![if !supportLists]><span style=\'mso-list:Ignore\'>'+wEsc(num)
     +'<span style=\'font:7.0pt "Times New Roman"\'>&nbsp;&nbsp;&nbsp;&nbsp;</span></span><![endif]>'
@@ -7132,7 +7146,10 @@ function docxPara(text,opts){
   if(opts.numId)pPr+='<w:numPr><w:ilvl w:val="'+opts.ilvl+'"/>'
     +'<w:numId w:val="'+opts.numId+'"/></w:numPr>';
   if(opts.indent)pPr+='<w:ind w:left="'+opts.indent+'"/>';
-  pPr+='<w:spacing w:after="0" w:line="240" w:lineRule="auto"/>';
+  // Air where the document changes subject, and none inside a block. A section and a drawing
+  // heading each get room above them; the lines under a heading stay tight to it, because that is
+  // what makes them read as belonging to it.
+  pPr+='<w:spacing w:before="'+(opts.before||0)+'" w:after="0" w:line="240" w:lineRule="auto"/>';
   if(opts.bold||opts.size)pPr+='<w:rPr>'+(opts.bold?'<w:b/>':'')
     +(opts.size?'<w:sz w:val="'+opts.size+'"/>':'')+'</w:rPr>';
   pPr+='</w:pPr>';
@@ -7143,17 +7160,31 @@ function docxPara(text,opts){
 // Read the finished document back, exactly as the Copy buttons do, so the file and the text on
 // screen can never say different things.
 function docxFromWriteup(text,title){
-  var body=[];
-  String(text||'').split('\n').forEach(function(raw,ix){
+  var body=[],lines=String(text||'').split('\n');
+  // A blank line in the source and a spacing rule on the heading below it would stack into a gap
+  // twice the size of the one either intended. The heading owns its space; the blank line steps
+  // aside for it.
+  var headsNext=function(from){
+    for(var j=from+1;j<lines.length;j++){
+      var t=lines[j].replace(/\s+$/,'');
+      if(!t.trim())continue;
+      var mm=WU_NUMBERED.exec(t);
+      return !!(mm&&mm[2].split('.').length<=2);
+    }
+    return false;
+  };
+  lines.forEach(function(raw,ix){
     var line=raw.replace(/\s+$/,'');
-    if(!line.trim()){body.push(docxPara(''));return;}
-    if(ix===0){body.push(docxPara(line.trim(),{bold:true,size:26}));return;}
+    if(!line.trim()){if(!headsNext(ix))body.push(docxPara(''));return;}
+    if(ix===0){body.push(docxPara(line.trim(),{bold:true,size:26,after:true}));return;}
     var bl=/^\s*[•·*]\s+(.+)$/.exec(line);
     if(bl){body.push(docxPara(bl[1],{numId:2,ilvl:0}));return;}
     var m=WU_NUMBERED.exec(line);
     if(m){
       var lvl=m[2].split('.').length;
-      body.push(docxPara(m[3],{numId:1,ilvl:lvl-1}));
+      // 240 twentieths is 12pt — a line's worth above a section, half of one above a drawing
+      body.push(docxPara(m[3],{numId:1,ilvl:lvl-1,
+        before:lvl===1?280:(lvl===2?160:0),bold:lvl===1}));
       return;
     }
     var lead=(/^(\s*)/.exec(line)||['',''])[1].length;
@@ -11181,6 +11212,37 @@ function buildWriteup(key,hostEl){
   hint.textContent='Editable · numbering computed at render · attachments derived from the clause, never typed';
   row.appendChild(dw);row.appendChild(cpw);row.appendChild(cp);row.appendChild(dl);
   row.appendChild(hint);box.appendChild(row);
+  // Four ways out of here is three too many to guess between, and the wrong guess is the one that
+  // scrambled the numbering in Teams. The answer to "which button" is one sentence; the reasoning
+  // folds away for whoever wants it.
+  (function(){
+    var h=document.createElement('div');h.className='wu-help';
+    h.innerHTML='<b>Putting this in the addendum?</b> Use <b>Download .docx</b> — open it and copy '
+      +'into your Word document. Sending it to someone? <b>Copy as text</b>.';
+    box.appendChild(h);
+    var d=document.createElement('details');d.className='wb-lede wb-lede-d wu-help-d';
+    var s=document.createElement('summary');s.textContent='Why four buttons, and what each one is for';
+    d.appendChild(s);
+    var b=document.createElement('div');
+    b.innerHTML=
+       '<p><b>Download .docx</b> — a real Word file. The numbering is stored the way Word stores '
+      +'it, so <b>4.1</b> and <b>4.1.1</b> are genuine list numbers that renumber themselves, and '
+      +'they come out identical in Word for the web (Teams) and on the desktop. Open the file and '
+      +'copy from it into your addendum: Word-to-Word carries the list definitions across intact. '
+      +'<b>This is the one to use for the document.</b></p>'
+      +'<p><b>Copy for Word</b> — the same thing on the clipboard instead of in a file. Quicker, '
+      +'and fine in <b>desktop</b> Word. Avoid it in a Teams-shared document: Word for the web '
+      +'throws away most of the list information on paste, which is what turns 4.1 into 1.6 and '
+      +'gives two sections the same number. If a paste comes out scrambled, that is why — use the '
+      +'.docx.</p>'
+      +'<p><b>Copy as text</b> — the characters exactly as they read on screen. For email, Teams '
+      +'chat, or anywhere the numbers should stay literal and stay put.</p>'
+      +'<p><b>Download .md</b> — the same plain text as a file, for the vault or a note.</p>'
+      +'<p>All four say the same words. They differ only in how much structure survives the '
+      +'journey — and everything is read from the box above, so whatever you have edited there is '
+      +'what you get.</p>';
+    d.appendChild(b);box.appendChild(d);
+  })();
   host.appendChild(box);
   var hand=specHandoverText(key);
   if(hand){
