@@ -6,13 +6,69 @@
 <title>Work Tracker — Quick Capture</title>
 <style>
   :root{color-scheme:light;
-    --bg:#ffffff; --card:#ffffff; --border:#e6e2d8; --border-soft:#efece4;
-    --text:#2b2a27; --muted:#8a8579; --faint:#b3aea2;
-    --mauve:rgb(168,118,142); --sage:rgb(120,148,104); --taupe:rgb(150,134,118); --olive:rgb(150,148,96);
-    --terracotta:rgb(176,122,100); --teal:rgb(94,158,149); --gold:rgb(181,144,66); --rose:rgb(196,120,110); --rfi:#2b2a27;
+    /* ── colour has ONE rule here: a hue means a thing, and nothing else may borrow it. ─────
+       Measured before it was chosen (validate_palette, light, surface #fffdfa):
+         · classification pair  #0d9488 / #7c3fae — ALL CHECKS PASS · CVD ΔE 16.5 · normal 26.4
+         · status ladder        #a07a00 / #bf2c22 / #2b7d55 — passes; amber↔stop sits in the
+           6–8 CVD band, legal because every status here ships with a word beside it.
+       The palette this replaces failed on its own terms: five of its six accents were UNDER the
+       chroma floor — they read as grey — terracotta↔sage separated by ΔE 2.4, gold↔terracotta by
+       8.2 against a floor of 15. Gold did not take over because it was over-used. It was the only
+       accent with enough chroma to be seen at all, so the eye went to it and nowhere else. */
+
+    /* MEANING — reserved. Never chrome, never selection, never decoration. */
+    --gold:#a07a00;      /* a decision is owed BY YOU — untriaged, flagged ?, unanswered   */
+    --stop:#bf2c22;      /* this would ship wrong — gate blockers, name collisions         */
+    --ok:#2b7d55;        /* settled · ready · done                                         */
+    --p4:#0d9488;        /* §4 Drawings                                                    */
+    --p3:#7c3fae;        /* §3 Specifications                                              */
+
+    /* GROUND — hierarchy is carried by surface, depth and size. A selected thing rises out of
+       the page; it is never a coloured chip, because a coloured chip must borrow a meaning to
+       be seen, and every meaning here is already spoken for. */
+    /* Shadi, 2026-08-11: white, or super off-white. The beige ground was doing the separating —
+       so the separating moves to LIGHT instead. Page is a hair off pure white, cards are pure
+       white, and the gap between them is carried by shadow rather than by tone. That is the more
+       honest version of glass anyway: it should look lit, not tinted. */
+    --bg:#fdfcfb; --card:rgba(255,255,255,.94); --card-solid:#ffffff;
+    --raise:#ffffff; --sink:rgba(244,242,237,.8); --deep:#4a453b;
+    --sel:#4a453b; --sel-fg:#fffdfa;
+    --glass-edge:rgba(255,255,255,.85);
+    /* On a near-white page the shadow IS the edge, so it has to do real work — a tight contact
+       shadow for the lift, a wide soft one for the depth. */
+    --shadow-1:0 1px 2px rgba(58,52,42,.05), 0 2px 6px -2px rgba(58,52,42,.07);
+    --shadow-2:0 1px 2px rgba(58,52,42,.06), 0 6px 18px -6px rgba(58,52,42,.13);
+    --shadow-3:0 2px 4px rgba(58,52,42,.07), 0 16px 40px -12px rgba(58,52,42,.20);
+    --border:#eae7e0; --border-soft:#f2f0eb;
+    --text:#2b2721; --muted:#6f6a5e; --faint:#a9a294;
+
+    /* legacy names, repointed so nothing is left dangling */
+    --teal:var(--p4); --mauve:var(--p3); --sage:var(--ok); --terracotta:var(--stop);
+    --taupe:#8a8276; --olive:#6f6a5e; --rose:var(--stop); --rfi:#2b2721;
     /* aliases: `--line` was referenced three times and never defined; `--fg` came in with
        the addendum work. Naming them here beats sprinkling the raw tokens around. */
     --line:var(--border); --fg:var(--text);
+  }
+  body{
+    background:
+      radial-gradient(1200px 640px at 12% -8%, rgba(13,148,136,.018), transparent 62%),
+      radial-gradient(1000px 560px at 92% 4%, rgba(124,63,174,.015), transparent 58%),
+      var(--bg);
+    background-attachment:fixed;
+  }
+  /* One surface treatment, three depths. Everything that is "a thing you can act on" wears it. */
+  .glass{
+    background:var(--card);
+    -webkit-backdrop-filter:blur(14px) saturate(1.25);
+    backdrop-filter:blur(14px) saturate(1.25);
+    border:1px solid var(--border);
+    box-shadow:var(--shadow-1), inset 0 1px 0 var(--glass-edge);
+    border-radius:14px;
+  }
+  .glass-2{box-shadow:var(--shadow-2), inset 0 1px 0 var(--glass-edge);}
+  .glass-3{box-shadow:var(--shadow-3), inset 0 1px 0 var(--glass-edge);}
+  @media (prefers-reduced-transparency:reduce){
+    .glass,.glass-2,.glass-3{background:var(--card-solid);backdrop-filter:none;-webkit-backdrop-filter:none;}
   }
   *{box-sizing:border-box;}
   body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.55;}
@@ -135,6 +191,10 @@
   .pending-row .ptype.ptype-subtask{color:var(--sage);border-color:var(--sage);}
   .pending-row .pbody{flex:1 1 auto;min-width:160px;}
   .pending-row .pwhen{color:var(--faint);font-size:11px;flex-shrink:0;margin-top:2px;white-space:nowrap;}
+  /* Who captured it. Two people on one queue and no names on the rows is the same board as one
+     person with a memory problem — the chip is the whole point of the shared store. */
+  .pending-row .pwho{color:var(--teal);font-size:11px;flex-shrink:0;margin-top:2px;white-space:nowrap;font-weight:600;}
+  .pending-row .pwho.pwho-mine{color:var(--faint);font-weight:400;}
   .pending-row .pedit{background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:2px 8px;font-size:11px;cursor:pointer;flex-shrink:0;font-family:inherit;}
   .pending-row .pedit:hover{border-color:var(--muted);color:var(--text);}
   .pending-row.pending-row-editing{flex-direction:column;align-items:stretch;gap:6px;}
@@ -281,6 +341,56 @@ select.pl-in{cursor:pointer}
 .add-filter-lead .add-filter-lbl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .add-filter-b.af-ar{font-weight:600}
 .add-filter-b.af-ar.on{background:var(--gold);color:#fff;border-color:var(--gold)}
+.add-flag-b{font:inherit;font-size:10.5px;padding:1px 8px;border:1px solid var(--line);
+  border-radius:9px;background:transparent;color:var(--muted);cursor:pointer;display:inline-flex;
+  align-items:center;gap:5px}
+.add-flag-b:hover{border-color:var(--teal);color:var(--text)}
+/* gold is already carrying the view and the addendum. A third gold control on the same screen
+   stops meaning "this one is on" and starts being wallpaper, so Show takes the teal. */
+.add-flag-b.on{background:var(--teal);border-color:var(--teal);color:#fff;font-weight:600}
+.add-flag-b .fc{font-variant-numeric:tabular-nums;color:var(--faint);font-weight:400}
+.add-flag-b.on .fc{color:rgba(255,255,255,.75)}
+/* nothing to show is an answer, so the chip stays where it is and goes quiet */
+.is-zero{opacity:.42}
+.is-zero:hover{border-color:var(--line);color:var(--muted)}
+
+/* the row's state, in words rather than an edge colour you have to decode */
+.sh-pill{font-size:10px;padding:1px 7px;border-radius:999px;margin-left:6px;white-space:nowrap;
+  vertical-align:2px;border:1px solid transparent}
+.sh-pill-q{background:rgba(245,158,11,.13);color:#8a5a06}
+.sh-pill-a{background:rgba(179,98,73,.13);color:var(--terracotta)}
+.sh-pill-u{background:rgba(136,135,128,.14);color:var(--muted)}
+
+/* the readiness strip — a sentence you can open */
+.gs{margin:6px 0 10px;border:1px solid var(--border);border-radius:10px;background:transparent;
+  overflow:hidden}
+.gs-sum{display:flex;align-items:center;gap:9px;padding:9px 12px;cursor:pointer;list-style:none;
+  flex-wrap:wrap}
+.gs-sum::-webkit-details-marker{display:none}
+.gs:hover{border-color:var(--muted)}
+.gs-dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+.gs-no{border-left:3px solid var(--terracotta)}
+.gs-no .gs-dot{background:var(--terracotta)}
+.gs-warn{border-left:3px solid var(--gold)}
+.gs-warn .gs-dot{background:var(--gold)}
+.gs-yes{border-left:3px solid var(--sage)}
+.gs-yes .gs-dot{background:var(--sage)}
+.gs-lbl{font-size:13px;font-weight:600;color:var(--text);flex:0 0 auto}
+.gs-chips{display:flex;gap:5px;flex-wrap:wrap;flex:1 1 auto}
+.gs-chip{font:inherit;font-size:10.5px;padding:1px 8px;border-radius:999px;border:1px solid var(--border);
+  background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap}
+.gs-chip b{font-weight:700;color:var(--text)}
+.gs-chip-b{border-color:rgba(179,98,73,.4)}
+.gs-chip-b b{color:var(--terracotta)}
+.gs-chip-c b{color:var(--gold)}
+.gs-chip:hover{border-color:var(--gold);color:var(--text)}
+.gs-chip-flat{cursor:default}
+.gs-chip-flat:hover{border-color:var(--border);color:var(--muted)}
+.gs-meta{font-size:11px;color:var(--faint);flex:0 0 auto;margin-left:auto}
+.gs-body{border-top:1px solid var(--border-soft);padding:2px 12px 10px}
+.gs-body .gate{border:none;background:transparent;padding:0;margin:0}
+.gs-body .gate-h,.gs-body .gate-sub{display:none}
+@media(max-width:820px){.gs-meta{margin-left:0}}
 .add-filter-note{font-size:11.5px;color:var(--muted);margin:0 0 6px;padding-left:2px}
 .add-open{font:inherit;font-size:11.5px;padding:3px 10px;border-radius:6px;border:1px solid var(--line);
   background:transparent;color:var(--fg);cursor:pointer;margin-right:8px}
@@ -304,6 +414,8 @@ select.pl-in{cursor:pointer}
 .wb-chip.s-writeup.on{background:var(--taupe);border-color:var(--taupe);color:#fff}
 .wb-chip.s-none.on{background:var(--faint);border-color:var(--faint);color:#fff}
 .wb-chip.s-verify.on{background:var(--rose);border-color:var(--rose);color:#fff}
+.wb-chip.s-ask.on{background:var(--terracotta);border-color:var(--terracotta);color:#fff}
+.wb-chip.s-done.on{background:var(--muted);border-color:var(--muted);color:#fff}
 .wb-right{margin-left:auto;display:flex;gap:6px;align-items:center}
 .wb-write{font:inherit;font-size:11.5px;padding:3px 12px;border-radius:6px;border:1px solid var(--gold);
   background:var(--gold);color:#fff;font-weight:600;cursor:pointer}
@@ -520,7 +632,14 @@ select.pl-in{cursor:pointer}
   .sh-chip.q{border-style:dashed;}
   .sh-row.sh-hit{box-shadow:0 0 0 2px rgba(245,158,11,.55);}
   .sh-row.noSheet{border-left:3px solid var(--mauve);}
-  .sh-addform{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin:7px 0 2px;padding:9px 11px;background:var(--card);border:1px solid var(--sage);border-radius:9px;}
+  .sh-addform{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin:7px 0 2px;padding:9px 11px;background:transparent;border:1px solid var(--sage);border-radius:9px;}
+  /* the full form carries the real placement editor, so it stacks rather than sitting on one line */
+  .sh-addform-full{display:block;}
+  .sh-addform-full .sh-addbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:8px;}
+  .sh-addform-full .sh-addbody{display:block;}
+  .sh-addform-full .sh-f{display:flex;flex-direction:column;gap:3px;margin-bottom:8px;}
+  .sh-addform-full .sh-f label{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);}
+  .sh-addform-full .sh-addbar .inline-capture-hint{margin-left:auto;}
   .sh-in{font:inherit;font-size:12.5px;padding:5px 8px;border:1px solid var(--border);border-radius:7px;background:#fff;color:var(--text);flex:1 1 260px;}
   .sh-in-no{flex:0 0 150px;font-variant-numeric:tabular-nums;}
   .sh-in:focus{outline:none;border-color:var(--teal);}
@@ -1107,12 +1226,70 @@ select.pl-in{cursor:pointer}
 .sh-row{border-left:3px solid transparent;padding:11px 12px 6px;margin-bottom:7px;
   border-radius:0 8px 8px 0;background:transparent}
 .sh-row:hover{background:rgba(245,158,11,.03)}
-.sh-head{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto auto;gap:10px;align-items:start}
+.sh-head{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto auto auto auto;gap:10px;align-items:start}
+/* Every cell says which column it is in. Auto-placement was fine until a row could carry a
+   PENDING badge or an author chip, at which point the title slid into an `auto` column, stopped
+   being the flexible one, and a long drawing name pushed the controls off the row. */
+.sh-head>.sh-part{grid-column:1}
+.sh-head>.sh-no{grid-column:2}
+.sh-head>.sh-title{grid-column:3}
+.sh-head>.sh-move{grid-column:4}
+.sh-head>.sh-pick{grid-column:5}
+.sh-head>.sh-done{grid-column:6}
+.sh-head>.sh-x{grid-column:7}
+/* Which addendum a row rides. A select rather than a button because the answer is "which one",
+   not "yes or no" — and because a package can grow a third instrument without the control
+   changing shape. It only appears when there is more than one to choose between. */
+.sh-move{font:inherit;font-size:10.5px;font-weight:600;color:var(--muted);background:var(--card);
+  border:1px solid var(--line);border-radius:5px;padding:2px 4px;cursor:pointer;align-self:start;
+  margin-top:2px;justify-self:end;max-width:104px}
+.sh-move:hover{color:var(--gold);border-color:var(--gold)}
+.wb-move{align-items:center}
+.wb-move .sh-move{margin-top:0;justify-self:start;max-width:180px}
+.wb-move-h{font-weight:400;text-transform:none;letter-spacing:0;opacity:.75}
+/* A bid inquiry that turned into document work says so on its own row, in the same two-button
+   shape Sheet work uses — so "is this a spec item or a drawing item?" looks the same everywhere. */
+.inq-part{margin:5px 0 0 0}
+.inq-made{font-size:11px;color:var(--teal);margin-top:4px;line-height:1.45}
+.inq-img{display:block;max-width:100%;width:420px;margin:7px 0 2px;border:1px solid var(--line);
+  border-radius:6px;background:#fff}
+.inq-f{display:flex;gap:7px;align-items:flex-start;margin:3px 0}
+.inq-lbl{font-size:12px;font-weight:700;color:var(--muted);padding-top:5px;flex:0 0 auto;min-width:26px}
+.inq-in{flex:1;min-width:0;font:inherit;font-size:12.5px;line-height:1.5;color:var(--fg);
+  background:transparent;border:1px solid transparent;border-radius:6px;padding:4px 6px;
+  resize:none;overflow:hidden}
+.inq-in:hover{border-color:var(--line)}
+.inq-in:focus{border-color:var(--gold);background:var(--card);outline:none}
+.inq-f.inq-a .inq-in{color:var(--muted)}
+.inq-f.inq-a .inq-in:focus{color:var(--fg)}
+.inq-gap{font-size:11px;color:var(--terracotta,#c07a4a);margin:1px 0 4px 33px}
+.inq-row.inq-open{border-left:3px solid rgba(245,158,11,.55);padding-left:9px}
+.sh-row.clashRow{border-left:3px solid var(--terracotta,#c07a4a)}
+.sh-clash{font-size:11px;color:var(--terracotta,#c07a4a);margin-top:6px;line-height:1.45}
+.seg-open{margin-left:6px;font-size:9.5px;font-weight:800;letter-spacing:.03em;border-radius:999px;
+  padding:1px 6px;background:rgba(245,158,11,.18);color:var(--gold)}
 .sh-row .sh-part{margin-right:0;padding-top:1px;align-self:start}
 .sh-no{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;font-weight:600;
   white-space:nowrap;padding-top:4px}
 .sh-no-empty{color:var(--muted);font-weight:400}
-.sh-title{font-size:13.5px;line-height:1.45;padding-top:2px;min-width:0}
+/* A drawing name is long by nature — "DEPARTURES REFLECTED CEILING PLAN - AREA 1" — so the title
+   wraps inside its cell instead of demanding width the row does not have. */
+.sh-title{font-size:13.5px;line-height:1.45;padding-top:2px;min-width:0;overflow-wrap:anywhere;
+  word-break:break-word}
+.sh-title .badge.p,.sh-title .op-by{margin-left:6px;vertical-align:2px}
+.sh-name-edit{display:inline-flex;gap:6px;width:100%;align-items:center}
+.sh-name-edit input{flex:1 1 auto;min-width:0;font:inherit;padding:3px 6px;border-radius:6px;
+  border:1px solid var(--border);background:var(--card);color:var(--text)}
+.sh-tbtn{background:none;border:none;color:var(--faint);cursor:pointer;font-size:11px;
+  padding:0 3px;font-family:inherit;line-height:1}
+.sh-tbtn:hover{color:var(--teal)}
+.sh-inherit{border:1px solid var(--border);border-radius:5px;padding:1px 6px;font-size:10.5px;
+  color:var(--muted);background:none;cursor:pointer;font-family:inherit;margin-left:6px;
+  white-space:nowrap}
+.sh-inherit:hover{border-color:var(--teal);color:var(--teal)}
+.sh-x{background:none;border:none;color:var(--faint);cursor:pointer;font-size:12px;
+  align-self:start;margin-top:3px;padding:0 2px;font-family:inherit}
+.sh-x:hover{color:var(--terracotta)}
 .sh-head .sh-pick{justify-self:end;align-self:start;flex-wrap:nowrap}
 .sh-head .sh-done{justify-self:end;align-self:start;margin:5px 0 0}
 .sh-head .badge.p{align-self:start;margin-top:3px}
@@ -1160,7 +1337,11 @@ select.pl-in{cursor:pointer}
 .pl-row{grid-template-columns:120px 152px 54px 168px minmax(0,1fr) 24px}
 @media(max-width:900px){
   .sh-head{grid-template-columns:auto minmax(0,1fr) auto}
+  /* the explicit columns above are for the wide layout; narrow reflows by source order */
+  .sh-head>*{grid-column:auto}
+  .sh-head>.sh-title{grid-column:auto}
   .sh-head .sh-pick{grid-column:1/-1;justify-self:start;flex-wrap:wrap;margin-top:4px}
+  .sh-move{justify-self:start;max-width:none}
   .pl-row{grid-template-columns:1fr 1fr}
 }
 .pl-row{grid-template-columns:112px 140px 48px 150px 150px minmax(0,1fr) 24px}
@@ -1293,6 +1474,334 @@ select.pl-in{cursor:pointer}
 .sync-stat.bad{color:var(--rose)}
 .sync-row{display:flex;gap:8px;align-items:center}
 .sync-note{margin:14px 0 0;padding-top:12px;border-top:1px solid var(--border-soft);font-size:11.5px}
+
+/* ══════════════════════════════════════════════════════════════════════════════════════════
+   DESIGN SYSTEM — 2026-08-11. Appended last so it wins, and kept in one block so the rules can
+   be read as a set rather than hunted for.
+
+   THE PROBLEM IT FIXES. Gold was doing seven jobs — selection, focus, warning, pending, "Both",
+   panel chrome and content accents — across 126 declarations. A colour with seven meanings has
+   none, and every screen reads as equally urgent. Meanwhile the other five accents were below
+   the chroma floor and collapsed into beige, so gold was also the only thing you could see.
+
+   THE RULE. Hue is spent on MEANING only:
+       gold  a decision is owed by you        stop  this would ship wrong        ok  settled
+       p4    §4 Drawings                      p3    §3 Specifications
+   Everything else — selection, focus, grouping, "you are here" — is carried by DEPTH: a raised
+   translucent surface on a soft ground. Depth is unlimited and means nothing, which is exactly
+   what you want from hierarchy. Colour is scarce and means everything.
+   ══════════════════════════════════════════════════════════════════════════════════════════ */
+
+/* ── surfaces ─────────────────────────────────────────────────────────────────────────────── */
+.sh-row,.add-card,.inq-row,.gs,.wb,.inq-box,.q-row,.add-scope{
+  background:var(--card);
+  -webkit-backdrop-filter:blur(12px) saturate(1.2);backdrop-filter:blur(12px) saturate(1.2);
+  border:1px solid var(--border);border-radius:14px;
+  box-shadow:var(--shadow-1), inset 0 1px 0 var(--glass-edge);
+}
+.sh-row{padding:12px 14px 8px;margin:9px 0;transition:box-shadow .16s ease, transform .16s ease;}
+.sh-row:hover{background:var(--raise);box-shadow:var(--shadow-2), inset 0 1px 0 var(--glass-edge);}
+.wb,.inq-box{padding:16px 16px 6px;}
+.gs{border-radius:14px;}
+.add-card{padding:14px 16px;margin:10px 0;}
+
+/* A left edge is a MEANING channel now, so it is never spent on decoration. Three states only. */
+.sh-row.untriaged,.sh-row.verify,.inq-row.inq-open{border-left:3px solid var(--gold);}
+.sh-row.clashRow,.gs-no{border-left:3px solid var(--stop);}
+/* Finished work should recede, not merely fade a little. A done row stops being raised — it sinks
+   into the page, loses its shadow and its contrast, and keeps only the green edge that says why. */
+.sh-row.sh-doneRow{
+  border-left:3px solid var(--ok);
+  background:var(--sink);
+  box-shadow:none;
+  opacity:.46;
+  filter:saturate(.35);}
+.sh-row.sh-doneRow:hover{opacity:1;filter:none;background:var(--raise);
+  box-shadow:var(--shadow-2), inset 0 1px 0 var(--glass-edge);}
+.sh-row.sh-doneRow .sh-no,.sh-row.sh-doneRow .sh-title{color:var(--muted);text-decoration:none;}
+.sh-row.pt-drawing,.sh-row.pt-spec,.sh-row.pt-both{border-left-color:transparent;}
+/* provenance is not an alarm — a capture that has not been folded is dashed, not gold */
+.sh-row.pendingRow{background:var(--card);border-left:3px dashed var(--faint);}
+
+/* ── selection is elevation, never hue ────────────────────────────────────────────────────── */
+.add-pick.on,.wb-seg.on,.wb-chip.on,.add-open.on,.add-filter-b.on,.regtabs button.active,
+.fchip.active,.add-flag-b.on{
+  background:var(--sel);border-color:var(--sel);color:var(--sel-fg);
+  box-shadow:var(--shadow-2);
+}
+.add-pick,.wb-seg,.wb-chip,.add-open,.add-filter-b,.regtabs button,.add-flag-b{
+  background:var(--raise);border:1px solid var(--border);color:var(--muted);
+  border-radius:10px;transition:all .14s ease;
+}
+.add-pick:hover,.wb-seg:hover,.wb-chip:hover,.add-open:hover,.add-filter-b:hover,
+.regtabs button:hover,.add-flag-b:hover{
+  color:var(--text);border-color:var(--faint);box-shadow:var(--shadow-1);
+}
+/* a filter that selects a STATUS wears that status — the bar explains itself */
+.add-flag-b[data-k="verify"]:not(.on){color:var(--gold);border-color:rgba(160,122,0,.35);}
+.add-flag-b[data-k="done"]:not(.on){color:var(--ok);border-color:rgba(43,125,85,.35);}
+
+/* ── §4 / §3 / Both — the one place classification hue is spent ───────────────────────────── */
+.sh-part button{background:var(--raise);border:1px solid var(--border);color:var(--faint);}
+.sh-part button.p-drawing.on{background:var(--p4);border-color:var(--p4);color:#fff;}
+.sh-part button.p-spec.on{background:var(--p3);border-color:var(--p3);color:#fff;}
+/* Both IS both. It was gold — a third colour for a thing that is not a third thing. */
+.sh-part button.p-both.on{
+  background:linear-gradient(100deg,var(--p4) 0 48%,var(--p3) 52% 100%);
+  border-color:var(--p3);color:#fff;}
+.sh-part button.p-drawing:hover{color:var(--p4);border-color:var(--p4);background:var(--raise);}
+.sh-part button.p-spec:hover{color:var(--p3);border-color:var(--p3);background:var(--raise);}
+.sh-part button.p-both:hover{color:var(--text);border-color:var(--faint);background:var(--raise);}
+
+/* ── state is consequence, not category: filled → outlined → ghost, no hue ────────────────── */
+.sh-pick button{background:transparent;border:1px solid var(--border);color:var(--muted);
+  border-radius:9px;}
+.sh-pick button.on{background:var(--sel);border-color:var(--sel);color:var(--sel-fg);}
+.sh-pick button.q{color:var(--gold);border-color:rgba(160,122,0,.4);background:rgba(160,122,0,.07);}
+.sh-pick button.q.on{background:var(--gold);border-color:var(--gold);color:#fff;}
+
+/* ── the row's content should be the loudest thing in the row ─────────────────────────────── */
+.sh-no{color:var(--text);font-weight:700;}
+.sh-title{color:var(--text);font-size:13.5px;line-height:1.4;}
+.sh-row.sh-doneRow .sh-no,.sh-row.sh-doneRow .sh-title{text-decoration:none;color:var(--muted);}
+.sh-head{grid-template-columns:auto auto minmax(320px,1fr) auto auto auto auto;}
+
+/* ── the gate is the one place status runs at full strength ───────────────────────────────── */
+.gs-chip-b{border-color:rgba(191,44,34,.35);background:rgba(191,44,34,.06);}
+.gs-chip-b b{color:var(--stop);}
+.gs-chip-c{border-color:rgba(160,122,0,.35);background:rgba(160,122,0,.06);}
+.gs-chip-c b{color:var(--gold);}
+.gs-yes .gs-dot{background:var(--ok);} .gs-warn .gs-dot{background:var(--gold);}
+.gs-no .gs-dot{background:var(--stop);}
+
+/* ── chrome stops shouting ────────────────────────────────────────────────────────────────── */
+.add-card-name,.sh-blk-h,.pl-head b,.sh-preview-h,.untag-h,.q-vs b{color:var(--text);}
+.sh-preview{border-left:3px solid var(--border);background:var(--sink);}
+.sh-group{color:var(--muted);}
+.sh-group.g-untriaged{border-left:3px solid var(--gold);}
+.wb-lede,.g-p{color:var(--muted);}
+
+/* ── corrections after looking at the render (step 7: render it and LOOK) ─────────────────── */
+/* The state buttons lost their compactness when the fill rule was replaced, wrapped to three
+   lines each, and walked over the title. A control that changes shape when you restyle it was
+   relying on the fill for its geometry. */
+.sh-pick{display:inline-flex;gap:0;flex-wrap:nowrap;}
+.sh-pick button{white-space:nowrap;padding:3px 9px;font-size:10.5px;font-weight:600;
+  line-height:1.5;border-radius:0;}
+.sh-pick button:first-child{border-radius:9px 0 0 9px;}
+.sh-pick button:last-child{border-radius:0 9px 9px 0;}
+.sh-pick button+button{border-left:none;}
+.sh-pick button.on{box-shadow:none;}
+
+/* An ACTION is not a status. "Write the addendum" was gold, which said "a decision is owed" —
+   it is the opposite: it is the thing you do when none is. Primary actions wear depth. */
+.wb-write,.gate-go,.hist-more.primary{
+  background:var(--sel);border:1px solid var(--sel);color:var(--sel-fg);
+  box-shadow:var(--shadow-2);}
+.wb-write:hover,.gate-go:hover{background:#3a352d;border-color:#3a352d;color:var(--sel-fg);}
+
+/* Section headings were gold — chrome borrowing a meaning. They are structure; they get ink. */
+.sec-head,.section,.sec-lead,.add-filter-lbl,.wb-lbl{color:var(--muted);}
+h2.sec-head,.sec-head b{color:var(--text);}
+
+/* Cards float because the page is a shade deeper than they are — that is what makes glass read
+   as glass rather than as a grey rectangle. */
+.sh-row,.add-card,.inq-row,.gs,.wb,.inq-box{background:var(--card);}
+.wb,.inq-box{box-shadow:var(--shadow-2), inset 0 1px 0 var(--glass-edge);}
+
+/* ── the four bands, each shaped like what it is ──────────────────────────────────────────── */
+.reg-head{
+  background:var(--card);-webkit-backdrop-filter:blur(14px) saturate(1.25);
+  backdrop-filter:blur(14px) saturate(1.25);
+  border:1px solid var(--border);border-radius:16px 16px 0 0;border-bottom:none;
+  box-shadow:var(--shadow-2), inset 0 1px 0 var(--glass-edge);
+  padding:16px 18px 12px;margin-top:10px;}
+.reg-title{font-size:20px;font-weight:700;letter-spacing:-.015em;color:var(--text);margin:0;}
+.reg-sub{font-size:12.5px;color:var(--muted);margin:3px 0 12px;}
+.reg-sub b{color:var(--text);font-weight:650;}
+.reg-sub b.needs{color:var(--gold);}
+.reg-head .add-pick-row{margin:0;gap:6px;row-gap:7px;}
+.reg-prog{font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);
+  margin-left:10px;align-self:center;}
+.reg-prog:first-of-type{margin-left:0;}
+.reg-head .add-pick{font-size:11.5px;padding:4px 10px;}
+
+/* the gate is welded to the header: "can this issue" is a fact ABOUT the instrument */
+.reg-head+div>.gs{border-radius:0;border-top:1px solid var(--border);margin:0;box-shadow:none;}
+.reg-head+div>.gs.gs-no{border-left:3px solid var(--stop);}
+
+/* tabs sit ON the card, not in a row of pills */
+.reg-tabs{background:var(--card);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border:1px solid var(--border);border-top:none;border-radius:0 0 16px 16px;
+  box-shadow:var(--shadow-2);padding:8px 12px;margin-bottom:14px;}
+.reg-tabs .add-mode-row{margin:0;gap:2px;}
+.reg-tabs .add-filter-lbl{display:none;}
+.reg-tabs .wb-seg{background:transparent;border:none;border-radius:9px;padding:7px 12px;
+  font-size:12.5px;color:var(--muted);box-shadow:none;}
+.reg-tabs .wb-seg:hover{background:var(--sink);color:var(--text);box-shadow:none;}
+.reg-tabs .wb-seg.on{background:var(--sink);color:var(--text);font-weight:650;box-shadow:none;
+  border:none;}
+.reg-tabs .wb-seg.on::after{content:"";display:block;height:2px;border-radius:2px;
+  background:var(--deep);margin:6px -4px -3px;}
+
+/* filters are the quietest band on the page, and sit UNDER the work they narrow */
+.reg-filters{margin:0 0 10px;}
+.reg-filters .add-filter{gap:5px;margin:0;}
+.reg-filters .add-filter-b,.reg-filters .add-flag-b{font-size:11px;padding:3px 9px;}
+.reg-filters .add-filter-note{font-size:11px;color:var(--faint);margin:5px 0 0;}
+
+/* ── the row head is a flex line, not a seven-column grid ─────────────────────────────────── */
+/* The grid was fragile: restyling one control changed its intrinsic width and the addendum
+   select ended up printed on top of the state buttons. A flex line cannot overlap. */
+.sh-head{display:flex!important;flex-wrap:wrap;align-items:center;gap:10px;}
+.sh-head>.sh-title{flex:1 1 260px;min-width:200px;}
+.sh-head>.sh-part,.sh-head>.sh-no{flex:0 0 auto;}
+.sh-head>.sh-move,.sh-head>.sh-pick,.sh-head>.sh-done,.sh-head>.sh-x{flex:0 0 auto;margin-left:0;}
+.sh-head>.sh-move{margin-left:auto;background:var(--raise);}
+
+/* ── last pass over the render ────────────────────────────────────────────────────────────── */
+.wb-lede-d{border:none;background:none;padding:0;margin:0 0 10px;}
+.wb-lede-d>summary{font-size:11.5px;color:var(--faint);cursor:pointer;list-style:none;padding:2px 0;}
+.wb-lede-d>summary::-webkit-details-marker{display:none;}
+.wb-lede-d>summary::before{content:"?";display:inline-flex;align-items:center;justify-content:center;
+  width:15px;height:15px;border:1px solid var(--border);border-radius:50%;font-size:9.5px;
+  font-weight:700;margin-right:7px;vertical-align:-2px;}
+.wb-lede-d>summary:hover{color:var(--muted);}
+.wb-lede-d>div{font-size:12.5px;line-height:1.6;color:var(--muted);margin-top:7px;max-width:78ch;}
+
+/* the ? is the one control that is ALWAYS a decision owed — it keeps its amber in every state */
+.sh-pick button.q{color:var(--gold);border-color:rgba(160,122,0,.4);background:rgba(160,122,0,.07);}
+.sh-pick button.q.on{background:var(--gold);border-color:var(--gold);color:#fff;}
+
+/* the row's two control clusters read as one line, and the addendum select stops floating away */
+.sh-head>.sh-move{margin-left:8px;}
+.sh-head>.sh-title{flex:1 1 320px;}
+.gs-meta{color:var(--faint);font-size:11px;}
+
+/* On the live build the "none answered" badge was gold on gold — the one number you most need to
+   read, invisible inside the tab that was selected. A badge inside a selected control inverts. */
+.wb-seg.on .seg-open,.add-pick.on .seg-open{background:rgba(255,255,255,.22);color:var(--sel-fg);}
+.reg-tabs .wb-seg.on .seg-open{background:rgba(160,122,0,.16);color:var(--gold);}
+.seg-open{white-space:nowrap;}
+.sh-group .n b.needs{color:var(--gold);}
+
+/* Native form controls ship their own blue/red. On a page where every colour is spoken for, an
+   OS-default accent is a hue nobody assigned a meaning to. */
+input[type=checkbox],input[type=radio]{accent-color:var(--deep);}
+.sh-done{accent-color:var(--ok);}
+
+.item.completed,.card.completed,.inq-row.inq-done{opacity:.46;filter:saturate(.35);box-shadow:none;}
+.item.completed:hover,.card.completed:hover{opacity:1;filter:none;}
+
+/* ── the edge key ─────────────────────────────────────────────────────────────────────────────
+   One channel, five states, strict precedence — see rowEdge(). Everything else on the row says
+   what it IS; the edge says whether it needs you. */
+.sh-row.e-stop {border-left:3px solid var(--stop);}
+.sh-row.e-ask  {border-left:3px solid var(--gold);}
+.sh-row.e-ready{border-left:3px solid var(--ok);opacity:1;}
+.sh-row.e-quiet{border-left:3px solid var(--faint);}
+.sh-row.e-done {border-left:3px solid var(--ok);}
+.sh-row.e-ready{border-left-color:rgba(43,125,85,.32);}   /* ready is calm, not celebratory */
+.sh-row.pendingRow{border-left-style:dashed;}             /* provenance rides on top of meaning */
+.edge-key{display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-size:10.5px;
+  color:var(--faint);margin:2px 0 8px;}
+.edge-key b{font-weight:600;color:var(--muted);}
+.edge-key i{display:inline-block;width:3px;height:11px;border-radius:2px;margin-right:5px;
+  vertical-align:-1px;}
+.ek-stop i{background:var(--stop);} .ek-ask i{background:var(--gold);}
+.ek-ready i{background:rgba(43,125,85,.32);} .ek-quiet i{background:var(--faint);}
+.ek-done i{background:var(--ok);}
+
+/* ── the badge key ────────────────────────────────────────────────────────────────────────────
+   It was a run-on sentence of six badges strung on middots. Six facts on one line, in three
+   grammatical moods, is a paragraph you skip. One per cell, and each badge wears the meaning it
+   already has everywhere else on the site rather than a colour of its own. */
+footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;}
+.foot-key{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:6px 18px;
+  align-items:baseline;font-size:11.5px;color:var(--muted);}
+.foot-key>b{grid-column:1/-1;font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--faint);font-weight:700;margin-bottom:2px;}
+.fk .badge{margin-right:6px;}
+.foot-stamp{font-size:11px;color:var(--faint);margin-top:14px;}
+
+/* the badges themselves, brought into the one palette */
+.badge.p{color:var(--gold);border-color:rgba(160,122,0,.45);background:rgba(160,122,0,.07);}
+.badge.w{color:var(--muted);border-color:var(--border);background:transparent;}
+.badge.i{color:var(--text);border-color:var(--border);background:transparent;font-weight:700;}
+.badge.n,.badge.pend{color:var(--muted);border:1px dashed var(--faint);background:transparent;}
+.badge.c{color:var(--ok);border-color:rgba(43,125,85,.45);background:rgba(43,125,85,.07);}
+
+/* a count is a separate fact from the label it counts — "AR29" is one word that means neither */
+.add-filter-b .fc,.add-flag-b .fc{margin-left:6px;opacity:.75;font-weight:600;}
+.add-filter-b.on .fc,.add-flag-b.on .fc{opacity:.85;}
+
+/* ── filter vs setter ─────────────────────────────────────────────────────────────────────────
+   "Goes into" and "State" appear twice: once at the top of the list as a FILTER, once on every row
+   as a SETTER. They were the same shape in the same card, one above the other, which reads as the
+   same control printed twice. They are not moved — they belong to this view, and the filter band
+   persists across tabs where they would mean nothing — they are made to look like what they are:
+   a filter is small, outlined and quiet; a setter is solid and sits on the row it changes. */
+.wb>.wb-bar{background:transparent;padding:0;margin:2px 0;}
+.wb>.wb-bar .wb-lbl{font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);}
+.wb>.wb-bar .wb-lbl::after{content:" \2014 filter";letter-spacing:0;text-transform:none;opacity:.7;}
+.wb>.wb-bar .wb-seg{font-size:11px;padding:3px 9px;border-radius:8px;background:transparent;
+  border:1px solid var(--border);color:var(--muted);box-shadow:none;font-weight:500;}
+.wb>.wb-bar .wb-seg:hover{border-color:var(--faint);color:var(--text);background:var(--raise);}
+.wb>.wb-bar .wb-seg.on{background:var(--sink);border-color:var(--faint);color:var(--text);
+  font-weight:650;box-shadow:none;}
+
+.sh-row.kbd-focus{box-shadow:0 0 0 2px var(--deep), var(--shadow-2)!important;}
+.kbd-hint{font-size:10.5px;color:var(--faint);margin:0 0 8px;}
+.kbd-hint kbd{font:inherit;font-size:10px;border:1px solid var(--border);border-radius:4px;
+  padding:0 4px;background:var(--raise);color:var(--muted);margin:0 1px;}
+
+/* ── no filter may be a dead end ──────────────────────────────────────────────────────────────
+   The gate could arm ADD_STATE (untriaged · flagged · no drawing) and the state bar only draws
+   buttons for the three produces values — so "take me there" left you filtered with nothing on
+   screen able to turn it off. This strip appears whenever anything is narrowing the list. */
+.filt-strip{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:11.5px;
+  color:var(--muted);background:var(--sink);border:1px solid var(--border);border-radius:10px;
+  padding:7px 10px;margin:8px 0 4px;}
+.filt-strip b{color:var(--text);}
+.filt-chip{font:inherit;font-size:11px;border:1px solid var(--border);background:var(--raise);
+  color:var(--text);border-radius:999px;padding:2px 9px;cursor:pointer;}
+.filt-chip span{color:var(--faint);margin-left:3px;}
+.filt-chip:hover{border-color:var(--stop);color:var(--stop);}
+.filt-chip:hover span{color:var(--stop);}
+.filt-clear{font:inherit;font-size:11px;border:1px solid var(--deep);background:var(--sel);
+  color:var(--sel-fg);border-radius:999px;padding:2px 10px;cursor:pointer;margin-left:2px;}
+
+/* the "— filter" suffix belonged to the two filter bars, not to every label in the card */
+.wb>.wb-bar .wb-lbl::after{content:none;}
+.wb>.wb-bar.wb-filter .wb-lbl::after{content:" \2014 filter";letter-spacing:0;text-transform:none;opacity:.65;}
+.kbd-hint{margin:6px 0 2px;}
+.kbd-hint>summary{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);
+  cursor:pointer;list-style:none;padding:2px 0;}
+.kbd-hint>summary::-webkit-details-marker{display:none;}
+.kbd-hint>summary::before{content:"\2328";margin-right:6px;font-size:12px;}
+.kbd-hint>summary:hover{color:var(--muted);}
+.kbd-hint>div{margin-top:6px;}
+
+/* ── the stagger ──────────────────────────────────────────────────────────────────────────────
+   The head was centring its children. When the title wrapped to two lines — title plus the
+   "use drawing name" chip — everything short next to it centred against a two-line block, so the
+   sheet number sat half a line low and the row looked broken. Align to the TOP and give each
+   child the same first-line offset, so every element lines up on the title's first line however
+   many lines follow it. */
+.sh-head{align-items:flex-start!important;}
+.sh-head>.sh-no{padding-top:2px;align-self:flex-start;}
+.sh-head>.sh-title{padding-top:1px;}
+.sh-head>.sh-part{margin-top:0;align-self:flex-start;}
+.sh-head>.sh-pick,.sh-head>.sh-move{align-self:flex-start;margin-top:0;}
+.sh-head>.sh-done{align-self:flex-start;margin-top:3px;}
+.sh-head>.sh-x{align-self:flex-start;margin-top:1px;}
+.sh-title .sh-inherit{margin-left:8px;vertical-align:1px;}
+
+.inq-made{font-size:11.5px;color:var(--ok);margin-top:6px;line-height:1.5;}
+.inq-go{font:inherit;font-size:11px;border:1px solid rgba(43,125,85,.45);background:rgba(43,125,85,.07);
+  color:var(--ok);border-radius:999px;padding:1px 9px;cursor:pointer;margin-left:2px;}
+.inq-go:hover{background:var(--ok);border-color:var(--ok);color:#fff;}
+.inq-keeps{color:var(--faint);font-size:11px;margin-top:3px;}
 </style>
 </head>
 <body>
@@ -1461,12 +1970,12 @@ select.pl-in{cursor:pointer}
   <div id="registersView" style="display:none">
     <div class="regtabs" id="regTabs">
       <button type="button" data-reg="add" class="active" onclick="setRegTab('add')">Addenda</button>
-      <button type="button" data-reg="pcn" onclick="setRegTab('pcn')" title="PCN and SI — the instruments a package issues once it is in contract administration">PCN / SI</button>
+      <button type="button" data-reg="pcn" onclick="setRegTab('pcn')" title="PCN and SI — what a package issues once it is in contract administration">PCN / SI</button>
       <button type="button" data-reg="rfi" onclick="setRegTab('rfi')">RFIs</button>
       <button type="button" data-reg="pkg" onclick="setRegTab('pkg')">Packages</button>
       
     </div>
-    <div id="regPaneAdd"><div class="sec-lead" id="regAddLead">Addenda — what rides each one, and the sheet-by-sheet work that fills it</div><div id="addRegView"></div><div id="sheetsView" style="display:none"></div></div>
+    <div id="regPaneAdd"><div id="addRegView"></div><div id="sheetsView" style="display:none"></div></div>
     <div id="regPaneRfi" style="display:none"><div class="sec-lead">RFIs — aging first, because old RFIs become claims</div><div id="rfiRegView"></div></div>
     <div id="regPanePkg" style="display:none"><div class="sec-lead">Packages — where each one stands</div><div id="overviewView"></div></div>
   </div>
@@ -1528,7 +2037,33 @@ select.pl-in{cursor:pointer}
       <p class="g-p">When something sits in someone else's court, the card says <b>what you are waiting for and how long</b>. That is derived too, read from the open <code>WAIT …</code> step, the Next line, or an outstanding ask — you don't fill in a field.</p>
     </div>
 
-    <div class="g-sec"><div class="g-h">5 · Matters — why something jumps the queue</div>
+    <div class="g-sec"><div class="g-h">5 · The four fields that say whose move it is</div>
+      <p class="g-p">They look redundant and are not. Collapsing any two of them loses something the
+      board then cannot tell you. Only these are typed — <b>agency</b> is worked out from them.</p>
+      <table class="g-t">
+        <tr><td><code>court:: X</code></td><td>Who the item is <b>with</b>. Relational and stable —
+          it is what you prep a meeting against. It does <b>not</b> claim whose turn it is.</td></tr>
+        <tr><td><code>ask:: X</code></td><td>An unanswered question out to X. Additive: it never
+          moves the item, it only records that something is outstanding.</td></tr>
+        <tr><td><code>then:: X</code></td><td>Who picks it up after your part. The handoff, not the
+          current holder.</td></tr>
+        <tr><td><code>with:: X</code></td><td>Execution sits with X; <b>accountability stays
+          yours</b>. This is what makes an item <b>shared</b> — and why shared work is a check-in
+          after 3 days, not a chase after 5. (<code>delegate::</code> still parses, but write
+          <code>with::</code>.)</td></tr>
+      </table>
+      <p class="g-p"><b>Whose turn it is is never typed.</b> It is read from the next unticked step:
+      a step beginning <code>WAIT …</code> means theirs, any other verb means yours, and
+      <code>with::</code> overrides both. Tick a step and it moves — which is why it cannot go
+      stale, and why there is no field to forget to update.</p>
+      <p class="g-p">One more clock, and it is not a date: <code>horizon::</code> says what
+      <i>kind</i> of clock an item is on — <code>today</code>, <code>week</code>,
+      <code>sprint</code> (it rides its package's next submission), or <code>watch</code>.
+      <b>Watch is deliberately unclocked</b>, and it is what exempts an item from due-date and
+      staleness nagging. The 📅 date is the only actual deadline.</p>
+    </div>
+
+    <div class="g-sec"><div class="g-h">6 · Matters — why something jumps the queue</div>
       <p class="g-p"><b>One job:</b> a signal lifts an item one priority tier. It is not a topic —
       <code>cat::</code> and <code>disc::</code> already say what a thing is. It is the reason this
       should come first when its date does not say so. <b>Absent is normal</b>, and the common case.</p>
@@ -1553,7 +2088,7 @@ select.pl-in{cursor:pointer}
       <code>code</code>).</p>
     </div>
 
-    <div class="g-sec"><div class="g-h">6 · "Coordinating with" — the derived lens</div>
+    <div class="g-sec"><div class="g-h">7 · "Coordinating with" — the derived lens</div>
       <p class="g-p">The <b>Discipline</b> filter shows what an item is <i>about</i>. "Coordinating with" answers a different question: <b>which discipline is this item with?</b> It's never tagged — the item's <b>court</b> names a person or a firm → Stakeholders says what hat they wear → the item lands in that group. This is about the <i>counterparty</i>, not whose turn it is — that is <b>agency</b>, and an item can be yours to move while still sitting with Mechanical. Use it to batch conversations: before the mechanical call, everything with a mechanical counterparty is one list.</p>
       <div class="g-flow">
         <span class="g-box">item: court = Greg Pink</span><span class="g-arr">→</span>
@@ -1562,7 +2097,7 @@ select.pl-in{cursor:pointer}
       </div>
     </div>
 
-    <div class="g-sec"><div class="g-h">7 · RFIs — their own little machine</div>
+    <div class="g-sec"><div class="g-h">8 · RFIs — their own little machine</div>
       <div class="g-flow">
         <span class="g-box">open<br><small>contractor raises</small></span><span class="g-arr">→</span>
         <span class="g-box">answered<br><small>design responds</small></span><span class="g-arr">→</span>
@@ -1572,6 +2107,74 @@ select.pl-in{cursor:pointer}
       <p class="g-p">This is the RFI's <b>own</b> lifecycle and it runs <i>alongside</i> whether the item is still live, not instead of it — an RFI can be <b>answered</b> and still leave you work to do.</p>
       <p class="g-p"><b>Addenda</b> get the same treatment: the <b>date</b> lives in Milestones, the <b>contents</b> in the addendum register on the Progress tab — one card per upcoming addendum, every item tagged <code>addendum::</code> gathered under it.</p>
       <p class="g-p">RFIs live inside their package and in the RFI Log register. Concourse B's run in Onware, Centralized's on the Planner board. <b>The package's phase decides the closing instrument:</b> in <b>bid</b> the answer rides an Addendum; after IFC (<b>construction</b>) a scope/cost answer closes via PCN or SI — the chip on each package header says which world you're in.</p>
+    </div>
+
+    <div class="g-sec"><div class="g-h">9 · Two people, one board</div>
+      <p class="g-p">Everything you do here is an <b>op in a shared queue</b> — a letter, a ticked
+      step, a state, a completion, a new sheet. The other person sees it within about eight seconds
+      and it arrives <b>with your name on it</b>. Set your name once: the chip in the check-in
+      queue header. Without it your captures land on their screen anonymous.</p>
+      <p class="g-p"><b>Shared is not saved.</b> A capture is visible to everyone the moment you
+      type it, and it is still only a capture — it carries a <span class="badge p">P</span> until
+      a check-in folds it into the vault. The vault is the record; this page is a view of it plus
+      whatever has not been folded yet.</p>
+      <p class="g-p">Two consequences worth knowing before they surprise you.
+      <b>Clearing the queue clears it for everyone</b> — only do it after a check-in has taken the
+      work. And two people editing the <i>same field</i> within a few seconds is last-writer-wins;
+      there is no lock. In practice you divide the sheet list rather than negotiate it.</p>
+      <p class="g-p">If the header chip reads <b>Sync error</b>, nothing is lost — the site falls
+      back to this browser alone and keeps working. If it reads <b>Local only</b>, no shared store
+      is configured and your captures are going nowhere but here.</p>
+    </div>
+
+    <!-- The Guide already taught the LIVE model — agency × impact, no `blocking`, no `pri::`.
+         What it had never heard of was the addendum register, which is now where two of the three
+         people on this board spend their day. A chapter, not a correction. -->
+    <div class="g-sec"><div class="g-h">10 · Addenda — turning work into a document</div>
+      <p class="g-p">An addendum is a <b>document you issue to bidders</b> after the drawings go
+      out. The register is where its contents are assembled, and the rule underneath it is that
+      <b>you never write the document — you describe the work and the document falls out</b>.</p>
+      <div class="g-flow">
+        <span class="g-box">A row<br><small>a sheet, a section, a question</small></span><span class="g-arr">→</span>
+        <span class="g-box">Goes into<br><small>Drawings §4 · Spec §3 · Both</small></span><span class="g-arr">→</span>
+        <span class="g-box">A state<br><small>Issue drawing · Write-up only · Fix only</small></span><span class="g-arr">→</span>
+        <span class="g-box">Placements<br><small>which drawing, which view, what changes</small></span><span class="g-arr">→</span>
+        <span class="g-box g-done">The write-up<br><small>§3, §4 and the List of Attachments</small></span>
+      </div>
+      <p class="g-p"><b>The state is the load-bearing decision.</b> <i>Issue drawing</i> ends the
+      line with <i>“attached and forms part of this Addendum”</i>, which is what puts the sheet in
+      the List of Attachments — that list is <b>derived, never typed</b>. <i>Write-up only</i> says
+      it in words and attaches nothing. <i>Fix only</i> writes no line at all: real work, but the
+      bid never sees it. A row with <b>no state is excluded and named in the warnings</b>, because
+      a document that is quietly short is worse than one that says what is missing.</p>
+      <p class="g-p"><b>The left edge of every row answers one question: does this need me?</b>
+      Red — it would ship wrong (no drawing, an unfinished line, two rows sharing a name). Amber —
+      a decision is owed: no state yet, or flagged <b>?</b>. Faint green — ready. Grey — Fix only,
+      writes nothing. Green — finished. A dashed edge on any of them means captured here and not
+      yet folded into the vault. The counts above the list say how many of each.</p>
+      <p class="g-p"><b>The gate is the answer to “can this issue?”</b> It sits under the addendum's
+      name and lists what is standing in the way — each count is a doorway, so clicking one lands
+      you on exactly those rows. It counts an <b>unanswered bid inquiry</b> as a blocker, because
+      §5 would otherwise print <span class="mono">[NOT ANSWERED]</span> into a bid document.</p>
+      <p class="g-p"><b>Bid inquiries are §5, and they come from bidders.</b> They are not
+      <i>Our questions</i> (threads we are chasing) and they are not the RFI register (our
+      questions during the work). Every one gets an answer; some also change a document, and that
+      is the tick on the row — <b>Drawing §4</b>, <b>Spec §3</b> or <b>Both</b> — which creates a
+      real item carrying the Q number so the line can point back at the question. §5 is
+      <b>never derived</b> from another register: inventing a bidder's words inside a bid document
+      is the one thing this machine refuses to do.</p>
+      <p class="g-p"><b>A package can issue more than one addendum, and rows move between them.</b>
+      The dropdown on each row changes which one it rides; the workbench has a bulk
+      <i>move finished</i>, which is the whole point of splitting one instrument into two — work
+      that is done goes out on the earlier one instead of waiting. Moving a row changes which
+      document it appears in and <b>nothing about what it says</b>; the state decides that.</p>
+      <p class="g-p"><b>Ctrl+Z undoes your last change.</b> Every edit here is already an op, so
+      undo is one keystroke — and it only ever takes back <i>your</i> newest change, because
+      undoing someone else's edit from your keyboard is deletion, not undo.</p>
+      <p class="g-p"><b>Two rows must never share a title.</b> Every op on this board is keyed by
+      the item's name, so two rows under one name means neither can be edited — the controls on the
+      second silently drive the first. A rename onto an existing name is refused, and any row that
+      does collide says so on the row.</p>
     </div>
 
     <p class="g-p" style="color:var(--faint);">Source of truth for all of this: the Obsidian vault. This page just renders it — the daily check-in with Claude is where things change.</p>
@@ -1590,10 +2193,22 @@ select.pl-in{cursor:pointer}
     </aside>
   </div>
 
+  <!-- The footer used to carry three things, two of which did not belong to anyone reading it.
+       "This page reads from data.json each session" and "To update items: edit data.json only"
+       are the SAME instruction, written twice, addressed to whoever maintains the pipeline — not
+       to the three people using the tool. That belongs in the repo, and it is in the repo.
+       A badge key is a legend, and the page already has one, collapsed, at the top. It moved
+       there. What is left is the one thing a footer is for: where this came from and when. -->
   <footer>
-    This page reads from data.json each session — update that file each check-in, this HTML shell never changes.<br>
-    Badges: <span class="badge p">NEEDS A SIGNAL</span> still marked with the retired <code>blocking</code> — give it an <code>impact::</code> · <span class="badge w">WATCH</span> not actionable, keeping an eye · <span class="badge i">★ HIGH</span> project-significant (impact) · <span class="badge n">NEW</span> since last check-in · <span class="badge pend">PENDING</span> captured here, not yet in the vault · <span class="badge c">C</span> completed today.<br>
-    <strong>To update items:</strong> edit data.json only — items, details, voice, completed, programs. The HTML shell (this file) never needs to change.
+    <div class="foot-key" id="footKey">
+      <b>Badges</b>
+      <span class="fk fk-ask"><span class="badge p">NEEDS A SIGNAL</span> still on the retired <code>blocking</code> — give it an <code>impact::</code></span>
+      <span class="fk fk-quiet"><span class="badge w">WATCH</span> deliberately unclocked</span>
+      <span class="fk"><span class="badge i">★ HIGH</span> project-significant</span>
+      <span class="fk fk-new"><span class="badge n">NEW</span> since the last check-in</span>
+      <span class="fk fk-new"><span class="badge pend">PENDING</span> captured here, not in the vault yet</span>
+      <span class="fk fk-ok"><span class="badge c">C</span> closed today</span>
+    </div>
   </footer>
 
 </div>
@@ -2571,23 +3186,17 @@ function recalcCounts(){
     else{overdueEl.textContent=overdueCount;overdueEl.title='Open items with a \ud83d\udcc5 due date in the past, in your court';}}
 }
 
-function computePriority(item){
-  if(item.classList.contains('blocking'))return'high';
-  var due=item.getAttribute('data-due');
-  var hz=(item.getAttribute('data-horizon')||'');
-  // An explicit date outranks an inherited one, but it must not silence horizon:today. Re-dating an
-  // item to a distant addendum without changing its horizon used to drop it straight to 'low' — the
-  // lowest tier, excluded from the Focus panel — which is the opposite of what the flag means.
-  if(due){var days=Math.ceil((new Date(due+'T00:00:00').getTime()-Date.now())/86400000);
-    if(days<=3)return'high';if(days<=10)return'med';return hz==='today'?'med':'low';}
-  if(hz==='today')return'high';
-  // no explicit date: inherit the package's next submission, capped at med —
-  // package pressure is real but shouldn't scream like an item's own deadline
-  var inhDate=item.getAttribute('data-due-inherited');
-  if(inhDate&&!item.classList.contains('watch')){var d2=Math.ceil((new Date(inhDate+'T00:00:00').getTime()-Date.now())/86400000);if(d2<=10)return'med';}
-  return'low';
-}
-function priorityOf(item){return item.getAttribute('data-priority')||computePriority(item);}
+// `computePriority()` used to live here, and it was the second answer to a question that now has
+// one. The generator emits `priority` for every item — urgency from dates and package pressure,
+// importance from `impact::`, an impact signal lifting one tier — and writes it onto the card. The
+// copy here predated that: it took `blocking` as the whole of importance, and `blocking` is
+// retired. It read no `impact::` at all, which is the precise gap the generated one exists to
+// close. So the two could disagree, and the stale one was the one on screen.
+//
+// Nothing is lost by deleting it. Every item in the payload carries `priority`, so the fallback
+// only ever fired for a capture made on the site and not yet folded — which has no date, no
+// impact and no horizon, and which both versions therefore scored `low`.
+function priorityOf(item){return item.getAttribute('data-priority')||'low';}
 function applyComputedPriorities(){document.querySelectorAll('#programView .item').forEach(function(item){item.setAttribute('data-pri-computed',priorityOf(item));});}
 
 function setBadgeComplete(item){var row=item.querySelector(':scope>.item-badges');var existing=row?row.querySelector('.badge'):item.querySelector(':scope>.badge');if(item.dataset.origBadge===undefined)item.dataset.origBadge=existing?existing.outerHTML:'';if(existing)existing.outerHTML='<span class="badge c">C</span>';else{var b=makeBadge('c','C');if(row){row.insertBefore(b,row.firstChild);row.style.marginBottom='5px';}else item.insertBefore(b,item.firstChild);}}
@@ -2686,6 +3295,7 @@ function setView(view){
   if(!_filterable&&typeof hasFilter!=='undefined'){}
   var showKey=view==='board'?boardMode:view;
   Object.keys(VIEW_IDS).forEach(function(k){var elv=document.getElementById(VIEW_IDS[k]);if(elv)elv.style.display=k===showKey?'':'none';});
+  setTimeout(syncFootKey,0);
   var h=document.getElementById('viewHeading');if(h)h.childNodes[0].textContent=VIEW_HEADINGS[showKey]||'Open items';
   // Now carries the masthead and its own panels; every other view starts at the top of the page.
   document.body.classList.toggle('view-now',showKey==='now');
@@ -2728,11 +3338,10 @@ function setHistTab(k){
   }
 }
 var regTab='add';
-// Which KIND of change instrument the register is showing. Addenda and PCN/SI are two lists at
-// the same level rather than one list with a filter buried in it, because during a bid->CA
-// crossover both are live and you need to see one without the other in the way. The register
-// component itself is shared — only the kind changes, and ADD_OPEN's existing "reset when the
-// selected card is not in this list" rule does the right thing on a tab switch for free.
+// Addenda and PCN/SI are two lists at the same level rather than one list with a filter buried in
+// it, because through a bid->CA crossover both are live and you need to see one without the other
+// in the way. They share this pane and this renderer; only the kind changes, and ADD_OPEN's
+// existing "reset when the selected card is not in this list" rule handles the switch for free.
 var REG_KIND='addendum';
 // Three registers stacked in one scroll meant reaching RFIs by scrolling past every addendum.
 // Each lands at the top of its own pane now.
@@ -2743,15 +3352,7 @@ function setRegTab(k){
   // Sheets was its own sub-tab. It is the same instrument seen twice — the register says what an
   // addendum carries, the sheet list says what fills it — so it now opens inside the Addenda card.
   if(k==='sheets'){regTab=k='add';buildAddendumRegister();}
-  // Addenda and PCN/SI share one pane and one renderer; the tab sets which instruments it shows.
-  if(k==='add'||k==='pcn'){
-    REG_KIND=(k==='pcn')?'pcn':'addendum';
-    var lead=document.getElementById('regAddLead');
-    if(lead)lead.textContent=(k==='pcn')
-      ? 'PCN / SI \u2014 what rides each change notice once a package is in contract administration'
-      : 'Addenda \u2014 what rides each one, and the sheet-by-sheet work that fills it';
-    buildAddendumRegister();
-  }
+  if(k==='add'||k==='pcn'){REG_KIND=(k==='pcn')?'pcn':'addendum';buildAddendumRegister();}
   var panes={add:'regPaneAdd',pcn:'regPaneAdd',rfi:'regPaneRfi',pkg:'regPanePkg'};
   Object.keys(panes).forEach(function(kk){
     var el=document.getElementById(panes[kk]);if(el)el.style.display=(panes[kk]===panes[k])?'':'none';
@@ -3220,7 +3821,61 @@ function toggleUrgencyColors(){var on=document.getElementById('urgencyToggle').c
 function onProgramHeadClick(e){var prog=e.currentTarget.closest('.program');if(prog)prog.classList.toggle('collapsed');}
 function toggleCollapseAll(){var collapse=document.getElementById('collapseAllToggle').checked;document.querySelectorAll('#programView>.program').forEach(function(p){p.classList.toggle('collapsed',collapse);});document.querySelectorAll('#programView details.pkg').forEach(function(d){d.open=!collapse;});}
 
+// "13 item(s)" is a machine apologising for not knowing English. It costs one function to stop.
+function n_(n,one,many){return n+' '+(n===1?one:(many||one+'s'));}
+// A legend that lists badges the page cannot show is not a legend, it is trivia. NEEDS A SIGNAL,
+// WATCH and ★ HIGH are board vocabulary; on the addendum register they describe nothing on screen.
+// So the key reads the view it is under and keeps only the entries that are actually rendered —
+// which also means it can never drift out of date, because it is derived rather than written.
+function syncFootKey(){
+  var fk=document.getElementById('footKey');if(!fk)return;
+  // The old selector looked for `.view`, which nothing on this page has — so it fell through to
+  // document.body, found every badge in every HIDDEN view, and hid nothing. The views are keyed by
+  // id in VIEW_IDS; ask that.
+  var vk=(typeof activeViewKey==='function')?activeViewKey():'';
+  var showKey=(vk==='board'&&typeof boardMode!=='undefined')?boardMode:vk;
+  var view=document.getElementById(VIEW_IDS[showKey]||'')
+        ||document.getElementById(VIEW_IDS[vk]||'')||document.body;
+  var here={};
+  ['p','w','i','n','pend','c'].forEach(function(cl){
+    here[cl]=!!view.querySelector('.badge.'+cl);});
+  var shown=0;
+  [].forEach.call(fk.querySelectorAll('.fk'),function(el){
+    var b=el.querySelector('.badge'),cl='';
+    if(b)['p','w','i','n','pend','c'].forEach(function(k){if(b.classList.contains(k))cl=k;});
+    var on=!!here[cl];
+    el.style.display=on?'':'none';
+    if(on)shown++;});
+  fk.style.display=shown?'':'none';
+}
 function setStatus(msg){var cs=document.getElementById('capStatus');if(cs)cs.textContent=msg;toast(msg);}
+// Every control on the register rebuilds the whole tab, which on a forty-row punch list scrolls you
+// back to the top — so the ? read as a button that does nothing, because the row you clicked was no
+// longer under the cursor. The state was changing correctly the whole time; you just could not see it.
+function keepPlace(fn){
+  var y=(window.pageYOffset||document.documentElement.scrollTop||0);
+  var r=fn();
+  if(window.scrollTo)window.scrollTo(0,y);
+  return r;
+}
+// Everything you do here is an op, and an op can be voided — so undo is one keystroke rather than a
+// feature. It only ever takes back YOUR most recent change: two people share this board, and undoing
+// someone else's edit from your keyboard is not undo, it is deletion.
+function undoLast(){
+  var me=(syncWho()||'').trim();
+  var mine=(readQueue()||[]).filter(function(o){
+    if(!o||o.type==='_void')return false;
+    return me?String(o.by||'')===me:true;});
+  if(!mine.length){
+    setStatus(me?('Nothing of yours left to undo, '+me+'.'):'Nothing left to undo.');return false;}
+  var last=mine[mine.length-1];
+  voidOp(last);
+  var what=(last.text||last.type||'that').replace(/\s+/g,' ').slice(0,80);
+  buildAddendumRegister();
+  if(typeof rebuildPendingList==='function')rebuildPendingList();
+  setStatus('Undone — ' + what + (mine.length>1?('  ('+(mine.length-1)+' left)'):'  (that was the last one)'));
+  return true;
+}
 function toast(msg,actionLabel,actionFn){
   var w=document.getElementById('toastWrap');if(!w)return;
   while(w.children.length>=3)w.removeChild(w.firstChild);
@@ -3296,6 +3951,8 @@ function renderPendingRowView(row,payload){
   }
   else if((payload.type==='note'||payload.type==='blocker'||payload.type==='watch'||payload.type==='subtask')&&payload.itemRef){var ref=payload.itemRef.length>60?payload.itemRef.slice(0,60)+'…':payload.itemRef;txt='<em>Re: '+escapeHtml(ref)+'</em> — '+escapeHtml(payload.text);}else{txt=escapeHtml(payload.text);}
   body.innerHTML=prefix+txt;row.appendChild(body);
+  if(payload.by){var who=document.createElement('span');who.className='pwho'+(payload.by===syncWho()?' pwho-mine':'');
+    who.textContent='\u00b7 '+payload.by;who.title=payload.by===syncWho()?'You captured this':'Captured by '+payload.by+' on their screen';row.appendChild(who);}
   var when=document.createElement('span');when.className='pwhen';when.textContent=formatTs(payload.ts);row.appendChild(when);
   var editBtn=document.createElement('button');editBtn.type='button';editBtn.className='pedit';editBtn.textContent='Edit';editBtn.onclick=function(){renderPendingRowEdit(row,payload);};row.appendChild(editBtn);
   var delBtn=document.createElement('button');delBtn.type='button';delBtn.className='pedit';delBtn.textContent='Remove';delBtn.title='Remove this capture \u2014 it will not be sent at check-in';
@@ -3383,7 +4040,7 @@ function rebuildPendingList(){updateCaptureSummary();
 // rather than bolting collaboration onto one surface. Local writes stay authoritative and
 // instant; remote ops arrive on a poll and merge by id. Nothing is ever edited in place — an
 // edit is a tombstone plus a new op — so the merge has no conflict to resolve.
-var SYNC={url:'',key:'',room:'work-tracker',on:false,since:0,timer:null,at:0,err:'',n:0};
+var SYNC={url:'',key:'',room:'work-tracker',on:false,since:0,timer:null,at:0,err:'',n:0,via:'',idle:0};
 var REMOTE_Q=[];      // ops authored in another browser
 var QCACHE=null;      // merged view, rebuilt on any write or pull
 function syncWho(){
@@ -3419,11 +4076,9 @@ function syncConfigure(d){
   SYNC.url=cfg.url;SYNC.key=cfg.key||'';SYNC.room=cfg.room||'work-tracker';SYNC.on=true;
   syncBacklog();
   syncPull(true);
-  if(SYNC.timer)clearInterval(SYNC.timer);
-  // 8s while you are looking at it. A hidden tab does not poll — two people leaving this open
-  // all day should not be a background request every 8 seconds each.
-  SYNC.timer=setInterval(function(){if(!document.hidden)syncPull();},8000);
-  document.addEventListener('visibilitychange',function(){if(!document.hidden)syncPull();});
+  syncArm();
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden){SYNC.idle=0;syncPull();syncArm();}});
   renderSyncChip();
 }
 // Everything captured before the store existed is sitting in this browser and has never been sent.
@@ -3484,6 +4139,22 @@ function syncRepaintRegisters(){
     buildAddendumRegister();
   }catch(e){}
 }
+// A hidden tab does not poll at all. A visible one polls fast while the board is moving and eases
+// off when it is not — which matters on the KV backend, where every poll is a LIST operation and
+// the free tier allows a thousand a day. Two people at a flat eight seconds spend the whole day's
+// allowance inside an hour, after which sync fails outright until midnight UTC and nothing on the
+// page says why. A Durable Object is billed per request against a far larger ceiling, so it stays
+// at eight seconds and stays live.
+function syncDelay(){
+  if(SYNC.via==='do')return 8000;
+  if(SYNC.idle<8)return 8000;            // roughly the first minute after anything happens
+  if(SYNC.idle<20)return 20000;
+  return 45000;
+}
+function syncArm(){
+  if(SYNC.timer)clearTimeout(SYNC.timer);
+  SYNC.timer=setTimeout(function(){if(!document.hidden)syncPull();syncArm();},syncDelay());
+}
 function syncPull(first){
   // jsdom (the test harness) and any browser without fetch would otherwise throw here on boot
   if(!SYNC.on||typeof fetch!=='function')return Promise.resolve();
@@ -3501,19 +4172,29 @@ function syncPull(first){
         if(o.by&&mine&&o.by===mine&&o.type!=='_void')return;
         REMOTE_Q.push(o);seen[o.id]=1;fresh++;
       });
-      if(j.now)SYNC.since=j.now;
+      // `since` is an OPAQUE cursor — store whatever came back and echo it. Under KV it is a
+      // deliberately lagged clock, under the Durable Object a row id, and a fresh room answers 0.
+      // The old `if(j.now)` refused a zero cursor, which is a real value, not an absent one.
+      if(j.now!==undefined&&j.now!==null)SYNC.since=j.now;
+      SYNC.via=j.via||'';
+      // The store answers in pages. `more` means the cursor moved but there is backlog behind it;
+      // waiting the full 8 seconds per page would trickle a day's work in over several minutes.
+      if(j.more)setTimeout(function(){syncPull();},150);
       SYNC.n=(j.ops||[]).length;
       // A picture that arrived from someone else is fetched once, then it is local like any other.
       (j.ops||[]).forEach(function(o){
         if(o&&o.type==='image'&&o.imgKey&&!IMG_CACHE[o.imgKey])syncFetchBody(o);});
-      if(fresh){QCACHE=null;rebuildPendingList();refreshBoard();syncRepaintRegisters();
+      if(fresh){SYNC.idle=0;QCACHE=null;rebuildPendingList();refreshBoard();syncRepaintRegisters();
         if(!first)setStatus(fresh+' change'+(fresh!==1?'s':'')+' arrived from someone else.');}
+      else SYNC.idle++;
       renderSyncChip();
     })
     .catch(function(e){SYNC.err=String(e&&e.message||e);renderSyncChip();});
 }
 function syncPush(ops,bodies){
   if(!SYNC.on||typeof fetch!=='function'||!ops||!ops.length)return;
+  // something just happened on this screen, so the other one is probably about to answer
+  SYNC.idle=0;syncArm();
   fetch(SYNC.url+'?room='+encodeURIComponent(SYNC.room),
         {method:'POST',headers:syncHeaders(),body:JSON.stringify({ops:ops,bodies:bodies||[]})})
     .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);SYNC.err='';SYNC.at=Date.now();renderSyncChip();})
@@ -3539,7 +4220,8 @@ function renderSyncChip(){
   var who=syncWho();
   el.textContent='Shared'+(who?' · '+who:' · set your name');
   if(!who)el.classList.add('sc-warn');
-  el.title='Shared store on. '+(SYNC.at?('last synced '+Math.round((Date.now()-SYNC.at)/1000)+'s ago'):'connecting')
+  el.title='Shared store on'+(SYNC.via?(' ('+(SYNC.via==='do'?'durable object':'KV')+')'):'')+'. '
+    +(SYNC.at?('last synced '+Math.round((Date.now()-SYNC.at)/1000)+'s ago'):'connecting')
     +'. Click to change your name or the endpoint.';
 }
 // Three chained window.prompts was a bad way to ask for the one thing that turns this site from
@@ -3665,7 +4347,10 @@ function buildExportText(){
         +'  \u2192 save to vault/attachments and add [img:: <path>] to the item';
     }
     return '- ['+typeLabel(p.type)+'] '+(loc?loc+': ':'')+p.text+ref;
-  });
+  // A check-in that cannot tell whose capture it is reading has to ask, which is the one thing
+  // the shared store was supposed to stop. The name rides on the first line of each entry.
+  }).map(function(s,i){var by=(q[i]&&q[i].by)||'';if(!by)return s;
+    var L=s.split('\n');L[0]=L[0]+'  \u00b7 '+by;return L.join('\n');});
   var seq=(typeof mdSeq==='function')?mdSeq():(md.order||[]);
   if(seq.length){
     lines.push('');lines.push('My day plan ('+(md.seededFrom||'today')+'), in order:');
@@ -4027,30 +4712,39 @@ function addDiscFilter_(){return ADD_DISC==='*'?'':ADD_DISC;}
 // where the milestone says "Addendum 1". Keying on the raw string drew two cards for one
 // instrument: an empty one from the milestone and a full one from the tags. Normalise once,
 // here, so any future spelling lands on the same key.
-// One instrument field, three kinds. `addendum::` is still the tag's name because it is wired
-// through the whole payload, but from 2026-08-16 it carries any change instrument. A bid package
-// issues addenda; once the first PCN lands the package is in contract administration and issues
-// PCNs and SIs instead. Package 5 is mid-crossover — Add 1 (Aug 14) · Add 2 (Aug 20) · PCN 1
-// (Sep 25) — so both kinds are live at once and the key has to keep them apart.
+// `addendum::` is still the tag's name — it is wired through the whole payload — but from
+// 2026-08-16 it carries any change instrument. A bid package issues addenda; once its first PCN
+// lands the package is in contract administration and issues PCNs and SIs instead. Package 5 is
+// mid-crossover (Add 1 Aug 14 · Add 2 Aug 20 · PCN 1 Sep 25) so both kinds are live at once.
 // Strip only the package prefix, then the 'A' *only when a digit follows*: 'a1' collapses to the
-// bare '1' every existing tag and card already uses, while 'pcn1' and 'si3' survive as themselves.
+// bare '1' every existing tag and card uses, while 'pcn1' and 'si3' survive as themselves.
 // Mirrors _add_num() in parse_tasks.py — keep the two in step.
 function addNum(num){return String(num==null?'':num).toLowerCase()
   .replace(/^tp[\d.]*-/,'').replace(/^a(?=\d)/,'').replace(/^0+(?=\w)/,'');}
+// Kind is READ OFF the tag, never declared, so an item cannot claim a PCN while sitting in an
+// addendum. `si` requires a following digit so it can never swallow an unrelated word.
 function instKind(num){var a=String(num==null?'':num).trim();
   if(!a)return null;
   if(/^(?:tp[\d.]*-)?pcn/i.test(a))return 'pcn';
   if(/^(?:tp[\d.]*-)?si\d/i.test(a))return 'si';
   return 'addendum';}
-function instWord(kind){return kind==='pcn'?'PCN':kind==='si'?'SI':'Addendum';}
+function instLong(num){var k=instKind(num)||'addendum',n=String(num==null?'':num);
+  return k==='pcn'?('PCN '+n.replace(/^pcn/i,'')):k==='si'?('SI '+n.replace(/^si/i,'')):('Addendum '+n);}
+function instShort(num){var k=instKind(num)||'addendum',n=String(num==null?'':num);
+  return k==='pcn'?('PCN '+n.replace(/^pcn/i,'')):k==='si'?('SI '+n.replace(/^si/i,'')):('Add '+n);}
 function addKey(pkg,num){return (pkgNum(pkg)||pkg||'?')+'|'+addNum(num);}
+// The short name a chip or a card uses. Milestones spell a package 'Package 5 (TP5) — Departures
+// Level' and items spell it 'Package 5 — Departures Level', so an addendum with no items yet was
+// labelled 'Pkg 5 (TP5)' while its sibling read 'Pkg 5'. One function, one answer.
+function pkgChip(name){
+  return String(name||'').split('\u2014')[0].split('—')[0]
+    .replace(/\s*\([^)]*\)\s*/g,' ').replace(/^Package /,'Pkg ').trim();
+}
 function addendumDateFor(pkgName,num){
   var ms=milestoneFor(pkgName,'');if(!ms)return null;
   var want=addNum(num);
   for(var i=0;i<(ms.rows||[]).length;i++){
     var w=(ms.rows[i].what||'').toLowerCase();
-    // A milestone row dates an instrument whatever it is called. 'PCN 1' and 'SI 3' are rows
-    // in exactly the same sense 'Addendum 5' is.
     var m=/addendum\s*0?(\w+)/.exec(w);
     var tok=m?m[1]:null;
     if(!tok){var pm=/\b(pcn|si)\s*0?(\d\w*)/.exec(w);if(pm)tok=pm[1]+pm[2];}
@@ -4071,12 +4765,13 @@ function jumpToThread(slug){
 }
 function buildAddendumRegister(){
   var c=document.getElementById('addRegView');if(!c)return;c.innerHTML='';
+  setTimeout(syncFootKey,0);
   // laneItems(), not ITEMS: the queue overlay is what makes a change someone else just made
   // visible here without a reload. Vault lane items are the sheet punch list and belong to the
   // Sheet work view; a pending capture is not one of those — it is an item on this addendum that
   // nobody has folded yet, and Contents is the list of what the addendum carries.
-  var wantKind=function(a){var k=instKind(a);
-    return REG_KIND==='pcn' ? (k==='pcn'||k==='si') : k==='addendum';};
+  var wantKind=function(a){var kk=instKind(a);
+    return REG_KIND==='pcn' ? (kk==='pcn'||kk==='si') : kk==='addendum';};
   var tagged=laneItems().filter(function(it){
     return it.addendum&&wantKind(it.addendum)&&(!it.lane||it.pendingLocal);});
   var groups={},order=[];
@@ -4099,12 +4794,15 @@ function buildAddendumRegister(){
   MILESTONES.forEach(function(m){
     (m.rows||[]).forEach(function(r){
       if(r.status!=='upcoming')return;
-      // A declared-but-empty instrument still deserves a card — an empty PCN is a question the
-      // same way an empty addendum is. Match PCN and SI rows, not only 'Addendum N'.
+      // `\w+` matched the next word after "addendum", so a row whose PROSE said "...no longer has
+      // an addendum to ride" minted an instrument called "to" and drew it a chip. A milestone names
+      // an addendum by NUMBER; anything else is a sentence that happens to contain the word.
+      // PCN and SI rows are named the same way and carry the same digit requirement — 'PCN 1'
+      // is an instrument, 'a PCN to follow' is a sentence.
       var tok=null;
-      var mm=/addendum\s*0?(\w+)/i.exec(r.what||'');
+      var mm=/addendum\s*0?(\d+[\w.]*)/i.exec(r.what||'');
       if(mm)tok=mm[1];
-      else{var pm=/\b(pcn|si)\s*0?(\d\w*)/i.exec(r.what||'');if(pm)tok=pm[1]+pm[2];}
+      else{var pm=/\b(pcn|si)\s*0?(\d[\w.]*)/i.exec(r.what||'');if(pm)tok=pm[1]+pm[2];}
       if(!tok||!wantKind(tok))return;
       var pkgLabel=(m.package||'').split('[')[0].trim();
       var k=addKey(pkgLabel,tok);
@@ -4112,47 +4810,131 @@ function buildAddendumRegister(){
     });
   });
   if(!order.length)return;
-  sectionHead(c,REG_KIND==='pcn'
-    ?'PCN / SI register — what each change notice actually carries'
-    :'Addendum register — what each upcoming addendum actually carries','var(--gold)');
+  // ── the order the eye meets things ────────────────────────────────────────────────────────
+  // Was: filters, two paragraphs of prose, the addendum picker, the view tabs, and only then the
+  // gate — fourteen bands of chrome before the first row of work, every one of them the same
+  // shape. Choosing WHICH ADDENDUM you are working on is navigation and the biggest decision on
+  // the page; choosing a discipline filter is a nicety. They looked identical.
+  // Now: which instrument → can it issue → which view of it → narrowing. Four bands, and each
+  // one looks like what it is.
+  var hHead=document.createElement('div');hHead.className='reg-head';
+  var hGate=document.createElement('div');
+  var hTabs=document.createElement('div');hTabs.className='reg-tabs';
+  var hFilt=document.createElement('div');hFilt.className='reg-filters';
+  c.appendChild(hHead);c.appendChild(hGate);c.appendChild(hTabs);c.appendChild(hFilt);
   var discsPresent=[];
   // `disc::` is occasionally multi-valued ('ME,AR') and `scope::` and `disc::` can name the same
   // discipline twice. Split, trim, dedupe — a filter bar with two AR buttons is a bug you click.
-  tagged.concat((window.LANE_ITEMS||[])).forEach(function(it){
+  // Only the disciplines THIS addendum carries. The bar listed every discipline in the vault, so
+  // an architectural addendum offered EL, ME, ST, safety, security and signage — six buttons that
+  // could only ever return nothing, on the one screen where you are trying to see less.
+  var discPool=(window.LANE_ITEMS||[]).concat(tagged).filter(function(it){
+    return addKey(it.pkg,it.addendum)===ADD_OPEN;});
+  var discSeen=[];
+  discPool.forEach(function(it){
     var raw=((it.scope?scopeInfo(it.scope).d:'')||'')+','+(it.disc||'');
     raw.split(/[,;/]+/).forEach(function(x){
       var dd=x.trim();
-      if(dd&&discsPresent.indexOf(dd)===-1)discsPresent.push(dd);});});
-  if(discsPresent.indexOf('AR')===-1)discsPresent.unshift('AR');
+      if(dd&&discSeen.indexOf(dd)===-1)discSeen.push(dd);});});
+  // PRESENT is not the same as WOULD RETURN SOMETHING. `disc:: ME, AR` puts ME in the list on an
+  // addendum where selecting ME shows nothing, because the filter that runs on click is
+  // itemHasDisc() and it reads scope first. So the bar is built by running the real filter and
+  // keeping the buttons that come back with rows — a chip that cannot return anything is not a
+  // choice, it is a dead end with a label.
+  var discCount={};
+  discSeen.forEach(function(dd){
+    discCount[dd]=discPool.filter(function(it){return itemHasDisc(it,dd);}).length;});
+  discsPresent=discSeen.filter(function(dd){return discCount[dd]>0;});
+  // never strand the selection: the chip you are standing on stays clickable even at zero
+  if(ADD_DISC&&ADD_DISC!=='*'&&discsPresent.indexOf(ADD_DISC)===-1)discsPresent.push(ADD_DISC);
+  if(discsPresent.indexOf('AR')===-1&&discCount['AR'])discsPresent.unshift('AR');
   discsPresent.sort(function(a,b){return a==='AR'?-1:b==='AR'?1:(a<b?-1:1);});
   {
     var fr=document.createElement('div');fr.className='add-filter add-filter-lead';
-    var flb=document.createElement('span');flb.className='add-filter-lbl';flb.textContent='Discipline';fr.appendChild(flb);
-    discsPresent.concat(['']).forEach(function(dd){
+    // Architecture is what we write. A row of consultant buttons on an addendum that is entirely
+    // architectural is a control with one answer, taking the top of the page. It appears when
+    // there is actually something to choose between.
+    var multi=discsPresent.length>1;
+    if(multi){
+      var flb=document.createElement('span');flb.className='add-filter-lbl';flb.textContent='Discipline';fr.appendChild(flb);
+    }
+    // Every filter on this page now reads the same way: a label, chips, a count on each chip. A
+    // chip that would return nothing is dimmed rather than removed — a bar that reshuffles as you
+    // click it is one you stop trusting, and "none of these" is an answer worth being able to see.
+    (multi?discsPresent.concat(['']):[]).forEach(function(dd){
       var fb=document.createElement('button');fb.type='button';
       fb.className='add-filter-b'+(addDiscFilter_()===dd?' on':'');
-      fb.textContent=dd||'Everything';
+      fb.appendChild(document.createTextNode(dd||'Everything'));
+      if(dd&&discCount[dd]){var dc=document.createElement('span');dc.className='fc';
+        dc.textContent=discCount[dd];fb.appendChild(dc);}
       fb.title=dd==='AR'?'Architecture — the discipline this addendum is written for. The default.'
         :(dd?('Show only '+dd+' — tracking, not write-up material'):'Every consultant, including the ones you do not write');
       if(dd==='AR')fb.classList.add('af-ar');
       fb.addEventListener('click',function(){ADD_DISC=dd||'*';buildAddendumRegister();});
       fr.appendChild(fb);
     });
-    c.appendChild(fr);
+    // The two things you scan THIS list for. Contents and Sheet work carry different filters
+    // because they hold different populations — measured, not assumed: of the 61 items on
+    // Addendum 1, every one of the 5 carrying a ? is a sheet-lane item and shows only in Sheet
+    // work, while all 7 carrying an open question are board items and show only here. Offering ?
+    // here would have been a filter that could never match anything.
+    // Both states were previously visible only as styling — an amber edge, a greyed row — which
+    // reads at a glance and cannot be isolated. On 61 items three days from a packaging cutoff,
+    // that is the difference between a list and a worklist.
+    var flagLbl=document.createElement('span');flagLbl.className='add-filter-lbl';
+    flagLbl.style.marginLeft='10px';flagLbl.textContent='Show';fr.appendChild(flagLbl);
+    // A count on a filter must count the list that filter FILTERS. This one was built from
+    // `tagged` — board items only — while in Sheet work it narrows addPoolFor(), which is the
+    // lane items as well. On Pkg 5 Addendum 2 that put four contradictions on one screen: the
+    // list showed 29 rows, the bar said All 24, it said Done 9 where exactly 1 is done, and
+    // Questions 1 where 3 carry a ?. Clicking Questions then returned three rows against a chip
+    // promising one. Numbers that disagree with each other in one glance cost you every other
+    // number on the page, so the pool follows the view.
+    var flagPool=(ADD_MODE==='sheets'?addPoolFor(ADD_OPEN)
+                 :tagged.filter(function(i){return itemHasDisc(i,ADD_DISC);}));
+    var isDone_=function(i){return i.status==='completed'||i.pendingComplete;};
+    var flagN=function(k){
+      if(!k)return flagPool.length;
+      if(k==='verify')return flagPool.filter(function(i){return !!i.verify;}).length;
+      if(k==='open')return flagPool.filter(function(i){return !isDone_(i);}).length;
+      return flagPool.filter(isDone_).length;
+    };
+    // All / Questions / Done, and no way to ask the question you ask most: what is LEFT. With nine
+    // of twenty-four finished, "everything except the done ones" was three filters away.
+    [['','All','Every item on this addendum, whatever its state'],
+     ['open','Open','Everything still to do \u2014 the list minus what is finished. This is the one '
+        +'you want most mornings.'],
+     ['verify','Questions','The rows carrying a yellow ? \u2014 in the document, but not confirmed yet. '
+        +'Nothing flagged this way can be written until someone answers it.'],
+     ['done','Done','Finished work. It stays in the addendum: the state decides what goes in the document, the tick only says the drawing is done.']
+    ].forEach(function(o){
+      var n2=flagN(o[0]);
+      var fb2=document.createElement('button');fb2.type='button';
+      fb2.setAttribute('data-k',o[0]||'all');
+      fb2.className='add-flag-b'+(ADD_FLAG===o[0]?' on':'')+((!n2&&o[0])?' is-zero':'');
+      fb2.appendChild(document.createTextNode(o[1]));
+      var cn=document.createElement('span');cn.className='fc';cn.textContent=n2;fb2.appendChild(cn);
+      fb2.title=o[2]+(n2?'':' \u2014 none on this addendum right now');
+      fb2.addEventListener('click',function(){
+        ADD_FLAG=o[0];
+        // "All" has to mean all. It cleared its own filter and left the other two armed, which is
+        // how you end up looking at one row with every visible control saying nothing is filtered.
+        if(!o[0]){ADD_STATE='';ADD_PART='';}
+        buildAddendumRegister();});
+      fr.appendChild(fb2);
+    });
+    hFilt.appendChild(fr);
     var hid=tagged.concat((window.LANE_ITEMS||[])).filter(function(it){
       var dd=(it.scope?scopeInfo(it.scope).d:'')||it.disc||'';
       return dd&&addDiscFilter_()&&dd!==addDiscFilter_();}).length;
     var hn=document.createElement('div');hn.className='add-filter-note';
+    if(!multi)hn.style.display='none';
     hn.textContent=addDiscFilter_()
       ?(addDiscFilter_()==='AR'?'Architecture only':'Only '+addDiscFilter_())
-        +(hid?' — '+hid+' item(s) from other disciplines hidden':' — nothing else is filed under another discipline')
+        +(hid?' \u2014 '+n_(hid,'item')+' from other disciplines hidden':' — nothing else is filed under another discipline')
       :'Every discipline showing. The write-up is Vol 1 – ARCHITECTURAL, so only AR items belong in it.';
-    c.appendChild(hn);
+    hFilt.appendChild(hn);
   }
-  var note=document.createElement('p');note.className='g-p';
-  note.style.cssText='font-size:11.5px;color:var(--muted);margin:2px 0 4px;';
-  note.textContent='Dates live in Milestones; contents live here. Add or drop an item and it queues as a capture — Claude folds it into the vault at the next check-in.';
-  c.appendChild(note);
   order.sort(function(a,b){
     var ga=groups[a],gb=groups[b];
     var da=addendumDateFor(ga.pkg,ga.num),db=addendumDateFor(gb.pkg,gb.num);
@@ -4166,29 +4948,59 @@ function buildAddendumRegister(){
   // you open a card to reach the sheet list, which buried the work you actually came to do one
   // click deep and made the sheets feel like a sub-feature of the register. They are the same
   // instrument; neither is inside the other.
+  // the move controls need to know every addendum this package has, and how each is spelled
+  ADD_GROUPS=groups;ADD_ORDER=order;
   if(!ADD_OPEN||order.indexOf(ADD_OPEN)===-1){
     var best=order.slice().sort(function(a,b){
       return addPoolFor(b).length-addPoolFor(a).length;})[0];
     ADD_OPEN=best||order[0];
   }
+  // The instrument, as a title rather than a chip in a row of chips. Nothing else on the page is
+  // a title, which makes it the strongest possible "you are here" — and it costs no colour.
+  (function(){
+    var g=groups[ADD_OPEN]||{},row=addendumDateFor(g.pkg,g.num);
+    var pool=addPoolFor(ADD_OPEN);
+    var done=pool.filter(function(i){return i.status==='completed'||i.pendingComplete;}).length;
+    var qs=inquiriesFor(ADD_OPEN),un=qs.filter(function(q){return !String(q.a||'').trim();}).length;
+    var t=document.createElement('h2');t.className='reg-title';
+    t.textContent=pkgChip(g.pkg)+' \u00b7 '+instLong(g.num);
+    hHead.appendChild(t);
+    var sub=document.createElement('div');sub.className='reg-sub';
+    var bits=[];
+    if(row&&/^\d{4}-\d{2}-\d{2}/.test(row.date||'')){
+      var dd=new Date(row.date+'T00:00:00');
+      bits.push('<b>issues '+dd.toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'long'})+'</b>');
+    } else bits.push('<b class="needs">no issue date yet</b>');
+    bits.push(pool.length+' item'+(pool.length!==1?'s':''));
+    if(done)bits.push(done+' finished');
+    if(un)bits.push('<b class="needs">'+un+' question'+(un!==1?'s':'')+' unanswered</b>');
+    sub.innerHTML=bits.join(' \u00b7 ');
+    hHead.appendChild(sub);
+  })();
   var pickRow=document.createElement('div');pickRow.className='add-filter add-pick-row';
-  var pl=document.createElement('span');pl.className='add-filter-lbl';pl.textContent=REG_KIND==='pcn'?'Notice':'Addendum';
-  pickRow.appendChild(pl);
+  // Grouped by programme, because Concourse B is not the only programme that issues documents —
+  // a flat row of chips silently claims there is only one project.
+  var progOf={};
+  (window.ITEMS||[]).concat(window.LANE_ITEMS||[]).forEach(function(i){
+    if(i.pkg&&i.program&&!progOf[i.pkg])progOf[i.pkg]=i.program;});
+  var byProg={},progOrder=[];
   order.forEach(function(k){
+    var pg=progOf[(groups[k]||{}).pkg]||'Concourse B';
+    if(!byProg[pg]){byProg[pg]=[];progOrder.push(pg);}
+    byProg[pg].push(k);});
+  progOrder.forEach(function(pg){
+    var gl=document.createElement('span');gl.className='add-filter-lbl reg-prog';
+    gl.textContent=pg;pickRow.appendChild(gl);
+    byProg[pg].forEach(function(k){
     var g=groups[k],n=addPoolFor(k).length;
     var b=document.createElement('button');b.type='button';
     b.className='add-pick'+(ADD_OPEN===k?' on':'');
-    var gk=instKind(g.num)||'addendum';
-    var gLabel=gk==='pcn'?('PCN '+String(g.num).replace(/^pcn/i,''))
-             : gk==='si' ?('SI '+String(g.num).replace(/^si/i,''))
-             : ('Add '+g.num);
-    b.textContent=(g.pkg||'').replace(/Package /,'Pkg ').split('\u2014')[0].trim()+' · '+gLabel
-      +(n?'  '+n:'');
+    b.textContent=pkgChip(g.pkg)+' \u00b7 '+instShort(g.num)+(n?'  '+n:'');
     var dr=addendumDateFor(g.pkg,g.num);
     b.title=(dr&&/^\d{4}-\d{2}-\d{2}/.test(dr.date))?('issues '+dr.date):'no date yet';
     b.addEventListener('click',function(){ADD_OPEN=k;buildAddendumRegister();});
-    pickRow.appendChild(b);});
-  c.appendChild(pickRow);
+    pickRow.appendChild(b);});});
+  hHead.appendChild(pickRow);
 
   var modeRow=document.createElement('div');modeRow.className='add-filter add-mode-row';
   var ml=document.createElement('span');ml.className='add-filter-lbl';ml.textContent='View';
@@ -4196,6 +5008,8 @@ function buildAddendumRegister(){
   [['reg','Contents','What this addendum carries — the items, by consultant scope'],
    ['threads','Our questions','Design questions WE are chasing — ours to answer. Not bid inquiries: those come from bidders, after the documents go out, and live in §5 of the Write-up.'],
    ['sheets','Sheet work','The sheet-by-sheet punch list — where the states get set'],
+   ['inq','Bid inquiries','Questions from BIDDERS after the documents went out. Each one is answered '
+     +'here, and the answer can also become a drawing revision or a spec note on this addendum.'],
    ['wu','Write-up','\u00a73, \u00a74, the List of Attachments and \u00a75 Bid inquiries']
   ].forEach(function(o){
     var b=document.createElement('button');b.type='button';
@@ -4203,10 +5017,21 @@ function buildAddendumRegister(){
     b.textContent=o[1];b.title=o[2];
     if(o[0]==='threads'){var tn=addQuestionsFor(ADD_OPEN).length;if(tn)b.textContent+='  '+tn;}
     if(o[0]==='sheets'){var sn2=addPoolFor(ADD_OPEN).length;if(sn2)b.textContent+='  '+sn2;}
+    if(o[0]==='inq'){
+      var qs=inquiriesFor(ADD_OPEN),un=qs.filter(function(q){return !String(q.a||'').trim();});
+      if(qs.length)b.textContent+='  '+qs.length;
+      // "6" reads as six answers on file. The number that matters is how many are still open.
+      if(un.length){var ub=document.createElement('span');ub.className='seg-open';
+        // "6  6 open" reads as twelve. When none of them is answered, the total has nothing to add.
+        ub.textContent=(un.length===qs.length)?'none answered':(un.length+' open');b.appendChild(ub);
+        b.title=o[2]+'  \u2014  '+un.length+' of '+qs.length+' still unanswered.';}
+    }
     b.addEventListener('click',function(){ADD_MODE=o[0];buildAddendumRegister();});
     modeRow.appendChild(b);});
-  c.appendChild(modeRow);
+  hTabs.appendChild(modeRow);
+  renderGateStrip(ADD_OPEN,hGate);
 
+  if(ADD_MODE==='inq'){addInquiryBlock(c,ADD_OPEN);return;}
   if(ADD_MODE==='sheets'){addWorkbench(c,ADD_OPEN,addPoolFor(ADD_OPEN));return;}
   if(ADD_MODE==='threads'){addQuestionsPanel(c,ADD_OPEN,groups[ADD_OPEN]);return;}
   if(ADD_MODE==='wu'){
@@ -4219,7 +5044,7 @@ function buildAddendumRegister(){
     var card=document.createElement('div');card.className='add-card';
     var head=document.createElement('div');head.className='add-card-head';
     var nm=document.createElement('span');nm.className='add-card-name';
-    nm.textContent=(g.pkg||'').replace(/Package /,'Pkg ').split('—')[0].trim()+' · Addendum '+g.num;
+    nm.textContent=pkgChip(g.pkg)+' \u00b7 '+instLong(g.num);
     head.appendChild(nm);
     var dt=document.createElement('span');dt.className='add-card-date';
     if(row&&/^\d{4}-\d{2}-\d{2}/.test(row.date)){dt.textContent=row.date;}
@@ -4292,7 +5117,13 @@ function buildAddendumRegister(){
     scopeKeys.forEach(function(sk){
       var inf=scopeInfo(sk==='_none'?'':sk);
       if(addDiscFilter_()&&inf.d!==addDiscFilter_())return;
-      var rows=byScope[sk];shown+=rows.length;
+      var rows=byScope[sk].filter(function(it){
+        if(ADD_FLAG==='verify')return !!it.verify;
+        if(ADD_FLAG==='open')return !(it.status==='completed'||it.pendingComplete);
+        if(ADD_FLAG==='done')return it.status==='completed'||it.pendingComplete;
+        return true;});
+      if(!rows.length)return;
+      shown+=rows.length;
       if(showHeaders){
         var sh=document.createElement('div');sh.className='add-scope'+(inf.ours?' ours':'');
         var sht=document.createElement('span');sht.className='as-t';
@@ -4318,12 +5149,12 @@ function buildAddendumRegister(){
       who.textContent=(it.status==='completed'?'done':(courtList(it.court).join(', ')||'—'))+(it.twin?' · +RFI twin':'');r.appendChild(who);
       var x=document.createElement('button');x.type='button';x.className='ar-x';x.textContent='✕';
       x.title=it.pendingLocal?'Delete this item — it was added here and never folded'
-             :('Drop this item from Addendum '+g.num+' — off the list now, out of the vault at check-in');
+             :('Drop this item from '+instLong(g.num)+' — off the list now, out of the vault at check-in');
       x.addEventListener('click',function(e){
         e.stopPropagation();
         if(!window.confirm(it.pendingLocal
               ?('Delete “'+it.title.slice(0,60)+'”? It was added here and never folded, so it goes for good.')
-              :('Drop “'+it.title.slice(0,60)+'” from Addendum '+g.num+'?')))return;
+              :('Drop “'+it.title.slice(0,60)+'” from '+instLong(g.num)+'?')))return;
         if(it.pendingLocal&&it.srcOp){
           // Added here and never folded — there is nothing to drop it FROM. Delete it outright by
           // voiding the op that created it, so it goes everywhere rather than lingering as a
@@ -4334,23 +5165,26 @@ function buildAddendumRegister(){
           return;
         }
         var payload={type:'unaddendum',program:it.program||'',pkg:it.pkg||'',itemRef:it.title.slice(0,160),
-                     text:'Remove from Addendum '+g.num,ts:new Date().toISOString()};
+                     text:'Remove from '+instLong(g.num),ts:new Date().toISOString()};
         queueLocally(payload);renderPendingRow(payload);
         buildAddendumRegister();
-        setStatus('Dropped from Addendum '+g.num+' — gone from the list now, and from the vault at check-in.');
+        setStatus('Dropped from '+instLong(g.num)+' — gone from the list now, and from the vault at check-in.');
       });
       r.appendChild(x);
       card.appendChild(r);
       });
     });
-    if(!shown&&addDiscFilter_()){
+    if(!shown){
       var nores=document.createElement('div');nores.className='add-row add-none';
-      nores.textContent='Nothing in this addendum is '+addDiscFilter_()+' scope.';
-      card.appendChild(nores);
+      nores.textContent=ADD_FLAG==='verify'?'Nothing on this addendum is flagged with a ?.'
+        :ADD_FLAG==='open'?'Everything on this addendum is finished.'
+        :ADD_FLAG==='done'?'Nothing on this addendum is finished yet.'
+        :(addDiscFilter_()?'Nothing in this addendum is '+addDiscFilter_()+' scope.':'');
+      if(nores.textContent)card.appendChild(nores);
     }
     var act=document.createElement('div');act.className='add-actions';
     var addBtn=document.createElement('button');addBtn.type='button';addBtn.className='hist-more';
-    addBtn.textContent='+ add an item to Addendum '+g.num;
+    addBtn.textContent='+ add an item to '+instLong(g.num);
     addBtn.addEventListener('click',function(){openAddendumAdder(act,g);});
     act.appendChild(addBtn);card.appendChild(act);
     c.appendChild(card);
@@ -4375,15 +5209,15 @@ function openAddendumAdder(host,g){
     if(sel.value==='__new__'){
       var txt=free.value.trim();if(!txt)return;
       payload={type:'addendum',program:g.program||'Concourse B',pkg:g.pkg||'',itemRef:'',
-               text:'New item for Addendum '+g.num+': '+txt,ts:new Date().toISOString()};
+               text:'New item for '+instLong(g.num)+': '+txt,ts:new Date().toISOString()};
     }else if(sel.value){
       var it=null;for(var i=0;i<ITEMS.length;i++){if(ITEMS[i].id===sel.value){it=ITEMS[i];break;}}
       if(!it)return;
       payload={type:'addendum',program:it.program||'',pkg:it.pkg||'',itemRef:it.title.slice(0,160),
-               text:'Add to Addendum '+g.num,ts:new Date().toISOString()};
+               text:'Add to '+instLong(g.num),ts:new Date().toISOString()};
     }else return;
     queueLocally(payload);renderPendingRow(payload);box.remove();
-    setStatus('Queued for Addendum '+g.num+' — folds into the vault at check-in.');
+    setStatus('Queued for '+instLong(g.num)+' — folds into the vault at check-in.');
   });
   box.appendChild(ok);
   var cx=document.createElement('button');cx.type='button';cx.className='hist-more';cx.textContent='Cancel';
@@ -4890,12 +5724,33 @@ function buildMsStrip(){
   });
   strip.style.display='';
 }
+// Undo. Not bound inside a field — Ctrl+Z there is the browser's, and taking it would be worse
+// than not having this at all.
+document.addEventListener('keydown',function(e){
+  if(!(e.key==='z'||e.key==='Z'))return;
+  if(!(e.ctrlKey||e.metaKey)||e.shiftKey||e.altKey)return;
+  var t=e.target||{},tag=(t.tagName||'').toLowerCase();
+  if(tag==='input'||tag==='textarea'||tag==='select'||t.isContentEditable)return;
+  e.preventDefault();
+  undoLast();
+});
 document.addEventListener('keydown',function(e){
   if(e.key==='/'&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){e.preventDefault();var sb=document.getElementById('searchBox');if(sb){sb.focus();sb.select();}}
 });
 // ---- keyboard layer: j/k walk · Enter open · d done · p my-day · g+key views ----
 var kbdIdx=-1,gPending=false,gTimer=null;
+// The board has had j/k/Enter/d since the beginning. Sheet work is a list of twenty-nine rows you
+// walk exactly the same way — so it joins the layer that already exists rather than growing a
+// second scheme with its own keys to remember.
+function kbdSheetRows(){
+  if(activeViewKey()!=='registers'||ADD_MODE!=='sheets')return null;
+  var v=document.getElementById('registersView');
+  if(!v||v.style.display==='none')return null;
+  var rows=Array.prototype.slice.call(v.querySelectorAll('.sh-row'));
+  return rows.length?rows:null;
+}
 function kbdVisibleItems(){
+  var sheet=kbdSheetRows();if(sheet)return sheet;
   var key=activeViewKey();var showKey=key==='board'?boardMode:key;
   var v=document.getElementById(VIEW_IDS[showKey])||document.getElementById('programView');
   return Array.prototype.slice.call(v.querySelectorAll('.item')).filter(function(it){
@@ -4921,10 +5776,30 @@ document.addEventListener('keydown',function(e){
     e.preventDefault();var items=kbdVisibleItems();if(!items.length)return;
     kbdIdx=e.key==='j'?Math.min(kbdIdx+1,items.length-1):Math.max(kbdIdx-1,0);
     document.querySelectorAll('.kbd-focus').forEach(function(it){it.classList.remove('kbd-focus');});
-    var t=items[kbdIdx];t.classList.add('kbd-focus');t.scrollIntoView({block:'center',behavior:'smooth'});
+    var t=items[kbdIdx];t.classList.add('kbd-focus');
+    if(t.scrollIntoView)try{t.scrollIntoView({block:'center',behavior:'smooth'});}catch(_){}
     return;
   }
   var foc=document.querySelector('.kbd-focus');if(!foc)return;
+  // A focused SHEET row: the same verbs, plus the three states, because setting a state is the
+  // whole job on this screen and reaching for the mouse twenty-nine times is the thing to fix.
+  if(foc.classList.contains('sh-row')){
+    var sid=(foc.id||'').replace(/^sh-/,'');if(!sid)return;
+    var keep=function(fn){var y=window.pageYOffset;fn();
+      if(window.scrollTo)window.scrollTo(0,y);
+      var again=document.getElementById('sh-'+sid);
+      if(again){again.classList.add('kbd-focus');}};
+    if(e.key==='1'){e.preventDefault();keep(function(){setProduces(sid,'drawings');});}
+    else if(e.key==='2'){e.preventDefault();keep(function(){setProduces(sid,'writeup');});}
+    else if(e.key==='3'){e.preventDefault();keep(function(){setProduces(sid,'none');});}
+    else if(e.key==='?'||e.key==='/'){e.preventDefault();keep(function(){toggleVerify(sid);});}
+    else if(e.key==='d'||e.key==='x'){e.preventDefault();
+      var cb2=foc.querySelector('.sh-done');
+      if(cb2){cb2.checked=!cb2.checked;cb2.dispatchEvent(new Event('change',{bubbles:true}));}}
+    else if(e.key==='Enter'){e.preventDefault();
+      var det=foc.querySelector('details.sh-body');if(det)det.open=!det.open;}
+    return;
+  }
   var id=foc.getAttribute('data-id');if(!id)return;
   if(e.key==='Enter'){e.preventDefault();openDrawer(id);}
   else if(e.key==='d'){e.preventDefault();var cb=document.querySelector('#programView .item[data-id="'+id+'"] .done-toggle');if(cb){cb.checked=!cb.checked;cb.dispatchEvent(new Event('change'));}}
@@ -4973,7 +5848,10 @@ function applyPendingOverlay(){
     var ds=(p.ts||'').slice(0,10)||isoToday();
     if(p.type==='item'){
       var id='pending-'+i;
-      items.push({id:id,title:p.text,status:'open',program:p.program||'',pkg:p.pkg||'',pendingLocal:true});
+      // `low` explicitly: an unfolded capture carries no date, no impact and no horizon, so it is
+      // what the generator would score it. Stated here rather than left to a fallback.
+      items.push({id:id,title:p.text,status:'open',program:p.program||'',pkg:p.pkg||'',
+                  priority:'low',pendingLocal:true});
       details[id]={next:null,subtasks:[],updates:[ds+'|Captured on the site \u2014 folds into the vault at check-in']};
     }else if(p.type==='court'&&p.itemRef){
       for(var c2=0;c2<items.length;c2++){if(items[c2].title.slice(0,60)===p.itemRef.slice(0,60)){items[c2].court=p.text.indexOf(',')>-1?p.text.split(',').map(function(x){return x.trim();}):p.text;break;}}
@@ -5159,7 +6037,16 @@ function eventsFor(items,opts){
       if(/^\d{4}-\d{2}-\d{2}$/.test(ds))events.push({date:ds,kind:'update',itemId:it.id,itemTitle:it.title,program:it.program||'',pkg:it.pkg||'',topic:it.topic||'',court:courtList(it.court),text:tx});
     });
     if(it.status==='completed'){
-      var dd=det&&det.updates&&det.updates.length?det.updates[det.updates.length-1].split('|')[0]:(it.date||'');
+      // When an item was resolved is the LATEST thing that happened on it, not the last line in
+      // the file. Vault rows are not all written in the same order — a fold that puts today's
+      // update directly under the item line makes the newest entry FIRST — so reading the last
+      // element dated a closure to the day it was raised, and the stream then showed almost no
+      // resolutions in any recent window. Take the maximum; ordering stops mattering.
+      var dd='';
+      if(det&&det.updates)det.updates.forEach(function(u){
+        var ds=String(u).split('|')[0];
+        if(/^\d{4}-\d{2}-\d{2}$/.test(ds)&&ds>dd)dd=ds;});
+      if(!dd)dd=it.date||'';
       if(/^\d{4}-\d{2}-\d{2}$/.test(dd))events.push({date:dd,kind:'resolved',itemId:it.id,itemTitle:it.title,program:it.program||'',pkg:it.pkg||'',topic:it.topic||'',court:courtList(it.court),text:'resolved'});
     }
   });
@@ -5890,8 +6777,8 @@ function updateTabCounts(){
   // 'upcoming' was the Schedule tab's key. Deleting that tab left this call writing to a button that
   // no longer exists — setCount returns early on a miss, so the overdue badge has silently rendered
   // nowhere ever since. It belongs on Now, where the overdue stat card already lives.
-  setCount('court',coming,false,coming+' item(s) come back to you once someone else moves');
-  setCount('now',overdue,true,overdue+' item(s) in your court are past due');
+  setCount('court',coming,false,n_(coming,'item')+' come back to you once someone else moves');
+  setCount('now',overdue,true,n_(overdue,'item')+' in your court are past due');
   setCount('topics',topicsNeedingAttn,true,topicsNeedingAttn+' thread(s) hold something that needs you \u2014 yours, '
     +'and either past due, due within 3 days, or carrying an impact:: signal');
 }
@@ -5936,6 +6823,20 @@ var WU_DELETE_SEC = /^DELETE\b.*\bSECTION\b/;
 // only a text sort produces — a numeric one would file it eighth. Matching the house means the
 // render pastes into the document without being reordered by hand.
 var ADD_ORDER_NUMERIC=false;
+// A5.100 sorted before A5.30 because '1' is less than '3'. Prefixing each run of digits with its
+// own length makes a longer number sort after a shorter one without parsing the sheet into fields,
+// which matters because sheet numbers are not one format: A5.31.21, A42.22.10, §3 09 06 00.
+//
+// This is deliberately NOT sheetSortKey. That one feeds the write-up, where "House order" is text
+// order on purpose — the issued addenda file A42.4.19 between A42.31.13 and A42.6.01 and the
+// document has to match them. The register on screen is for finding a row, so it reads naturally.
+function natSheetKey(s){
+  return String(s||'').toUpperCase().replace(/\d+/g,function(n){return String(n.length)+n;});
+}
+function sheetRowSortKey(it){
+  var sh=(typeof it==='string')?it:(it&&it.sheet)||'';
+  return natSheetKey(sh)+'|'+((typeof it==='string')?'':((it&&it.title)||''));
+}
 function sheetSortKey(it){
   var sh=(typeof it==='string')?it:(it&&it.sheet)||'';
   if(ADD_ORDER_NUMERIC){
@@ -5951,7 +6852,11 @@ var ADD_OPEN=null;         // which addendum is selected — one is always selec
 var ADD_MODE='reg';        // reg | sheets | inq | wu
 var ADD_DISC='AR';         // Architecture is the default and says so. This is an ARCH addendum.
 var ADD_PART='';           // '' both · 'spec' §3 · 'drawing' §4
-var ADD_STATE='';          // '' | drawings | writeup | none | untriaged | verify
+var ADD_STATE='';          // '' | drawings | writeup | none | untriaged | verify | ask | done
+// Contents has its own, because Contents asks a different question: the workbench asks what goes
+// in the document, this asks what is still open. Separate from ADD_STATE so switching view does
+// not carry a filter across with you without saying so.
+var ADD_FLAG='';           // '' | verify | done   — `verify` is the yellow ? on a row
 var SH_OPEN={};
 var SH_ROW_OPEN={};
 var WU_EXCLUDE={};
@@ -6005,9 +6910,23 @@ function laneItems(){
   var extra=(window.ITEMS||[]).filter(function(i){return i.addendum;})
                               .map(function(i){return Object.assign({},i);});
   var all=lane.concat(extra);
+  // Ops are keyed by title, so renaming an item would orphan everything already queued against
+  // the old name. The rename records the name it replaced and the alias keeps those ops pointed at
+  // the same row. Without it, editing a title silently dropped that item's placements.
+  var alias={};
+  // Two rows under one title is not a cosmetic problem: EVERY op here is keyed by title, so the
+  // second row's ? and state controls silently drive the first one and the row you clicked never
+  // changes. That is what "the ? will not unclick" was. Rows that collide are marked so the screen
+  // can say so, rather than leaving you clicking a button that works on something else.
+  // Scanned live, not from an index: a title op RENAMES a row mid-loop, and later ops key on the
+  // new name. An index built up front would answer for the name the row no longer has.
   var byTitle=function(t){
-    for(var i=0;i<all.length;i++){if((all[i].title||'').slice(0,60)===String(t||'').slice(0,60))return all[i];}
-    return null;};
+    var k=String(t||'').slice(0,60),first=null;
+    for(var i=0;i<all.length;i++){
+      if((all[i].title||'').slice(0,60)!==k)continue;
+      if(String(all[i].title||'')===String(t||''))return all[i];   // exact beats prefix
+      if(!first)first=all[i];}
+    return first||alias[k]||null;};
   (readQueue()||[]).forEach(function(p,ix){
     if(p.type==='sheet'){
       // captured on the site and not yet folded — it is real work the moment you type it
@@ -6030,6 +6949,8 @@ function laneItems(){
       if(p.field==='sheets'){
         var list=String(p.value||'').split(/[,;]+/).map(function(x){return x.trim();}).filter(Boolean);
         a.sheets=list;a.sheet=list[0]||'';
+      }else if(p.field==='title'){
+        if(p.value){alias[String(a.title||'').slice(0,60)]=a;a.title=p.value;}
       }else{a[p.field]=p.value;}
       if(p.by)a.byLast=p.by;
     }else if(p.type==='complete'&&p.text){
@@ -6040,7 +6961,70 @@ function laneItems(){
       var d=byTitle(p.itemRef);if(d)d._dropped=true;
     }
   });
-  return all.filter(function(i){return !i._dropped;});
+  var live=all.filter(function(i){return !i._dropped;});
+  // Marked LAST, once every queued op has been applied — a row that only exists because someone
+  // captured it a minute ago collides just as badly as one from the vault.
+  var seen={};
+  live.forEach(function(x){var k=String(x.title||'').slice(0,60);(seen[k]=seen[k]||[]).push(x);});
+  Object.keys(seen).forEach(function(k){
+    if(seen[k].length>1)seen[k].forEach(function(x){x.titleClash=seen[k].length;});});
+  return live;
+}
+// ---- moving an item between addenda -------------------------------------------------------
+// The addendum an item rides is a TAG in the vault, so moving it is an ordinary field edit — one
+// addmeta op, superseded like every other, folded at the next check-in. The one thing the control
+// must not do is invent a spelling: Package 5 writes `TP5-A1` and Package 4.2 writes `5`, and a
+// tag that disagrees with what Milestones says draws two cards for one instrument.
+var ADD_GROUPS={},ADD_ORDER=[];
+function addendaForPkg(pkg){
+  var p=String(pkgNum(pkg)||pkg||'?');
+  return ADD_ORDER.filter(function(k){return k.split('|')[0]===p;})
+    .sort(function(a,b){
+      var na=parseFloat(a.split('|')[1]),nb=parseFloat(b.split('|')[1]);
+      if(isNaN(na)||isNaN(nb))return a<b?-1:1;
+      return na-nb;});
+}
+// The raw tag for a destination, read off an item already riding it — so the spelling comes from
+// the vault rather than from here. An addendum with no items yet inherits the shape its siblings
+// in the same package use: TP5-A<n> where that is the house form, otherwise the bare number.
+function rawAddendumFor(key){
+  var num=key.split('|')[1],pkgP=key.split('|')[0],all=laneItems();
+  for(var i=0;i<all.length;i++){
+    if(all[i].addendum&&addKey(all[i].pkg,all[i].addendum)===key)return all[i].addendum;}
+  for(var j=0;j<all.length;j++){
+    if(!all[j].addendum)continue;
+    if(addKey(all[j].pkg,all[j].addendum).split('|')[0]!==pkgP)continue;
+    var m=/^(tp[\d.]*-a)/i.exec(String(all[j].addendum));
+    if(m)return m[1].toUpperCase()+num;}
+  return num;
+}
+function addLabelFor(key){
+  var g=ADD_GROUPS[key];
+  return g?(pkgChip(g.pkg)+' \u00b7 Add '+g.num):('Addendum '+key.split('|')[1]);
+}
+function moveToAddendum(id,key,quiet){
+  var it=findLane(id);if(!it)return false;
+  if(addKey(it.pkg,it.addendum)===key)return false;
+  setAddMeta(id,'addendum',rawAddendumFor(key),'Addendum',quiet);
+  if(!quiet)setStatus('Moved to '+addLabelFor(key)
+    +' — on that register now, retagged in the vault at check-in.');
+  return true;
+}
+// The whole reason for splitting one addendum into two: work that is FINISHED goes out on the
+// earlier instrument instead of waiting for the later one. Doing that one row at a time across
+// forty items is how it quietly does not get done.
+function moveDoneToAddendum(fromKey,toKey){
+  var pool=addPoolFor(fromKey).filter(function(i){
+    return i.pendingComplete||i.status==='completed';});
+  if(!pool.length){setStatus('Nothing finished on this addendum to move.');return 0;}
+  if(!window.confirm('Move '+pool.length+' finished item'+(pool.length!==1?'s':'')+' to '
+    +addLabelFor(toKey)+'?\n\nOpen work stays where it is.'))return 0;
+  var n=0;
+  pool.forEach(function(i){if(moveToAddendum(i.id,toKey,true))n++;});
+  buildAddendumRegister();
+  setStatus(n+' finished item'+(n!==1?'s':'')+' moved to '+addLabelFor(toKey)
+    +' — queued for check-in. Open work stayed on '+addLabelFor(fromKey)+'.');
+  return n;
 }
 function addPoolFor(key){
   return laneItems().filter(function(i){
@@ -6077,24 +7061,32 @@ function setProduces(id,val){
   var base=baseLaneItem(id)||{};
   supersede(function(o){return o.type==='produces'&&o.itemRef===ref&&/produces:/.test(o.text||'');});
   if(sameValue(val,base.produces)){
-    buildAddendumRegister();
+    keepPlace(buildAddendumRegister);
     setStatus('Back to what the vault says — nothing left queued for this one.');return;}
   // Queued, not written. The vault stays the source of truth; this folds in at the next check-in.
   queueLocally({type:'produces',program:it.program||'',pkg:it.pkg||'',itemRef:ref,
     text:(it.sheet?it.sheet+' — ':'')+'produces: '+(base.produces||'(untriaged)')+' → '+(val||'(untriaged)')});
-  buildAddendumRegister();
+  keepPlace(buildAddendumRegister);
   setStatus(produceLabel(itemPart(it),val)+' — '+(SYNC.on?'shared, and copy for check-in to make it permanent.':'copy for check-in to make it permanent.'));
 }
 function toggleVerify(id){
   var it=findLane(id);if(!it)return;
   var ref=(it.title||'').slice(0,160),base=baseLaneItem(id)||{};
   var next=it.verify?'':'yes';
+  var wasOn=!!it.verify;
   supersede(function(o){return o.type==='produces'&&o.itemRef===ref&&/verify|\? cleared/.test(o.text||'');});
-  if(sameValue(next,base.verify)){buildAddendumRegister();
-    setStatus('Back to what the vault says — nothing left queued.');return;}
+  if(sameValue(next,base.verify)){
+    keepPlace(buildAddendumRegister);
+    setStatus((wasOn?'? cleared':'? set')+' — back to what the vault says, so nothing is queued.');return;}
   queueLocally({type:'produces',program:it.program||'',pkg:it.pkg||'',itemRef:ref,
-    text:(it.sheet?it.sheet+' — ':'')+(it.verify?'verified — ? cleared':'flagged to verify (?)')});
-  buildAddendumRegister();
+    text:(it.sheet?it.sheet+' — ':'')+(wasOn?'verified — ? cleared':'flagged to verify (?)')});
+  keepPlace(buildAddendumRegister);
+  // Clearing the ? while the Questions filter is on removes the row from the list you are looking
+  // at. That is the filter working, but it looks exactly like the row being deleted.
+  setStatus(wasOn
+    ? ('? cleared on '+(it.sheet||it.title||'').slice(0,40)
+       +(ADD_FLAG==='verify'?' — and it has left the Questions filter, which is why the row is gone.':''))
+    : ('? set on '+(it.sheet||it.title||'').slice(0,40)+' — nothing on it can be written until it is answered.'));
 }
 // `quiet` means: record it, but do NOT rebuild the register. Every field used to commit on blur
 // and then re-render the entire tab, which tore out the input you had just tabbed into — so a
@@ -6102,6 +7094,18 @@ function toggleVerify(id){
 // deleting a placement) still rebuild; typing into one does not.
 function setAddMeta(id,field,value,label,quiet){
   var it=findLane(id);if(!it)return;
+  // A title is an id here. Renaming onto a name that already exists does not merge the two rows —
+  // it makes both unaddressable, because every op after it hits whichever one comes first.
+  if(field==='title'&&value){
+    var k=String(value).slice(0,60),clash=null;
+    laneItems().forEach(function(x){
+      if(x.id!==id&&String(x.title||'').slice(0,60)===k)clash=x;});
+    if(clash){
+      setStatus('Not renamed — “'+String(value).slice(0,50)+'” is already the name of another row on '
+        +(addLabelFor(addKey(clash.pkg,clash.addendum)))+'. Titles are ids here: two rows under one '
+        +'name means neither can be edited. Give it a name of its own.');
+      buildAddendumRegister();return;}
+  }
   var ref=(it.title||'').slice(0,160),base=baseLaneItem(id)||{};
   // one field, one op — the newest wins and the rest stop existing
   supersede(function(o){return o.type==='addmeta'&&o.itemRef===ref&&o.field===field;});
@@ -6132,17 +7136,34 @@ function addWorkbench(host,key,pool){
   var live=pool.filter(function(i){return !i.pendingComplete&&i.status!=='completed';});
   var done=pool.length-live.length;
   var wb=document.createElement('div');wb.className='wb';
-  var lede0=document.createElement('div');lede0.className='wb-lede';
-  lede0.innerHTML='One row per thing that changes. Give each a <b>state</b> and the document writes '
+  // Five lines of teaching text at the top of the work, every single time. It is the right text
+  // for someone's first week and noise for everyone else, so it folds away and stays folded.
+  var lede0=document.createElement('details');lede0.className='wb-lede wb-lede-d';
+  var ls=document.createElement('summary');ls.textContent='How a row becomes a line in the document';
+  lede0.appendChild(ls);
+  var lede0b=document.createElement('div');lede0.appendChild(lede0b);
+  lede0b.innerHTML='One row per thing that changes. Give each a <b>state</b> and the document writes '
     +'itself: <b>Issue drawing</b> puts the sheet in the List of Attachments, <b>Write-up only</b> '
     +'says it in words with nothing attached, <b>Fix only</b> means we correct it and the bid never '
     +'sees it. Open a row to see the exact lines it will produce.';
   wb.appendChild(lede0);
 
+  // Splitting one addendum into two is only worth doing if the finished half can actually be moved
+  // across in one action. This bar appears exactly when both conditions hold: the package has
+  // somewhere else to move to, and there is finished work sitting here.
+  // The bulk "move finished" bar is gone. Shadi, 2026-08-11: the dropdown on each row is enough,
+  // and a second way to do the same thing — in a different shape, in the busiest part of the page —
+  // is a control you have to think about rather than one you use. moveDoneToAddendum() stays for
+  // the check-in path; it just no longer takes up the top of the list.
+
+
   // 1. Specification or Drawing — the axis the letters never carried. §3 is written by the spec
   //    writer from what you note here; §4 is written here in full.
-  var pr=document.createElement('div');pr.className='wb-bar';
-  var pl=document.createElement('span');pl.className='wb-lbl';pl.textContent='Goes into';pr.appendChild(pl);
+  var pr=document.createElement('div');pr.className='wb-bar wb-filter';
+  // These two are FILTERS. The identical-looking controls on every row are SETTERS. Sitting one
+  // above the other in the same card, in the same shape, they read as the same control printed
+  // twice — so they move down to the filter band with the other filters and say "Show only".
+  var pl=document.createElement('span');pl.className='wb-lbl';pl.textContent='Show only';pr.appendChild(pl);
   [['','Both','Everything riding this addendum'],
    ['spec','Specifications §3','Section 09 06 00 and friends — you note the item, Specifications writes the final words'],
    ['drawing','Drawings §4','One heading per sheet, one line per change — written here, in full']
@@ -6154,22 +7175,79 @@ function addWorkbench(host,key,pool){
     pr.appendChild(b);});
   wb.appendChild(pr);
 
+  // A colour column you have to work out is a colour column nobody reads. Five words, once.
+  (function(){
+    var k=document.createElement('div');k.className='edge-key';
+    var counts={};pool.forEach(function(i){var e=rowEdge(i);counts[e]=(counts[e]||0)+1;});
+    [['stop','would ship wrong'],['ask','needs you'],['ready','ready'],
+     ['quiet','writes nothing'],['done','finished']].forEach(function(o){
+      if(!counts[o[0]])return;
+      var sp=document.createElement('span');sp.className='ek-'+o[0];
+      sp.innerHTML='<i></i><b>'+counts[o[0]]+'</b> '+o[1];k.appendChild(sp);});
+    if(k.children.length>1)wb.appendChild(k);
+  })();
+  // No filter may ever be a dead end. The gate could arm ADD_STATE — untriaged, verify, nosheet —
+  // and the state bar only draws buttons for drawings/writeup/none, so there was literally nothing
+  // on screen that could turn it off again. This strip appears the moment anything is narrowing
+  // the list, says what and by how much, and clears everything in one click.
+  (function(){
+    var on=[];
+    if(ADD_FLAG)on.push({t:({open:'Open',verify:'Questions',done:'Done'})[ADD_FLAG]||ADD_FLAG,
+                         c:function(){ADD_FLAG='';}});
+    if(ADD_STATE)on.push({t:({untriaged:'No state yet',verify:'Flagged ?',nosheet:'No drawing',
+                              ask:'Waiting on an answer',done:'Finished',drawings:'Issue drawing',
+                              writeup:'Write-up only',none:'Fix only'})[ADD_STATE]||ADD_STATE,
+                          c:function(){ADD_STATE='';}});
+    if(ADD_PART)on.push({t:(ADD_PART==='spec'?'Specifications \u00a73':'Drawings \u00a74'),
+                         c:function(){ADD_PART='';}});
+    if(ADD_DISC&&ADD_DISC!=='AR'&&ADD_DISC!=='*')on.push({t:ADD_DISC,c:function(){ADD_DISC='AR';}});
+    if(!on.length)return;
+    var strip=document.createElement('div');strip.className='filt-strip';
+    var txt=document.createElement('span');txt.className='fs-count';
+    strip.appendChild(txt);
+    on.forEach(function(o,ix){
+      var b=document.createElement('button');b.type='button';b.className='filt-chip';
+      b.innerHTML=escapeHtml(o.t)+' <span>\u2715</span>';
+      b.title='Remove this filter';
+      b.addEventListener('click',function(){o.c();buildAddendumRegister();});
+      strip.appendChild(b);});
+    var all=document.createElement('button');all.type='button';all.className='filt-clear';
+    all.textContent='Clear all';
+    all.addEventListener('click',function(){
+      ADD_FLAG='';ADD_STATE='';ADD_PART='';ADD_DISC='AR';buildAddendumRegister();});
+    strip.appendChild(all);
+    wb.appendChild(strip);
+    // the count is only knowable after the rows are filtered — filled in below
+    wb.dataset.filtStrip='1';
+  })();
   var parted=ADD_PART?pool.filter(function(i){return itemPart(i)===ADD_PART;}):pool;
 
   // 2. the three states, then the ? — counts come from what the part switch left standing
-  var sr=document.createElement('div');sr.className='wb-bar';
+  var sr=document.createElement('div');sr.className='wb-bar wb-filter';
   var sl=document.createElement('span');sl.className='wb-lbl';sl.textContent='State';sr.appendChild(sl);
   var partForLabels=ADD_PART||'drawing';
-  [['drawings'],['writeup'],['none'],['untriaged'],['verify']].forEach(function(o){
+  // `ask` and `done` are filters on the WORK, not on what the item produces — an item can be
+  // waiting on an answer and still be an Issue drawing. They sit on the same bar because that is
+  // where you already look, and because both were previously invisible: an open question had no
+  // surface here at all, and a finished row sat greyed out in the middle of the list with no way
+  // to isolate it or to get it out of the way.
+  [['drawings'],['writeup'],['none']].forEach(function(o){
     var k=o[0];
     var n=parted.filter(function(i){
       if(k==='untriaged')return !i.produces;
       if(k==='verify')return !!i.verify;
+      if(k==='ask')return !!i.ask;
+      if(k==='done')return i.status==='completed'||i.pendingComplete;
       return i.produces===k;}).length;
     var b=document.createElement('button');b.type='button';
-    b.className='wb-chip s-'+k+((ADD_STATE===k)?' on':'');
-    b.textContent=(k==='untriaged'?'Untriaged':k==='verify'?'? to verify':produceLabel(partForLabels,k))+'  '+n;
+    b.className='wb-chip s-'+k+((ADD_STATE===k)?' on':'')+(n?'':' is-zero');
+    b.textContent=(k==='untriaged'?'Untriaged':k==='verify'?'? to verify'
+      :k==='ask'?'Questions':k==='done'?'Done':produceLabel(partForLabels,k))+'  '+n;
     b.title=k==='verify'?'Flagged for Chris H to confirm before it can be written'
+      :k==='ask'?'Waiting on an answer — the item carries an unanswered question. Different from ? to verify: '
+        +'that one is ours to confirm, this one is out with someone else.'
+      :k==='done'?'The work is finished. It is still addendum content — the state decides what goes in '
+        +'the document, the tick only says the drawing is done.'
       :(k==='untriaged'?'No decision yet — cannot go in the document':produceHint(partForLabels,k));
     b.addEventListener('click',function(){setAddState(k);});
     sr.appendChild(b);});
@@ -6215,20 +7293,69 @@ function addWorkbench(host,key,pool){
     wb.appendChild(ub);
   }
 
+  // A shortcut nobody is told about is a shortcut nobody uses.
+  (function(){
+    var h=document.createElement('details');h.className='kbd-hint';
+    // Every other localStorage read on this page is wrapped, and for good reason: it throws
+    // outright under a blocked-cookies or opaque-origin context, and an unguarded read here took
+    // the entire register down with it rather than just losing a preference.
+    try{h.open=(localStorage.getItem('wt-kbd-open')==='1');}catch(e){h.open=false;}
+    h.addEventListener('toggle',function(){try{localStorage.setItem('wt-kbd-open',h.open?'1':'0');}catch(e){}});
+    var sm=document.createElement('summary');sm.textContent='Keyboard';h.appendChild(sm);
+    var body=document.createElement('div');
+    body.innerHTML='<kbd>j</kbd><kbd>k</kbd> walk the list \u00b7 <kbd>1</kbd> issue drawing '
+      +'<kbd>2</kbd> write-up <kbd>3</kbd> fix only \u00b7 <kbd>?</kbd> flag \u00b7 '
+      +'<kbd>d</kbd> done \u00b7 <kbd>Enter</kbd> open \u00b7 <kbd>Ctrl</kbd>+<kbd>Z</kbd> undo';
+    h.appendChild(body);
+    wb.appendChild(h);
+  })();
   // 3. the rows. Grouped by state so "what can I hand over" is a block, not a scan.
   var rows=parted.filter(function(i){
+    // the page-level Show filter applies here too. It sat above every view and moved only
+    // Contents, which is indistinguishable from being broken.
+    if(ADD_FLAG==='verify'&&!i.verify)return false;
+    if(ADD_FLAG==='open'&&(i.status==='completed'||i.pendingComplete))return false;
+    if(ADD_FLAG==='done'&&!(i.status==='completed'||i.pendingComplete))return false;
     if(!ADD_STATE)return true;
     if(ADD_STATE==='untriaged')return !i.produces;
     if(ADD_STATE==='verify')return !!i.verify;
+    if(ADD_STATE==='nosheet')return !placementSheets(i).length;
+    if(ADD_STATE==='done')return i.status==='completed'||i.pendingComplete;
     return i.produces===ADD_STATE;});
+  (function(){
+    var fc=wb.querySelector('.fs-count');
+    if(fc)fc.innerHTML='Showing <b>'+rows.length+'</b> of <b>'+pool.length+'</b> \u2014 filtered by ';
+  })();
   if(!rows.length){
     var e=document.createElement('div');e.className='wb-empty';
-    e.textContent='Nothing here with those filters.';wb.appendChild(e);host.appendChild(wb);return;}
+    e.textContent='Nothing matches these filters \u2014 clear one above to get the list back.';
+    wb.appendChild(e);host.appendChild(wb);return;}
 
-  var groups=ADD_PART==='spec'?['drawings','writeup','none','']:['drawings','writeup','none',''];
+  // Grouping is by what the row PRODUCES. Filtering by question or by done cuts across that, so
+  // those two render as a single list — three empty headings above one populated one is not a
+  // grouping, it is furniture.
+  var groups=(ADD_STATE==='ask'||ADD_STATE==='done')?null
+    :(ADD_PART==='spec'?['drawings','writeup','none','']:['drawings','writeup','none','']);
+  if(!groups){
+    var flat=rows.slice().sort(function(a,b){return sheetRowSortKey(a)<sheetRowSortKey(b)?-1:1;});
+    var fh=document.createElement('div');fh.className='sh-group g-'+ADD_STATE;
+    fh.innerHTML=escapeHtml(ADD_STATE==='ask'?'Waiting on an answer':'Finished')
+      +' <span class="n">'+flat.length+' \u00b7 '
+      +escapeHtml(ADD_STATE==='ask'
+        ?'an unanswered question sits on these \u2014 chase it before the packaging cutoff'
+        :'the drawing is done; its state still decides what goes in the document')+'</span>';
+    wb.appendChild(fh);
+    flat.forEach(function(it){wb.appendChild(sheetRow(it));});
+    if(done){
+      var dn0=document.createElement('div');dn0.className='wb-donenote';
+      dn0.textContent='\u2713 '+done+' of these are finished.';
+      if(ADD_STATE!=='done')wb.appendChild(dn0);
+    }
+    host.appendChild(wb);return;
+  }
   groups.forEach(function(g){
     var grp=rows.filter(function(i){return (i.produces||'')===g;})
-      .sort(function(a,b){return sheetSortKey(a)<sheetSortKey(b)?-1:1;});
+      .sort(function(a,b){return sheetRowSortKey(a)<sheetRowSortKey(b)?-1:1;});
     if(!grp.length)return;
     var h=document.createElement('div');h.className='sh-group g-'+(g||'untriaged');
     h.innerHTML=escapeHtml(produceLabel(partForLabels,g))+' <span class="n">'+grp.length+' · '
@@ -6246,62 +7373,108 @@ function addWorkbench(host,key,pool){
 }
 function openAddSheet(anchor,addNo,pkg,program){
   var ex=anchor.parentNode.querySelector(':scope>.sh-addform');if(ex){ex.remove();return;}
-  var f=document.createElement('div');f.className='sh-addform';
-  var chosen={p:'',q:false,part:'drawing'};
-  var pseg=document.createElement('span');pseg.className='sh-pick';
-  [['drawing','§4 Drawing'],['spec','§3 Spec']].forEach(function(o){
-    var b=document.createElement('button');b.type='button';b.textContent=o[1];
-    if(chosen.part===o[0])b.classList.add('on');
-    b.addEventListener('click',function(){chosen.part=o[0];
-      pseg.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');
-      sh.placeholder=chosen.part==='spec'?'Section no. — e.g. 09 06 00':'Sheet no. — comma-separated if several';});
-    pseg.appendChild(b);});
-  var sh=document.createElement('input');sh.type='text';sh.placeholder='Sheet no. — comma-separated if several';sh.className='sh-in sh-in-no';
-  // the project drawing list, so a sheet is chosen rather than remembered
-  sh.setAttribute('list','sheetList');
-  sh.addEventListener('input',function(){
-    if(chosen.part==='spec')return;
-    var v=sh.value.split(/[,;]+/).pop().trim();
-    var nm=v?knownSheet(pkg,v):null;
-    sh.title=!v?'':(nm!==null?nm:'Not on the project drawing list — check the number, or it is a drawing this addendum adds');
-    sh.classList.toggle('pl-unknown',!!v&&nm===null);
-  });
-  var ti=document.createElement('input');ti.type='text';ti.placeholder='What changes on it';ti.className='sh-in';
+  var f=document.createElement('div');f.className='sh-addform sh-addform-full';
+  // A PROVISIONAL ITEM. It carries exactly the fields placementEditor reads, so adding a row and
+  // editing one are the same component — not a simplified copy that drifts out of step with the
+  // real thing. `_save` is the only difference: there is no id to queue an op against yet, so the
+  // list is held here and handed over when the row is created.
+  var prov={id:'new',pkg:pkg||'',program:program||'',addendum:addNo||'',part:'drawing',
+            section:'',title:'',
+            placements:[{sheet:'',view:'',no:'',room:'',element:'',alt:'',text:'',override:''}]};
+  prov._save=function(list){prov.placements=list;};
+  var chosen={p:'',q:false};
+
+  // GOES INTO — the same three the row carries, in the same order, with the same labels
+  var pw=document.createElement('span');pw.className='sh-part';
+  [['drawing','Drawing','4','\u00a74 Drawings \u2014 written here in full, one heading per sheet'],
+   ['spec','Spec','3','\u00a73 Specifications \u2014 you leave a note; the spec writer writes the final words'],
+   ['both','Both','','One change needing a spec note AND a drawing revision. It appears in \u00a73 and \u00a74.']
+  ].forEach(function(o){
+    var b=document.createElement('button');b.type='button';b.title=o[3];b.className='p-'+o[0];
+    b.appendChild(document.createTextNode(o[1]));
+    if(o[2]){var sp=document.createElement('sup');sp.textContent='\u00a7'+o[2];b.appendChild(sp);}
+    if(prov.part===o[0])b.classList.add('on');
+    b.addEventListener('click',function(e){e.stopPropagation();
+      prov.part=o[0];
+      pw.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});
+      b.classList.add('on');paintBody();});
+    pw.appendChild(b);});
+
+  var body=document.createElement('div');body.className='sh-addbody';
+  function paintBody(){
+    body.innerHTML='';
+    if(isSpecPart(prov)){
+      var sw=document.createElement('span');sw.className='sh-f';
+      var sl2=document.createElement('label');sl2.textContent='Specification section';
+      sl2.title='The \u00a73 heading. Written as it appears in the document.';sw.appendChild(sl2);
+      var secIn=document.createElement('input');secIn.type='text';secIn.className='sh-in';
+      secIn.placeholder='09 06 00 \u2013 Schedule for Finishes';secIn.value=prov.section||'';
+      secIn.addEventListener('input',function(){prov.section=secIn.value.trim();});
+      secIn.addEventListener('keydown',function(e){e.stopPropagation();});
+      sw.appendChild(secIn);body.appendChild(sw);
+    }
+    if(isDrawPart(prov))body.appendChild(placementEditor(prov));
+  }
+  paintBody();
+
   var pick=document.createElement('span');pick.className='sh-pick';
-  [['drawings','Issue'],['writeup','Write-up'],['none','Fix only']].forEach(function(p){
-    var b=document.createElement('button');b.type='button';b.textContent=p[1];b.title=produceHint('drawing',p[0]);
-    b.addEventListener('click',function(){
+  [['drawings'],['writeup'],['none']].forEach(function(p){
+    var b=document.createElement('button');b.type='button';
+    b.textContent=produceLabel(prov.part,p[0]);b.title=produceHint(prov.part,p[0]);
+    b.addEventListener('click',function(e){e.stopPropagation();
       chosen.p=chosen.p===p[0]?'':p[0];
       pick.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});
       if(chosen.p)b.classList.add('on');});
     pick.appendChild(b);});
-  var q=document.createElement('button');q.type='button';q.textContent='?';q.title='needs verifying';
-  q.addEventListener('click',function(){chosen.q=!chosen.q;q.classList.toggle('on',chosen.q);q.classList.toggle('q',chosen.q);});
+  var q=document.createElement('button');q.type='button';q.textContent='?';
+  q.title='needs verifying \u2014 Chris H';
+  q.addEventListener('click',function(e){e.stopPropagation();
+    chosen.q=!chosen.q;q.classList.toggle('on',chosen.q);q.classList.toggle('q',chosen.q);});
   pick.appendChild(q);
-  var save=document.createElement('button');save.type='button';save.textContent='Add';save.className='hist-more';save.style.margin='0';
-  var cancel=document.createElement('button');cancel.type='button';cancel.textContent='Cancel';cancel.className='pcancel';
+
+  var save=document.createElement('button');save.type='button';save.textContent='Add';
+  save.className='hist-more';save.style.margin='0';
+  var cancel=document.createElement('button');cancel.type='button';cancel.textContent='Cancel';
+  cancel.className='pcancel';
   var hint=document.createElement('span');hint.className='inline-capture-hint';
-  hint.textContent='Appears immediately, for everyone · queued for the next check-in';
+  hint.textContent='Appears immediately, for everyone \u00b7 queued for the next check-in';
+
   function commit(){
-    var t=ti.value.trim();if(!t){f.remove();return;}
-    var num=sh.value.trim();
-    queueLocally({type:'sheet',program:program||'',pkg:pkg||'',addendum:addNo||'',
-      sheet:chosen.part==='spec'?'':num,section:chosen.part==='spec'?num:'',
-      part:chosen.part,scope:ADD_DISC==='*'?'AR':ADD_DISC,disc:ADD_DISC==='*'?'AR':ADD_DISC,
-      produces:chosen.p||'',verify:chosen.q?'yes':'',
-      text:(num?num+' — ':'')+t});
+    var pls=(prov.placements||[]).filter(function(p){
+      return String(p.sheet||'').trim()||String(p.text||'').trim()||String(p.override||'').trim();});
+    var first=pls[0]||{};
+    var no=String(first.sheet||'').trim();
+    var key=addKey(prov.pkg,prov.addendum);
+    var nm=(typeof sheetNameFor==='function'?sheetNameFor(key,no,prov.pkg):'')||'';
+    var desc=String(first.text||first.override||'').trim();
+    // Same rule as every other row: the name is the first drawing, plus that drawing's name.
+    var title = no ? (no+' \u2014 '+(nm||desc||'(unnamed drawing)'))
+                   : (prov.section?(prov.section+(desc?' \u2014 '+desc:'')):desc);
+    if(!title){f.remove();return;}
+    queueLocally({type:'sheet',program:prov.program,pkg:prov.pkg,addendum:prov.addendum,
+      sheet:isDrawPart(prov)?no:'',section:prov.section||'',part:prov.part,
+      scope:ADD_DISC==='*'?'AR':ADD_DISC,disc:ADD_DISC==='*'?'AR':ADD_DISC,
+      produces:chosen.p||'',verify:chosen.q?'yes':'',text:title});
+    if(isDrawPart(prov)&&pls.length){
+      queueLocally({type:'addmeta',program:prov.program,pkg:prov.pkg,
+        itemRef:title.slice(0,160),field:'placements',value:JSON.stringify(pls),
+        text:(no?no+' \u2014 ':'')+'Placements: '+pls.length+' line(s)'});
+    }
     f.remove();buildAddendumRegister();rebuildPendingList();
-    setStatus('Added — copy for check-in to make it permanent.');
+    setStatus('Added \u2014 copy for check-in to make it permanent.');
   }
-  save.addEventListener('click',commit);
-  cancel.addEventListener('click',function(){f.remove();});
-  [sh,ti].forEach(function(el){el.addEventListener('keydown',function(e){
-    e.stopPropagation();
-    if(e.key==='Enter')commit();
-    if(e.key==='Escape')f.remove();});});
-  f.appendChild(pseg);f.appendChild(sh);f.appendChild(ti);f.appendChild(pick);f.appendChild(save);f.appendChild(cancel);f.appendChild(hint);
+  save.addEventListener('click',function(e){e.stopPropagation();commit();});
+  cancel.addEventListener('click',function(e){e.stopPropagation();f.remove();});
+  f.addEventListener('keydown',function(e){
+    if(e.key==='Escape'){e.stopPropagation();f.remove();}});
+
+  var bar=document.createElement('div');bar.className='sh-addbar';
+  bar.appendChild(pw);bar.appendChild(pick);bar.appendChild(save);bar.appendChild(cancel);
+  bar.appendChild(hint);
+  f.appendChild(bar);f.appendChild(body);
   anchor.insertAdjacentElement('afterend',f);
-  ti.focus();
+  var focus=f.querySelector('.pl-sheet')||f.querySelector('.sh-in');
+  if(focus)focus.focus();
 }
 
 // ---- one row -----------------------------------------------------------------------------------
@@ -6378,13 +7551,52 @@ function shBlock(title,hint){
   if(hint){var sp=document.createElement('span');sp.textContent=hint;h.appendChild(sp);}
   b.appendChild(h);return b;
 }
+// ── the left edge ────────────────────────────────────────────────────────────────────────────
+// A row already tells you what it is (§4/§3, at the front) and what it does (the state group). The
+// edge is the only channel you can read WITHOUT reading the row — a column you scan down — so it
+// carries the one thing nothing else on the row says: does this need me, and how badly.
+//
+// Five states, in strict precedence, because a row can be several at once and the edge must answer
+// with the most urgent. All five come from the reserved status set — no new colour is invented.
+//
+//   stop   would ship wrong   two rows share this name · in the document with no sheet, or a line
+//                             still holding a ⟨slot⟩ — it would print as a placeholder
+//   ask    a decision is owed no state yet, or flagged ?  — nothing can be written until you say
+//   none   ready              in the document, complete, nothing owed. Calm IS the information.
+//   quiet  writes nothing     Fix only — real work, deliberately not addendum content
+//   done   finished           ticked
+function rowEdge(it){
+  if(it.titleClash)return 'stop';
+  if(it.pendingComplete||it.status==='completed')return 'done';
+  if(!it.produces)return 'ask';
+  if(it.verify)return 'ask';
+  if(it.produces==='none')return 'quiet';
+  if(inDocument(it)){
+    if(isSpecPart(it)&&!(it.note||'').trim())return 'stop';
+    if(isDrawPart(it)){
+      var pls=placementsOf(it);
+      if(!pls.length)return 'stop';
+      for(var i=0;i<pls.length;i++){
+        var ln=(pls[i].override||'').trim()||(pls[i].text||'').trim();
+        if(!pls[i].sheet||!ln||PL_SLOT.test(ln))return 'stop';
+      }
+    }
+  }
+  return 'ready';
+}
 function sheetRow(it){
   var part=itemPart(it),sheets=(itemPart(it)==='spec')?itemSheets(it):placementSheets(it);
   var nLines=isDrawPart(it)?placementsOf(it).length:0;
   var row=document.createElement('div');
   row.id='sh-'+it.id;
-  row.className='sh-row pt-'+part+(!it.produces?' untriaged':'')+(it.verify?' verify':'')
+  var edge=rowEdge(it);
+  row.className='sh-row pt-'+part+' e-'+edge+(!it.produces?' untriaged':'')+(it.verify?' verify':'')
     +(sheets.length?'':' noSheet')+(it.pendingComplete||it.status==='completed'?' sh-doneRow':'');
+  row.title=({stop:'Would ship wrong — see the gate above',
+              ask:'Needs a decision from you before anything can be written',
+              ready:'Ready — in the document, nothing outstanding',
+              quiet:'Fix only — real work, but it writes nothing into the addendum',
+              done:'Finished'})[edge]||'';
   var head=document.createElement('div');head.className='sh-head';
   var no=document.createElement('span');no.className='sh-no';
   if(isSpecPart(it)&&!itemSheets(it).length){
@@ -6396,9 +7608,18 @@ function sheetRow(it){
   else if(sheets.length){no.textContent=sheets[0];}
   else{no.textContent=it.lane?'— no sheet':'◇ from the board';}
   if(it.detail)no.textContent=it.detail+'/'+(sheets[0]||'?');
+  var pb=null;
+  if(it.titleClash){
+    row.classList.add('clashRow');
+    var cw=document.createElement('div');cw.className='sh-clash';
+    cw.textContent='\u26a0 '+it.titleClash+' rows share this exact name. Every control here is keyed '
+      +'by title, so these buttons may be driving the other row — rename one of them before trusting '
+      +'the state on either.';
+    row.appendChild(cw);
+  }
   if(it.pendingLocal){row.classList.add('pendingRow');
-    var pb=document.createElement('span');pb.className='badge p';pb.textContent='PENDING';
-    pb.title='Captured here, not yet folded into the vault';head.appendChild(pb);}
+    pb=document.createElement('span');pb.className='badge p';pb.textContent='PENDING';
+    pb.title='Captured here, not yet folded into the vault';}
   // It was buried in the expander. "Is this a spec item or a drawing item?" is the FIRST question
   // about a row, not a detail of it, so it sits at the front of the row where it reads as a switch.
   var pw=document.createElement('span');pw.className='sh-part';
@@ -6416,10 +7637,67 @@ function sheetRow(it){
     pw.appendChild(b);});
   head.appendChild(pw);
   var ti=document.createElement('span');ti.className='sh-title';
-  ti.textContent=(it.title||'').replace(/^A\S+\s+—\s+/,'');
   head.appendChild(no);head.appendChild(ti);
-  if(it.byLast){var bb=document.createElement('span');bb.className='op-by';bb.textContent='· '+it.byLast;
-    bb.title='Last changed by '+it.byLast;head.appendChild(bb);}
+  // The name a drawing already has. Typing it again by hand is how A5.31.21 ends up called three
+  // different things in one addendum, so the row offers the register's own wording in one click.
+  var inheritName=(function(){
+    var no0=sheets[0]||'';if(!no0||(isSpecPart(it)&&!itemSheets(it).length))return '';
+    var nm=(typeof sheetNameFor==='function')
+      ? (sheetNameFor(addKey(it.pkg,it.addendum),no0,it.pkg)||'') : '';
+    if(!nm)return '';
+    var want=no0+' \u2014 '+nm;
+    return (it.title||'')===want?'':want;
+  })();
+  function paintTitle(){
+    ti.innerHTML='';
+    ti.appendChild(document.createTextNode((it.title||'').replace(/^A\S+\s+\u2014\s+/,'')||'(untitled)'));
+    if(pb)ti.appendChild(pb);
+    // An amber edge is a colour you have to remember the meaning of. These say it.
+    [it.verify?['sh-pill-q','flagged ?','Not yet confirmed with Chris H']:null,
+     it.ask?['sh-pill-a','question out','Waiting on an answer from someone else']:null,
+     (!it.produces)?['sh-pill-u','no state','Nothing is written for it, so the document is short by that much']:null
+    ].forEach(function(p){
+      if(!p)return;
+      var sp=document.createElement('span');sp.className='sh-pill '+p[0];
+      sp.textContent=p[1];sp.title=p[2];ti.appendChild(sp);});
+    if(it.byLast){var bb=document.createElement('span');bb.className='op-by';
+      bb.textContent='\u00b7 '+it.byLast;bb.title='Last changed by '+it.byLast;ti.appendChild(bb);}
+    var pen=document.createElement('button');pen.type='button';pen.className='sh-tbtn';
+    pen.textContent='\u270e';pen.title='Rename this item';
+    pen.addEventListener('click',function(e){e.stopPropagation();editTitle();});
+    ti.appendChild(pen);
+    if(inheritName){
+      var ib=document.createElement('button');ib.type='button';ib.className='sh-inherit';
+      ib.textContent='use drawing name';
+      ib.title='Rename to \u201c'+inheritName+'\u201d \u2014 the name this sheet carries on the drawing list';
+      ib.addEventListener('click',function(e){e.stopPropagation();
+        setAddMeta(it.id,'title',inheritName,'Title');});
+      ti.appendChild(ib);
+    }
+  }
+  function editTitle(){
+    ti.innerHTML='';
+    var w=document.createElement('span');w.className='sh-name-edit';
+    var inp=document.createElement('input');inp.type='text';inp.value=it.title||'';
+    var save=document.createElement('button');save.type='button';save.className='sh-tbtn';
+    save.textContent='\u2713';save.title='Save the new name';
+    var cx=document.createElement('button');cx.type='button';cx.className='sh-tbtn';
+    cx.textContent='\u2715';cx.title='Leave the name as it was';
+    function commitName(){
+      var v=inp.value.trim();
+      if(!v||v===(it.title||'')){paintTitle();return;}
+      setAddMeta(it.id,'title',v,'Title');
+    }
+    save.addEventListener('click',function(e){e.stopPropagation();commitName();});
+    cx.addEventListener('click',function(e){e.stopPropagation();paintTitle();});
+    inp.addEventListener('keydown',function(e){e.stopPropagation();
+      if(e.key==='Enter')commitName();
+      if(e.key==='Escape')paintTitle();});
+    inp.addEventListener('click',function(e){e.stopPropagation();});
+    w.appendChild(inp);w.appendChild(save);w.appendChild(cx);
+    ti.appendChild(w);inp.focus();inp.select();
+  }
+  paintTitle();
   var pick=document.createElement('span');pick.className='sh-pick';
   [['drawings'],['writeup'],['none']].forEach(function(p){
     var b=document.createElement('button');b.type='button';
@@ -6432,6 +7710,24 @@ function sheetRow(it){
   if(it.verify)q.classList.add('on','q');
   q.addEventListener('click',function(e){e.stopPropagation();toggleVerify(it.id);});
   pick.appendChild(q);
+  // Which addendum this row rides. Shown only when the package has more than one — a control with
+  // a single answer is a control you learn to ignore. Changing it queues the retag; it does not
+  // touch the vault until the next check-in, same as every other field on this row.
+  var dests=addendaForPkg(it.pkg),here=addKey(it.pkg,it.addendum);
+  if(dests.length>1){
+    var mv=document.createElement('select');mv.className='sh-move';
+    mv.title='Which addendum this item rides. Changing it queues a retag for the next check-in — '
+      +'the state still decides what the document says, this only decides which document.';
+    mv.setAttribute('aria-label','Addendum for '+(it.title||''));
+    dests.forEach(function(k){
+      var o=document.createElement('option');o.value=k;
+      o.textContent='Add '+(ADD_GROUPS[k]?ADD_GROUPS[k].num:k.split('|')[1]);
+      if(here===k)o.selected=true;
+      mv.appendChild(o);});
+    mv.addEventListener('click',function(e){e.stopPropagation();});
+    mv.addEventListener('change',function(e){e.stopPropagation();moveToAddendum(it.id,mv.value);});
+    head.appendChild(mv);
+  }
   head.appendChild(pick);
   var cb=document.createElement('input');cb.type='checkbox';cb.className='sh-done';
   cb.title='Mark the WORK done. The item stays in the addendum — its state decides that, not this.';
@@ -6452,6 +7748,34 @@ function sheetRow(it){
     buildAddendumRegister();
   });
   head.appendChild(cb);
+  // Contents had a delete and Sheet work did not, so a row added on the wrong sheet could only be
+  // removed by switching views to find the same item again. Same two meanings as there: a capture
+  // that was never folded is voided outright, anything the vault knows is dropped at check-in.
+  var xb=document.createElement('button');xb.type='button';xb.className='sh-x';
+  xb.textContent='\u2715';
+  xb.title=it.pendingLocal?'Delete this item \u2014 it was added here and never folded'
+    :('Drop this item from Addendum '+addNum(it.addendum)
+      +' \u2014 off the list now, out of the vault at check-in');
+  xb.addEventListener('click',function(e){
+    e.stopPropagation();
+    if(!window.confirm(it.pendingLocal
+      ?('Delete \u201c'+(it.title||'').slice(0,60)+'\u201d? It was added here and never folded, so it goes for good.')
+      :('Drop \u201c'+(it.title||'').slice(0,60)+'\u201d from Addendum '+addNum(it.addendum)+'?')))return;
+    if(it.pendingLocal&&it.srcOp){
+      voidOp({id:it.srcOp});
+      buildAddendumRegister();rebuildPendingList();
+      setStatus('Deleted \u2014 it was never folded, so it is simply gone.');
+      return;
+    }
+    var payload={type:'unaddendum',program:it.program||'',pkg:it.pkg||'',
+                 itemRef:(it.title||'').slice(0,160),
+                 text:'Remove from Addendum '+addNum(it.addendum),ts:new Date().toISOString()};
+    queueLocally(payload);renderPendingRow(payload);
+    buildAddendumRegister();
+    setStatus('Dropped from Addendum '+addNum(it.addendum)
+      +' \u2014 gone from the list now, and from the vault at check-in.');
+  });
+  head.appendChild(xb);
   row.appendChild(head);
 
   var det=(window.LAST_DATA&&LAST_DATA.details&&LAST_DATA.details[it.id])||{};
@@ -6639,16 +7963,118 @@ function addQuestionsPanel(host,key,g){
 // is a question from the design side during the work, a bid inquiry is a question from a BIDDER
 // after the documents go out. They arrive post-bid and fold into the first addendum after close.
 // Auto-filling §5 from the RFIs would have shipped eleven fabricated Q/A pairs into a bid document.
+// A bid inquiry used to exist ONLY as a queued op, which meant §5 emptied itself the moment a
+// check-in folded the queue away. They have a vault file now — Projects/Bid Inquiries.md — and this
+// reads both: what the vault knows, plus anything typed here and not yet folded. Same shape as
+// every other register on this page.
 function inquiriesFor(key){
-  return (readQueue()||[]).filter(function(p){
+  var vault=((window.LAST_DATA&&LAST_DATA.inquiries)||[]).filter(function(q){
+    return addKey(q.pkg,q.addendum)===key;}).map(function(q){
+      return {type:'inquiry',addendum:key,qno:q.qno,q:q.q,a:q.a,pkg:q.pkg||'',
+              program:q.program||'',by:q.by||'',img:q.img||null,
+              fromVault:true,id:'vq-'+key+'-'+q.qno};});
+  var queued=(readQueue()||[]).filter(function(p){
     return p.type==='inquiry'&&p.addendum===key;});
+  var seen={},vimg={};
+  vault.forEach(function(v){if(v.img)vimg[String(v.qno||'')]=v.img;});
+  queued.forEach(function(p){seen[String(p.qno||'')]=1;
+    // answering a folded inquiry must not drop the markup that came with it
+    if(!p.img&&vimg[String(p.qno||'')])p.img=vimg[String(p.qno||'')];});
+  return vault.filter(function(v){return !seen[String(v.qno||'')];}).concat(queued)
+    .sort(function(a,b){
+      var na=parseFloat(a.qno),nb=parseFloat(b.qno);
+      if(isNaN(na)||isNaN(nb))return String(a.qno)<String(b.qno)?-1:1;
+      return na-nb;});
+}
+// An answer that requires a document change is not the same as an answer. This is the bridge:
+// tick the row and the change becomes a real item on this addendum, carrying the Q number so the
+// §3 note or the §4 line can say where it came from. It is a DECISION you make one inquiry at a
+// time — not a derivation, which is the thing this register has always refused to do.
+function inqItemOp(p){
+  var q=(readQueue()||[]).filter(function(o){
+    return o.type==='sheet'&&o.inqRef===String(p.qno||'')&&o.addendum===addRawOf(p.addendum);});
+  return q[0]||null;
+}
+function addRawOf(key){return rawAddendumFor(key);}
+// One inquiry, one name — used for the promoted item's title AND as the picture's itemRef, so a
+// markup added to the question travels with the item the question becomes.
+function inqRef(p){
+  return ('Bid inquiry Q'+p.qno+' — '+String(p.q||'').replace(/\s+/g,' ')).slice(0,160);
+}
+// A bid inquiry ALWAYS has an answer — an unanswered one is an open gap, not a finished row — and it
+// MAY also change a document, as a spec note, a drawing revision, or both. Those are two different
+// questions, which is why the answer is a field and the change is a switch.
+// Inquiries are keyed by Q number, exactly as items are keyed by title — so two questions under
+// one number is the same failure as two rows under one name, and it lands the same way: the second
+// silently replaces the first and nobody sees it go. Guarded at the door instead.
+function qnoTaken(key,qno,exclude){
+  return inquiriesFor(key).some(function(x){
+    return String(x.qno)===String(qno)&&x!==exclude;});
+}
+function nextQno(key){
+  var used={};inquiriesFor(key).forEach(function(x){used[String(x.qno)]=1;});
+  var n=1;while(used[String(n)])n++;return String(n);
+}
+function saveInquiry(p,q,a){
+  var key=p.addendum;
+  supersede(function(o){return o.type==='inquiry'&&o.addendum===key
+    &&String(o.qno)===String(p.qno);});
+  if(p.fromVault&&sameValue(q,p.q)&&sameValue(a,p.a)){buildAddendumRegister();
+    setStatus('Back to what the vault says — nothing left queued for Q'+p.qno+'.');return;}
+  queueLocally({type:'inquiry',addendum:key,qno:p.qno,q:q,a:a,
+    program:p.program||'',pkg:p.pkg||'',
+    text:'§5 Q'+p.qno+': '+String(a||'(no answer yet)').slice(0,90)});
+  buildAddendumRegister();
+  setStatus(a?('Q'+p.qno+' answered — it writes into §5 and folds at check-in.')
+             :('Q'+p.qno+' saved, still unanswered — §5 will say so out loud.'));
+}
+// Take me to the row this made. The same courtesy the gate chips give — a count you can click —
+// applied to the one place the register creates something you cannot see.
+function jumpToSheetRow(key,title){
+  ADD_OPEN=key;ADD_MODE='sheets';
+  ADD_FLAG='';ADD_STATE='';ADD_PART='';   // never land somewhere a filter is hiding the thing
+  buildAddendumRegister();
+  var want=String(title||'').slice(0,60);
+  var hit=null;
+  addPoolFor(key).forEach(function(i){if(String(i.title||'').slice(0,60)===want)hit=i;});
+  if(!hit){setStatus('It is on this addendum, but not under that name any more.');return;}
+  var el=document.getElementById('sh-'+hit.id);
+  if(!el){setStatus('Made it \u2014 it is in the list.');return;}
+  el.classList.add('sh-hit');
+  if(el.scrollIntoView)try{el.scrollIntoView({block:'center',behavior:'smooth'});}catch(e){}
+  setTimeout(function(){el.classList.remove('sh-hit');},2200);
+}
+function inqPromote(p,part){
+  var key=p.addendum,g=ADD_GROUPS[key]||{};
+  var cur=inqItemOp(p);
+  if(cur){
+    // same button again = untick; the other button = change which half it lands in
+    if((cur.part||'drawing')===part){
+      voidOp(cur);buildAddendumRegister();
+      setStatus('Q'+p.qno+' is back to being just an answer — no document change on this addendum.');
+      return;}
+    voidOp(cur);
+  }
+  queueLocally({type:'sheet',program:g.program||p.program||'Concourse B',pkg:g.pkg||p.pkg||'',
+    addendum:addRawOf(key),sheet:'',section:'',part:part,scope:'AR',disc:'AR',
+    produces:'',verify:'',inqRef:String(p.qno||''),
+    text:inqRef(p),ts:new Date().toISOString()});
+  buildAddendumRegister();
+  setStatus('Q'+p.qno+' also became a '+(part==='spec'?'\u00a73 specification'
+      :part==='both'?'\u00a73 + \u00a74':'\u00a74 drawing')
+    +' item on '+addLabelFor(key)+' \u2014 give it a sheet and a state in Sheet work. '
+    +'The question and answer stay in \u00a75.');
 }
 function addInquiryBlock(host,key){
   var box=document.createElement('div');box.className='inq-box';
   var h=document.createElement('div');h.className='sh-group';
   var list=inquiriesFor(key);
-  h.innerHTML='§5 Bid Inquiries — from BIDDERS <span class="n">'+list.length+' · '
-    +'typed in one at a time — never derived from a thread or the RFI register</span>';
+  // The subtitle carried the design rationale — true, and read two hundred times by people who
+  // already know it. What you come here for is the count and the gap; the reasoning is one click
+  // away in the note below.
+  var unN=list.filter(function(q){return !String(q.a||'').trim();}).length;
+  h.innerHTML='Bid inquiries <span class="n">'+n_(list.length,'question')
+    +(unN?' \u00b7 <b class="needs">'+unN+' still unanswered</b>':' \u00b7 all answered')+'</span>';
   box.appendChild(h);
   var lede=document.createElement('div');lede.className='wb-lede';
   lede.innerHTML='A bid inquiry is a <b>bidder’s</b> question after the documents go out, with '
@@ -6657,25 +8083,102 @@ function addInquiryBlock(host,key){
     +'raised during the work. Until a real one exists, §5 is not written at all.';
   box.appendChild(lede);
   list.forEach(function(p,ix){
-    var r=document.createElement('div');r.className='inq-row';
-    var q=document.createElement('div');q.className='inq-q';
-    q.textContent='Q'+(p.qno||(ix+1))+': '+(p.q||'');r.appendChild(q);
-    var a=document.createElement('div');a.className='inq-a';
-    a.textContent='A'+(p.qno||(ix+1))+': '+(p.a||'[not answered yet]');
-    if(!p.a)a.classList.add('inq-unanswered');
-    r.appendChild(a);
+    var r=document.createElement('div');r.className='inq-row'+(p.a?'':' inq-open');
+    var no=(p.qno||(ix+1));
+    // Both halves are editable in place. The answer is the point of the row — it was printed as
+    // dead text, which meant the one thing you come here to do could not be done here.
+    function field(cls,lab,val,ph,commit){
+      var w=document.createElement('div');w.className='inq-f '+cls;
+      var l=document.createElement('span');l.className='inq-lbl';l.textContent=lab+no+':';
+      w.appendChild(l);
+      var t=document.createElement('textarea');t.className='inq-in';t.rows=1;
+      t.value=val||'';t.placeholder=ph;
+      var grow=function(){t.style.height='auto';t.style.height=(t.scrollHeight+2)+'px';};
+      t.addEventListener('input',grow);
+      t.addEventListener('keydown',function(e){
+        e.stopPropagation();
+        if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)){t.blur();}});
+      t.addEventListener('blur',function(){commit(t.value.trim());});
+      w.appendChild(t);setTimeout(grow,0);
+      return w;
+    }
+    r.appendChild(field('inq-q','Q',p.q,'The bidder\u2019s question, as they wrote it',
+      function(v){if(v!==(p.q||''))saveInquiry(p,v,p.a||'');}));
+    r.appendChild(field('inq-a','A',p.a,
+      'Your answer \u2014 every inquiry gets one; leave it empty only while it is genuinely unsettled',
+      function(v){if(v!==(p.a||''))saveInquiry(p,p.q||'',v);}));
+    if(!p.a){
+      var gap=document.createElement('div');gap.className='inq-gap';
+      gap.textContent='Not answered yet \u2014 \u00a75 will print that, out loud, rather than leave the question out.';
+      r.appendChild(gap);}
+    // Where the bidder marked up a drawing, the picture is the question — a row that prints only
+    // the words is asking half of what was asked.
+    if(p.img&&p.img.src){
+      var fig=document.createElement('img');fig.className='inq-img';
+      fig.src=p.img.src;fig.alt=p.img.name||('Q'+p.qno+' markup');
+      fig.title=p.img.name||'';r.appendChild(fig);}
+    // Half of these questions ARE pictures — a bidder circles a detail and asks what it is. The
+    // itemRef is the same one the promoted item takes, so a markup added to the question is already
+    // on the item the question becomes.
+    r.appendChild(imageStrip({id:'inq-'+key+'-'+no,title:inqRef(p),
+                              pkg:p.pkg||(ADD_GROUPS[key]||{}).pkg||'',
+                              program:p.program||(ADD_GROUPS[key]||{}).program||''}));
     if(p.by){var by=document.createElement('span');by.className='op-by';by.textContent='· '+p.by;r.appendChild(by);}
-    var x=document.createElement('button');x.type='button';x.className='ar-x';x.textContent='✕';
-    x.title='Remove this inquiry';
+    // Answering a bidder is one thing; changing a document because of the answer is another. These
+    // two ticks are where you say which. One click and it becomes a real row on this addendum,
+    // titled with the Q number so the line it eventually writes can point back here.
+    var made=inqItemOp(p);
+    var pw=document.createElement('span');pw.className='sh-part inq-part';
+    [['drawing','Drawing','4','The answer changes a drawing — makes a §4 item on this addendum, which will need a sheet and a state'],
+     ['spec','Spec','3','The answer changes the specification — makes a §3 item; you leave the note, Specifications writes the words'],
+     ['both','Both','','The answer changes both — one item, appearing in §3 and in §4']
+    ].forEach(function(o){
+      var b=document.createElement('button');b.type='button';b.title=o[3];
+      b.className='p-'+o[0];
+      b.appendChild(document.createTextNode(o[1]));
+      if(o[2]){var sp=document.createElement('sup');sp.textContent='\u00a7'+o[2];b.appendChild(sp);}
+      if(made&&(made.part||'drawing')===o[0])b.classList.add('on');
+      b.addEventListener('click',function(e){e.stopPropagation();inqPromote(p,o[0]);});
+      pw.appendChild(b);});
+    r.appendChild(pw);
+    if(made){
+      // The item appeared on another tab, silently. The row now says what it made, says plainly
+      // that the QUESTION IS NOT CONSUMED — §5 still prints Q and A whether or not a drawing
+      // changes — and offers the way there rather than describing it.
+      var mn=document.createElement('div');mn.className='inq-made';
+      var mp=made.part||'drawing';
+      mn.appendChild(document.createTextNode('\u2713 Q'+p.qno+' also became '
+        +(mp==='spec'?'a \u00a73 specification item':mp==='both'?'a \u00a73 + \u00a74 item'
+          :'a \u00a74 drawing item')+' on '+addLabelFor(key)+'. '));
+      var go=document.createElement('button');go.type='button';go.className='inq-go';
+      go.textContent='open it in Sheet work \u2192';
+      go.addEventListener('click',function(e){e.stopPropagation();jumpToSheetRow(key,made.text);});
+      mn.appendChild(go);
+      var keep=document.createElement('div');keep.className='inq-keeps';
+      keep.textContent='The question and your answer stay here either way \u2014 \u00a75 prints '
+        +'both whether or not a document changes.';
+      mn.appendChild(keep);
+      r.appendChild(mn);}
+    if(p.fromVault){
+      var vb=document.createElement('span');vb.className='op-by';vb.textContent='· in the vault';
+      vb.title='Folded at a previous check-in — this one is permanent';r.appendChild(vb);}
+    var x=document.createElement('button');x.type='button';x.className='ar-x';x.textContent='\u2715';
+    x.title=p.fromVault?'Remove at the next check-in':'Remove this inquiry';
     x.addEventListener('click',function(){
       if(!window.confirm('Remove Q'+(p.qno||(ix+1))+'?'))return;
-      voidOp(p);buildAddendumRegister();});
+      if(p.fromVault){
+        queueLocally({type:'inquiry',addendum:key,qno:p.qno,q:p.q,a:p.a,drop:1,
+          program:'',pkg:p.pkg||'',text:'\u00a75 drop Q'+p.qno});
+      }else{voidOp(p);}
+      if(made)voidOp(made);
+      buildAddendumRegister();});
     r.appendChild(x);
     box.appendChild(r);
   });
   var f=document.createElement('div');f.className='sh-addform inq-form';
   var no=document.createElement('input');no.type='text';no.className='sh-in sh-in-no';
-  no.placeholder='Q no.';no.value='Q'+(list.length+1);
+  // was list.length+1, which collides the moment a number is skipped or one is removed
+  no.placeholder='Q no.';no.value='Q'+nextQno(key);
   var qi=document.createElement('input');qi.type='text';qi.className='sh-in';
   qi.placeholder='The bidder’s question, as they wrote it';
   var ai=document.createElement('input');ai.type='text';ai.className='sh-in';
@@ -6684,6 +8187,12 @@ function addInquiryBlock(host,key){
   save.style.margin='0';save.textContent='Add inquiry';
   function commit(){
     var qq=qi.value.trim();if(!qq)return;
+    var wantNo=no.value.trim().replace(/^Q/i,'');
+    if(qnoTaken(key,wantNo)){
+      var free=nextQno(key);
+      setStatus('Q'+wantNo+' is already a question on this addendum. Two under one number and the '
+        +'second replaces the first — Q'+free+' is free.');
+      no.value='Q'+free;no.focus();return;}
     queueLocally({type:'inquiry',addendum:key,qno:no.value.trim().replace(/^Q/i,''),
       q:qq,a:ai.value.trim(),
       program:'',pkg:'',text:'§5 '+no.value.trim()+': '+qq.slice(0,90)});
@@ -6977,7 +8486,32 @@ function placementLiteral(pl){
   return out+']';
 }
 function savePlacements(it,list,quiet){
+  // A provisional row — the add form — is not an item yet, so there is no id to queue an op
+  // against. It keeps its own list and hands it over when the row is created. This is the one
+  // hook that lets the add form use THIS editor rather than a simplified copy of it.
+  if(it&&typeof it._save==='function'){it._save(list);return;}
   setAddMeta(it.id,'placements',JSON.stringify(list),'Placements',quiet);
+}
+// The item's name is the first drawing it lands on, plus that drawing's name. Always — set the
+// number and the name follows, no button to remember and no second version of the truth. What a
+// person typed survives only where the register has nothing to offer: a drawing that is not on the
+// list yet keeps the words already there, behind the new number.
+function followTitleToSheet(it,noNow){
+  if(!it||!it.id)return false;
+  var no=String(noNow||'').trim()||((placementsOf(it)||[])[0]||{}).sheet||itemSheets(it)[0]||'';
+  if(!no)return false;
+  var key=addKey(it.pkg,it.addendum);
+  var nm=(typeof sheetNameFor==='function'?sheetNameFor(key,no,it.pkg):'')||'';
+  if(!nm){
+    // no name for this number yet — carry the existing description across the renumber
+    var m=/^\S+\s+\u2014\s+([\s\S]+)$/.exec((it.title||'').trim());
+    nm=m?m[1].trim():String(it.title||'').trim();
+    if(!nm)return false;
+  }
+  var want=no+' \u2014 '+nm;
+  if(want===(it.title||''))return false;
+  setAddMeta(it.id,'title',want,'Title');
+  return true;
 }
 // One placement, one line. The override is verbatim — if you edited it, that IS the line.
 function placementLine(it,pl){
@@ -7066,6 +8600,13 @@ function placementEditor(it){
       var l=document.createElement('label');l.textContent=label;if(hint)l.title=hint;
       c.appendChild(l);return c;
     }
+    // Every open row built a datalist called `viewList-0`, `viewList-1` … numbered WITHIN the row.
+    // Open two rows and the document holds several elements under one id, so the browser resolves
+    // `list="viewList-0"` to whichever came first — another row's drawing, or an empty list. The
+    // field looked like it simply had nothing to offer. Typing the detail number still worked,
+    // because that path reads the data directly instead of going through the datalist, which is
+    // exactly the shape of the complaint: "I have to pick the detail number for the name to show up."
+    var vlId='viewList-'+String(it.id||'x').replace(/[^\w-]/g,'')+'-'+ix;
     function inp(key,ph,cls,opts){
       var el;
       if(opts){
@@ -7073,7 +8614,7 @@ function placementEditor(it){
         // Addendum 1 §4.2 actually writes. So it is a free field with the common ones offered.
         el=document.createElement('input');el.type='text';el.className='pl-in '+(cls||'');
         el.value=pl[key]||'';el.placeholder='type it, or pick';
-        el.setAttribute('list','viewList-'+ix);
+        el.setAttribute('list',vlId);
         el.title='Pick a common one or type the view exactly as the drawing names it — '
           +'"DOOR SCHEDULE - BASIC DOORS", "ENLARGED PLAN — WASHROOMS". What you type is what the line says.';
         var vsync=function(fire){pl[key]=el.value.trim();pairView(key);
@@ -7226,10 +8767,19 @@ function placementEditor(it){
         z.mirrors=to;z.text=mirrorText(to);hit=true;});
       return hit;
     };
+    // The number this field held when you arrived in it. Reading it on blur reads what you just
+    // typed — the `input` handler above has already written it to `pl` — so "did the drawing
+    // change?" was always false, and every renumber silently skipped the companions that were
+    // supposed to follow it. Captured on focus instead.
+    shNo.addEventListener('focus',function(){shNo.dataset.was=pl.sheet||'';});
     shNo.addEventListener('blur',function(){
-      var was=pl.sheet;pl.sheet=shNo.value.trim();
-      if(followMirrors(was,pl.sheet)){commitHard();return;}
-      commit();});
+      var was=shNo.dataset.was!==undefined?shNo.dataset.was:pl.sheet;
+      pl.sheet=shNo.value.trim();
+      var first=(list[0]===pl);
+      if(followMirrors(was,pl.sheet)){commitHard();if(first)followTitleToSheet(it,pl.sheet);return;}
+      commit();
+      // the row's name is the first drawing it lands on — it follows, every time
+      if(first)followTitleToSheet(it,pl.sheet);});
     shNm.addEventListener('keydown',function(e){e.stopPropagation();
       if(e.key==='Enter'){setSheetName(key,pl.sheet,shNm.value,it.pkg);shNm.blur();}});
     shNm.addEventListener('blur',function(){
@@ -7238,7 +8788,8 @@ function placementEditor(it){
       var v=shNm.value.trim();
       if(sameValue(v,reg)){supersede(function(o){return o.type==='sheetname'&&o.addendum===key
         &&String(o.sheet||'').toUpperCase()===String(pl.sheet||'').toUpperCase();});return;}
-      if(sheetNameFor(key,pl.sheet,it.pkg)!==v)setSheetName(key,pl.sheet,v,it.pkg);});
+      if(sheetNameFor(key,pl.sheet,it.pkg)!==v)setSheetName(key,pl.sheet,v,it.pkg);
+      if(list[0]===pl)followTitleToSheet(it,pl.sheet);});
     cNo.appendChild(shNo);cNm.appendChild(shNm);
     g1.appendChild(cNo);g1.appendChild(cNm);
     // Name and number are one fact wearing two hats. Fill either and the other follows.
@@ -7247,7 +8798,7 @@ function placementEditor(it){
       +'this offers the views actually on it, from the Revit export. Its number fills itself.');
     var vEl=inp('view','','pl-view',VIEW_TYPES);cView.appendChild(vEl);
     // A per-row datalist, because the offer depends on which drawing this line is on.
-    var vdl=document.createElement('datalist');vdl.id='viewList-'+ix;
+    var vdl=document.createElement('datalist');vdl.id=vlId;
     var fillViews=function(){
       vdl.innerHTML='';
       var on=viewsOn(it.pkg,pl.sheet);
@@ -7256,11 +8807,15 @@ function placementEditor(it){
         var o=document.createElement('option');o.value=x[0];
         o.label=(x[2]?('no. '+x[2]):'')+(x[1]==='raw'?'  ·  no Title on Sheet — this is the Revit view name':'');
         vdl.appendChild(o);});
-      // no generic fallbacks — the offer is the views actually on this drawing
+      // NO generic fallback, and the reason is written at VIEW_TYPES: "PLAN" is not the name of a
+      // view — it renders as "PLAN /Sheet A42.31.10", which points at a drawing the heading has
+      // already named and at no view in particular. An empty offer here is correct. What was
+      // wrong is that it did not SAY it was empty, so it read as a broken control.
       var raw=on.filter(function(x){return x[1]==='raw';}).length;
-      vEl.placeholder=on.length?(on.length+' view'+(on.length!==1?'s':'')+' on this drawing'
-                                 +(raw?' · '+raw+' untitled':''))
-                               :'type it, or pick';
+      vEl.placeholder=on.length
+        ?(n_(on.length,'view')+' on this drawing'+(raw?' \u00b7 '+raw+' untitled':''))
+        :(pl.sheet?(pl.sheet+' is not in the view export \u2014 type the view name')
+                  :'pick a drawing first, then this offers its views');
       vEl.title=on.length
         ? on.length+' view(s) are on '+pl.sheet+', from the Revit export. Title on Sheet where it '
           +'is filled in, the view name where it is not.'
@@ -7469,6 +9024,12 @@ function wuTargetFor(it,sheet){
   if(it.element)parts.push(String(it.element));
   // Nothing narrower than the drawing itself was named, and the §4 heading already names it. The
   // line is the change and nothing else — a legend redrawn, an arrow moved, a note added.
+  //
+  // The issued addenda DO open these lines with "Sheet A42.22.11;" — see the §4 transcription
+  // above, and the companion pair in tests/verify_addendum.js. This is a deliberate departure,
+  // confirmed 2026-08-11: the heading two lines up says DRAWING A42.22.11, so repeating it opens
+  // every line with the word the reader has just read. Do not "restore" it from the transcription
+  // without asking; verify_roundtrip.js asserts its absence on purpose.
   if(!parts.length)return '';
   var head=it.alt?parts.shift()+' - ':'';
   return head+parts.join(' \u2013 ');
@@ -7785,11 +9346,12 @@ function buildAddendumDoc(key,opts){
   if(inq.length)out=out.concat(['','5      Bid Inquiries & Responses','']).concat(inq);
   out.push('');out.push('                        END OF ADDENDUM (VOL 1)');
 
-  if(undecided.length)warn.push(undecided.length+' item(s) have no state and cannot be in the document: '
+  if(undecided.length)warn.push(n_(undecided.length,'item')+' have no state and cannot be in the document: '
     +undecided.slice(0,6).map(function(i){return i.sheet||(i.title||'').slice(0,26);}).join(' · ')
     +(undecided.length>6?' …':''));
   var vq=pool.filter(function(i){return i.verify&&inDocument(i);});
-  if(vq.length)warn.push(vq.length+' item(s) in the document are still flagged ? — verify with Chris H before issue');
+  if(vq.length)warn.push(n_(vq.length,'item')+' in the document '+(vq.length===1?'is':'are')
+    +' still flagged ? — verify with Chris H before issue');
   return {text:out.join('\n').replace(/\n{3,}/g,'\n\n'),
           att:att,warn:warn,skipped:skipped,n:live.length,undecided:undecided,pool:pool,
           nSpec:secOrder.length,nSheet:shOrder.length,inq:inqs.length,
@@ -7805,7 +9367,7 @@ function issueGate(key){
   if(untriaged.length)blockers.push({n:untriaged.length,
     t:'item'+(untriaged.length!==1?'s':'')+' with no state',
     w:'Nothing is written for them, so the document is short by that much.',
-    go:function(){ADD_MODE='sheets';ADD_STATE='untriaged';buildAddendumRegister();}});
+    go:function(){ADD_MODE='sheets';ADD_STATE='untriaged';ADD_FLAG='';buildAddendumRegister();}});
   var slots=[],noSheet=[],unnamed=[];
   pool.filter(inDocument).forEach(function(i){
     if(isSpecPart(i)&&!(i.note||'').trim())slots.push(i);
@@ -7827,10 +9389,22 @@ function issueGate(key){
   if(un2.length)blockers.push({n:un2.length,t:'attached drawing'+(un2.length!==1?'s':'')+' with no name',
     w:'The name prints in the \u00a74 heading and again in the List of Attachments \u2014 '+un2.join(', ')+'.',
     go:function(){ADD_MODE='sheets';buildAddendumRegister();}});
+  // §5 prints "[NOT ANSWERED — write the response]" for a question nobody has answered. That is a
+  // placeholder reaching a bid document, which is the same failure as an unfinished §4 line — and
+  // the gate was silent about it while six of them sat on an addendum three days from issue.
+  var unans=inquiriesFor(key).filter(function(q){return !String(q.a||'').trim();});
+  if(unans.length)blockers.push({n:unans.length,
+    t:'bid inquir'+(unans.length!==1?'ies':'y')+' unanswered',
+    w:'\u00a75 would print "[NOT ANSWERED \u2014 write the response]" against '
+      +(unans.length!==1?'each of them':'it')+' \u2014 Q'
+      +unans.map(function(q){return q.qno;}).join(', Q')+'.',
+    go:function(){ADD_MODE='inq';buildAddendumRegister();}});
   var verify=pool.filter(function(i){return i.verify&&inDocument(i);});
   if(verify.length)cautions.push({n:verify.length,t:'still flagged ?',
     w:'In the document, but not yet confirmed with Chris H.',
-    go:function(){ADD_MODE='sheets';ADD_STATE='verify';buildAddendumRegister();}});
+    // ADD_FLAG, not ADD_STATE: the Questions chip in the Show bar IS this filter, visible and
+    // clickable off. Arming the invisible one left you filtered with nothing on screen to undo it.
+    go:function(){ADD_MODE='sheets';ADD_FLAG='verify';ADD_STATE='';buildAddendumRegister();}});
   var unknown=[];
   pool.filter(isDrawPart).filter(inDocument).forEach(function(i){
     placementsOf(i).forEach(function(pl){
@@ -7844,6 +9418,48 @@ function issueGate(key){
   return {blockers:blockers,cautions:cautions,doc:doc,
           lines:(doc.text.match(/^\s+\d+\.?\d*\.?\d*\s{2,}\S/gm)||[]).length};
 }
+// One line, above everything, in every mode. The readiness check already existed and was correct;
+// it was just three clicks inside Write-up, which is the one place you go LAST. What has to be
+// settled before an addendum can issue is the question you carry all day, so it says itself — and
+// each count is a way in, not a number to go and look up.
+//
+// Closed it is a sentence. Open it is the same rows that were in the write-up, unchanged.
+function renderGateStrip(key,host){
+  var g=issueGate(key);
+  var nb=g.blockers.reduce(function(a,b){return a+b.n;},0);
+  var nc=g.cautions.reduce(function(a,b){return a+b.n;},0);
+  var d=document.createElement('details');
+  d.className='gs'+(nb?' gs-no':(nc?' gs-warn':' gs-yes'));
+  d.open=!!GATE_OPEN[key];
+  d.addEventListener('toggle',function(){GATE_OPEN[key]=d.open;});
+  var sm=document.createElement('summary');sm.className='gs-sum';
+  var dot=document.createElement('span');dot.className='gs-dot';sm.appendChild(dot);
+  var lbl=document.createElement('span');lbl.className='gs-lbl';
+  lbl.textContent=nb?(nb+' to settle before this can issue')
+    :(nc?'Ready to issue \u2014 '+nc+' to look at':'Ready to issue');
+  sm.appendChild(lbl);
+  // the counts, as the way in — clicking one lands you on exactly those rows
+  var chips=document.createElement('span');chips.className='gs-chips';
+  g.blockers.concat(g.cautions).forEach(function(b){
+    var el=document.createElement(b.go?'button':'span');
+    if(b.go)el.type='button';
+    el.className='gs-chip'+(g.blockers.indexOf(b)>-1?' gs-chip-b':' gs-chip-c')+(b.go?'':' gs-chip-flat');
+    el.innerHTML='<b>'+b.n+'</b> '+escapeHtml(b.t);
+    el.title=b.w+(b.go?'':'');
+    if(b.go)el.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();b.go();});
+    chips.appendChild(el);});
+  sm.appendChild(chips);
+  var meta=document.createElement('span');meta.className='gs-meta';
+  meta.textContent=n_(g.doc.n,'item')+' \u00b7 '+n_(g.doc.nSheet,'drawing')+' \u00b7 '
+    +n_(g.doc.att.sec.length+g.doc.att.dwg.length,'attachment');
+  sm.appendChild(meta);
+  d.appendChild(sm);
+  var body=document.createElement('div');body.className='gs-body';
+  renderIssueGate(key,body);
+  d.appendChild(body);
+  host.appendChild(d);
+}
+var GATE_OPEN={};
 function renderIssueGate(key,host){
   var g=issueGate(key);
   var box=document.createElement('div');box.className='gate'+(g.blockers.length?' gate-no':' gate-yes');
@@ -7853,7 +9469,7 @@ function renderIssueGate(key,host){
     : 'Ready to issue';
   box.appendChild(h);
   var sub=document.createElement('div');sub.className='gate-sub';
-  sub.textContent=g.doc.n+' item(s) \u00b7 '+g.doc.nSpec+' \u00a73 section(s) \u00b7 '+g.doc.nSheet
+  sub.textContent=n_(g.doc.n,'item')+' \u00b7 '+n_(g.doc.nSpec,'\u00a73 section')+' \u00b7 '+g.doc.nSheet
     +' \u00a74 drawing(s) \u00b7 '+(g.doc.att.sec.length+g.doc.att.dwg.length)+' attachment(s)'
     +(g.doc.inq?' \u00b7 '+g.doc.inq+' bid inquir'+(g.doc.inq!==1?'ies':'y'):'');
   box.appendChild(sub);
@@ -7880,13 +9496,18 @@ function buildWriteup(key,hostEl){
   var host=hostEl||document.getElementById('wuHost-'+key);if(!host)return;
   if(host.firstChild&&!host.getAttribute('data-rerender')){host.innerHTML='';return;}
   host.removeAttribute('data-rerender');host.innerHTML='';
-  renderIssueGate(key,host);
+  // the gate now lives on the strip above, in every mode — rendering it here as well showed the
+  // same block twice on the one screen that already had it
   var doc=buildAddendumDoc(key,{});
   var box=document.createElement('div');box.className='wu-box';
   var note=document.createElement('div');note.className='sh-stat';note.style.marginBottom='8px';
-  note.innerHTML='<b>'+doc.n+'</b> item(s) in the document · <b>'+doc.nSpec+'</b> §3 section(s) · <b>'
-    +doc.nSheet+'</b> §4 sheet(s) · <b>'+(doc.att.sec.length+doc.att.dwg.length)+'</b> attachment(s), derived'
-    +(doc.skipped?' · <b>'+doc.skipped+'</b> process step(s) excluded':'');
+  // the last of the "(s)" — a machine apologising for not knowing English
+  note.innerHTML='<b>'+doc.n+'</b> '+(doc.n===1?'item':'items')+' in the document \u00b7 '
+    +'<b>'+doc.nSpec+'</b> \u00a73 '+(doc.nSpec===1?'section':'sections')+' \u00b7 '
+    +'<b>'+doc.nSheet+'</b> \u00a74 '+(doc.nSheet===1?'sheet':'sheets')+' \u00b7 '
+    +'<b>'+(doc.att.sec.length+doc.att.dwg.length)+'</b> '
+    +((doc.att.sec.length+doc.att.dwg.length)===1?'attachment':'attachments')+', derived'
+    +(doc.skipped?' \u00b7 <b>'+doc.skipped+'</b> process '+(doc.skipped===1?'step':'steps')+' excluded':'');
   box.appendChild(note);
   doc.warn.forEach(function(w){
     var d=document.createElement('div');d.className='wu-warn';d.textContent='⚠ '+w;box.appendChild(d);});
