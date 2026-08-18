@@ -1802,6 +1802,135 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
   color:var(--ok);border-radius:999px;padding:1px 9px;cursor:pointer;margin-left:2px;}
 .inq-go:hover{background:var(--ok);border-color:var(--ok);color:#fff;}
 .inq-keeps{color:var(--faint);font-size:11px;margin-top:3px;}
+.inq-made-at{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--text);
+  background:var(--border-soft);border-radius:4px;padding:1px 6px;}
+/* add and remove are a pair and sit together on the line they act on */
+.pl-plus{align-self:end;margin-bottom:4px;font:inherit;font-size:13px;font-weight:700;line-height:1;
+  color:var(--muted);background:var(--raise);border:1px solid var(--border);border-radius:999px;
+  cursor:pointer;padding:2px 7px 3px}
+.pl-plus:hover{color:var(--p4);border-color:var(--p4)}
+/* is this view a typo, or one you are adding? — the same question the drawing number asks */
+.pl-vask{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:6px;
+  font-size:10.5px;color:var(--muted);margin:-2px 0 2px}
+.pl-vask-b{font:inherit;font-size:10.5px;font-weight:600;color:var(--text);background:var(--raise);
+  border:1px solid var(--border);border-radius:999px;padding:2px 9px;cursor:pointer}
+.pl-vask-b:hover{border-color:var(--faint)}
+.pl-vnew{color:var(--sage,#5f7a52);font-weight:600}
+/* which details on this drawing — the answers are already loaded, so ask with them on screen */
+.pl-vpick{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin:2px 0 0}
+.pl-vpick-l{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;
+  color:var(--faint);margin-right:4px}
+.pl-vchip{font:inherit;font-size:10.5px;min-width:24px;color:var(--muted);background:var(--raise);
+  border:1px solid var(--border);border-radius:999px;padding:1px 7px;cursor:pointer}
+.pl-vchip:hover{border-color:var(--faint);color:var(--text)}
+.pl-vchip.on{background:var(--p4);border-color:var(--p4);color:#fff}
+.pl-vnote{grid-column:1/-1;display:block;font-size:10.5px;color:var(--faint);margin:3px 0 2px}
+.pl-vnote b{color:var(--text)}
+.pl-vbad{color:var(--stop)}
+/* a second command on the same line — quieter than the Action list, because it is the rarer move */
+.pl-and{margin-top:4px;font-size:11px;color:var(--muted);background:transparent;
+  border:1px dashed var(--border);border-radius:999px;padding:2px 6px;cursor:pointer;max-width:190px}
+.pl-and:hover{border-style:solid;border-color:var(--faint);color:var(--text)}
+/* the copy that actually lands in Word — the primary of the three, so it leads */
+.wu-word{font:inherit;font-size:11.5px;font-weight:700;color:var(--sel-fg);background:var(--sel);
+  border:1px solid var(--sel);border-radius:999px;padding:5px 12px;cursor:pointer}
+.wu-word:hover{filter:brightness(1.12)}
+.wu-help{font-size:11.5px;color:var(--muted);margin:8px 0 0;line-height:1.55}
+.wu-help b{color:var(--text)}
+.wu-help-d{margin-top:6px}
+.wu-help-d p{margin:0 0 7px}
+.wu-help-d p:last-child{margin-bottom:0;color:var(--faint)}
+
+/* ── who has it ───────────────────────────────────────────────────────────────────────────────
+   A person is identity, not status, so this wears no meaning colour. An unassigned row says so
+   quietly — "nobody has picked this up" is worth seeing, but it is not an alarm. */
+.sh-who{font:inherit;font-size:10.5px;font-weight:600;color:var(--text);background:var(--raise);
+  border:1px solid var(--border);border-radius:999px;padding:2px 6px;cursor:pointer;
+  max-width:96px;align-self:flex-start;margin-top:1px;}
+.sh-who:hover{border-color:var(--faint);}
+.sh-who-none{color:var(--faint);font-weight:500;border-style:dashed;}
+.who-key{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:10.5px;
+  color:var(--faint);margin:2px 0 8px;}
+.who-key>b{font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;font-weight:700;}
+.who-chip{font:inherit;font-size:10.5px;color:var(--muted);background:transparent;
+  border:1px solid var(--border);border-radius:999px;padding:1px 8px;cursor:pointer;}
+.who-chip b{color:var(--text);font-weight:700;margin-right:3px;}
+.who-chip:hover{border-color:var(--faint);color:var(--text);}
+.who-chip.on{background:var(--sel);border-color:var(--sel);color:var(--sel-fg);}
+.who-chip.on b{color:var(--sel-fg);}
+.who-chip.who-none{border-style:dashed;}
+/* you, first and named as such — not a colour, just a little more presence than the others */
+.who-chip.who-mine{font-weight:600;border-color:var(--faint);}
+/* + view — an action, not a state, so it stays quiet until you go near it */
+.sh-addview{font:inherit;font-size:10.5px;font-weight:600;color:var(--faint);background:transparent;
+  border:1px dashed var(--border);border-radius:999px;padding:2px 8px;cursor:pointer;
+  align-self:flex-start;margin-top:1px;}
+.sh-addview:hover{color:var(--p4);border-color:var(--p4);border-style:solid;}
+/* a drawing number that already went to bidders */
+.pl-issued{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+  font-size:11px;color:var(--stop);background:var(--stop-wash,#fdf3f2);
+  border:1px solid var(--stop);border-radius:8px;padding:6px 9px;margin:2px 0 4px;}
+/* a question is not an alarm — it wears the decision-owed colour until you answer it */
+.pl-issued.pl-asking{color:var(--gold);border-color:var(--gold);background:#fdf9ed;}
+.pl-issued.pl-asking .pl-iss-b{background:var(--gold);border-color:var(--gold);}
+.pl-iss-t b{font-family:var(--mono,ui-monospace,monospace);}
+.pl-iss-n{color:var(--muted);}
+.pl-iss-b{font:inherit;font-size:10.5px;font-weight:600;color:#fff;background:var(--stop);
+  border:1px solid var(--stop);border-radius:999px;padding:3px 10px;cursor:pointer;}
+.pl-iss-b:hover{filter:brightness(1.08);}
+.pl-iss-x{font:inherit;font-size:10.5px;color:var(--muted);background:transparent;
+  border:1px solid var(--border);border-radius:999px;padding:3px 9px;cursor:pointer;}
+.pl-iss-x:hover{color:var(--text);border-color:var(--faint);}
+.who-chip.is-zero{opacity:.45;}
+.who-chip.is-zero:hover{opacity:.7;}
+
+/* work that belongs to no addendum — the only thing here that can be lost completely */
+.orphan-strip{border:1px solid var(--stop);border-left-width:3px;border-radius:10px;
+  background:var(--stop-wash,#fdf3f2);padding:10px 13px;margin:0 0 14px}
+.orph-h{font-size:11.5px;color:var(--stop);line-height:1.5;margin-bottom:6px}
+.orph-h b{font-size:13px}
+.orph-h code{font-family:ui-monospace,Menlo,monospace;font-size:10.5px}
+.orph-row{display:flex;flex-wrap:wrap;gap:10px;align-items:baseline;padding:2px 0}
+.orph-t{font-size:11.5px;color:var(--text);font-weight:600}
+.orph-m{font-size:10.5px;color:var(--muted)}
+/* ── searching the register ───────────────────────────────────────────────────────────────────
+   One box, above the filters, because it narrows the same list they do. It is wide on purpose:
+   what you type here is a phrase you half-remember, not a keyword. */
+.reg-find{display:flex;align-items:center;gap:8px;margin:0 0 8px;}
+.reg-find .rf-wrap{position:relative;flex:1 1 380px;max-width:520px;display:flex;align-items:center;}
+.reg-find .rf-mag{position:absolute;left:11px;color:var(--faint);font-size:12px;pointer-events:none;}
+.rf-in{font:inherit;font-size:12.5px;color:var(--text);background:var(--card);
+  border:1px solid var(--border);border-radius:999px;padding:7px 30px 7px 30px;width:100%;
+  box-shadow:var(--sh1);}
+.rf-in::placeholder{color:var(--faint);}
+.rf-in:focus{outline:none;border-color:var(--sel);box-shadow:var(--sh2);}
+.rf-x{position:absolute;right:6px;font:inherit;font-size:12px;line-height:1;color:var(--faint);
+  background:transparent;border:0;border-radius:999px;padding:4px 6px;cursor:pointer;}
+.rf-x:hover{color:var(--text);background:var(--border-soft);}
+/* Where else the words you typed exist. A search that can only see the tab you are standing on
+   teaches you the thing is not there. */
+.rf-scope{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:10.5px;
+  color:var(--faint);margin:-2px 0 9px;}
+.rf-scope>b{font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;font-weight:700;}
+.rf-b{font:inherit;font-size:10.5px;color:var(--muted);background:transparent;
+  border:1px solid var(--border);border-radius:999px;padding:1px 8px;cursor:pointer;}
+.rf-b b{color:var(--text);font-weight:700;margin-right:3px;}
+.rf-b:hover{border-color:var(--faint);color:var(--text);}
+.rf-b.here{background:var(--border-soft);border-color:var(--border-soft);color:var(--text);cursor:default;}
+.rf-b.rf-away{border-style:dashed;}
+.rf-none{color:var(--faint);font-style:italic;}
+/* Why a row came back when its title does not contain what you typed. Without this the search
+   reads as broken — you get a row you cannot see the reason for and stop trusting it. */
+.sh-why{font-size:10.5px;color:var(--faint);margin:2px 0 0 2px;}
+.sh-why b{color:var(--muted);font-weight:700;text-transform:uppercase;font-size:9.5px;
+  letter-spacing:.07em;margin-right:5px;}
+.q-hit{background:#fdf0c2;border-radius:2px;padding:0 1px;box-shadow:0 0 0 1px #f0dfa0 inset;}
+/* find-in-document, for the one block that is a textarea and cannot be filtered or painted */
+.wu-find{display:flex;align-items:center;gap:8px;margin:8px 0 4px;font-size:10.5px;color:var(--faint);}
+.wu-find-n{color:var(--muted);font-weight:600;}
+.wu-find-b{font:inherit;font-size:10.5px;color:var(--muted);background:transparent;
+  border:1px solid var(--border);border-radius:999px;padding:1px 8px;cursor:pointer;}
+.wu-find-b:hover{border-color:var(--faint);color:var(--text);}
 </style>
 </head>
 <body>
@@ -2163,11 +2292,123 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
       real item carrying the Q number so the line can point back at the question. §5 is
       <b>never derived</b> from another register: inventing a bidder's words inside a bid document
       is the one thing this machine refuses to do.</p>
+      <p class="g-p"><b>The tick creates the item — you do not go and add it.</b> Click
+      <i>Drawing §4</i> and a row appears on this addendum called “Bid inquiry Q5 — …”, and the row
+      you clicked says so, names where it landed, and offers the way there. If your answer names a
+      drawing — <i>“Refer to updated Detail 6 /A5.94.02”</i> — it arrives already pointing at
+      A5.94.02 detail 6, with the view name read from the Revit export. That is a <b>seed, not a
+      decision</b>: it has no state, so it cannot reach the document until you have looked at it.
+      The question and your answer stay in §5 either way.</p>
       <p class="g-p"><b>A package can issue more than one addendum, and rows move between them.</b>
-      The dropdown on each row changes which one it rides; the workbench has a bulk
-      <i>move finished</i>, which is the whole point of splitting one instrument into two — work
-      that is done goes out on the earlier one instead of waiting. Moving a row changes which
-      document it appears in and <b>nothing about what it says</b>; the state decides that.</p>
+      The dropdown on each row changes which one it rides — which is the whole point of splitting
+      one instrument into two: work that is done goes out on the earlier one instead of waiting.
+      Moving a row changes which document it appears in and <b>nothing about what it says</b>;
+      the state decides that.</p>
+      <p class="g-p"><b>Every edit here is live the moment you make it.</b> A state, a ?, a name in
+      “who?”, a move between addenda — it goes to the shared store immediately and the other people
+      on this board have it in about eight seconds. They do not wait for a check-in, and neither do
+      you. What a check-in does is fold the change into the <b>vault</b>, which is permanence, not
+      visibility: until then it is real and shared but unwritten, which is what the
+      <span class="badge pend">PENDING</span> mark and the dashed edge mean.</p>
+      <p class="g-p"><b>“Who?” on a row is who is doing it — not who owes you an answer.</b> It is
+      the same <span class="mono">with::</span> the rest of the board uses (section 7): execution
+      sits with them, <b>accountability stays with you</b>, and it never changes whose move an item
+      is. The names offered are the architecture team plus anyone already named on this addendum,
+      so nobody maintains a second list. The <b>Who</b> line above the rows counts what each person
+      is carrying and how many have <b>nobody yet</b> — click either to see just those. It exists
+      so an imbalance or an unassigned pile is visible at a glance, not to run a resourcing
+      report.</p>
+      <p class="g-p"><b>One line = one view on one drawing.</b> <i>+ view</i> on a row, or the
+      <i>+</i> beside any line, adds another detail on the same sheet — the drawing number carries
+      over and you type the view or the detail number. <b>✕</b> takes that view off; the drawing
+      stays as long as another line still lands on it.</p>
+      <p class="g-p"><b>One change, several details, one drawing.</b> The <b>View no.</b> field
+      counts: type <span class="mono">1-5</span>, or <span class="mono">1-5, 8</span>, or tick the
+      details straight off the drawing — every view the Revit export has on that sheet is offered
+      as a chip. Two or more become <b>one</b> §4 line reading
+      <span class="mono">PLAN DETAIL 1-5/A5.94.06</span>, which is how the issued addenda say it,
+      and the name is only filled in when every view in the range shares it. The row checks the
+      numbers against the drawing and names any that are not on it. When the details are <i>not</i>
+      all getting the same change, <i>split into N lines</i> gives each its own. And if the action
+      is still <b>Re-issue the whole sheet</b>, the row says so — re-issue swallows the numbers, and
+      the printed line would drop them without a word.</p>
+      <p class="g-p"><b>Use Download .docx for the addendum.</b> The write-up is a textarea, so
+      <span class="mono">4.5</span> in it is four characters. A <b>.docx</b> is Word's own format —
+      the numbering lives in the file the way Word stores it, so 4.1 and 4.1.1 are genuine list
+      numbers that renumber themselves, and they read identically in Word for the web (Teams) and on
+      the desktop. Open it and copy into your addendum; Word-to-Word carries the list definitions
+      intact.</p>
+      <p class="g-p"><b>The other three are for other journeys.</b> <i>Copy for Word</i> puts the
+      same structure on the clipboard — quick, and fine in <b>desktop</b> Word, but Word for the
+      <b>web</b> discards most list information on paste, which is what turns 4.1 into 1.6 and gives
+      two sections one number. <i>Copy as text</i> is the characters exactly as they read, for email
+      and chat. <i>Download .md</i> is that same text as a file. All four say the same words and all
+      four read from the box, so whatever you have edited there is what you get — they differ only
+      in how much structure survives the trip.</p>
+      <p class="g-p"><b>A §3 note keeps the shape you type into it.</b> Write a schedule revision on
+      several lines and it comes out as several levels: an unindented SHOUTING first line becomes the
+      block's heading, each indent steps one number deeper, and a line starting with <b>•</b> stays a
+      bullet and takes no number, because it belongs to the clause above it. A note with no shape in
+      it behaves exactly as it always did. Nothing new was added to the vault — the structure is the
+      whitespace.</p>
+      <p class="g-p"><b>One line can carry two commands.</b> The <b>Action</b> list replaces the
+      verb the line opens with — right when you picked the wrong one, wrong when you meant a second.
+      <b>+ and …</b> beneath it appends instead: <i>ADD wall tag</i> plus <i>Revise …</i> becomes
+      <span class="mono">Add wall tag and revise the dimension string</span>. Only the verb that
+      opens the sentence is capitalised; the ones after it read in lower case, which is how the
+      issued Pkg 4.2 Add 1 §4 says it — <i>“Revise wall type and add new wall type to W2a1”</i>.
+      WA4, SSB1 and AV keep their capitals: only verbs are lowered, never every shouting word in a
+      drawing note.</p>
+      <p class="g-p"><b>A range names no view.</b> One detail borrows its view's name —
+      <span class="mono">PLAN DETAIL 1/A5.94.06</span>. Two or more do not, because seventeen details
+      are rarely all the same kind of view and <i>“PLAN DETAIL 1-17”</i> would say they are. A range
+      opens the line with the numbers alone: <span class="mono">1-17/A5.94.17</span>. If they DO
+      share something, type the word yourself and it stays — <i>“Details 1, 5, 7 and 11/A5.94.17”</i>
+      is a sentence you chose, and only a name the export supplied is ever dropped for you.</p>
+      <p class="g-p"><b>An unanswered bid inquiry stays out of the write-up.</b> §5 used to print
+      <span class="mono">[NOT ANSWERED — write the response]</span> as a loud placeholder, but the
+      write-up gets copied into the addendum and a placeholder in a document is one careless paste
+      away from a bidder reading it. The question is held out, the warnings say which ones and why,
+      and the gate still refuses to issue while any of them is open — so nothing is hidden, it is
+      just kept out of the deliverable until it is real.</p>
+      <p class="g-p"><b>Naming several details changes how the line ends.</b> One detail gets the
+      pointed clause the issued sets use —
+      <span class="mono">…; As indicated on drawing A5.94.06, attached and forms part of this
+      Addendum.</span> — because that is honest when a bidder only has to look in one place. Name
+      two or more and the sheet they are holding is superseded, so the line ends
+      <span class="mono">…; Re-issue drawing in its entirety attached and forming part of this
+      Addendum.</span> instead. You do not choose it: type the numbers, choose <b>Revise</b>, say
+      what changed, and the range earns the clause. A drawing that was never in the bid set is
+      <i>issued</i>, not re-issued, however many details it carries — and <b>Write-up only</b>
+      attaches nothing whatever the numbers say, because the state decides that and nothing else
+      does.</p>
+      <p class="g-p"><b>A view you are ADDING is not a typo.</b> The Revit export cannot contain a
+      view that does not exist yet, so when you type a name or number the sheet does not have, the
+      line asks rather than marking it wrong. Say it is new and two things follow: your name and
+      your number are used <b>verbatim</b> — typing a detail number an existing view already uses
+      will not swap your name for theirs — and the sentence opens <span class="mono">ADD NEW ⟨detail,
+      view or elevation⟩</span>, with the word left as a slot, because a detail and an elevation are
+      not the same thing in a drawing set. The line reads
+      <span class="mono">WASHROOM INTERIOR ELEVATION 12/A5.90.01; Add new interior elevation.</span>
+      Nothing new was added to the vault to carry this: it is recovered from the line itself.</p>
+      <p class="g-p"><b>Changing a drawing number means one of two things, and the row asks which.</b>
+      Usually you put the change on the wrong sheet and you are just moving it — that is nobody's
+      business but yours. Occasionally the drawing itself went out misnumbered, and bidders are
+      holding a sheet with the wrong number on it. Once a number is out — either its addendum has
+      issued, or, more often, the <b>bid set</b> has — the row stops guessing and asks. Say it was
+      misnumbered and it offers to write the correction into the addendum you are building:
+      <span class="mono">DRAWING A5.31.12, ISSUED UNDER THE BID SET, IS RENUMBERED A5.31.13.</span>
+      It arrives <b>Write-up only</b> and <b>flagged ?</b> — whether you are also reissuing the
+      sheet is a decision about drawings, and nothing here makes those for you.</p>
+      <p class="g-p"><b>The search box reads what a row carries, not what it prints.</b> A sheet
+      number, a room, a phrase inside a placement line, a spec section, who has it, a bidder's
+      answer, a sentence from a check-in three weeks ago — all of it is searchable, so you can find
+      a row by the thing you actually remember about it. Two words narrows: <b>both</b> must
+      appear. When the hit is somewhere you cannot see, the row says where it was and shows the
+      words. And the line under the box counts the matches on <b>every other tab and every other
+      addendum</b> — a search that only answered for the tab you happen to be standing on would say
+      “not here” and mean “not anywhere”, which is how you conclude something was never written.
+      <kbd>/</kbd> puts the cursor in it; <kbd>Esc</kbd> empties it.</p>
       <p class="g-p"><b>Ctrl+Z undoes your last change.</b> Every edit here is already an op, so
       undo is one keystroke — and it only ever takes back <i>your</i> newest change, because
       undoing someone else's edit from your keyboard is deletion, not undo.</p>
@@ -2403,7 +2644,8 @@ function addendumLabel(it){
   if(m)return 'Pkg '+m[1]+' Add '+m[2];
   if(/^\w+$/.test(a)){
     var pn=pkgNum(it.pkg||'');
-    return pn?('Pkg '+pn+' Add '+a):('Add '+a);
+    // instShort reads the kind off the tag, so a bare `pcn1` chips as PCN 1 rather than Add pcn1
+    return pn?('Pkg '+pn+' '+instShort(a)):instShort(a);
   }
   return a;
 }
@@ -4338,7 +4580,7 @@ function buildExportText(){
         +(p.neu?' (it is not in the issued set — this addendum introduces it)':'');
     }
     if(p.type==='inquiry'){
-      return '- [Bid inquiry] Addendum '+addNum((p.addendum||'').split('|')[1]||'')
+      return '- [Bid inquiry] '+instLong(addNum((p.addendum||'').split('|')[1]||''))
         +'\n    Q'+(p.qno||'')+': '+(p.q||'')
         +'\n    A'+(p.qno||'')+': '+(p.a||'[not answered yet]');
     }
@@ -4377,7 +4619,62 @@ function exportCaptures(){
   var out=buildExportText();
   if(!out){setStatus('Nothing to copy yet.');return;}
   var q=readQueue();if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(out).then(function(){setStatus('Copied '+q.length+' capture(s) + plan \u2014 paste to Claude at check-in.');},function(){window.prompt('Copy these and paste to Claude:',out);});}else{window.prompt('Copy these and paste to Claude:',out);}}
-function clearCaptures(){if(!readQueue().length){setStatus('Queue already empty.');return;}if(window.confirm('Clear captured items? Only do this after copying them to Claude. This clears them for everyone sharing the board.')){var _tomb=readQueue().filter(function(o){return o.id;}).map(function(o){return {id:opId(),type:'_void',voids:o.id,by:syncWho()||'',ts:new Date().toISOString()};});REMOTE_Q=[];writeLocalQueue(_tomb);syncPush(_tomb);document.getElementById('pendingList').innerHTML='<span class="pending-empty">Nothing pending yet.</span>';refreshBoard();setStatus('Local queue cleared.');}}
+// Which queued ops carry content the VAULT does not have yet? Clearing voids every op for
+// everyone, and an op the fold never took is not "already saved somewhere" — it is the only copy.
+// A §4 sentence was lost exactly this way on 2026-08-11: typed on the board, never folded onto its
+// placement, cleared on the assumption the fold had taken it. The queue had no way to say otherwise.
+function unfoldedOps(){
+  var base={},out=[];
+  (window.LANE_ITEMS||[]).concat(window.ITEMS||[]).forEach(function(i){
+    base[String(i.title||'').slice(0,60)]=i;});
+  (readQueue()||[]).forEach(function(p){
+    if(!p||p.type==='_void')return;
+    var b=base[String(p.itemRef||p.text||'').slice(0,60)];
+    if(p.type==='sheet'){out.push({p:p,what:'a row that exists only here: “'
+      +String(p.text||'').slice(0,60)+'”'});return;}
+    if(p.type==='inquiry'){out.push({p:p,what:'bid inquiry Q'+(p.qno||'')});return;}
+    if(p.type==='addmeta'&&p.field){
+      if(!b){out.push({p:p,what:(p.field)+' on “'+String(p.itemRef||'').slice(0,50)+'”'});return;}
+      var cur;
+      try{cur=(p.field==='placements')?JSON.stringify(placementsOf(b)):String(b[p.field]||'');}
+      catch(e){cur='';}
+      var val=String(p.value||'');
+      // placements compare loosely — the vault may hold the same lines in a different order
+      var same=(p.field==='placements')
+        ? val.replace(/\s+/g,'')===String(cur).replace(/\s+/g,'')
+        : val.trim()===cur.trim();
+      if(!same)out.push({p:p,what:(p.field==='placements'?'the lines':p.field)
+        +' on “'+String(p.itemRef||'').slice(0,50)+'”'});
+      return;
+    }
+    if(p.type==='produces'||p.type==='complete')return;   // state, recoverable from the row itself
+  });
+  return out;
+}
+function clearCaptures(){
+  if(!readQueue().length){setStatus('Queue already empty.');return;}
+  var risky=unfoldedOps();
+  var msg='Clear captured items? This clears them for everyone sharing the board.';
+  if(risky.length){
+    msg=risky.length+' of these have NOT been folded into the vault yet. Clearing deletes them '
+      +'permanently — this is the only copy:\n\n'
+      +risky.slice(0,12).map(function(r){return '  • '+r.what+(r.p.by?'  ('+r.p.by+')':'');}).join('\n')
+      +(risky.length>12?'\n  … and '+(risky.length-12)+' more':'')
+      +'\n\nFold them first — copy the queue to Claude and let the check-in write them to the '
+      +'vault. Clear anyway?';
+  }else{
+    msg='Everything queued is already in the vault. Clear it for everyone?';
+  }
+  if(!window.confirm(msg))return;
+  var _tomb=readQueue().filter(function(o){return o.id;}).map(function(o){
+    return {id:opId(),type:'_void',voids:o.id,by:syncWho()||'',ts:new Date().toISOString()};});
+  REMOTE_Q=[];writeLocalQueue(_tomb);syncPush(_tomb);
+  var pl=document.getElementById('pendingList');
+  if(pl)pl.innerHTML='<span class="pending-empty">Nothing pending yet.</span>';
+  refreshBoard();
+  setStatus(risky.length?('Queue cleared — '+risky.length+' unfolded change'
+      +(risky.length===1?'':'s')+' went with it.'):'Queue cleared; everything in it was already folded.');
+}
 
 // ---- 2026-07-04 views: Court / Overview / History ----
 function pkgNum(name){var m=/Package\s+([\d.]+)/i.exec(name||'');return m?m[1]:null;}
@@ -4728,6 +5025,16 @@ function instKind(num){var a=String(num==null?'':num).trim();
   if(/^(?:tp[\d.]*-)?pcn/i.test(a))return 'pcn';
   if(/^(?:tp[\d.]*-)?si\d/i.test(a))return 'si';
   return 'addendum';}
+// Which word this instrument answers to. The write-up's fixed clauses name the document they put
+// a sheet into, so on a PCN they have to say PCN — the sentence is boilerplate, the name is not.
+function instWord(num){var k=instKind(num);return k==='pcn'?'PCN':k==='si'?'SI':'Addendum';}
+// The instrument a document is being built for. buildAddendumDoc sets it for the length of its run;
+// the live row previews have no document around them, so they read the one the register is showing.
+var WU_KEY=null;
+function wuWord(){
+  var src=WU_KEY||ADD_OPEN||'';
+  return instWord(addNum(String(src).split('|')[1]||''));
+}
 function instLong(num){var k=instKind(num)||'addendum',n=String(num==null?'':num);
   return k==='pcn'?('PCN '+n.replace(/^pcn/i,'')):k==='si'?('SI '+n.replace(/^si/i,'')):('Addendum '+n);}
 function instShort(num){var k=instKind(num)||'addendum',n=String(num==null?'':num);
@@ -4751,6 +5058,78 @@ function addendumDateFor(pkgName,num){
     if(tok&&tok.replace(/^0+/,'')===want.replace(/^0+/,''))return ms.rows[i];
   }
   return null;
+}
+// Has this instrument already gone to bidders? Everything downstream of a sheet-number correction
+// turns on this one fact: before it issues, a wrong number is a typo; after it issues, the number
+// is in a document somebody is pricing against, and changing it quietly makes the register lie
+// about what was sent.
+function addendumIssued(key){
+  var g=(ADD_GROUPS||{})[key];
+  var pkg=(g&&g.pkg)||'',num=key.split('|')[1]||'';
+  if(!pkg){
+    // the register may not have grouped it yet — fall back to whatever item carries the tag
+    var any=laneItems().filter(function(i){return addKey(i.pkg,i.addendum)===key;})[0];
+    pkg=(any&&any.pkg)||'';
+  }
+  var row=pkg?addendumDateFor(pkg,num):null;
+  if(!row)return null;
+  var out=(row.status==='submitted');
+  return {issued:out,date:row.date||'',label:addLabelFor(key),row:row,pkg:pkg};
+}
+// The addendum is not the only way a drawing number reaches a bidder — the BID set is the first and
+// biggest. For Package 5 that went out on 2026-07-31, so every sheet number in it is already in
+// someone's hands whether or not any addendum has issued yet.
+function bidSetIssued(pkg){
+  var ms=milestoneFor(pkg,'');if(!ms)return null;
+  for(var i=0;i<(ms.rows||[]).length;i++){
+    var r=ms.rows[i];
+    if(r.status!=='submitted')continue;
+    if(!/\bbid\b/i.test(r.what||'')||/inquir|quer/i.test(r.what||''))continue;
+    return {date:r.date||'',what:r.what||''};
+  }
+  return null;
+}
+// Is this drawing number in somebody else's hands? Either its addendum has issued, or the bid set
+// it belongs to has. Both make a number a fact rather than a field.
+function sheetIsOut(it){
+  var key=addKey(it.pkg,it.addendum);
+  var a=addendumIssued(key);
+  if(a&&a.issued)return {via:'addendum',label:a.label,date:a.date};
+  var b=bidSetIssued(it.pkg);
+  if(b)return {via:'bid',label:'the bid set',date:b.date};
+  return null;
+}
+// Where a correction can still be said. The instrument that carried the mistake is out of reach —
+// so it is this addendum if this one has not issued, otherwise the next one for the package. If
+// there is none, that is a real gap worth saying out loud rather than a button that does nothing.
+function correctionRidesOn(it){
+  var key=addKey(it.pkg,it.addendum);
+  var a=addendumIssued(key);
+  if(!a||!a.issued)return {key:key,label:addLabelFor(key),same:true};
+  // A correction rides the NEXT INSTRUMENT OF THE SAME KIND: an addendum mistake cannot be fixed
+  // by a PCN and the other way round, because they go to different readers.
+  var nx=nextAddendumFor(it.pkg,addNum(it.addendum),instKind(it.addendum));
+  return nx?{key:nx.key,label:nx.label,same:false}:null;
+}
+function nextAddendumFor(pkg,afterNum,kind){
+  var ms=milestoneFor(pkg,'');if(!ms)return null;
+  var want=kind||'addendum',best=null;
+  (ms.rows||[]).forEach(function(r){
+    if(r.status==='submitted')return;
+    // Milestones name an instrument the same way the register reads one: a number after the word,
+    // never a sentence that merely contains it.
+    var tok=null;
+    var m=/addendum\s*0?(\d+[\w.]*)/i.exec(r.what||'');
+    if(m)tok=m[1];
+    else{var pm=/\b(pcn|si)\s*0?(\d[\w.]*)/i.exec(r.what||'');if(pm)tok=pm[1]+pm[2];}
+    if(!tok)return;
+    if((instKind(tok)||'addendum')!==want)return;
+    var n=addNum(tok);
+    if(addNum(afterNum)===n)return;
+    var k=addKey(pkg,n);
+    if(!best||String(n)<String(best.num))best={num:n,key:k,date:r.date||'',label:addLabelFor(k)};
+  });
+  return best;
 }
 // Open a thread where it lives -- the Board's Threads mode -- rather than duplicating it here.
 // One home, many doors: the register names the thread, the Board renders it.
@@ -4849,6 +5228,72 @@ function buildAddendumRegister(){
   if(ADD_DISC&&ADD_DISC!=='*'&&discsPresent.indexOf(ADD_DISC)===-1)discsPresent.push(ADD_DISC);
   if(discsPresent.indexOf('AR')===-1&&discCount['AR'])discsPresent.unshift('AR');
   discsPresent.sort(function(a,b){return a==='AR'?-1:b==='AR'?1:(a<b?-1:1);});
+  // ---- the search box ----------------------------------------------------------------------
+  // It sits above the chips because it narrows the same list they do, and it is the widest control
+  // on the bar because what you type here is a phrase you half-remember, not a keyword.
+  (function(){
+    var fnd=document.createElement('div');fnd.className='reg-find';
+    var wrap=document.createElement('div');wrap.className='rf-wrap';
+    var mag=document.createElement('span');mag.className='rf-mag';mag.textContent='⌕';
+    wrap.appendChild(mag);
+    var inp=document.createElement('input');inp.type='text';inp.id='addQ';inp.className='rf-in';
+    inp.autocomplete='off';inp.value=ADD_Q;
+    inp.placeholder='Find in this addendum — a sheet, a room, a phrase in the write-up  ( / )';
+    inp.setAttribute('aria-label','Search this addendum');
+    inp.title='Searches everything a row carries, not just what it prints: sheet numbers, the text '
+      +'of each placement line, spec sections, who has it, bid inquiries, the write-up, and the '
+      +'check-in history. Two words narrows — both must appear.';
+    // The whole tab redraws on every keystroke, so the caret has to be put back by hand.
+    inp.addEventListener('input',function(){addSearchSet(inp.value,inp.selectionStart);});
+    inp.addEventListener('keydown',function(e){
+      e.stopPropagation();                       // j/k/1/2/3 are letters while you are typing
+      if(e.key==='Escape'){e.preventDefault();ADD_Q='';buildAddendumRegister();
+        var el2=document.getElementById('addQ');if(el2)el2.focus();}
+    });
+    wrap.appendChild(inp);
+    if(ADD_Q){
+      var x=document.createElement('button');x.type='button';x.className='rf-x';x.textContent='✕';
+      x.title='Clear the search';x.setAttribute('aria-label','Clear the search');
+      x.addEventListener('click',function(){ADD_Q='';buildAddendumRegister();
+        var el3=document.getElementById('addQ');if(el3)el3.focus();});
+      wrap.appendChild(x);
+    }
+    fnd.appendChild(wrap);
+    hFilt.appendChild(fnd);
+    // Where else the words exist. Every number is a doorway — a count you cannot click is a count
+    // that tells you to go looking by hand.
+    var sc=qScopeCounts(ADD_OPEN);
+    if(!sc)return;
+    var sr=document.createElement('div');sr.className='rf-scope';
+    var lb=document.createElement('b');lb.textContent='Found in';sr.appendChild(lb);
+    var TABS=[['reg','Contents'],['threads','Our questions'],['sheets','Sheet work'],
+              ['inq','Bid inquiries'],['wu','Write-up']];
+    var any=false;
+    TABS.forEach(function(o){
+      var n=sc[o[0]]||0;if(!n)return;any=true;
+      var b=document.createElement('button');b.type='button';
+      b.className='rf-b'+(ADD_MODE===o[0]?' here':'');
+      b.innerHTML='<b>'+n+'</b> '+escapeHtml(o[1])+(o[0]==='wu'?' ✎':'');
+      b.title=(ADD_MODE===o[0])?'You are looking at these':'Show the matches in '+o[1];
+      if(ADD_MODE!==o[0])b.addEventListener('click',function(){
+        ADD_MODE=o[0];buildAddendumRegister();});
+      sr.appendChild(b);});
+    (sc.other||[]).forEach(function(o){
+      any=true;
+      var b=document.createElement('button');b.type='button';b.className='rf-b rf-away';
+      b.innerHTML='<b>'+o.n+'</b> '+escapeHtml(addLabelFor(o.key));
+      b.title='The same words appear on '+addLabelFor(o.key)+' — go there, keeping the search';
+      b.addEventListener('click',function(){
+        ADD_OPEN=o.key;buildAddendumRegister();
+        var el=document.getElementById('addRegView');
+        if(el&&el.scrollIntoView)try{el.scrollIntoView({block:'start'});}catch(e){}});
+      sr.appendChild(b);});
+    if(!any){
+      var nn=document.createElement('span');nn.className='rf-none';
+      nn.textContent='nothing on any addendum carries “'+ADD_Q+'” — check the spelling, or try one word';
+      sr.appendChild(nn);}
+    hFilt.appendChild(sr);
+  })();
   {
     var fr=document.createElement('div');fr.className='add-filter add-filter-lead';
     // Architecture is what we write. A row of consultant buttons on an addendum that is entirely
@@ -4892,6 +5337,9 @@ function buildAddendumRegister(){
     // number on the page, so the pool follows the view.
     var flagPool=(ADD_MODE==='sheets'?addPoolFor(ADD_OPEN)
                  :tagged.filter(function(i){return itemHasDisc(i,ADD_DISC);}));
+    // and a search is part of the view. "All 13" printed beside a list showing none of them is the
+    // same broken promise as counting the wrong population — the search narrows what these count.
+    if(ADD_Q)flagPool=flagPool.filter(itemMatchesQ);
     var isDone_=function(i){return i.status==='completed'||i.pendingComplete;};
     var flagN=function(k){
       if(!k)return flagPool.length;
@@ -4919,7 +5367,7 @@ function buildAddendumRegister(){
         ADD_FLAG=o[0];
         // "All" has to mean all. It cleared its own filter and left the other two armed, which is
         // how you end up looking at one row with every visible control saying nothing is filtered.
-        if(!o[0]){ADD_STATE='';ADD_PART='';}
+        if(!o[0]){ADD_STATE='';ADD_PART='';ADD_WHO='';ADD_Q='';}
         buildAddendumRegister();});
       fr.appendChild(fb2);
     });
@@ -5031,12 +5479,47 @@ function buildAddendumRegister(){
   hTabs.appendChild(modeRow);
   renderGateStrip(ADD_OPEN,hGate);
 
-  if(ADD_MODE==='inq'){addInquiryBlock(c,ADD_OPEN);return;}
-  if(ADD_MODE==='sheets'){addWorkbench(c,ADD_OPEN,addPoolFor(ADD_OPEN));return;}
-  if(ADD_MODE==='threads'){addQuestionsPanel(c,ADD_OPEN,groups[ADD_OPEN]);return;}
+  // A sheet row with a state, an owner and a ? that belongs to NO addendum is the one thing this
+  // board could lose completely: it is not in Contents, not in Sheet work, not in any write-up, and
+  // its question can never be answered because there is no page it appears on. Five of them sat in
+  // the Package 5 list for two days after a retag dropped their tag, and nothing said a word.
+  // Nothing that is real work may be invisible. This says it, in every mode, above everything.
+  (function(){
+    var orph=laneItems().filter(function(i){
+      return i.lane&&!i.pendingLocal&&!i.addendum&&(i.produces||i.verify||placementsOf(i).length);});
+    if(!orph.length)return;
+    var s=document.createElement('div');s.className='orphan-strip';
+    var h=document.createElement('div');h.className='orph-h';
+    h.innerHTML='<b>'+orph.length+'</b> '+(orph.length===1?'row is':'rows are')
+      +' on no addendum — real work, with a state, appearing in no register and no document. '
+      +'An <code>addendum::</code> tag is missing from '+(orph.length===1?'it':'them')
+      +' in the vault; nothing here can reach '+(orph.length===1?'it':'them')+' to fix it.';
+    s.appendChild(h);
+    orph.forEach(function(i){
+      var r=document.createElement('div');r.className='orph-row';
+      var t=document.createElement('span');t.className='orph-t';
+      t.textContent=(i.title||'').slice(0,80);
+      r.appendChild(t);
+      var m=document.createElement('span');m.className='orph-m';
+      var bits=[];
+      if(i.due)bits.push('due '+i.due);
+      if(i.produces)bits.push(produceLabel(itemPart(i),i.produces).toLowerCase());
+      if(i.verify)bits.push('flagged ?');
+      if(i.delegate)bits.push(firstName(i.delegate));
+      m.textContent=bits.join(' · ');
+      r.appendChild(m);
+      s.appendChild(r);});
+    c.appendChild(s);
+  })();
+  // Paint the words wherever they landed, once, after whichever tab has finished drawing. The
+  // filter bar is skipped — highlighting the search box's own echo of what you typed is noise.
+  var paint=function(){if(ADD_Q)hiliteQ(c);};
+  if(ADD_MODE==='inq'){addInquiryBlock(c,ADD_OPEN);paint();return;}
+  if(ADD_MODE==='sheets'){addWorkbench(c,ADD_OPEN,addPoolFor(ADD_OPEN));paint();return;}
+  if(ADD_MODE==='threads'){addQuestionsPanel(c,ADD_OPEN,groups[ADD_OPEN]);paint();return;}
   if(ADD_MODE==='wu'){
     var h=document.createElement('div');h.id='wuHost-'+ADD_OPEN;c.appendChild(h);
-    h.setAttribute('data-rerender','1');buildWriteup(ADD_OPEN,h);return;}
+    h.setAttribute('data-rerender','1');buildWriteup(ADD_OPEN,h);paint();return;}
 
   order.forEach(function(k){
     var g=groups[k];
@@ -5118,6 +5601,7 @@ function buildAddendumRegister(){
       var inf=scopeInfo(sk==='_none'?'':sk);
       if(addDiscFilter_()&&inf.d!==addDiscFilter_())return;
       var rows=byScope[sk].filter(function(it){
+        if(!itemMatchesQ(it))return false;
         if(ADD_FLAG==='verify')return !!it.verify;
         if(ADD_FLAG==='open')return !(it.status==='completed'||it.pendingComplete);
         if(ADD_FLAG==='done')return it.status==='completed'||it.pendingComplete;
@@ -5174,9 +5658,13 @@ function buildAddendumRegister(){
       card.appendChild(r);
       });
     });
+    // A search is a question about the whole register, so a card with no answer in it is noise —
+    // unless it is the one you are standing on, which has to keep its controls.
+    if(!shown&&ADD_Q&&k!==ADD_OPEN)return;
     if(!shown){
       var nores=document.createElement('div');nores.className='add-row add-none';
-      nores.textContent=ADD_FLAG==='verify'?'Nothing on this addendum is flagged with a ?.'
+      nores.textContent=ADD_Q?('Nothing on this addendum carries “'+ADD_Q+'”.')
+        :ADD_FLAG==='verify'?'Nothing on this addendum is flagged with a ?.'
         :ADD_FLAG==='open'?'Everything on this addendum is finished.'
         :ADD_FLAG==='done'?'Nothing on this addendum is finished yet.'
         :(addDiscFilter_()?'Nothing in this addendum is '+addDiscFilter_()+' scope.':'');
@@ -5189,6 +5677,7 @@ function buildAddendumRegister(){
     act.appendChild(addBtn);card.appendChild(act);
     c.appendChild(card);
   });
+  paint();
 }
 function openAddendumAdder(host,g){
   if(host.querySelector('.add-picker'))return;
@@ -5735,7 +6224,16 @@ document.addEventListener('keydown',function(e){
   undoLast();
 });
 document.addEventListener('keydown',function(e){
-  if(e.key==='/'&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){e.preventDefault();var sb=document.getElementById('searchBox');if(sb){sb.focus();sb.select();}}
+  if(e.key!=='/'||/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))return;
+  // `/` means "let me type what I am looking for" everywhere on this page. On the register the box
+  // it means is the register's own — the board's is not even on screen there. A focused sheet row
+  // keeps `/` as its flag shortcut; that layer is deliberate and you had to walk to the row to arm it.
+  if(document.querySelector('.sh-row.kbd-focus'))return;
+  var rv=document.getElementById('registersView');
+  var aq=document.getElementById('addQ');
+  if(aq&&rv&&rv.style.display!=='none'){e.preventDefault();aq.focus();aq.select();return;}
+  var sb=document.getElementById('searchBox');
+  if(sb){e.preventDefault();sb.focus();sb.select();}
 });
 // ---- keyboard layer: j/k walk · Enter open · d done · p my-day · g+key views ----
 var kbdIdx=-1,gPending=false,gTimer=null;
@@ -6609,6 +7107,308 @@ function copyText(txt,okMsg){
     navigator.clipboard.writeText(txt).then(function(){setStatus(okMsg);},function(){window.prompt('Copy this:',txt);});
   }else{window.prompt('Copy this:',txt);}
 }
+// ---- copying the write-up into Word ---------------------------------------------------------
+// "the numbering that comes in doesn't integrate with Word — 4.5, 4.5.1 are just text, not actual
+// numbered rows." True, and it was never going to be otherwise: the write-up is a textarea, and a
+// textarea holds characters. Word only makes a real list out of a paste if the CLIPBOARD carries
+// list markup — so the clipboard gets two flavours at once, and Word takes the richer one.
+//
+// The markup is Word's own dialect, not generic HTML. A bare <ol> pastes as a list but numbers it
+// 1. / a. / i., which is not what an addendum looks like. The `@list` block below is the same thing
+// Word writes when it saves a numbered document as HTML: mso-level-text "%1.%2.%3" is what makes
+// 4.5.1 come out as 4.5.1 — and, being a real list, everything after a row you move renumbers itself.
+var WORD_LIST_CSS=[
+'@list l0{mso-list-id:2026081;mso-list-type:hybrid;mso-list-template-ids:2026081;}',
+// the document opens at section 2 — section 1 lives in the template, above anything we write
+'@list l0:level1{mso-level-start-at:2;mso-level-number-format:decimal;mso-level-text:"%1";',
+'  mso-level-tab-stop:none;mso-level-number-position:left;margin-left:36.0pt;text-indent:-36.0pt;}',
+'@list l0:level2{mso-level-number-format:decimal;mso-level-text:"%1.%2";',
+'  mso-level-tab-stop:none;mso-level-number-position:left;margin-left:72.0pt;text-indent:-36.0pt;}',
+'@list l0:level3{mso-level-number-format:decimal;mso-level-text:"%1.%2.%3";',
+'  mso-level-tab-stop:none;mso-level-number-position:left;margin-left:108.0pt;text-indent:-36.0pt;}',
+// a schedule revision goes one deeper: 3.1.1.1 CZ1: Concrete, Sealed
+'@list l0:level4{mso-level-number-format:decimal;mso-level-text:"%1.%2.%3.%4";',
+'  mso-level-tab-stop:none;mso-level-number-position:left;margin-left:144.0pt;text-indent:-36.0pt;}',
+// and the bullets under it take no number — they belong to the clause above them
+'@list l1{mso-list-id:2026082;mso-list-type:hybrid;mso-list-template-ids:2026082;}',
+'@list l1:level1{mso-level-number-format:bullet;mso-level-text:•;mso-level-tab-stop:none;',
+'  mso-level-number-position:left;margin-left:180.0pt;text-indent:-18.0pt;',
+'  font-family:Symbol;}'
+].join('\n');
+function wEsc(s){
+  return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+// One numbered line becomes one list paragraph. The literal number is kept inside the
+// `supportLists` comment, which Word strips and replaces with its own — and which every other
+// target (Gmail, Teams, a plain editor) shows as ordinary text, so nothing loses the numbering.
+function wBullet(body){
+  return '<p class=MsoListParagraph style=\'margin-left:180.0pt;text-indent:-18.0pt;'
+    +'mso-list:l1 level1 lfo2\'>'
+    +'<![if !supportLists]><span style=\'font-family:Symbol\'>·'
+    +'<span style=\'font:7.0pt "Times New Roman"\'>&nbsp;&nbsp;&nbsp;&nbsp;</span></span><![endif]>'
+    +wEsc(body)+'</p>';
+}
+function wListRow(level,num,body){
+  var ind=[36,72,108,144][level-1]||36;
+  // same air as the .docx, so the two copies do not disagree about where a section starts
+  var top=level===1?14:(level===2?8:0);
+  return '<p class=MsoListParagraph style=\'margin-left:'+ind+'.0pt;text-indent:-36.0pt;'
+    +'margin-top:'+top+'.0pt;'+(level===1?'font-weight:bold;':'')
+    +'mso-list:l0 level'+level+' lfo1\'>'
+    +'<![if !supportLists]><span style=\'mso-list:Ignore\'>'+wEsc(num)
+    +'<span style=\'font:7.0pt "Times New Roman"\'>&nbsp;&nbsp;&nbsp;&nbsp;</span></span><![endif]>'
+    +wEsc(body)+'</p>';
+}
+function wPlain(text,indentSpaces,bold){
+  var pt=Math.round((indentSpaces||0)/8)*36;
+  var b=bold?'font-weight:bold;':'';
+  if(!String(text).trim())return '<p class=MsoNormal style=\'margin:0\'>&nbsp;</p>';
+  return '<p class=MsoNormal style=\'margin:0;margin-left:'+pt+'.0pt;'+b+'\'>'
+    +wEsc(text.replace(/^\s+/,'').replace(/\s{2,}/g,'  '))+'</p>';
+}
+// Read the finished document back rather than building a second one beside it. Whatever is in the
+// textarea — including anything you typed over the top — is what goes to Word, so the two can
+// never drift.
+var WU_NUMBERED=/^(\s*)((?:\d+\.)*\d+)\s{2,}(.+)$/;
+function writeupWordHtml(text,title){
+  var out=[];
+  String(text||'').split('\n').forEach(function(raw,ix){
+    var line=raw.replace(/\s+$/,'');
+    if(!line.trim()){out.push(wPlain(''));return;}
+    if(ix===0){out.push('<p class=MsoNormal style=\'margin:0;font-weight:bold;font-size:13.0pt\'>'
+      +wEsc(line.trim())+'</p>');return;}
+    var bl=/^\s*[••·*]\s+(.+)$/.exec(line);
+    if(bl){out.push(wBullet(bl[1]));return;}
+    var m=WU_NUMBERED.exec(line);
+    if(m){
+      var lvl=m[2].split('.').length;
+      if(lvl>=1&&lvl<=4){out.push(wListRow(lvl,m[2],m[3]));return;}
+    }
+    var lead=(/^(\s*)/.exec(line)||['',''])[1].length;
+    out.push(wPlain(line,lead,/^(List of Attachments|SECTION\b)/i.test(line.trim())));
+  });
+  return '<html xmlns:o="urn:schemas-microsoft-com:office:office" '
+    +'xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8">'
+    +'<title>'+wEsc(title||'Addendum')+'</title><style>'
+    +'p.MsoNormal,p.MsoListParagraph{font-family:"Calibri",sans-serif;font-size:11.0pt;margin:0}\n'
+    +WORD_LIST_CSS+'</style></head><body>'+out.join('\n')+'</body></html>';
+}
+// Two flavours on one clipboard: Word takes the HTML, everything else takes the text. The async
+// API needs both in a single write() — a second call replaces the first rather than adding to it.
+function copyRich(html,plain,okMsg){
+  var done=function(){setStatus(okMsg);};
+  var legacy=function(){
+    // Older Safari and any browser without ClipboardItem: a hidden, selected, contenteditable node
+    // still puts real HTML on the clipboard, because the copy comes from a DOM selection.
+    try{
+      var host=document.createElement('div');
+      host.setAttribute('contenteditable','true');
+      host.style.cssText='position:fixed;left:-9999px;top:0;white-space:pre-wrap;';
+      host.innerHTML=html;
+      document.body.appendChild(host);
+      var sel=window.getSelection(),rng=document.createRange();
+      rng.selectNodeContents(host);sel.removeAllRanges();sel.addRange(rng);
+      var ok=document.execCommand('copy');
+      sel.removeAllRanges();host.remove();
+      if(ok){done();return;}
+    }catch(e){}
+    copyText(plain,okMsg);
+  };
+  if(window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write){
+    try{
+      navigator.clipboard.write([new ClipboardItem({
+        'text/html':new Blob([html],{type:'text/html'}),
+        'text/plain':new Blob([plain],{type:'text/plain'})
+      })]).then(done,legacy);
+      return;
+    }catch(e){}
+  }
+  legacy();
+}
+// ---- a real Word file ------------------------------------------------------------------------
+// The HTML clipboard was the wrong bet. Word for the WEB — which is what a Teams-shared document
+// opens in — throws away almost all of the `mso-` list metadata on paste, so the levels it invents
+// come out scrambled: 1.6, 2.6, 5.1.1, and two sections both numbered 5. Desktop Word honours far
+// more of it, which is exactly why the same paste behaved differently in the two places.
+//
+// A .docx has no such ambiguity. It IS Word's format: the numbering lives in numbering.xml, both
+// Words read the same bytes, and copying from the opened file into the addendum is a Word-to-Word
+// paste, which carries list definitions faithfully. So the write-up is written as a real file.
+//
+// A .docx is a ZIP. Everything below is stored (compression method 0) — no DEFLATE needed, the
+// files are small, and a stored ZIP is a few dozen lines instead of a dependency.
+var CRC_T=null;
+function crc32(bytes){
+  if(!CRC_T){CRC_T=new Int32Array(256);
+    for(var n=0;n<256;n++){var c=n;
+      for(var k=0;k<8;k++)c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);
+      CRC_T[n]=c;}}
+  var crc=-1;
+  for(var i=0;i<bytes.length;i++)crc=(crc>>>8)^CRC_T[(crc^bytes[i])&0xFF];
+  return (crc^-1)>>>0;
+}
+function zipStore(files){
+  var enc=new TextEncoder(),parts=[],central=[],offset=0;
+  var u16=function(v){return [v&255,(v>>>8)&255];};
+  var u32=function(v){return [v&255,(v>>>8)&255,(v>>>16)&255,(v>>>24)&255];};
+  files.forEach(function(f){
+    var name=enc.encode(f.name),data=(typeof f.data==='string')?enc.encode(f.data):f.data;
+    var crc=crc32(data);
+    var local=[].concat([0x50,0x4b,0x03,0x04],u16(20),u16(0),u16(0),u16(0),u16(0),
+      u32(crc),u32(data.length),u32(data.length),u16(name.length),u16(0));
+    parts.push(new Uint8Array(local),name,data);
+    central.push({name:name,crc:crc,len:data.length,off:offset});
+    offset+=local.length+name.length+data.length;
+  });
+  var cdir=[],cstart=offset;
+  central.forEach(function(c){
+    var h=[].concat([0x50,0x4b,0x01,0x02],u16(20),u16(20),u16(0),u16(0),u16(0),u16(0),
+      u32(c.crc),u32(c.len),u32(c.len),u16(c.name.length),u16(0),u16(0),u16(0),u16(0),
+      u32(0),u32(c.off));
+    cdir.push(new Uint8Array(h),c.name);
+    offset+=h.length+c.name.length;
+  });
+  var end=new Uint8Array([].concat([0x50,0x4b,0x05,0x06],u16(0),u16(0),
+    u16(central.length),u16(central.length),u32(offset-cstart),u32(cstart),u16(0)));
+  var all=parts.concat(cdir,[end]),total=0;
+  all.forEach(function(p){total+=p.length;});
+  var out=new Uint8Array(total),at=0;
+  all.forEach(function(p){out.set(p,at);at+=p.length;});
+  return new Blob([out],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+}
+function xEsc(s){
+  return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+// One abstract list for the numbered tiers and one for the bullets. Keeping them apart is what
+// stops a bullet from consuming a counter — a bullet belongs to the clause above it and must not
+// advance 4.1.1 to 4.1.2.
+function docxNumbering(){
+  var lv=function(i,txt){
+    return '<w:lvl w:ilvl="'+i+'"><w:start w:val="'+(i===0?2:1)+'"/>'
+      +'<w:numFmt w:val="decimal"/><w:lvlText w:val="'+xEsc(txt)+'"/><w:lvlJc w:val="left"/>'
+      +'<w:pPr><w:ind w:left="'+(720*(i+1))+'" w:hanging="720"/></w:pPr></w:lvl>';};
+  var rest='';
+  for(var i=4;i<9;i++)rest+=lv(i,'%'+(i+1));
+  return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<w:numbering xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+    +'<w:abstractNum w:abstractNumId="0"><w:multiLevelType w:val="multilevel"/>'
+    // the document opens at section 2 — section 1 is in the template above anything we write
+    +lv(0,'%1')+lv(1,'%1.%2')+lv(2,'%1.%2.%3')+lv(3,'%1.%2.%3.%4')+rest
+    +'</w:abstractNum>'
+    +'<w:abstractNum w:abstractNumId="1"><w:multiLevelType w:val="hybridMultilevel"/>'
+    +'<w:lvl w:ilvl="0"><w:start w:val="1"/><w:numFmt w:val="bullet"/>'
+    +'<w:lvlText w:val=""/><w:lvlJc w:val="left"/>'
+    +'<w:pPr><w:ind w:left="3600" w:hanging="360"/></w:pPr>'
+    +'<w:rPr><w:rFonts w:ascii="Symbol" w:hAnsi="Symbol" w:hint="default"/></w:rPr></w:lvl>'
+    +'</w:abstractNum>'
+    +'<w:num w:numId="1"><w:abstractNumId w:val="0"/></w:num>'
+    +'<w:num w:numId="2"><w:abstractNumId w:val="1"/></w:num>'
+    +'</w:numbering>';
+}
+function docxPara(text,opts){
+  opts=opts||{};
+  var pPr='<w:pPr>';
+  if(opts.numId)pPr+='<w:numPr><w:ilvl w:val="'+opts.ilvl+'"/>'
+    +'<w:numId w:val="'+opts.numId+'"/></w:numPr>';
+  if(opts.indent)pPr+='<w:ind w:left="'+opts.indent+'"/>';
+  // Air where the document changes subject, and none inside a block. A section and a drawing
+  // heading each get room above them; the lines under a heading stay tight to it, because that is
+  // what makes them read as belonging to it.
+  pPr+='<w:spacing w:before="'+(opts.before||0)+'" w:after="0" w:line="240" w:lineRule="auto"/>';
+  if(opts.bold||opts.size)pPr+='<w:rPr>'+(opts.bold?'<w:b/>':'')
+    +(opts.size?'<w:sz w:val="'+opts.size+'"/>':'')+'</w:rPr>';
+  pPr+='</w:pPr>';
+  var rPr=(opts.bold||opts.size)?('<w:rPr>'+(opts.bold?'<w:b/>':'')
+    +(opts.size?'<w:sz w:val="'+opts.size+'"/>':'')+'</w:rPr>'):'';
+  return '<w:p>'+pPr+'<w:r>'+rPr+'<w:t xml:space="preserve">'+xEsc(text)+'</w:t></w:r></w:p>';
+}
+// Read the finished document back, exactly as the Copy buttons do, so the file and the text on
+// screen can never say different things.
+function docxFromWriteup(text,title){
+  var body=[],lines=String(text||'').split('\n');
+  // A blank line in the source and a spacing rule on the heading below it would stack into a gap
+  // twice the size of the one either intended. The heading owns its space; the blank line steps
+  // aside for it.
+  var headsNext=function(from){
+    for(var j=from+1;j<lines.length;j++){
+      var t=lines[j].replace(/\s+$/,'');
+      if(!t.trim())continue;
+      var mm=WU_NUMBERED.exec(t);
+      return !!(mm&&mm[2].split('.').length<=2);
+    }
+    return false;
+  };
+  lines.forEach(function(raw,ix){
+    var line=raw.replace(/\s+$/,'');
+    if(!line.trim()){if(!headsNext(ix))body.push(docxPara(''));return;}
+    if(ix===0){body.push(docxPara(line.trim(),{bold:true,size:26,after:true}));return;}
+    var bl=/^\s*[•·*]\s+(.+)$/.exec(line);
+    if(bl){body.push(docxPara(bl[1],{numId:2,ilvl:0}));return;}
+    var m=WU_NUMBERED.exec(line);
+    if(m){
+      var lvl=m[2].split('.').length;
+      // 240 twentieths is 12pt — a line's worth above a section, half of one above a drawing
+      body.push(docxPara(m[3],{numId:1,ilvl:lvl-1,
+        before:lvl===1?280:(lvl===2?160:0),bold:lvl===1}));
+      return;
+    }
+    var lead=(/^(\s*)/.exec(line)||['',''])[1].length;
+    body.push(docxPara(line.trim(),{indent:Math.round(lead/8)*720,
+      bold:/^(List of Attachments|SECTION\b|END OF )/i.test(line.trim())}));
+  });
+  var doc='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+    +'<w:body>'+body.join('')
+    +'<w:sectPr><w:pgSz w:w="12240" w:h="15840"/>'
+    +'<w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440"/></w:sectPr>'
+    +'</w:body></w:document>';
+  return zipStore([
+    {name:'[Content_Types].xml',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      +'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+      +'<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+      +'<Default Extension="xml" ContentType="application/xml"/>'
+      +'<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>'
+      +'<Override PartName="/word/numbering.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml"/>'
+      +'<Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>'
+      +'</Types>'},
+    {name:'_rels/.rels',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      +'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+      +'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>'
+      +'</Relationships>'},
+    {name:'word/_rels/document.xml.rels',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      +'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+      +'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering" Target="numbering.xml"/>'
+      +'<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>'
+      +'</Relationships>'},
+    {name:'word/styles.xml',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      +'<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+      +'<w:docDefaults><w:rPrDefault><w:rPr>'
+      +'<w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="22"/>'
+      +'</w:rPr></w:rPrDefault></w:docDefaults>'
+      +'<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style>'
+      +'</w:styles>'},
+    {name:'word/numbering.xml',data:docxNumbering()},
+    {name:'word/document.xml',data:doc}
+  ]);
+}
+// The name a file lands under is how it is found again six weeks later, so it is the house name,
+// not the register's internal key. Shadi, 2026-08-13: "Package 5 Addendum 01 _ AR _ Write up".
+// The addendum number pads to two digits — 01 sorts before 10 in every file list there is, and
+// "Addendum 1" next to "Addendum 10" does not.
+function writeupFileName(key,ext){
+  var bits=String(key||'').split('|');
+  var pk=bits[0]||'?',num=bits[1]||'';
+  var n=/^\d+$/.test(num)?(num.length<2?('0'+num):num):(num||'?');
+  var disc=(ADD_DISC&&ADD_DISC!=='*')?ADD_DISC:'AR';
+  // A PCN is not an addendum, and a file called one when it is the other is the kind of thing
+  // that gets mailed. The name follows the instrument the register is actually showing.
+  var kind=instKind(num)||'addendum';
+  var inst=(kind==='addendum')?('Addendum '+n):instLong(num);
+  return ('Package '+pk+' '+inst+' _ '+disc+' _ Write up'+(ext||''))
+    // whatever a package is ever called, a file name may not carry these
+    .replace(/[\\/:*?"<>|]+/g,'-').replace(/\s{2,}/g,' ').trim();
+}
 function mkCopyChaseBtn(it,cls){
   var b=document.createElement('button');b.type='button';b.className=(cls||'nudge-btn')+' chase-btn';b.textContent='copy chase \u2709';
   b.title='Copy a ready-to-send follow-up message built from this item\u2019s history';
@@ -6852,6 +7652,8 @@ var ADD_OPEN=null;         // which addendum is selected — one is always selec
 var ADD_MODE='reg';        // reg | sheets | inq | wu
 var ADD_DISC='AR';         // Architecture is the default and says so. This is an ARCH addendum.
 var ADD_PART='';           // '' both · 'spec' §3 · 'drawing' §4
+var ADD_WHO='';            // '' = everyone · a first name · '—' = nobody assigned yet
+var ADD_Q='';              // what you typed in the register's search box
 var ADD_STATE='';          // '' | drawings | writeup | none | untriaged | verify | ask | done
 // Contents has its own, because Contents asks a different question: the workbench asks what goes
 // in the document, this asks what is still open. Separate from ADD_STATE so switching view does
@@ -7000,7 +7802,7 @@ function rawAddendumFor(key){
 }
 function addLabelFor(key){
   var g=ADD_GROUPS[key];
-  return g?(pkgChip(g.pkg)+' \u00b7 Add '+g.num):('Addendum '+key.split('|')[1]);
+  return g?(pkgChip(g.pkg)+' \u00b7 '+instShort(g.num)):instLong(addNum(key.split('|')[1]||''));
 }
 function moveToAddendum(id,key,quiet){
   var it=findLane(id);if(!it)return false;
@@ -7127,12 +7929,29 @@ function setAddMeta(id,field,value,label,quiet){
     text:(it.sheet?it.sheet+' — ':'')+(label||field)+': '
       +(field==='placements'?((JSON.parse(value||'[]')||[]).length+' line(s)'):(value||'(cleared)'))});
   if(quiet){setStatus((label||field)+' recorded.');return;}
-  buildAddendumRegister();
-  setStatus((label||field)+' set — queued for check-in.');
+  keepPlace(buildAddendumRegister);
+  // "Queued for check-in" was true and it was the wrong half of the truth. Every edit here goes to
+  // the shared store the instant it is made — the other people on this board have it in about eight
+  // seconds. What check-in does is fold it into the VAULT, which is permanence, not visibility.
+  // Saying only the second half taught people that assigning someone was invisible until Claude ran,
+  // which is the opposite of what it is for.
+  var who=(field==='delegate')
+    ? (value?firstName(value)+' has it':'nobody on it')
+    : ((label||field)+' set');
+  setStatus(who+' — '+(SYNC.on
+    ? 'the team sees this now. Check-in folds it into the vault to make it permanent.'
+    : 'sharing is off, so this is on your screen only until it is switched on. '
+      +'Check-in folds it into the vault.'));
 }
 
 // ---- the workbench render ----------------------------------------------------------------------
 function addWorkbench(host,key,pool){
+  // The search narrows the population every counter on this bar reads — the edge key, the Who
+  // line, the state chips. They are describing the list in front of you; a search that left them
+  // describing a different list would make all of them liars at once. What it must NOT touch is
+  // addPoolFor() itself: the gate and the document read that, and what you type in a box is not
+  // allowed to change what issues to bidders.
+  if(ADD_Q)pool=pool.filter(itemMatchesQ);
   var live=pool.filter(function(i){return !i.pendingComplete&&i.status!=='completed';});
   var done=pool.length-live.length;
   var wb=document.createElement('div');wb.className='wb';
@@ -7185,6 +8004,41 @@ function addWorkbench(host,key,pool){
       var sp=document.createElement('span');sp.className='ek-'+o[0];
       sp.innerHTML='<i></i><b>'+counts[o[0]]+'</b> '+o[1];k.appendChild(sp);});
     if(k.children.length>1)wb.appendChild(k);
+    // Who is carrying what. One line, counts only — the point is to notice an imbalance or an
+    // unassigned pile, not to run a resourcing report.
+    var by={},none=0;
+    pool.forEach(function(i){
+      if(i.delegate)by[firstName(i.delegate)]=(by[firstName(i.delegate)]||0)+1;else none++;});
+    // You first, always, and called what it is. "Which of these are mine" is the question this line
+    // gets asked most, and hunting your own name among four others to answer it is a worse tool
+    // than one chip. It stays at zero rather than disappearing: "none of this is mine" is an answer.
+    var me=firstName(syncWho()||'');
+    var names=Object.keys(by).sort(function(a,b){return by[b]-by[a];})
+                             .filter(function(n){return n!==me;});
+    if(names.length||none||me){
+      var wk=document.createElement('div');wk.className='who-key';
+      var lb=document.createElement('b');lb.textContent='Who';wk.appendChild(lb);
+      var chip=function(n,label,cls){
+        var sp=document.createElement('button');sp.type='button';
+        sp.className='who-chip'+(cls||'')+(ADD_WHO===n?' on':'')+((by[n]||0)?'':' is-zero');
+        sp.innerHTML='<b>'+(by[n]||0)+'</b> '+escapeHtml(label);
+        sp.title=(by[n]||0)
+          ?('Show only what '+(label==='mine'?'you are':n+' is')+' carrying')
+          :(label==='mine'?'Nothing on this addendum is assigned to you'
+                          :'Nothing here is '+n+'’s');
+        sp.addEventListener('click',function(){ADD_WHO=(ADD_WHO===n)?'':n;buildAddendumRegister();});
+        wk.appendChild(sp);};
+      if(me)chip(me,'mine',' who-mine');
+      names.forEach(function(n){chip(n,n,'');});
+      if(none){
+        var sp2=document.createElement('button');sp2.type='button';
+        sp2.className='who-chip who-none'+(ADD_WHO==='\u2014'?' on':'');
+        sp2.innerHTML='<b>'+none+'</b> nobody yet';
+        sp2.title='Rows with no one on them';
+        sp2.addEventListener('click',function(){
+          ADD_WHO=(ADD_WHO==='\u2014')?'':'\u2014';buildAddendumRegister();});
+        wk.appendChild(sp2);}
+      wb.appendChild(wk);}
   })();
   // No filter may ever be a dead end. The gate could arm ADD_STATE — untriaged, verify, nosheet —
   // and the state bar only draws buttons for drawings/writeup/none, so there was literally nothing
@@ -7198,6 +8052,10 @@ function addWorkbench(host,key,pool){
                               ask:'Waiting on an answer',done:'Finished',drawings:'Issue drawing',
                               writeup:'Write-up only',none:'Fix only'})[ADD_STATE]||ADD_STATE,
                           c:function(){ADD_STATE='';}});
+    if(ADD_Q)on.push({t:'\u201c'+ADD_Q+'\u201d',c:function(){ADD_Q='';}});
+    if(ADD_WHO)on.push({t:(ADD_WHO==='\u2014'?'Nobody assigned'
+                          :(ADD_WHO===firstName(syncWho()||'')?'Mine':ADD_WHO)),
+                        c:function(){ADD_WHO='';}});
     if(ADD_PART)on.push({t:(ADD_PART==='spec'?'Specifications \u00a73':'Drawings \u00a74'),
                          c:function(){ADD_PART='';}});
     if(ADD_DISC&&ADD_DISC!=='AR'&&ADD_DISC!=='*')on.push({t:ADD_DISC,c:function(){ADD_DISC='AR';}});
@@ -7214,7 +8072,8 @@ function addWorkbench(host,key,pool){
     var all=document.createElement('button');all.type='button';all.className='filt-clear';
     all.textContent='Clear all';
     all.addEventListener('click',function(){
-      ADD_FLAG='';ADD_STATE='';ADD_PART='';ADD_DISC='AR';buildAddendumRegister();});
+      ADD_FLAG='';ADD_STATE='';ADD_PART='';ADD_WHO='';ADD_Q='';ADD_DISC='AR';
+      buildAddendumRegister();});
     strip.appendChild(all);
     wb.appendChild(strip);
     // the count is only knowable after the rows are filtered — filled in below
@@ -7313,6 +8172,9 @@ function addWorkbench(host,key,pool){
   var rows=parted.filter(function(i){
     // the page-level Show filter applies here too. It sat above every view and moved only
     // Contents, which is indistinguishable from being broken.
+    if(!itemMatchesQ(i))return false;
+    if(ADD_WHO==='\u2014'&&i.delegate)return false;
+    if(ADD_WHO&&ADD_WHO!=='\u2014'&&firstName(i.delegate)!==ADD_WHO)return false;
     if(ADD_FLAG==='verify'&&!i.verify)return false;
     if(ADD_FLAG==='open'&&(i.status==='completed'||i.pendingComplete))return false;
     if(ADD_FLAG==='done'&&!(i.status==='completed'||i.pendingComplete))return false;
@@ -7328,7 +8190,21 @@ function addWorkbench(host,key,pool){
   })();
   if(!rows.length){
     var e=document.createElement('div');e.className='wb-empty';
-    e.textContent='Nothing matches these filters \u2014 clear one above to get the list back.';
+    // "Nothing here" is only the truth about THIS tab. When the words are sitting on another one,
+    // say so \u2014 otherwise a search that worked reads as a search that failed.
+    var sc2=ADD_Q?qScopeCounts(key):null;
+    var elsewhere=[];
+    if(sc2){
+      [['reg','Contents'],['threads','Our questions'],['inq','Bid inquiries'],['wu','the write-up']]
+        .forEach(function(o){if(sc2[o[0]])elsewhere.push(sc2[o[0]]+' in '+o[1]);});
+      (sc2.other||[]).forEach(function(o){elsewhere.push(o.n+' on '+addLabelFor(o.key));});
+    }
+    e.textContent=ADD_Q
+      ? (elsewhere.length
+          ? 'No sheet work here carries \u201c'+ADD_Q+'\u201d \u2014 but there is '+elsewhere.join(', ')
+            +'. The row of buttons under the search box takes you.'
+          : 'Nothing carries \u201c'+ADD_Q+'\u201d. Clear the search, or try one word of it.')
+      : 'Nothing matches these filters \u2014 clear one above to get the list back.';
     wb.appendChild(e);host.appendChild(wb);return;}
 
   // Grouping is by what the row PRODUCES. Filtering by question or by done cuts across that, so
@@ -7497,7 +8373,8 @@ function buildRowPreview(it,live){
       var st2=wuStepsOf(it);
       if(isSpecPart(it)){
         wuSpecLines(it,st2.keep.length?st2.keep:[it.title||'']).forEach(function(l){
-          lines.push('§3  SECTION '+((it.section||'[SECTION ___]').toUpperCase())+'\n      '+l);});
+          var lt=(l&&typeof l==='object')?l.t:l;
+          lines.push('§3  SECTION '+((it.section||'[SECTION ___]').toUpperCase())+'\n      '+lt);});
       }
       if(isDrawPart(it)){
         (live||placementsOf(it)).forEach(function(pl){
@@ -7583,6 +8460,193 @@ function rowEdge(it){
     }
   }
   return 'ready';
+}
+// Who is doing this. NOT a new field — the vault already has one: `with::`, which the generator
+// normalises to `delegate`, and which means exactly the thing being asked for — execution sits
+// with them, accountability stays with you. The rows in the sheet file already carry it. All that
+// was missing was a way to see and change it here.
+//
+// The list is DIALOG + AR from Stakeholders, plus whoever is already named on this addendum — so
+// "Kirk Gomez" appears even though Stakeholders says "Kirk", and nobody has to maintain a second
+// list of names that goes stale the week someone joins.
+function internalTeam(key){
+  var out=[],seen={};
+  var add=function(n){
+    n=String(n||'').trim();if(!n)return;
+    var k=n.toLowerCase().split(/\s+/)[0];
+    if(seen[k])return;seen[k]=1;out.push(n);};
+  (window.STAKEHOLDERS||[]).forEach(function(p){
+    if((p.org||'')==='DIALOG'&&(p.disc||'')==='AR')add(p.name);});
+  if(key)addPoolFor(key).forEach(function(i){add(i.delegate);});
+  add(syncWho());
+  return out.sort(function(a,b){return a<b?-1:1;});
+}
+function firstName(n){return String(n||'').trim().split(/\s+/)[0];}
+// ---- searching the register ---------------------------------------------------------------
+// The board has had a search box since the beginning. It works by hiding `.item` cards — and the
+// register renders none of those, so the one view where what you remember is buried INSIDE
+// something (a room number in a placement line, a phrase in a bidder's answer, a spec section, a
+// sentence from a check-in three weeks ago) was the one view you could not search.
+//
+// Two rules make this different from the board's search. It reads what a row CARRIES, not what it
+// prints — otherwise it can only find what you can already see. And it counts matches on the tabs
+// and addenda you are NOT looking at, because a search that answers only for the tab you happen to
+// be standing on does not say "not here", it says "not anywhere", and it is wrong.
+function qTerms(){
+  return String(ADD_Q||'').toLowerCase().split(/\s+/).filter(function(t){return !!t;});
+}
+function qHas(hay,terms){
+  hay=String(hay||'').toLowerCase();
+  for(var i=0;i<terms.length;i++)if(hay.indexOf(terms[i])===-1)return false;
+  return true;   // every word, not any — two words is how you narrow, not how you widen
+}
+// Every place a term could legitimately be hiding, each carrying the words to say so afterwards.
+// The first entry is always the title, because "is it visible?" is asked of that one alone.
+function itemHaystacks(it){
+  var out=[['',String(it.title||'')]];
+  var sh=[];try{sh=itemSheets(it);}catch(e){}
+  if(sh.length)out.push(['sheet',sh.join(' ')]);
+  if(it.section)out.push(['spec section',it.section]);
+  try{placementsOf(it).forEach(function(p){
+    var line=[p.sheet,p.view,p.no,p.room,(p.override||p.text)]
+      .filter(function(x){return !!String(x||'').trim();}).join(' · ');
+    if(line)out.push(['line',line]);});}catch(e){}
+  if(it.delegate)out.push(['with',it.delegate]);
+  if(it.note)out.push(['note',it.note]);
+  if(it.ask)out.push(['ask',it.ask]);
+  if(it.then)out.push(['then',it.then]);
+  if(it.waitingFor)out.push(['waiting on',it.waitingFor]);
+  if(it.topic)out.push(['thread',String(it.topic).replace(/-/g,' ')]);
+  if(it.pkg)out.push(['package',String(it.pkg)]);
+  var d=(window.DETAILS||{})[it.id];
+  if(d&&d.updates)d.updates.forEach(function(u){
+    out.push(['check-in',String(u).split('|').slice(1).join('|')]);});
+  return out;
+}
+function itemMatchesQ(it){
+  var t=qTerms();if(!t.length)return true;
+  return qHas(itemHaystacks(it).map(function(h){return h[1];}).join(' · '),t);
+}
+// Why did this row come back? A row whose visible text does not contain what you typed, with no
+// explanation, is indistinguishable from a broken search — so when the hit is somewhere you cannot
+// see, the row says where, and shows the words.
+function matchWhyQ(it){
+  var t=qTerms();if(!t.length)return null;
+  var hs=itemHaystacks(it);
+  if(qHas(hs[0][1],t))return null;                    // it is in the title — you can see it yourself
+  var best=null;
+  hs.forEach(function(h){
+    if(!h[0]||best)return;
+    for(var i=0;i<t.length;i++)
+      if(String(h[1]).toLowerCase().indexOf(t[i])!==-1){best=h;return;}
+  });
+  if(!best)return null;
+  var s=String(best[1]).replace(/\s+/g,' ').trim(),at=-1;
+  for(var i=0;i<t.length;i++){at=s.toLowerCase().indexOf(t[i]);if(at!==-1)break;}
+  if(at>44){s='…'+s.slice(at-24);}               // land the eye on the word, not the sentence
+  if(s.length>120)s=s.slice(0,120).replace(/\s+\S*$/,'')+'…';
+  return[best[0],s];
+}
+function inqMatchesQ(p){
+  var t=qTerms();if(!t.length)return true;
+  return qHas([p.q,p.a,p.by,'Q'+(p.qno||'')].join(' · '),t);
+}
+function thrMatchesQ(r){
+  var t=qTerms();if(!t.length)return true;
+  var th=r.th||{};
+  return qHas([r.slug,th.name,th.title,th.what,th.latest,
+               (r.items||[]).map(function(i){return i.title;}).join(' ')].join(' · '),t);
+}
+// How many places would answer to what you typed — this addendum tab by tab, and then every other
+// addendum. Everything here is a doorway: no count is printed that you cannot click.
+function qScopeCounts(key){
+  var t=qTerms();if(!t.length)return null;
+  var o={sheets:0,reg:0,inq:0,threads:0,wu:0,other:[]};
+  addPoolFor(key).forEach(function(i){if(itemMatchesQ(i))o.sheets++;});
+  laneItems().forEach(function(i){
+    if(addKey(i.pkg,i.addendum)!==key||(i.lane&&!i.pendingLocal))return;
+    if(itemMatchesQ(i))o.reg++;});
+  try{(inquiriesFor(key)||[]).forEach(function(p){if(inqMatchesQ(p))o.inq++;});}catch(e){}
+  try{(addQuestionsFor(key)||[]).forEach(function(r){if(thrMatchesQ(r))o.threads++;});}catch(e){}
+  // The write-up is generated text, so the only honest count is of the finished document.
+  try{
+    var txt=String((buildAddendumDoc(key,{})||{}).text||'').toLowerCase();
+    if(t.length&&qHas(txt,t)){
+      var first=t[0],n=0,ix=txt.indexOf(first);
+      while(ix!==-1&&n<999){n++;ix=txt.indexOf(first,ix+first.length);}
+      o.wu=n;
+    }
+  }catch(e){}
+  // and everywhere else, so "not on this one" never gets mistaken for "not anywhere"
+  var here=key;
+  var keys={};
+  laneItems().forEach(function(i){
+    if(!i.addendum)return;var k=addKey(i.pkg,i.addendum);
+    if(k===here)return;
+    if(!itemMatchesQ(i))return;
+    keys[k]=(keys[k]||0)+1;});
+  try{(((window.LAST_DATA||{}).inquiries)||[]).forEach(function(p){
+    var k=addKey(p.pkg,p.addendum);
+    if(k===here||!inqMatchesQ(p))return;
+    keys[k]=(keys[k]||0)+1;});}catch(e){}
+  Object.keys(keys).forEach(function(k){o.other.push({key:k,n:keys[k]});});
+  o.other.sort(function(a,b){return b.n-a.n;});
+  return o;
+}
+function addSearchSet(v,caret){
+  ADD_Q=String(v||'');
+  keepPlace(function(){buildAddendumRegister();});
+  // the register redraws itself wholesale on every change, which would throw the caret out of the
+  // box you are still typing in — so put it back exactly where it was
+  var el=document.getElementById('addQ');
+  if(el&&caret!=null){el.focus();try{el.setSelectionRange(caret,caret);}catch(e){}}
+}
+// Paint the words you typed wherever they landed. Skips form controls, because rewriting the text
+// inside a <select> or a textarea would edit the thing rather than annotate it.
+function hiliteQ(root){
+  var t=qTerms();if(!t.length||!root)return;
+  // BUTTON was listed at 0 — falsy, so buttons were walked and painted. A pale yellow highlight
+  // inside a filled dark button is unreadable, and the words in a control are the tool talking about
+  // itself, not content you searched for. Nothing interactive gets painted.
+  var SKIP={SCRIPT:1,STYLE:1,SELECT:1,OPTION:1,TEXTAREA:1,INPUT:1,BUTTON:1,LABEL:1,KBD:1};
+  // Neither does generated chrome that happens to quote a sheet number back at you.
+  var SKIPCLASS=['filt-strip','pl-issued','pl-vask','pl-vnote','pl-vpick','rf-scope','reg-find',
+                 'wb-empty','who-key','edge-key','inq-made'];
+  var rx;
+  try{rx=new RegExp('('+t.map(function(x){
+    return x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}).join('|')+')','ig');}catch(e){return;}
+  // collect first, replace second — rewriting nodes while walking them is how a highlighter
+  // starts highlighting its own output
+  var targets=[];
+  var walk=function(el){
+    for(var n=el.firstChild;n;n=n.nextSibling){
+      if(n.nodeType===1){
+        if(SKIP[n.tagName])continue;
+        if(n.classList&&n.classList.contains('q-hit'))continue;
+        if(n.classList&&SKIPCLASS.some(function(c){return n.classList.contains(c);}))continue;
+        walk(n);
+      } else if(n.nodeType===3&&n.nodeValue&&n.nodeValue.trim()){
+        targets.push(n);
+      }
+    }
+  };
+  try{
+    walk(root);
+    targets.forEach(function(n){
+      var s=n.nodeValue;rx.lastIndex=0;
+      if(!rx.test(s))return;
+      rx.lastIndex=0;
+      var frag=document.createDocumentFragment(),last=0,m;
+      while((m=rx.exec(s))){
+        if(!m[0].length){rx.lastIndex++;continue;}
+        if(m.index>last)frag.appendChild(document.createTextNode(s.slice(last,m.index)));
+        var mk=document.createElement('span');mk.className='q-hit';mk.textContent=m[0];
+        frag.appendChild(mk);last=m.index+m[0].length;
+      }
+      if(last<s.length)frag.appendChild(document.createTextNode(s.slice(last)));
+      if(n.parentNode)n.parentNode.replaceChild(frag,n);
+    });
+  }catch(e){}
 }
 function sheetRow(it){
   var part=itemPart(it),sheets=(itemPart(it)==='spec')?itemSheets(it):placementSheets(it);
@@ -7716,17 +8780,72 @@ function sheetRow(it){
   var dests=addendaForPkg(it.pkg),here=addKey(it.pkg,it.addendum);
   if(dests.length>1){
     var mv=document.createElement('select');mv.className='sh-move';
-    mv.title='Which addendum this item rides. Changing it queues a retag for the next check-in — '
+    mv.title='Which instrument this item rides. Changing it queues a retag for the next check-in — '
       +'the state still decides what the document says, this only decides which document.';
-    mv.setAttribute('aria-label','Addendum for '+(it.title||''));
+    mv.setAttribute('aria-label','Instrument for '+(it.title||''));
     dests.forEach(function(k){
       var o=document.createElement('option');o.value=k;
-      o.textContent='Add '+(ADD_GROUPS[k]?ADD_GROUPS[k].num:k.split('|')[1]);
+      o.textContent=instShort(ADD_GROUPS[k]?ADD_GROUPS[k].num:addNum(k.split('|')[1]||''));
       if(here===k)o.selected=true;
       mv.appendChild(o);});
     mv.addEventListener('click',function(e){e.stopPropagation();});
     mv.addEventListener('change',function(e){e.stopPropagation();moveToAddendum(it.id,mv.value);});
     head.appendChild(mv);
+  }
+  // Who has it. A person is identity, not status, so it wears no meaning colour — an unassigned
+  // row says so quietly rather than raising an alarm about it.
+  (function(){
+    var team=internalTeam(ADD_OPEN);
+    if(!team.length)return;
+    var wsel=document.createElement('select');wsel.className='sh-who'+(it.delegate?'':' sh-who-none');
+    wsel.title='Who is doing this. Everyone on the board sees it within seconds \u2014 it does not wait '
+      +'for a check-in. It writes `with::` in the vault: execution sits with them, accountability '
+      +'stays with you.';
+    wsel.setAttribute('aria-label','Who is doing '+(it.title||''));
+    var o0=document.createElement('option');o0.value='';o0.textContent='who?';wsel.appendChild(o0);
+    var have=false;
+    team.forEach(function(n){
+      var o=document.createElement('option');o.value=n;o.textContent=firstName(n);
+      if(String(it.delegate||'').toLowerCase()===n.toLowerCase()){o.selected=true;have=true;}
+      wsel.appendChild(o);});
+    // someone named on the row who is not on the team list still has to show
+    if(it.delegate&&!have){
+      var ox=document.createElement('option');ox.value=it.delegate;ox.textContent=firstName(it.delegate);
+      ox.selected=true;wsel.appendChild(ox);}
+    wsel.addEventListener('click',function(e){e.stopPropagation();});
+    wsel.addEventListener('change',function(e){e.stopPropagation();
+      setAddMeta(it.id,'delegate',wsel.value,'With');});
+    head.appendChild(wsel);
+  })();
+  // Adding a detail to a drawing is the single most common edit on this list, and it was two clicks
+  // and a scan down a card to reach: open the body, find "+ another detail on the same drawing".
+  // One button, on the row, that opens the body and puts the empty line there waiting.
+  if(!isSpecPart(it)){
+    var av=document.createElement('button');av.type='button';av.className='sh-addview';
+    av.textContent='+ view';
+    av.title='Add another view or detail on this drawing — a second line in §4 on the same sheet. '
+      +'Opens the lines below with an empty one ready.';
+    av.setAttribute('aria-label','Add a view to '+(it.title||''));
+    av.addEventListener('click',function(e){
+      e.stopPropagation();e.preventDefault();
+      var cur=placementsOf(it).map(function(p){return Object.assign({},p);});
+      var last=cur[cur.length-1]||{};
+      cur.push({sheet:last.sheet||(itemSheets(it)[0]||''),view:'',no:'',
+                room:last.room||'',text:'',override:''});
+      SH_ROW_OPEN[it.id]=true;               // never add a line into a drawer you cannot see
+      setAddMeta(it.id,'placements',JSON.stringify(cur),'Placements',true);
+      keepPlace(buildAddendumRegister);
+      setStatus('A line added on '+(last.sheet||itemSheets(it)[0]||'this drawing')
+        +' — give it a view or a detail number below.');
+      // land the cursor in the field the click was about
+      setTimeout(function(){
+        var rows2=document.querySelectorAll('#sh-'+it.id+' .pl-card');
+        var lastRow=rows2[rows2.length-1];
+        var f=lastRow&&lastRow.querySelector('.pl-view,.pl-in');
+        if(f&&f.focus)try{f.focus();}catch(e2){}
+      },30);
+    });
+    head.appendChild(av);
   }
   head.appendChild(pick);
   var cb=document.createElement('input');cb.type='checkbox';cb.className='sh-done';
@@ -7754,13 +8873,13 @@ function sheetRow(it){
   var xb=document.createElement('button');xb.type='button';xb.className='sh-x';
   xb.textContent='\u2715';
   xb.title=it.pendingLocal?'Delete this item \u2014 it was added here and never folded'
-    :('Drop this item from Addendum '+addNum(it.addendum)
+    :('Drop this item from '+instLong(addNum(it.addendum))
       +' \u2014 off the list now, out of the vault at check-in');
   xb.addEventListener('click',function(e){
     e.stopPropagation();
     if(!window.confirm(it.pendingLocal
       ?('Delete \u201c'+(it.title||'').slice(0,60)+'\u201d? It was added here and never folded, so it goes for good.')
-      :('Drop \u201c'+(it.title||'').slice(0,60)+'\u201d from Addendum '+addNum(it.addendum)+'?')))return;
+      :('Drop \u201c'+(it.title||'').slice(0,60)+'\u201d from '+instLong(addNum(it.addendum))+'?')))return;
     if(it.pendingLocal&&it.srcOp){
       voidOp({id:it.srcOp});
       buildAddendumRegister();rebuildPendingList();
@@ -7769,10 +8888,10 @@ function sheetRow(it){
     }
     var payload={type:'unaddendum',program:it.program||'',pkg:it.pkg||'',
                  itemRef:(it.title||'').slice(0,160),
-                 text:'Remove from Addendum '+addNum(it.addendum),ts:new Date().toISOString()};
+                 text:'Remove from '+instLong(addNum(it.addendum)),ts:new Date().toISOString()};
     queueLocally(payload);renderPendingRow(payload);
     buildAddendumRegister();
-    setStatus('Dropped from Addendum '+addNum(it.addendum)
+    setStatus('Dropped from '+instLong(addNum(it.addendum))
       +' \u2014 gone from the list now, and from the vault at check-in.');
   });
   head.appendChild(xb);
@@ -7863,6 +8982,15 @@ function sheetRow(it){
     body.appendChild(nb);
   }
   row.appendChild(body);
+  // Why this row answered. When the words you typed are not in the title, a row with no visible
+  // reason for being here reads as a broken search rather than a good one.
+  (function(){
+    var why=matchWhyQ(it);if(!why)return;
+    var w=document.createElement('div');w.className='sh-why';
+    var lb=document.createElement('b');lb.textContent=why[0];w.appendChild(lb);
+    w.appendChild(document.createTextNode(why[1]));
+    row.appendChild(w);
+  })();
   return row;
 }
 function showImgModal(src){
@@ -7898,10 +9026,13 @@ function addQuestionsFor(key){
   return out;
 }
 function addQuestionsPanel(host,key,g){
-  var qs=addQuestionsFor(key);
+  var qs=addQuestionsFor(key),qAll=qs.length;
+  if(ADD_Q)qs=qs.filter(thrMatchesQ);
   var wrap=document.createElement('div');wrap.className='wb';
   var lede=document.createElement('div');lede.className='wb-lede';
-  lede.innerHTML=qs.length
+  lede.innerHTML=(ADD_Q&&qAll)
+    ? '<b>'+qs.length+'</b> of '+qAll+' question'+(qAll===1?'':'s')+' carry “'+escapeHtml(ADD_Q)+'”.'
+    : qs.length
     ? 'Each row is one question <b>we</b> are chasing, and everything it caused. An addendum closes '
       +'when these do — the sheet list is how, this is why.'
     : 'Nothing on this addendum is threaded to a question yet. The "+ topic" pill on an item card files it.';
@@ -8001,6 +9132,25 @@ function addRawOf(key){return rawAddendumFor(key);}
 function inqRef(p){
   return ('Bid inquiry Q'+p.qno+' — '+String(p.q||'').replace(/\s+/g,' ')).slice(0,160);
 }
+// An answer that changes a drawing nearly always SAYS which drawing — "Refer to updated Detail 6
+// /A5.94.02". Making the promoted item arrive empty, and asking for a sheet and a detail number
+// that are sitting in the sentence above the button, is work the machine can do and the person
+// should not have to. It is a seed, not a claim: the item still has no state, so nothing about it
+// can ship until it has been looked at.
+//
+// The ANSWER, never the question. The question points at the drawing the bidder was reading; the
+// answer points at the one being changed, and those are routinely different — Q5 asks about
+// 3/A5.100.01 and is answered with Detail 6 /A5.94.02.
+var INQ_REF=/(?:detail\s*)?(\d+)\s*\/\s*([A-Za-z]{1,2}\d+(?:\.\d+)+)/i;
+var INQ_SHEET=/\b([A-Za-z]{1,2}\d+(?:\.\d+){1,3})\b/;
+function inqSeedFrom(answer){
+  var s=String(answer||'');
+  var m=INQ_REF.exec(s);
+  if(m)return {sheet:m[2].toUpperCase(),no:m[1],from:m[0].trim()};
+  var m2=INQ_SHEET.exec(s);
+  if(m2)return {sheet:m2[1].toUpperCase(),no:'',from:m2[1]};
+  return null;
+}
 // A bid inquiry ALWAYS has an answer — an unanswered one is an open gap, not a finished row — and it
 // MAY also change a document, as a spec note, a drawing revision, or both. Those are two different
 // questions, which is why the answer is a field and the change is a switch.
@@ -8032,7 +9182,7 @@ function saveInquiry(p,q,a){
 // applied to the one place the register creates something you cannot see.
 function jumpToSheetRow(key,title){
   ADD_OPEN=key;ADD_MODE='sheets';
-  ADD_FLAG='';ADD_STATE='';ADD_PART='';   // never land somewhere a filter is hiding the thing
+  ADD_FLAG='';ADD_STATE='';ADD_PART='';ADD_WHO='';ADD_Q='';   // never land somewhere a filter is hiding the thing
   buildAddendumRegister();
   var want=String(title||'').slice(0,60);
   var hit=null;
@@ -8047,23 +9197,48 @@ function jumpToSheetRow(key,title){
 function inqPromote(p,part){
   var key=p.addendum,g=ADD_GROUPS[key]||{};
   var cur=inqItemOp(p);
+  // Ops are keyed by title, and the promoted item's title is derived from the Q number — so a
+  // placements op survives its item and re-attaches to the next one born under the same name. Left
+  // alone, un-ticking Drawing and ticking Spec gave a §3 item a drawing's placements.
+  var dropSeed=function(){
+    var ref=inqRef(p);
+    supersede(function(o){return o.type==='addmeta'&&o.field==='placements'&&o.itemRef===ref;});
+  };
   if(cur){
     // same button again = untick; the other button = change which half it lands in
     if((cur.part||'drawing')===part){
-      voidOp(cur);buildAddendumRegister();
+      voidOp(cur);dropSeed();buildAddendumRegister();
       setStatus('Q'+p.qno+' is back to being just an answer — no document change on this addendum.');
       return;}
-    voidOp(cur);
+    voidOp(cur);dropSeed();
   }
+  // What the answer already told us about where this lands. Spec items name a section, not a
+  // drawing, so only the \u00a74 half is seeded.
+  var seed=(part==='spec')?null:inqSeedFrom(p.a);
   queueLocally({type:'sheet',program:g.program||p.program||'Concourse B',pkg:g.pkg||p.pkg||'',
-    addendum:addRawOf(key),sheet:'',section:'',part:part,scope:'AR',disc:'AR',
+    addendum:addRawOf(key),sheet:(seed&&seed.sheet)||'',section:'',part:part,scope:'AR',disc:'AR',
     produces:'',verify:'',inqRef:String(p.qno||''),
     text:inqRef(p),ts:new Date().toISOString()});
   buildAddendumRegister();
+  if(seed&&seed.no){
+    // a detail number as well as a sheet \u2014 enough to write the target of the \u00a74 line
+    var mk=laneItems().filter(function(i){
+      return addKey(i.pkg,i.addendum)===key
+        &&String(i.title||'').slice(0,60)===inqRef(p).slice(0,60);})[0];
+    if(mk){
+      var v=viewByNo(mk.pkg,seed.sheet,seed.no);
+      setAddMeta(mk.id,'placements',JSON.stringify([{sheet:seed.sheet,view:(v&&v[0])||'',
+        no:seed.no,room:'',text:'',override:''}]),'Placements',true);
+    }
+  }
+  buildAddendumRegister();
   setStatus('Q'+p.qno+' also became a '+(part==='spec'?'\u00a73 specification'
       :part==='both'?'\u00a73 + \u00a74':'\u00a74 drawing')
-    +' item on '+addLabelFor(key)+' \u2014 give it a sheet and a state in Sheet work. '
-    +'The question and answer stay in \u00a75.');
+    +' item on '+addLabelFor(key)
+    +(seed?' \u2014 pointed at '+seed.sheet+(seed.no?' detail '+seed.no:'')
+           +', read out of your answer. Check it, then give it a state in Sheet work.'
+          :' \u2014 give it a sheet and a state in Sheet work.')
+    +' The question and answer stay in \u00a75.');
 }
 function addInquiryBlock(host,key){
   var box=document.createElement('div');box.className='inq-box';
@@ -8082,6 +9257,16 @@ function addInquiryBlock(host,key){
     +'<b>Not</b> the threads in “Our questions”, and <b>not</b> the RFI register — an RFI is ours, '
     +'raised during the work. Until a real one exists, §5 is not written at all.';
   box.appendChild(lede);
+  // A search narrows these the same way it narrows everything else — but a bid inquiry you cannot
+  // see is one you might answer twice, so say plainly how many are being held back.
+  if(ADD_Q&&list.length){
+    var kept=list.filter(inqMatchesQ);
+    var qn=document.createElement('div');qn.className='wb-lede';
+    qn.innerHTML='<b>'+kept.length+'</b> of '+list.length+' carry “'+escapeHtml(ADD_Q)+'”'
+      +(kept.length?'.':' — the rest are hidden, not gone.');
+    box.appendChild(qn);
+    list=kept;
+  }
   list.forEach(function(p,ix){
     var r=document.createElement('div');r.className='inq-row'+(p.a?'':' inq-open');
     var no=(p.qno||(ix+1));
@@ -8129,9 +9314,18 @@ function addInquiryBlock(host,key){
     // titled with the Q number so the line it eventually writes can point back here.
     var made=inqItemOp(p);
     var pw=document.createElement('span');pw.className='sh-part inq-part';
-    [['drawing','Drawing','4','The answer changes a drawing — makes a §4 item on this addendum, which will need a sheet and a state'],
-     ['spec','Spec','3','The answer changes the specification — makes a §3 item; you leave the note, Specifications writes the words'],
-     ['both','Both','','The answer changes both — one item, appearing in §3 and in §4']
+    // "makes a §4 item… which will need a sheet and a state" left it open who was doing the making.
+    // Say it in the first person of the tool: click and it creates the row for you, here, now.
+    var seedNow=inqSeedFrom(p.a);
+    [['drawing','Drawing','4','Click and I create a §4 drawing item on this addendum, titled '
+      +'“Bid inquiry Q'+p.qno+' — …”. '
+      +(seedNow?('I will point it at '+seedNow.sheet+(seedNow.no?' detail '+seedNow.no:'')
+                 +', which your answer names. ')
+              :'You give it a sheet. ')
+      +'You give it a state; nothing ships without one.'],
+     ['spec','Spec','3','Click and I create a §3 item on this addendum. You leave the note, '
+      +'Specifications writes the words.'],
+     ['both','Both','','Click and I create one item that appears in both §3 and §4.']
     ].forEach(function(o){
       var b=document.createElement('button');b.type='button';b.title=o[3];
       b.className='p-'+o[0];
@@ -8150,6 +9344,22 @@ function addInquiryBlock(host,key){
       mn.appendChild(document.createTextNode('\u2713 Q'+p.qno+' also became '
         +(mp==='spec'?'a \u00a73 specification item':mp==='both'?'a \u00a73 + \u00a74 item'
           :'a \u00a74 drawing item')+' on '+addLabelFor(key)+'. '));
+      // Where it landed, and how much of it is still owed. An item created on another tab with no
+      // state is the one thing on this board that can be forgotten completely.
+      (function(){
+        var mi=laneItems().filter(function(i){
+          return addKey(i.pkg,i.addendum)===key
+            &&String(i.title||'').slice(0,60)===inqRef(p).slice(0,60);})[0];
+        if(!mi)return;
+        var sh=(placementsOf(mi)[0]||{});
+        var b=document.createElement('b');b.className='inq-made-at';
+        b.textContent=sh.sheet?(sh.sheet+(sh.no?' detail '+sh.no:'')):'no drawing named yet';
+        if(sh.sheet)b.title='Read out of your answer \u2014 check it before it ships.';
+        mn.appendChild(b);
+        mn.appendChild(document.createTextNode(mi.produces?', ':' \u00b7 still needs a state. '));
+        if(mi.produces)mn.appendChild(document.createTextNode(
+          produceLabel(itemPart(mi),mi.produces).toLowerCase()+'. '));
+      })();
       var go=document.createElement('button');go.type='button';go.className='inq-go';
       go.textContent='open it in Sheet work \u2192';
       go.addEventListener('click',function(e){e.stopPropagation();jumpToSheetRow(key,made.text);});
@@ -8442,6 +9652,8 @@ function plActionOf(pl){
   if(!t)return '';
   if(/^RE-?ISSUE/.test(t))return 'reissue';
   if(/^ADD NEW DETAIL/.test(t))return 'newdet';
+  // must be tested before the bare ADD, and before newdet cannot claim it
+  if(/^ADD NEW\b/.test(t))return 'newview';
   if(/^DELETE/.test(t))return 'delview';
   if(/^REVISE THE REFERENCE CALL-?OUT/.test(t))return 'renumber';
   if(/^REVISE .* TO READ/.test(t))return 'reviseto';
@@ -8466,10 +9678,21 @@ function derivePlacements(it){
   });
   return out;
 }
+// Every placement is normalised on the way in, so a `= …` that a previous parser left sitting in
+// the text field is recognised for what it is rather than printed as an equals sign into a bid
+// document. Done here rather than only in the pipeline: the data.json already published carries
+// them, and the fix has to reach the page without waiting for a regeneration.
+function plNorm(list){
+  (list||[]).forEach(function(p){
+    if(p&&!p.override&&typeof p.text==='string'&&/^\s*=/.test(p.text)){
+      p.override=p.text.replace(/^\s*=\s*/,'');p.text='';}
+  });
+  return list;
+}
 function placementsOf(it){
   if(it.placements){
-    if(Array.isArray(it.placements))return it.placements;            // from the vault
-    try{var p=JSON.parse(it.placements);if(Array.isArray(p))return p;}catch(e){}   // from an op
+    if(Array.isArray(it.placements))return plNorm(it.placements);     // from the vault
+    try{var p=JSON.parse(it.placements);if(Array.isArray(p))return plNorm(p);}catch(e){}  // an op
   }
   return derivePlacements(it);
 }
@@ -8484,6 +9707,54 @@ function placementLiteral(pl){
   var out='[placement:: '+bits.join(' | ').replace(/(\s*\|)+\s*$/,'');
   if(pl.newsheet)out+=' | new';
   return out+']';
+}
+// A renumbering is one line of work with one name, so the name IS the check for "has this already
+// been said". Titles are ids on this board; that property is usually a hazard and here it is the tool.
+function renumberTitle(was,now){
+  return (String(now||'').toUpperCase()+' — renumbered from '+String(was||'').toUpperCase()).slice(0,160);
+}
+function renumberItemFor(key,was,now){
+  var want=renumberTitle(was,now).slice(0,60);
+  var hit=null;
+  laneItems().forEach(function(i){
+    if(addKey(i.pkg,i.addendum)!==key)return;
+    if(String(i.title||'').slice(0,60)===want)hit=i;});
+  return hit;
+}
+// The correction, written where it can actually reach a bidder. It arrives flagged and stated in
+// words rather than attached: whether the sheet is being REISSUED under the corrected number is a
+// decision about drawings, and this machine does not make those on your behalf.
+function writeRenumber(it,pl,iss,nx){
+  if(!nx||!pl.wasSheet)return;
+  var title=renumberTitle(pl.wasSheet,pl.sheet);
+  if(renumberItemFor(nx.key,pl.wasSheet,pl.sheet)){
+    setStatus('Already on '+nx.label+' — one renumbering, one line.');
+    buildAddendumRegister();return;}
+  // Two rows under one title makes both unaddressable. Refuse rather than create the collision.
+  var clash=null,k60=title.slice(0,60);
+  laneItems().forEach(function(x){if(String(x.title||'').slice(0,60)===k60)clash=x;});
+  if(clash){
+    setStatus('Not written — “'+title.slice(0,50)+'” is already the name of a row on '
+      +addLabelFor(addKey(clash.pkg,clash.addendum))+'. Titles are ids here.');
+    return;}
+  queueLocally({type:'sheet',program:it.program||'',pkg:it.pkg||'',
+    addendum:addRawOf(nx.key),sheet:pl.sheet||'',section:'',part:'drawing',
+    scope:it.scope||'AR',disc:it.disc||'AR',
+    produces:'writeup',verify:'yes',text:title,ts:new Date().toISOString()});
+  buildAddendumRegister();
+  var made=renumberItemFor(nx.key,pl.wasSheet,pl.sheet);
+  if(made){
+    // The wording is the whole deliverable here, so it is written as an override — printed verbatim,
+    // and sitting in an editable box the moment you go and look at it.
+    setAddMeta(made.id,'placements',JSON.stringify([{
+      sheet:pl.sheet||'',view:'',no:'',room:'',text:'',
+      override:'DRAWING '+String(pl.wasSheet).toUpperCase()+', ISSUED UNDER '
+        +String(iss&&iss.label||'the previous addendum').toUpperCase()+', IS RENUMBERED '
+        +String(pl.sheet).toUpperCase()+'.'}]),'Placements',true);
+  }
+  setStatus('Renumbering queued on '+nx.label+', flagged ? — read the wording before it ships. '
+    +'It says it in words; switch it to Issue drawing if you are reissuing the sheet too.');
+  buildAddendumRegister();
 }
 function savePlacements(it,list,quiet){
   // A provisional row — the add form — is not an item yet, so there is no id to queue an op
@@ -8514,8 +9785,16 @@ function followTitleToSheet(it,noNow){
   return true;
 }
 // One placement, one line. The override is verbatim — if you edited it, that IS the line.
+// Does this sentence already say the drawing is attached? The clause exists in three forms across
+// the issued sets, and any of them means the job is done — appending a second one is how a line ends
+// "…attached and forms part of this Addendum; As indicated on drawing A5.31.21, attached and forms
+// part of this Addendum."
+var WU_HAS_ATTACH=/attach(?:ed)?\s+(?:hereto\s+)?and\s+form/i;
 function placementLine(it,pl){
-  if(pl.override&&pl.override.trim())return pl.override.trim();
+  // `= ` is the vault's marker for "these are my words, print them" — it belongs to the syntax, not
+  // to the sentence. A placement that came back from the vault still wearing it printed the equals
+  // sign into the document.
+  if(pl.override&&pl.override.trim())return pl.override.trim().replace(/^=\s*/,'');
   // A companion names a drawing. If that drawing was renumbered, the sentence follows it rather
   // than pointing at a sheet that no longer exists.
   var mir=mirrorsOf(pl);
@@ -8591,6 +9870,12 @@ function placementEditor(it){
     // A placement is a small card in three bands: which DRAWING, which VIEW on it, and what
     // HAPPENS there. Drawing names run to 60 characters and view names to 45 — they were never
     // going to share one row with five other fields.
+    // `newview` has no [placement:: …] field of its own, and it does not need one — the line it
+    // produces already says ADD NEW, and a view being added is by definition absent from the export.
+    // So it is recovered from the line on the way back in, exactly the way `mirrors` is, and the
+    // vault grammar stays as it is.
+    if(!pl.newview&&/^ADD NEW\b/i.test(pl.text||'')&&String(pl.view||'').trim()
+       &&!viewByName(it.pkg,pl.sheet,pl.view))pl.newview=true;
     var r=document.createElement('div');r.className='pl-card';
     var g1=document.createElement('div');g1.className='pl-g pl-g1';
     var g2=document.createElement('div');g2.className='pl-g pl-g2';
@@ -8655,6 +9940,7 @@ function placementEditor(it){
     // "Not on the list" is ambiguous — it is either a typo or a drawing being added. Rather than
     // leave an amber box and a tooltip, ask, once, inline.
     var ask=document.createElement('span');ask.className='pl-ask';
+    var issued=document.createElement('span');issued.className='pl-issued';issued.style.display='none';
     var askB=document.createElement('button');askB.type='button';askB.textContent='it’s a new drawing';
     askB.title='Mark it as added by this addendum. The line changes to "issue drawing in its entirety" '
       +'and the name goes to Projects/Drawing List.md at the next check-in.';
@@ -8742,6 +10028,75 @@ function placementEditor(it){
         }
         ask.appendChild(panel);
       }
+      // A drawing number that already went out to bidders is not a field any more — it is a fact
+      // in someone else's hands. Correct it here and the register still says what was sent, and
+      // offers the one thing that makes the correction real: a line on the NEXT addendum.
+      issued.innerHTML='';issued.style.display='none';
+      var out=sheetIsOut(it);
+      // Stage one: the question. Neither answer is assumed and neither is destructive.
+      if(pl.askedSheet&&pl.askedSheet!==pl.sheet&&out){
+        issued.style.display='';issued.classList.add('pl-asking');
+        var q2=document.createElement('span');q2.className='pl-iss-t';
+        q2.innerHTML='<b>'+escapeHtml(pl.askedSheet)+'</b> already went out in '
+          +escapeHtml(out.label)+(out.date?' ('+escapeHtml(out.date)+')':'')+'. Which happened?';
+        issued.appendChild(q2);
+        var bMoved=document.createElement('button');bMoved.type='button';bMoved.className='pl-iss-x';
+        bMoved.textContent='I moved the change to '+pl.sheet;
+        bMoved.title='The drawing numbers are both right — this change belongs on a different one. '
+          +'Nobody needs telling; that is just where the work is.';
+        bMoved.addEventListener('click',function(e2){e2.stopPropagation();
+          delete pl.askedSheet;pl.retarget=true;commitHard();});
+        issued.appendChild(bMoved);
+        var bWrong=document.createElement('button');bWrong.type='button';bWrong.className='pl-iss-b';
+        bWrong.textContent=pl.askedSheet+' was numbered wrong';
+        bWrong.title='The drawing itself went out under the wrong number. Bidders are holding a '
+          +'sheet labelled '+pl.askedSheet+', so the correction has to be said in an addendum.';
+        bWrong.addEventListener('click',function(e2){e2.stopPropagation();
+          pl.wasSheet=pl.askedSheet;delete pl.askedSheet;commitHard();});
+        issued.appendChild(bWrong);
+      }
+      // Stage two: you said it was misnumbered, so now there is something to write.
+      else if(pl.wasSheet&&pl.wasSheet!==pl.sheet&&out){
+        issued.style.display='';issued.classList.remove('pl-asking');
+        var msg=document.createElement('span');msg.className='pl-iss-t';
+        msg.innerHTML='⚠ went out as <b>'+escapeHtml(pl.wasSheet)+'</b> in '
+          +escapeHtml(out.label)+(out.date?' on '+escapeHtml(out.date):'')
+          +' — bidders are pricing against that number.';
+        issued.appendChild(msg);
+        var rides=correctionRidesOn(it);
+        var done=rides&&renumberItemFor(rides.key,pl.wasSheet,pl.sheet);
+        if(!rides){
+          var no2=document.createElement('span');no2.className='pl-iss-n';
+          no2.textContent=(it.pkg||'This package')+' has no upcoming addendum to carry the '
+            +'correction. Until Milestones has one, there is nowhere honest to say it.';
+          issued.appendChild(no2);
+        }else if(done){
+          var ok2=document.createElement('span');ok2.className='pl-iss-n';
+          ok2.textContent='Recorded on '+rides.label+'.';
+          issued.appendChild(ok2);
+          var go=document.createElement('button');go.type='button';go.className='pl-iss-x';
+          go.textContent='take me to it';
+          go.addEventListener('click',function(e2){e2.stopPropagation();
+            jumpToSheetRow(rides.key,done.title||'');});
+          issued.appendChild(go);
+        }else{
+          var wb2=document.createElement('button');wb2.type='button';wb2.className='pl-iss-b';
+          wb2.textContent='write the renumber into '+rides.label;
+          wb2.title='Creates a §4 item on '+rides.label+' saying the drawing issued as '
+            +pl.wasSheet+' is renumbered '+pl.sheet+'. It arrives flagged ? so it cannot ship '
+            +'before you have read the wording, and set to Write-up only — switch it to Issue '
+            +'drawing if you are reissuing the sheet as well.';
+          wb2.addEventListener('click',function(e2){e2.stopPropagation();
+            writeRenumber(it,pl,out,rides);});
+          issued.appendChild(wb2);
+        }
+        var undo2=document.createElement('button');undo2.type='button';undo2.className='pl-iss-x';
+        undo2.textContent='never mind';
+        undo2.title='I mis-read the issued set — nothing was renumbered. Drops the note.';
+        undo2.addEventListener('click',function(e2){e2.stopPropagation();
+          delete pl.wasSheet;pl.retarget=true;commitHard();});
+        issued.appendChild(undo2);
+      }
       else if(unknown&&pl.newsheet){
         var q2=document.createElement('span');q2.className='pl-ask-new';
         q2.textContent='new drawing \u2014 it will be added to the set \u00b7 ';
@@ -8776,6 +10131,32 @@ function placementEditor(it){
       var was=shNo.dataset.was!==undefined?shNo.dataset.was:pl.sheet;
       pl.sheet=shNo.value.trim();
       var first=(list[0]===pl);
+      // Changing this number means one of two completely different things, and the field cannot
+      // tell them apart: usually you put the change on the wrong drawing and you are RETARGETING
+      // it, which is nobody's business but yours — occasionally the drawing itself went out
+      // misnumbered, which is a correction a bidder has to be told about. Guessing either way is
+      // wrong, so once the number is in someone's hands the row asks, the way it already asks
+      // whether an unknown number is a typo or a new drawing.
+      (function(){
+        if(!was||!pl.sheet||was===pl.sheet)return;
+        if(pl.wasSheet&&pl.wasSheet===pl.sheet){delete pl.wasSheet;delete pl.askedSheet;return;}
+        if(pl.wasSheet||pl.retarget)return;              // already answered for this one
+        if(!sheetIsOut(it))return;                       // not out yet — a number is still a field
+        // And only a number the VAULT carried can have reached a bidder. `was` is whatever the box
+        // held a moment ago, which is just as often something you typed thirty seconds earlier and
+        // are now correcting — asking about your own uncommitted typo as though a drawing had gone
+        // out under it is worse than not asking at all. Measured against what the vault says this
+        // item is, not against the last keystroke.
+        var base=baseLaneItem(it.id)||{};
+        var known={};
+        try{placementsOf(base).forEach(function(p){
+          if(p.sheet)known[String(p.sheet).toUpperCase()]=1;});}catch(e){}
+        try{(itemSheets(base)||[]).forEach(function(s){
+          if(s)known[String(s).toUpperCase()]=1;});}catch(e){}
+        if(base.sheet)known[String(base.sheet).toUpperCase()]=1;
+        if(!known[String(was).toUpperCase()])return;
+        pl.askedSheet=was;
+      })();
       if(followMirrors(was,pl.sheet)){commitHard();if(first)followTitleToSheet(it,pl.sheet);return;}
       commit();
       // the row's name is the first drawing it lands on — it follows, every time
@@ -8825,12 +10206,165 @@ function placementEditor(it){
     fillViews();cView.appendChild(vdl);g2.appendChild(cView);
     setTimeout(function(){pairView('view');},0);
     var cVno=cell('View no.','The number in the viewport bubble — the 1 in "PLAN 1/A42.31.10". '
-      +'Type it and the view name fills itself.');
-    var nEl=inp('no','1','pl-no');cVno.appendChild(nEl);g2.appendChild(cVno);
+      +'Type it and the view name fills itself. More than one detail? Type a range — 1-5, or '
+      +'1-5, 8 — or tick them below.');
+    var nEl=inp('no','1  or  1-5','pl-no');cVno.appendChild(nEl);g2.appendChild(cVno);
+    nEl.title='One detail, or several: 3 · 1-5 · 1-5, 8. A range writes one §4 line reading '
+      +'"PLAN DETAIL 1-5/'+(pl.sheet||'A5.94.06')+'", which is how the issued addenda say it.';
+    // The same question the drawing number already asks, one level down: a view that is not in the
+    // export is either a typo or a view being ADDED. Guessing "typo" and painting it amber was
+    // wrong for the second case, which is a normal thing an addendum does.
+    var vask=document.createElement('span');vask.className='pl-vask';g2.appendChild(vask);
+    // Which details on this drawing are you fixing? The sheet's views are already loaded, so the
+    // question can be asked with the answers on screen instead of asked in prose and typed back.
+    var vpick=document.createElement('span');vpick.className='pl-vpick';g2.appendChild(vpick);
+    var vnote=document.createElement('span');vnote.className='pl-vnote';g2.appendChild(vnote);
+    var markRange=function(){
+      var on=viewsOn(it.pkg,pl.sheet);
+      vpick.innerHTML='';vnote.innerHTML='';
+      if(pl.newview||!on.length)return;
+      var many=parseViewNos(pl.no);
+      var picked={};many.list.forEach(function(n){picked[n]=1;});
+      var lab=document.createElement('span');lab.className='pl-vpick-l';
+      lab.textContent='details on '+pl.sheet;
+      lab.title='Every view the Revit export has on this drawing. Tick the ones this change lands '
+        +'on — two or more become a range on one §4 line.';
+      vpick.appendChild(lab);
+      on.slice().sort(function(a,b){return (Number(a[2])||99)-(Number(b[2])||99);})
+        .forEach(function(v){
+          var n=String(v[2]||'');if(!n)return;
+          var b=document.createElement('button');b.type='button';
+          b.className='pl-vchip'+(picked[n]?' on':'');
+          b.innerHTML='<b>'+escapeHtml(n)+'</b>';
+          b.title=v[0]||'';
+          b.addEventListener('click',function(e2){e2.stopPropagation();
+            var cur=parseViewNos(pl.no).list.slice();
+            var ix2=cur.indexOf(n);
+            if(ix2>=0)cur.splice(ix2,1);else cur.push(n);
+            pl.no=compactNos(cur);
+            // One detail can borrow its view's name; several cannot share one honestly. Going from
+            // one to many drops a name the EXPORT supplied — but never a word you typed yourself,
+            // because "Details 1, 5, 7 and 11/A5.94.17" is a sentence you chose.
+            if(cur.length===1){
+              pl.view=(viewByNo(it.pkg,pl.sheet,cur[0])||[])[0]||'';
+            }else if(viewNameExists(it.pkg,pl.sheet,pl.view)){
+              pl.view='';
+            }
+            commitHard();});
+          vpick.appendChild(b);});
+      if(!many.raw)return;
+      if(!many.ok){
+        vnote.innerHTML='<span class="pl-vbad">'+escapeHtml(many.raw)
+          +' is not a number or a range — try 3, or 1-5, or 1-5, 8.</span>';
+        return;}
+      if(!many.range)return;
+      var com2=commonViewName(it.pkg,pl.sheet,many.list);
+      var bits=[];
+      bits.push('<b>'+many.list.length+' details</b> — '+escapeHtml(compactNos(many.list)));
+      if(com2.missing.length)
+        bits.push('<span class="pl-vbad">'+escapeHtml(com2.missing.join(', '))
+          +' '+(com2.missing.length===1?'is':'are')+' not on '+escapeHtml(pl.sheet)+'</span>');
+      else bits.push('all on this drawing ✓');
+      // what the line will actually open with, so there is no surprise in the document
+      bits.push('the line reads <b>'+escapeHtml(String(pl.view||'').trim()
+        ? String(pl.view).trim()+' '+compactNos(many.list)+'/'+pl.sheet
+        : compactNos(many.list)+'/'+pl.sheet)+'</b>'
+        +(String(pl.view||'').trim()?'':' — a range names no view; type one only if they share it'));
+      // Naming five details and then telling the document to re-issue the whole sheet is a
+      // disagreement the reader never sees: RE-ISSUE short-circuits the target, so the numbers are
+      // silently dropped. Say it here rather than let the line quietly ignore the work.
+      if(WU_REISSUE.test(String(pl.text||'').replace(/^✓\s*/,'').toUpperCase()))
+        bits.push('<span class="pl-vbad">but the action re-issues the whole sheet, which drops '
+          +'these numbers from the line — choose <b>Revise</b> instead and say what changed; '
+          +'naming several details earns the re-issue clause on its own</span>');
+      else if(!com2.missing.length&&it.produces==='drawings')
+        bits.push('the line will end <i>Re-issue drawing in its entirety attached and forming '
+          +'part of this Addendum</i> — several details means the sheet supersedes');
+      vnote.innerHTML=bits.join(' · ');
+      // One line for five details is the house style, and it is right when they take the same
+      // change. When they do not, the honest shape is five lines.
+      var sp=document.createElement('button');sp.type='button';sp.className='pl-vask-b';
+      sp.textContent='split into '+many.list.length+' lines';
+      sp.title='Give each detail its own §4 line — the right shape when they are not all getting '
+        +'the same change.';
+      sp.addEventListener('click',function(e2){e2.stopPropagation();
+        var made=many.list.map(function(n){
+          var v=viewByNo(it.pkg,pl.sheet,n);
+          return {sheet:pl.sheet||'',view:(v&&v[0])||'',no:n,room:pl.room||'',
+                  text:pl.text||'',override:''};});
+        var args=[ix,1].concat(made);list.splice.apply(list,args);commitHard();});
+      vnote.appendChild(document.createTextNode(' '));vnote.appendChild(sp);
+    };
+    var markNewView=function(){
+      vask.innerHTML='';
+      var onSheet=viewsOn(it.pkg,pl.sheet).length;
+      var named=!!String(pl.view||'').trim()||!!String(pl.no||'').trim();
+      // "does this drawing have such a view", not "which one" — a name shared by eight viewports is
+      // still a name the drawing has
+      var known=viewNameExists(it.pkg,pl.sheet,pl.view)||!!viewByNo(it.pkg,pl.sheet,pl.no);
+      if(pl.newview){
+        var t=document.createElement('span');t.className='pl-vnew';
+        t.textContent='new view — your name and number, verbatim';
+        vask.appendChild(t);
+        var un=document.createElement('button');un.type='button';un.className='pl-vask-b';
+        un.textContent='not new';
+        un.title='It already exists on the sheet — let the export fill the name again.';
+        un.addEventListener('click',function(e2){e2.stopPropagation();
+          pl.newview=false;commitHard();});
+        vask.appendChild(un);
+        return;
+      }
+      // A range of details that all exist is the opposite of a new view.
+      var manyN=parseViewNos(pl.no);
+      if(manyN.range&&!commonViewName(it.pkg,pl.sheet,manyN.list).missing.length)return;
+      if(!named||known||!onSheet)return;
+      var q=document.createElement('span');
+      q.textContent='not on '+(pl.sheet||'this drawing')+' — ';
+      vask.appendChild(q);
+      var nb=document.createElement('button');nb.type='button';nb.className='pl-vask-b';
+      nb.textContent='it’s a new view I’m adding';
+      nb.title='You are adding this view to the drawing. Nothing will overwrite the name or the '
+        +'number you type, and the line opens with ADD.';
+      nb.addEventListener('click',function(e2){e2.stopPropagation();
+        pl.newview=true;
+        if(!(pl.text||'').trim())pl.text='ADD new ⟨detail, view or elevation⟩';
+        commitHard();});
+      vask.appendChild(nb);
+    };
+    // Draw them now, not on the next tick. pairView is called from a setTimeout so that the whole
+    // card exists before it runs, which is fine for a browser and wrong for anything that reads the
+    // DOM straight after a rebuild — the picker was simply not there yet.
+    markRange();markNewView();
     // `src` names the box you touched. Reading document.activeElement instead was wrong twice
     // over: a datalist pick can blur before the handler runs, and the View no. field never called
     // this at all — so typing a number filled nothing.
     pairView=function(src){
+      // A view you are ADDING does not exist in the Revit export yet — that is the whole point of
+      // adding it. Pairing must not touch it: typing detail number 12 on a sheet that already has a
+      // view 12 would otherwise replace the name you just invented with the one already there, and
+      // the line would go out naming the wrong view. Your words win, both of them.
+      if(pl.newview){
+        vEl.classList.remove('pl-unknown');nEl.classList.remove('pl-unknown');
+        vEl.classList.add('pl-new');nEl.classList.add('pl-new');
+        vEl.title='A new view — it is not in the Revit export because it does not exist yet. '
+          +'What you type is what the line says, exactly.';
+        nEl.title='The number you are giving the new view. Nothing will overwrite it.';
+        markNewView();return;
+      }
+      vEl.classList.remove('pl-new');nEl.classList.remove('pl-new');
+      // A range names several views at once. Resolving it as if it were one number would find
+      // nothing and mark it wrong, which is what pushed "1-5" into the Room field in the first place.
+      var many=parseViewNos(pl.no);
+      if(many.range){
+        // Seventeen details do not share a name, and borrowing the first one's says they do —
+        // "PLAN DETAIL 1-17" asserts that every one of the seventeen is a plan detail. A range
+        // names itself: 1-17/A5.94.17. Anything in the name box is there because you typed it.
+        var com=commonViewName(it.pkg,pl.sheet,many.list);
+        var onSheet0=viewsOn(it.pkg,pl.sheet).length;
+        nEl.classList.toggle('pl-unknown',onSheet0>0&&com.missing.length>0);
+        vEl.classList.remove('pl-unknown');
+        markRange();markNewView();return;
+      }
       if(src==='view'){
         var v=viewByName(it.pkg,pl.sheet,pl.view);
         if(v){
@@ -8843,8 +10377,10 @@ function placementEditor(it){
       }
       var known=viewByName(it.pkg,pl.sheet,pl.view)||viewByNo(it.pkg,pl.sheet,pl.no);
       var onSheet=viewsOn(it.pkg,pl.sheet).length;
-      vEl.classList.toggle('pl-unknown',!!pl.view&&onSheet>0&&!viewByName(it.pkg,pl.sheet,pl.view));
+      vEl.classList.toggle('pl-unknown',
+        !!pl.view&&onSheet>0&&!viewNameExists(it.pkg,pl.sheet,pl.view));
       nEl.classList.toggle('pl-unknown',!!pl.no&&onSheet>0&&!viewByNo(it.pkg,pl.sheet,pl.no));
+      markRange();markNewView();
       if(known&&known[1]==='raw')vEl.title='This viewport has no Title on Sheet — the drawing prints '
         +'its Revit name. Worth fixing in the model.';
     };
@@ -8855,6 +10391,33 @@ function placementEditor(it){
     var cRoom=cell('Room or item','Optional');
     var rin=inp('room','TEAM STORE NW.1.022','pl-room');
     cRoom.appendChild(rin);g2.appendChild(cRoom);
+    // "PLAN DETAIL 1-5/A5.94.06" in the Room box is not a room — it is a view reference that had
+    // nowhere else to go before the number field could count. Offer to put it where it belongs
+    // rather than leave it printing as a room in a bid document.
+    (function(){
+      var mv=document.createElement('span');mv.className='pl-vask';g2.appendChild(mv);
+      var check=function(){
+        mv.innerHTML='';
+        var v=String(pl.room||'').trim();if(!v)return;
+        var m=/^(.*?)\s*([\d]+(?:\s*[-–—]\s*[\d]+)?(?:\s*,\s*[\d]+(?:\s*[-–—]\s*[\d]+)?)*)\s*\/\s*(\S+)\s*$/.exec(v);
+        if(!m)return;
+        var nm=m[1].trim(),nos=m[2].trim();
+        if(!parseViewNos(nos).ok)return;
+        var b=document.createElement('button');b.type='button';b.className='pl-vask-b';
+        b.textContent='move “'+nos+'” into the view fields';
+        b.title='This looks like a view reference, not a room. The line already prints the view '
+          +'and number over the sheet — leaving it here says it twice, once in the wrong place.';
+        b.addEventListener('click',function(e2){e2.stopPropagation();
+          pl.no=nos;
+          if(nm&&!String(pl.view||'').trim())pl.view=nm;
+          pl.room='';commitHard();});
+        var q=document.createElement('span');
+        q.textContent='that reads like a view, not a room — ';
+        mv.appendChild(q);mv.appendChild(b);
+      };
+      check();
+      rin.addEventListener('blur',function(){setTimeout(check,0);});
+    })();
     rin.title='Optional. The room as the drawing labels it — name AND number — or an element '
       +'instead (Door A59R01.1). Leave blank when the change is to the whole view.';
     // Choosing a verb writes the skeleton of the sentence into the text field and puts the cursor
@@ -8883,12 +10446,61 @@ function placementEditor(it){
       try{if(m)tin.setSelectionRange(m.index,m.index+m[0].length);
           else tin.setSelectionRange(pl.text.length,pl.text.length);}catch(e){}
     });
+    // One line often carries two commands — the issued Pkg 4.2 Add 1 §4 says "Revise wall type and
+    // add new wall type to W2a1". The Action list REPLACES the verb, which is right when you picked
+    // the wrong one and destructive when you meant to add a second: type "ADD wall tag", pick
+    // Revise, and the ADD was gone. This appends instead.
+    var andB=document.createElement('select');andB.className='pl-in pl-and';
+    var a0=document.createElement('option');a0.value='';a0.textContent='+ and …';
+    andB.appendChild(a0);
+    PL_ACTIONS.forEach(function(a){
+      // a whole-sheet re-issue is not something you do as well as something else
+      if(!a.k||a.k==='reissue'||a.k==='mirror'||a.k==='newsheet')return;
+      var o=document.createElement('option');o.value=a.k;o.textContent=a.label;andB.appendChild(o);});
+    andB.title='Add a SECOND command to this same line, joined with "and" — the shape the issued '
+      +'addenda use. The Action list on the left replaces the first verb; this one keeps it.';
+    andB.addEventListener('change',function(){
+      var a=PL_ACTIONS.filter(function(x){return x.k===andB.value;})[0];
+      andB.value='';
+      if(!a||!a.k)return;
+      var cur=String(pl.text||'').replace(/[.;]+$/,'').trim();
+      if(!cur){pl.text=a.tpl;}
+      else pl.text=cur+' and '+a.tpl;
+      tin.value=pl.text;commit();
+      tin.focus();
+      // land in the new slot, which is the second one now
+      var mm,last=null,rx=/⟨[^⟩]*⟩/g;
+      while((mm=rx.exec(pl.text)))last=mm;
+      try{if(last)tin.setSelectionRange(last.index,last.index+last[0].length);
+          else tin.setSelectionRange(pl.text.length,pl.text.length);}catch(e){}
+    });
+    cAct.appendChild(andB);
+    // Remove lived on the line; add lived at the bottom of the whole editor, third in a row of four
+    // buttons, past every other card. So the line you wanted to add to showed you exactly one
+    // control — the one that deletes it — and "I see remove but not add" is the only possible
+    // reading of that. They are a pair now, in the same place, on the line they act on.
+    var plus=document.createElement('button');plus.type='button';plus.className='pl-plus';
+    plus.textContent='+';
+    plus.title='Another view or detail on '+(pl.sheet||'this drawing')+' — a second line in §4 on '
+      +'the same sheet. The drawing number carries over; give the new line its view or detail no.';
+    plus.setAttribute('aria-label','Add a view on '+(pl.sheet||'this drawing'));
+    plus.addEventListener('click',function(e){e.stopPropagation();
+      list.splice(ix+1,0,{sheet:pl.sheet||'',view:'',no:'',room:pl.room||'',text:'',override:''});
+      commitHard();
+      // straight into the field the click was about, on the line that was just made
+      setTimeout(function(){
+        var cards=document.querySelectorAll('#sh-'+it.id+' .pl-card');
+        var made=cards[ix+1];var f=made&&made.querySelector('.pl-view');
+        if(f&&f.focus)try{f.focus();}catch(e2){}
+      },30);});
+    g1.appendChild(plus);
     var x=document.createElement('button');x.type='button';x.className='pl-x';x.textContent='✕';
-    x.title='Remove this placement';
+    x.title='Remove this line — the view or detail comes off this drawing. The drawing stays if '
+      +'other lines still land on it.';
     x.addEventListener('click',function(e){e.stopPropagation();
       list.splice(ix,1);commitHard();});
     g1.appendChild(x);
-    r.appendChild(g1);r.appendChild(ask);r.appendChild(g2);r.appendChild(g3);
+    r.appendChild(g1);r.appendChild(ask);r.appendChild(issued);r.appendChild(g2);r.appendChild(g3);
     wrap.appendChild(r);
 
     // the line, editable, right under the row that produces it
@@ -8984,10 +10596,23 @@ function placementEditor(it){
 // appear under each. Numbering is positional and computed at render, never stored, so inserting
 // an item cannot desynchronise it.
 function padNum(n,w){n=String(n);while(n.length<w)n+=' ';return n;}
+// The verbs this machine writes in capitals while you are working, and in ordinary case once they
+// are a sentence. Kept as a list because the second verb in a joined line has to be found and
+// lowered without touching WA4, SSB1, AV, GD1 or any of the other shouting that belongs in a
+// drawing note.
+var PL_VERBS=['ADD','REVISE','REMOVE','DELETE','UPDATE','EXTEND','REPLACE','RENUMBER',
+              'MODIFY','MODIFIED','RE-ISSUE','REISSUE','ISSUE','RELOCATE','PROVIDE'];
 function wuSentence(txt){
   var t=String(txt).replace(/^✓\s*/,'').trim();
   var m=t.match(/^([A-Z][A-Z/-]{1,})\b(.*)$/);
   if(m)t=m[1].charAt(0)+m[1].slice(1).toLowerCase()+m[2];
+  // One line, two commands — "Revise wall type and add new wall type to W2a1" is the issued Pkg 4.2
+  // Add 1 §4 sentence. Only the first verb opens the sentence; every verb after a joining word is
+  // mid-sentence and reads in lower case, exactly as that document has it.
+  // Fully lower, not title case: the issued sentence is "Revise wall type and add new wall type to
+  // W2a1" — only the verb that opens the sentence is capitalised, and only because it opens it.
+  t=t.replace(/(\b(?:and|then|,)\s+)([A-Z][A-Z/-]{1,})\b/g,function(all,join,verb){
+    return PL_VERBS.indexOf(verb.toUpperCase())===-1?all:join+verb.toLowerCase();});
   // "REVISE the A5.3.23 reference to A5.0.08 — confirm first" ends in commentary, and it must go.
   // "REVISE detail 11/A5.94.17 — Typical section detail — to 6/A5.94.17" uses the dash as a
   // parenthesis, and cutting at the first one loses the destination. One dash = commentary; two or
@@ -8995,8 +10620,10 @@ function wuSentence(txt){
   if((t.match(/\s+—\s+/g)||[]).length===1)t=t.replace(/\s+—\s+.*$/,'');
   return t.replace(/[.;]+$/,'');
 }
-var WU_ATTACH_DWG=', attached and forms part of this Addendum.';
-var WU_ATTACH_SEC=' is attached hereto and forms part of this Addendum.';
+// Functions, not constants: the sentence is fixed, the document it names is not. A PCN is rarely
+// written up the way an addendum is, but when it is, it may not call itself an addendum.
+function wuAttachDwg(){return ', attached and forms part of this '+wuWord()+'.';}
+function wuAttachSec(){return ' is attached hereto and forms part of this '+wuWord()+'.';}
 // Every TARGET seen in an issued addendum is one to four parts. Nothing here is invented:
 //   VIEW      'PLAN 1/A42.31.10' · 'SECTION DETAIL 4/A3.420' · 'MILLWORK ELEVATION 5/A8.665'
 //   ROOM      'UTILITY CORRIDOR A58T01' · 'EXEC WC NW.2.074.F' · 'CESC FLEX NE.085.B'
@@ -9043,7 +10670,7 @@ function wuDrawLine(it,sheet,step){
   var up=String(step).replace(/^✓\s*/,'').toUpperCase();
   var sep=lineStyleOf(it)==='dash'?' - ':'; ';
   if(WU_REISSUE.test(up))
-    return 'Re-issue drawing in its entirety attached and forming part of this Addendum.';
+    return 'Re-issue drawing in its entirety attached and forming part of this '+wuWord()+'.';
   var tgt=wuTargetFor(it,sheet);
   var line=(tgt?tgt+sep:'')+wuSentence(step);
   // The attachment clause is what puts the sheet in the List of Attachments, so it is written
@@ -9052,14 +10679,23 @@ function wuDrawLine(it,sheet,step){
   // because '; As indicated on drawing X, attached and forms part of this Addendum.' is the only
   // form the issued set ever uses and the dash example carries no attachment at all to argue with.
   if(it.produces!=='drawings')return line+'.';
+  // You already wrote the clause into the sentence. Saying it twice is not more attached.
+  if(WU_HAS_ATTACH.test(line))return line.replace(/[.;]+$/,'')+'.';
   // Addendum 1 §4.14.3: 'PLAN 1/A42.31.10; Modified to reflect changes to washroom ceiling types,
   // attached and forming part of this Addendum.' — the short clause, no 'As indicated on drawing'.
   if(/^MODIF/i.test(String(step).replace(/^✓\s*/,'')))
-    return line.replace(/[.;]+$/,'')+', attached and forming part of this Addendum.';
+    return line.replace(/[.;]+$/,'')+', attached and forming part of this '+wuWord()+'.';
   // a sheet that was never in the set is ISSUED, not re-issued, and the clause says so
-  return line+(it.newsheet
-    ?'; issue drawing in its entirety attached and forming part of this Addendum.'
-    :'; As indicated on drawing '+(sheet||'[SHEET ___]')+WU_ATTACH_DWG);
+  if(it.newsheet)
+    return line+'; issue drawing in its entirety attached and forming part of this '+wuWord()+'.';
+  // Naming SEVERAL details on one drawing changes what the clause has to say. "As indicated on
+  // drawing X" points a bidder at the drawing; when five of its eight details have moved, the sheet
+  // supersedes the one they are holding, and the clause that says so is the re-issue clause. Shadi,
+  // 2026-08-12: type the numbers, choose Revise, and the range earns the re-issue on its own.
+  // One detail keeps the pointed form, which is what the issued Pkg 4.2 Add 1 §4 uses.
+  if(parseViewNos(it.detail).range)
+    return line+'; Re-issue drawing in its entirety attached and forming part of this '+wuWord()+'.';
+  return line+'; As indicated on drawing '+(sheet||'[SHEET ___]')+wuAttachDwg();
 }
 // §3 is NOT written here. Shadi hands Specifications the information and they write the clause,
 // so a spec item renders its note verbatim, marked as a note. The one sentence the machine does
@@ -9073,10 +10709,37 @@ function wuSpecLines(it,steps){
   if(it.produces==='drawings'){
     var isNew=/NOT PREVIOUSLY ISSUED|NEW SECTION|ISSUE NEW/i.test(note)
       ||steps.some(function(t){return /NOT PREVIOUSLY ISSUED|NEW SECTION|ISSUE NEW/i.test(t);});
-    out.push(isNew?('Section '+sec+', not previously issued'+WU_ATTACH_SEC)
-                  :('Section '+sec+' revised and re-issued,'+WU_ATTACH_SEC));
+    out.push(isNew?('Section '+sec+', not previously issued'+wuAttachSec())
+                  :('Section '+sec+' revised and re-issued,'+wuAttachSec()));
   }
-  if(note){out.push('[FOR SPECIFICATIONS] '+note);return out;}
+  // A note used to be one line, so a schedule revision — a heading, the section it refers to, the
+  // material code, and three bullets under it — had nowhere to go but a single run-on sentence.
+  // A note may now be written with its own shape and it keeps it: indent a line and it numbers one
+  // level deeper, start it with a bullet and it stays a bullet. Nothing new in the vault; the
+  // structure is the whitespace you already type.
+  if(note){
+    var multi=/\n/.test(note);
+    if(!multi){out.push('[FOR SPECIFICATIONS] '+note);return out;}
+    note.split('\n').forEach(function(raw,nix){
+      var line=raw.replace(/\s+$/,'');
+      if(!line.trim())return;
+      // A schedule revision names the schedule first. That line is the HEADING of the block, not
+      // its first clause — printing "SECTION 03 35 41" above it and demoting the schedule to 3.1.1
+      // inverts what the page is about. Only an unindented, unbulleted, shouting first line earns
+      // this, and never one that is itself a section reference.
+      if(!out.length&&!/^\s/.test(line)&&!/^([••*]|-\s)/.test(line.trim())
+         &&!/^section\b/i.test(line.trim())
+         &&(line.trim()===line.trim().toUpperCase()||/schedule\s*$/i.test(line.trim()))){
+        out.push({t:line.trim(),head:true});return;}
+      var lead=(/^(\s*)/.exec(line)||['',''])[1].replace(/\t/g,'  ').length;
+      var body=line.trim();
+      var bm=/^([••*]|-\s)\s*/.exec(body);
+      if(bm){out.push({t:body.replace(/^([••*]|-)\s*/,''),bullet:true,
+                       lvl:Math.min(1,Math.floor(lead/2))});return;}
+      out.push({t:body,lvl:Math.min(1,Math.max(0,Math.round(lead/2)))});
+    });
+    return out;
+  }
   if(out.length)return out;
   return ['[NO NOTE FOR SPECIFICATIONS YET — say what changed and why]'];
 }
@@ -9090,7 +10753,7 @@ function specHandoverText(key){
     if(!by[k]){by[k]=[];order.push(k);}by[k].push(i);});
   order.sort();
   var g=pool[0]||{};
-  var L=['Addendum '+addNum(g.addendum||'')+' — §3 Specifications: notes for the spec writer',
+  var L=[instLong(addNum(g.addendum||''))+' — §3 Specifications: notes for the spec writer',
          '(Not final language. Section, what changed, and what you need to write it.)',''];
   order.forEach(function(sk,ix){
     L.push((ix+1)+'.  SECTION '+sk.toUpperCase());
@@ -9152,6 +10815,82 @@ function viewByNo(pkg,sheet,no){
   var n=String(no||'').trim();if(!n)return null;
   var hit=viewsOn(pkg,sheet).filter(function(x){return String(x[2]||'')===n;});
   return hit.length===1?hit[0]:null;
+}
+// viewByName resolves a name to ONE view and returns nothing when several answer to it. That is
+// right for pairing — you cannot fill a detail number from an ambiguous name — and wrong for asking
+// "does this drawing have such a view at all". A5.94.06 carries eight views all called PLAN DETAIL,
+// so the exact-match lookup found none of them and the row offered to treat a name printed eight
+// times on the sheet as something new.
+function viewNameExists(pkg,sheet,name){
+  var n=String(name||'').trim().toUpperCase();if(!n)return false;
+  return viewsOn(pkg,sheet).some(function(x){
+    return String(x[0]||'').toUpperCase()===n||String(x[3]||'').toUpperCase()===n;});
+}
+function viewByNo(pkg,sheet,no){
+  var n=String(no||'').trim();if(!n)return null;
+  var hit=viewsOn(pkg,sheet).filter(function(x){return String(x[2]||'')===n;});
+  return hit.length===1?hit[0]:null;
+}
+// ---- more than one detail on one drawing --------------------------------------------------
+// One placement spoke for one view, and a real change routinely lands on five details of the same
+// drawing. With nowhere to say that, the honest options were five near-identical lines or
+// re-issuing the whole sheet — so the range got typed into "Room or item" as
+// `PLAN DETAIL 1-5/A5.94.06` and the state was set to re-issue to cover it. The field just had to
+// learn to count.
+function parseViewNos(s){
+  var raw=String(s||'').trim();
+  if(!raw)return {list:[],range:false,ok:true,raw:raw};
+  if(!/^[\d\s,–—-]+$/.test(raw))return {list:[],range:false,ok:false,raw:raw};
+  var out=[],ok=true;
+  raw.split(/\s*,\s*/).forEach(function(part){
+    if(!part)return;
+    var m=/^(\d+)\s*[-–—]\s*(\d+)$/.exec(part);
+    if(m){
+      var a=parseInt(m[1],10),b=parseInt(m[2],10);
+      if(a>b){ok=false;return;}
+      if(b-a>60){ok=false;return;}          // a typo, not a drawing
+      for(var i=a;i<=b;i++)out.push(String(i));
+      return;
+    }
+    if(/^\d+$/.test(part)){out.push(part);return;}
+    ok=false;
+  });
+  var seen={},uniq=[];
+  out.forEach(function(n){if(!seen[n]){seen[n]=1;uniq.push(n);}});
+  return {list:uniq,range:uniq.length>1,ok:ok&&uniq.length>0,raw:raw};
+}
+// "1,2,3,4,5,8" reads as a list somebody typed. "1-5, 8" reads as a decision. The issued addenda
+// write the second one.
+function compactNos(list){
+  var ns=(list||[]).map(Number).filter(function(n){return !isNaN(n);})
+                   .sort(function(a,b){return a-b;});
+  if(!ns.length)return '';
+  var parts=[],i=0;
+  while(i<ns.length){
+    var j=i;while(j+1<ns.length&&ns[j+1]===ns[j]+1)j++;
+    parts.push(j-i>=2?(ns[i]+'-'+ns[j]):ns.slice(i,j+1).join(', '));
+    i=j+1;
+  }
+  return parts.join(', ');
+}
+// A range can only carry ONE name, so it may only be given one when every view in it shares it.
+// "PLAN DETAIL 1-5" where view 3 is a section is a wrong word in a legal drawing set.
+function commonViewName(pkg,sheet,list){
+  var on=viewsOn(pkg,sheet),names=[],missing=[];
+  (list||[]).forEach(function(n){
+    var hit=on.filter(function(x){return String(x[2]||'')===String(n);})[0];
+    if(!hit){missing.push(n);return;}
+    names.push(String(hit[0]||''));
+  });
+  if(missing.length||!names.length)return {name:'',missing:missing,names:names};
+  var all=names.every(function(n){return n===names[0];});
+  if(all)return {name:names[0],missing:[],names:names};
+  // not identical — but "PLAN DETAIL - WC 1" and "PLAN DETAIL - WC 2" share the thing they are
+  var pre=names[0];
+  names.forEach(function(n){
+    var i=0;while(i<pre.length&&i<n.length&&pre[i]===n[i])i++;pre=pre.slice(0,i);});
+  pre=pre.replace(/[\s\-–:,/]+$/,'').trim();
+  return {name:(pre.length>=4?pre:''),missing:[],names:names};
 }
 // A change drawn on an AREA plan usually shows on the OVERALL plan of the same series too — the
 // wall is there, the tags and keynotes are not. The register makes the pair derivable: within a
@@ -9229,6 +10968,14 @@ function attachesIn(lines){
 }
 function buildAddendumDoc(key,opts){
   opts=opts||{};
+  // Name the instrument for the length of this build, and put it back afterwards: the gate and the
+  // search both build documents for instruments you are not looking at, and neither may leave the
+  // register's own previews calling a PCN an addendum.
+  var _wuWas=WU_KEY;WU_KEY=key;
+  try{return buildAddendumDoc_(key,opts);}finally{WU_KEY=_wuWas;}
+}
+function buildAddendumDoc_(key,opts){
+  opts=opts||{};
   var pool=addPoolFor(key).filter(function(i){return !WU_EXCLUDE[i.id];});
   var undecided=pool.filter(function(i){return !i.produces;});
   // A finished item is still addendum content. Only the STATE decides what is in the document.
@@ -9248,9 +10995,28 @@ function buildAddendumDoc(key,opts){
       wuSpecLines(it,st.keep.length?st.keep:[it.title||'']).forEach(function(l){lines.push(l);});
       if(!it.section)warn.push('§3 "'+(it.title||'').slice(0,44)+'" has no section number');
     });
-    L3.push('       '+padNum('3.'+(ix+1),8)+'SECTION '+sk.toUpperCase());
-    lines.forEach(function(l,jx){L3.push('               '+padNum('3.'+(ix+1)+'.'+(jx+1),9)+l);});
-    if(attachesIn(lines))att.sec.push('SECTION '+sk);
+    // the block may name itself; if it does not, it is filed under its section, as it always was
+    var headLine='';
+    lines=lines.filter(function(l){
+      if(l&&typeof l==='object'&&l.head&&!headLine){headLine=l.t;return false;}
+      return true;});
+    L3.push('       '+padNum('3.'+(ix+1),8)+(headLine?headLine.toUpperCase()
+                                                     :'SECTION '+sk.toUpperCase()));
+    // Numbering runs down the tiers, and a bullet takes no number at all — it belongs to the
+    // numbered line above it and printing 3.1.2.3 beside a dash would say otherwise.
+    var n2=0,n3=0,flat=[];
+    lines.forEach(function(l){
+      var o=(typeof l==='string')?{t:l,lvl:0}:l;
+      flat.push(o.t);
+      if(o.bullet){
+        L3.push('                       •  '+o.t);return;}
+      if(o.lvl>0){
+        if(!n2){n2=1;L3.push('               '+padNum('3.'+(ix+1)+'.1',9)+'');}
+        n3++;L3.push('                   '+padNum('3.'+(ix+1)+'.'+n2+'.'+n3,11)+o.t);return;}
+      n2++;n3=0;
+      L3.push('               '+padNum('3.'+(ix+1)+'.'+n2,9)+o.t);
+    });
+    if(attachesIn(flat))att.sec.push('SECTION '+sk);
   });
 
   // ---- §4 Drawings, grouped by sheet ----------------------------------------------------------
@@ -9317,7 +11083,10 @@ function buildAddendumDoc(key,opts){
   // ---- the document ---------------------------------------------------------------------------
   var g=pool[0]||{};
   var pk=(g.pkg||'').replace(/Package /,'Pkg ').split('—')[0].trim();
-  var head=['ADDENDUM '+addNum(g.addendum||key.split('|')[1]||'')+'  —  Vol 1 – ARCHITECTURAL'
+  // The document says what it is on its first line, so it is the one place the instrument name
+  // absolutely cannot be assumed.
+  var _inst=instLong(addNum(g.addendum||key.split('|')[1]||''));
+  var head=[_inst.toUpperCase()+'  —  Vol 1 – ARCHITECTURAL'
             +(pk?'   ('+pk+')':''),'',
             '2      General','','List of Attachments:',''];
   att.sec.forEach(function(x){head.push('       '+x);});
@@ -9336,15 +11105,27 @@ function buildAddendumDoc(key,opts){
   // question after the documents go out. That version would have shipped eleven fabricated Q/A
   // pairs into a bid document. §5 is now absent unless a real inquiry exists.
   var inqs=inquiriesFor(key);
+  // An unanswered question does not go in. §5 printing "[NOT ANSWERED — write the response]" was
+  // meant as a loud placeholder, but the write-up is copied into the addendum, and a placeholder in
+  // a document is only ever one careless paste away from a bidder reading it. Better to leave the
+  // question out and say so in the warnings: the gate already refuses to let it issue while one is
+  // open, so nothing is being hidden — it is being kept out of the deliverable.
+  var answered=inqs.filter(function(p){return String(p.a||'').trim();});
+  var openQ=inqs.filter(function(p){return !String(p.a||'').trim();});
   var inq=[];
-  inqs.forEach(function(p,ix){
+  answered.forEach(function(p,ix){
     var n=String(p.qno||(ix+1)).replace(/^Q/i,'');
     inq.push('       '+padNum('5.'+(ix+1),8)+'Q'+n+': '+(p.q||''));
-    inq.push('               '+'A'+n+': '+(p.a||'[NOT ANSWERED — write the response]'));
+    inq.push('               '+'A'+n+': '+p.a);
     inq.push('');
   });
+  if(openQ.length)warn.push(n_(openQ.length,'bid inquiry','bid inquiries')
+    +' still unanswered and held out of §5: '
+    +openQ.map(function(p){return 'Q'+p.qno;}).join(', ')
+    +' — answer '+(openQ.length===1?'it':'them')+' and '+(openQ.length===1?'it':'they')
+    +' will appear');
   if(inq.length)out=out.concat(['','5      Bid Inquiries & Responses','']).concat(inq);
-  out.push('');out.push('                        END OF ADDENDUM (VOL 1)');
+  out.push('');out.push('                        END OF '+wuWord().toUpperCase()+' (VOL 1)');
 
   if(undecided.length)warn.push(n_(undecided.length,'item')+' have no state and cannot be in the document: '
     +undecided.slice(0,6).map(function(i){return i.sheet||(i.title||'').slice(0,26);}).join(' · ')
@@ -9568,20 +11349,118 @@ function buildWriteup(key,hostEl){
     picker.appendChild(un);}
   box.appendChild(picker);
 
-  var ta=document.createElement('textarea');ta.value=doc.text;ta.spellcheck=false;box.appendChild(ta);
+  var ta=document.createElement('textarea');ta.value=doc.text;ta.spellcheck=false;
+  // The write-up is one editable block, so it cannot be filtered down the way a list can and it
+  // cannot be painted the way rendered text can. What it can do is take you to the word: the
+  // register's search doubles as a find-in-document here, stepping the caret through the hits.
+  if(ADD_Q){
+    var t0=qTerms()[0]||'',hay=ta.value.toLowerCase(),hits=[];
+    if(t0){var ix=hay.indexOf(t0);while(ix!==-1){hits.push(ix);ix=hay.indexOf(t0,ix+t0.length);}}
+    var fbar=document.createElement('div');fbar.className='wu-find';
+    if(!hits.length){
+      fbar.innerHTML='<span class="rf-none">“'+escapeHtml(ADD_Q)
+        +'” is not in the finished write-up — it may be on a row that writes nothing.</span>';
+    }else{
+      var at={i:-1};
+      var lbl=document.createElement('span');lbl.className='wu-find-n';
+      var say=function(){lbl.textContent=(at.i<0?hits.length+' in this text'
+        :(at.i+1)+' of '+hits.length)+' · “'+ADD_Q+'”';};
+      say();fbar.appendChild(lbl);
+      var step=function(d){
+        at.i=(at.i+d+hits.length)%hits.length;
+        var s=hits[at.i];ta.focus();
+        try{ta.setSelectionRange(s,s+t0.length);}catch(e){}
+        // a textarea will not scroll to a selection on its own; the line height is the only
+        // measure available, so count the newlines before the hit and put it near the middle
+        try{
+          var before=ta.value.slice(0,s).split('\n').length-1;
+          var lh=parseFloat(getComputedStyle(ta).lineHeight)||16;
+          ta.scrollTop=Math.max(0,(before*lh)-(ta.clientHeight/2));
+        }catch(e){}
+        say();};
+      var pv=document.createElement('button');pv.type='button';pv.className='wu-find-b';
+      pv.textContent='‹ prev';pv.addEventListener('click',function(){step(-1);});
+      var nx=document.createElement('button');nx.type='button';nx.className='wu-find-b';
+      nx.textContent='next ›';nx.addEventListener('click',function(){step(1);});
+      fbar.appendChild(pv);fbar.appendChild(nx);
+    }
+    box.appendChild(fbar);
+  }
+  box.appendChild(ta);
   var row=document.createElement('div');row.className='pedit-row';row.style.marginTop='8px';
   var cp=document.createElement('button');cp.type='button';cp.textContent='Copy';
-  cp.addEventListener('click',function(){copyText(ta.value,'Addendum write-up copied — hand it to Specifications to package.');});
+  cp.textContent='Copy as text';
+  cp.title='The characters, exactly as they read here — for email, Teams, or anywhere the numbers '
+    +'should stay put.';
+  cp.addEventListener('click',function(){copyText(ta.value,wuWord()+' write-up copied — hand it to Specifications to package.');});
+  // The one that answers "4.5 is just text in Word".
+  var cpw=document.createElement('button');cpw.type='button';cpw.className='wu-word';
+  cpw.textContent='Copy for Word';
+  cpw.title='Puts list markup on the clipboard, so §3, §4 and §5 arrive as real numbered rows that '
+    +'renumber and indent themselves — not characters. Paste into Word with Ctrl+V; if your '
+    +'template has its own list format, Keep Source Formatting first, then apply your style.';
+  cpw.addEventListener('click',function(){
+    copyRich(writeupWordHtml(ta.value,addLabelFor(key)||instLong(addNum(String(key).split('|')[1]||''))),ta.value,
+      'Copied as numbered rows — paste into Word and 4.5 / 4.5.1 become a real list, '
+      +'renumbering itself when anything moves.');});
+  var dw=document.createElement('button');dw.type='button';dw.className='wu-word';
+  dw.textContent='Download .docx';
+  dw.title='A real Word file, with the numbering in Word’s own format. Both Word for the web '
+    +'(Teams) and desktop Word read the same bytes, so it cannot come out scrambled the way a '
+    +'paste can. Open it and copy into your addendum — Word to Word carries the list definitions.';
+  dw.addEventListener('click',function(){
+    try{
+      var blob=docxFromWriteup(ta.value,writeupFileName(key,''));
+      var u=URL.createObjectURL(blob);
+      var a=document.createElement('a');a.href=u;
+      a.download=writeupFileName(key,'.docx');a.click();
+      setTimeout(function(){URL.revokeObjectURL(u);},1500);
+      setStatus('Word file downloaded — 4.1 / 4.1.1 are real numbering in it, the same in Teams '
+        +'and on the desktop.');
+    }catch(e){setStatus('Could not build the Word file: '+(e&&e.message||e));}
+  });
   var dl=document.createElement('button');dl.type='button';dl.className='pcancel';dl.textContent='Download .md';
   dl.addEventListener('click',function(){
     var b=new Blob([ta.value],{type:'text/markdown'});var u=URL.createObjectURL(b);
     var a=document.createElement('a');a.href=u;
-    a.download=String(key).replace(/[^A-Za-z0-9.-]+/g,'-')+'-addendum-writeup.md';a.click();
+    a.download=writeupFileName(key,'.md');a.click();
     setTimeout(function(){URL.revokeObjectURL(u);},1000);
   });
   var hint=document.createElement('span');hint.className='inline-capture-hint';
   hint.textContent='Editable · numbering computed at render · attachments derived from the clause, never typed';
-  row.appendChild(cp);row.appendChild(dl);row.appendChild(hint);box.appendChild(row);
+  row.appendChild(dw);row.appendChild(cpw);row.appendChild(cp);row.appendChild(dl);
+  row.appendChild(hint);box.appendChild(row);
+  // Four ways out of here is three too many to guess between, and the wrong guess is the one that
+  // scrambled the numbering in Teams. The answer to "which button" is one sentence; the reasoning
+  // folds away for whoever wants it.
+  (function(){
+    var h=document.createElement('div');h.className='wu-help';
+    h.innerHTML='<b>Putting this in the addendum?</b> Use <b>Download .docx</b> — open it and copy '
+      +'into your Word document. Sending it to someone? <b>Copy as text</b>.';
+    box.appendChild(h);
+    var d=document.createElement('details');d.className='wb-lede wb-lede-d wu-help-d';
+    var s=document.createElement('summary');s.textContent='Why four buttons, and what each one is for';
+    d.appendChild(s);
+    var b=document.createElement('div');
+    b.innerHTML=
+       '<p><b>Download .docx</b> — a real Word file. The numbering is stored the way Word stores '
+      +'it, so <b>4.1</b> and <b>4.1.1</b> are genuine list numbers that renumber themselves, and '
+      +'they come out identical in Word for the web (Teams) and on the desktop. Open the file and '
+      +'copy from it into your addendum: Word-to-Word carries the list definitions across intact. '
+      +'<b>This is the one to use for the document.</b></p>'
+      +'<p><b>Copy for Word</b> — the same thing on the clipboard instead of in a file. Quicker, '
+      +'and fine in <b>desktop</b> Word. Avoid it in a Teams-shared document: Word for the web '
+      +'throws away most of the list information on paste, which is what turns 4.1 into 1.6 and '
+      +'gives two sections the same number. If a paste comes out scrambled, that is why — use the '
+      +'.docx.</p>'
+      +'<p><b>Copy as text</b> — the characters exactly as they read on screen. For email, Teams '
+      +'chat, or anywhere the numbers should stay literal and stay put.</p>'
+      +'<p><b>Download .md</b> — the same plain text as a file, for the vault or a note.</p>'
+      +'<p>All four say the same words. They differ only in how much structure survives the '
+      +'journey — and everything is read from the box above, so whatever you have edited there is '
+      +'what you get.</p>';
+    d.appendChild(b);box.appendChild(d);
+  })();
   host.appendChild(box);
   var hand=specHandoverText(key);
   if(hand){
