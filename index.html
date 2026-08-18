@@ -216,6 +216,14 @@
 .thumb-x:hover{background:var(--rose)}
 .thumb-b{position:absolute;bottom:3px;left:3px;font-size:9px;letter-spacing:.04em;text-transform:uppercase;
   background:var(--gold);color:#fff;border-radius:3px;padding:1px 5px;font-weight:700;line-height:1.4}
+/* A picture that is part of the addendum, not just something you are looking at. It reads as a
+   deliverable: a solid mark, a filled label, and a border that does not look like a draft. */
+.thumb-attach{position:absolute;bottom:3px;right:3px;font:inherit;font-size:9px;line-height:1.4;
+  letter-spacing:.04em;text-transform:uppercase;font-weight:700;cursor:pointer;padding:1px 6px;
+  border:1px solid rgba(0,0,0,.25);border-radius:3px;background:rgba(255,255,255,.88);color:var(--muted)}
+.thumb-attach:hover{color:var(--fg);border-color:var(--fg)}
+.thumb-attach.on{background:var(--ok,#2b7d55);border-color:var(--ok,#2b7d55);color:#fff}
+.sh-thumb.issues img{border-color:var(--ok,#2b7d55);border-width:2px}
 .img-drop{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
   min-width:112px;height:80px;border:1px dashed var(--line);border-radius:6px;background:transparent;
   color:var(--muted);cursor:pointer;font:inherit;font-size:12px;line-height:1.3}
@@ -1802,6 +1810,16 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
   color:var(--ok);border-radius:999px;padding:1px 9px;cursor:pointer;margin-left:2px;}
 .inq-go:hover{background:var(--ok);border-color:var(--ok);color:#fff;}
 .inq-keeps{color:var(--faint);font-size:11px;margin-top:3px;}
+/* a field holding words that are typed but not yet saved */
+.inq-f.inq-draft .inq-in{border-color:var(--gold);background:#fffdf6;}
+/* one answer per ask */
+.inq-split-h{font-size:10.5px;color:var(--faint);margin:6px 0 2px;letter-spacing:.02em}
+.inq-ask{font-size:11.5px;color:var(--muted);margin:6px 0 1px;line-height:1.45}
+.inq-ask b{color:var(--fg)}
+.inq-ask-orphan{color:var(--stop)}
+.inq-split-b{font:inherit;font-size:10.5px;color:var(--muted);background:transparent;
+  border:1px dashed var(--border);border-radius:999px;padding:2px 9px;cursor:pointer;margin-top:6px}
+.inq-split-b:hover{border-style:solid;border-color:var(--faint);color:var(--text)}
 .inq-made-at{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--text);
   background:var(--border-soft);border-radius:4px;padding:1px 6px;}
 /* add and remove are a pair and sit together on the line they act on */
@@ -2299,6 +2317,25 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
       they belong to. Nothing is reflowed, renumbered, or turned into a bullet list, because these
       are the <b>bidder's</b> words: a dash stays a dash. Answers work the same way.
       <kbd>Ctrl</kbd>+<kbd>Enter</kbd> saves.</p>
+      <p class="g-p"><b>One answer per ask, when the question asked for more than one thing.</b> If
+      the question carries a list, <i>answer each ask separately</i> appears under it and gives you
+      one box per ask. §5 then letters them — the asks print as <span class="mono">(a)</span>,
+      <span class="mono">(b)</span> and each answer prints under its own letter, so nothing has to be
+      paired by eye. Only the bullet marker becomes the letter; the sentence is still the bidder's.
+      A split question is <b>answered when every letter is</b>: leave one blank and the whole
+      question is held out of §5, the warnings name the letter, and the gate says so.
+      <i>One answer instead</i> collapses it back and keeps what you typed.</p>
+      <p class="g-p"><b>A picture can be part of the addendum, not just something you are looking
+      at.</b> Every picture on a row is working context by default — you are reading it while you
+      decide. A bidder's marked-up detail, or the rendering that answers their question, is
+      different: it <b>issues</b>. Click <b>attach</b> on the thumbnail and it turns green and reads
+      <i>in the addendum</i>. From then on it is embedded in the <b>.docx</b> directly beneath the
+      question it belongs to, captioned <span class="mono">Figure Q2-1 — filename</span>, scaled to
+      the text column, and named in the <b>List of Attachments</b> like any drawing or section. The
+      plain-text and .md copies say the figure is attached; only the .docx can carry the picture
+      itself. A picture added on someone else's machine that has never been downloaded here cannot
+      be written into the file — the warnings say so rather than letting the document go out with a
+      figure missing.</p>
       <p class="g-p"><b>The tick creates the item — you do not go and add it.</b> Click
       <i>Drawing §4</i> and a row appears on this addendum called “Bid inquiry Q5 — …”, and the row
       you clicked says so, names where it landed, and offers the way there. If your answer names a
@@ -4361,29 +4398,36 @@ function syncHeaders(){var h={'Content-Type':'text/plain'};if(SYNC.key)h['x-wt-k
 // to land there — but never mid-keystroke. Rebuilding it replaces every input, including the one
 // under the caret, which is how a previous build made the fields feel broken. If someone is typing,
 // the repaint waits for focus to leave and then goes.
+// Is a field in the register being typed into? Any repaint that is not the direct result of a
+// click has to ask this first: the register rebuilds itself wholesale, so a repaint that lands
+// mid-sentence replaces the box under the cursor and the rest of the sentence goes nowhere.
+function registerTyping(){
+  try{
+    var host=document.getElementById('addRegView');
+    var el=document.activeElement;
+    return !!(host&&el&&/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName||'')&&host.contains(el));
+  }catch(e){return false;}
+}
+// Come back when the cursor leaves. Registered on the document, not the host, because every
+// rebuild replaces the host.
+function deferRegisterRepaint(){
+  SYNC.dirty=true;
+  if(SYNC.dirtyHook)return;
+  SYNC.dirtyHook=true;
+  document.addEventListener('focusout',function(){
+    setTimeout(function(){
+      if(!SYNC.dirty)return;
+      if(!document.getElementById('addRegView'))return;
+      if(registerTyping())return;
+      SYNC.dirty=false;buildAddendumRegister();
+    },0);
+  },true);
+}
 function syncRepaintRegisters(){
   try{
     var host=document.getElementById('addRegView');
     if(!host||!host.childNodes.length)return;          // register not open — nothing to repaint
-    var typing=function(el){
-      return !!el&&/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName||'')&&host.contains(el);
-    };
-    if(typing(document.activeElement)){
-      SYNC.dirty=true;
-      if(!SYNC.dirtyHook){
-        SYNC.dirtyHook=true;
-        // on document, not on the host: the host is replaced by every rebuild
-        document.addEventListener('focusout',function(){
-          setTimeout(function(){
-            var h=document.getElementById('addRegView');
-            if(!SYNC.dirty||!h)return;
-            if(typing(document.activeElement))return;
-            SYNC.dirty=false;buildAddendumRegister();
-          },0);
-        },true);
-      }
-      return;
-    }
+    if(registerTyping()){deferRegisterRepaint();return;}
     SYNC.dirty=false;
     buildAddendumRegister();
   }catch(e){}
@@ -4591,14 +4635,28 @@ function buildExportText(){
       // starts with '-' and a line beginning '- ' at the margin is how every op in this text starts.
       // Left flush, a two-line question would fold in as a new op.
       var iPad='        ';
-      return ['- [Bid inquiry] '+instLong(addNum((p.addendum||'').split('|')[1]||''))]
-        .concat(inqLines('    ','Q'+(p.qno||'')+': ',p.q||'',iPad))
-        .concat(inqLines('    ','A'+(p.qno||'')+': ',p.a||'[not answered yet]',iPad))
-        .join('\n');
+      var out=['- [Bid inquiry] '+instLong(addNum((p.addendum||'').split('|')[1]||''))]
+        .concat(inqLines('    ','Q'+(p.qno||'')+': ',p.q||'',iPad));
+      var epr=inqParts(p);
+      if(epr){
+        // one answer per ask, and the vault keeps them apart the same way
+        var EA=inqAsks(p.q);
+        out.push('    A'+(p.qno||'')+': (one answer per ask)');
+        epr.forEach(function(x,i){
+          out=out.concat(inqLines('        ','('+inqLetter(i)+') ',
+            String(x||'').trim()||'[not answered yet]',iPad+'    '));});
+      }else{
+        out=out.concat(inqLines('    ','A'+(p.qno||'')+': ',p.a||'[not answered yet]',iPad));
+      }
+      return out.join('\n');
     }
     if(p.type==='image'){
-      return '- [Picture] '+(loc?loc+': ':'')+p.name+' ('+p.w+'\u00d7'+p.h+')'+ref
-        +'  \u2192 save to vault/attachments and add [img:: <path>] to the item';
+      return '- [Picture'+(p.issue?' \u2014 IN THE ADDENDUM':'')+'] '
+        +(loc?loc+': ':'')+p.name+' ('+p.w+'\u00d7'+p.h+')'+ref
+        +'  \u2192 save to vault/attachments and add [img:: <path>] to the item'
+        +(p.issue?', and mark it [imgissue:: yes] \u2014 it is embedded in the addendum .docx under '
+          +'its question and named in the List of Attachments, so the vault has to remember that'
+          :'');
     }
     return '- ['+typeLabel(p.type)+'] '+(loc?loc+': ':'')+p.text+ref;
   // A check-in that cannot tell whose capture it is reading has to ask, which is the one thing
@@ -5155,7 +5213,13 @@ function jumpToThread(slug){
   setTimeout(function(){el.classList.remove('kbd-focus');},1600);
 }
 function buildAddendumRegister(){
-  var c=document.getElementById('addRegView');if(!c)return;c.innerHTML='';
+  var c=document.getElementById('addRegView');if(!c)return;
+  // Somebody is mid-sentence in here. Every rebuild throws the field away and builds a new one, so
+  // a poll arriving from the shared store, an image body landing, or refreshBoard() coming through
+  // setView() would cut the typing off at whatever word it had reached. Wait for the cursor to
+  // leave; nothing is lost by repainting a second later.
+  if(registerTyping()){deferRegisterRepaint();return;}
+  c.innerHTML='';
   setTimeout(syncFootKey,0);
   // laneItems(), not ITEMS: the queue overlay is what makes a change someone else just made
   // visible here without a reload. Vault lane items are the sheet punch list and belong to the
@@ -5421,7 +5485,7 @@ function buildAddendumRegister(){
     var g=groups[ADD_OPEN]||{},row=addendumDateFor(g.pkg,g.num);
     var pool=addPoolFor(ADD_OPEN);
     var done=pool.filter(function(i){return i.status==='completed'||i.pendingComplete;}).length;
-    var qs=inquiriesFor(ADD_OPEN),un=qs.filter(function(q){return !String(q.a||'').trim();}).length;
+    var qs=inquiriesFor(ADD_OPEN),un=qs.filter(function(q){return !inqAnswered(q);}).length;
     var t=document.createElement('h2');t.className='reg-title';
     t.textContent=pkgChip(g.pkg)+' \u00b7 '+instLong(g.num);
     hHead.appendChild(t);
@@ -5478,7 +5542,7 @@ function buildAddendumRegister(){
     if(o[0]==='threads'){var tn=addQuestionsFor(ADD_OPEN).length;if(tn)b.textContent+='  '+tn;}
     if(o[0]==='sheets'){var sn2=addPoolFor(ADD_OPEN).length;if(sn2)b.textContent+='  '+sn2;}
     if(o[0]==='inq'){
-      var qs=inquiriesFor(ADD_OPEN),un=qs.filter(function(q){return !String(q.a||'').trim();});
+      var qs=inquiriesFor(ADD_OPEN),un=qs.filter(function(q){return !inqAnswered(q);});
       if(qs.length)b.textContent+='  '+qs.length;
       // "6" reads as six answers on file. The number that matters is how many are still open.
       if(un.length){var ub=document.createElement('span');ub.className='seg-open';
@@ -7328,17 +7392,47 @@ function docxPara(text,opts){
   // heading each get room above them; the lines under a heading stay tight to it, because that is
   // what makes them read as belonging to it.
   pPr+='<w:spacing w:before="'+(opts.before||0)+'" w:after="0" w:line="240" w:lineRule="auto"/>';
-  if(opts.bold||opts.size)pPr+='<w:rPr>'+(opts.bold?'<w:b/>':'')
-    +(opts.size?'<w:sz w:val="'+opts.size+'"/>':'')+'</w:rPr>';
+  var mk=function(){return (opts.bold?'<w:b/>':'')+(opts.italic?'<w:i/>':'')
+    +(opts.size?'<w:sz w:val="'+opts.size+'"/>':'');};
+  if(opts.bold||opts.size||opts.italic)pPr+='<w:rPr>'+mk()+'</w:rPr>';
   pPr+='</w:pPr>';
-  var rPr=(opts.bold||opts.size)?('<w:rPr>'+(opts.bold?'<w:b/>':'')
-    +(opts.size?'<w:sz w:val="'+opts.size+'"/>':'')+'</w:rPr>'):'';
+  var rPr=(opts.bold||opts.size||opts.italic)?('<w:rPr>'+mk()+'</w:rPr>'):'';
   return '<w:p>'+pPr+'<w:r>'+rPr+'<w:t xml:space="preserve">'+xEsc(text)+'</w:t></w:r></w:p>';
 }
 // Read the finished document back, exactly as the Copy buttons do, so the file and the text on
 // screen can never say different things.
-function docxFromWriteup(text,title){
+// 914400 EMU to the inch; a letter page with 1in margins leaves 6.5in of text column. A picture
+// wider than that is scaled down rather than cropped — a markup you cannot see all of says nothing.
+var DOCX_COL_EMU=5943600;
+function docxExtent(w,h){
+  w=+w||0;h=+h||0;
+  if(!w||!h)return {cx:DOCX_COL_EMU,cy:Math.round(DOCX_COL_EMU*0.62)};
+  var cx=Math.round(w*9525),cy=Math.round(h*9525);          // CSS pixels at 96dpi
+  if(cx>DOCX_COL_EMU){cy=Math.round(cy*(DOCX_COL_EMU/cx));cx=DOCX_COL_EMU;}
+  return {cx:cx,cy:cy};
+}
+function docxImage(rid,cx,cy,name,id){
+  return '<w:p><w:pPr><w:ind w:left="1440"/>'
+    +'<w:spacing w:before="120" w:after="60" w:line="240" w:lineRule="auto"/></w:pPr>'
+    +'<w:r><w:drawing>'
+    +'<wp:inline distT="0" distB="0" distL="0" distR="0"'
+    +' xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing">'
+    +'<wp:extent cx="'+cx+'" cy="'+cy+'"/><wp:docPr id="'+id+'" name="'+xEsc(name)+'"/>'
+    +'<a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">'
+    +'<a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">'
+    +'<pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">'
+    +'<pic:nvPicPr><pic:cNvPr id="'+id+'" name="'+xEsc(name)+'"/><pic:cNvPicPr/></pic:nvPicPr>'
+    +'<pic:blipFill><a:blip r:embed="'+rid+'"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>'
+    +'<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="'+cx+'" cy="'+cy+'"/></a:xfrm>'
+    +'<a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr>'
+    +'</pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>';
+}
+function docxFromWriteup(text,title,figs){
   var body=[],lines=String(text||'').split('\n');
+  // Pictures are keyed by the exact line the write-up prints for them, so what you read in the box
+  // and what Word draws cannot drift apart: edit the line and the figure simply stays text.
+  var figBy={},media=[],rels=[],exts={},rid=2;   // rId1 numbering, rId2 styles
+  (figs||[]).forEach(function(f){if(f&&f.line)figBy[String(f.line).trim()]=f;});
   // A blank line in the source and a spacing rule on the heading below it would stack into a gap
   // twice the size of the one either intended. The heading owns its space; the blank line steps
   // aside for it.
@@ -7355,6 +7449,25 @@ function docxFromWriteup(text,title){
     var line=raw.replace(/\s+$/,'');
     if(!line.trim()){if(!headsNext(ix))body.push(docxPara(''));return;}
     if(ix===0){body.push(docxPara(line.trim(),{bold:true,size:26,after:true}));return;}
+    var fg=figBy[line.trim()];
+    if(fg){
+      var got=fg.src?dataUrlBytes(fg.src):null;
+      if(got){
+        rid++;
+        var mn='media/image'+rid+'.'+got.ext;
+        media.push({name:'word/'+mn,data:got.bytes});
+        rels.push('<Relationship Id="rId'+rid+'" Type="http://schemas.openxmlformats.org/'
+          +'officeDocument/2006/relationships/image" Target="'+mn+'"/>');
+        exts[got.ext]=got.mime;
+        var ex=docxExtent(fg.w,fg.h);
+        body.push(docxImage('rId'+rid,ex.cx,ex.cy,fg.name||'figure',rid));
+        // the caption repeats the line, so the figure is findable by name in the document too
+        body.push(docxPara(line.trim(),{indent:1440,italic:true}));
+      }else{
+        body.push(docxPara(line.trim()+'  [picture not downloaded on this machine]',{indent:1440}));
+      }
+      return;
+    }
     var bl=/^\s*[•·*]\s+(.+)$/.exec(line);
     if(bl){body.push(docxPara(bl[1],{numId:2,ilvl:0}));return;}
     var m=WU_NUMBERED.exec(line);
@@ -7370,7 +7483,8 @@ function docxFromWriteup(text,title){
       bold:/^(List of Attachments|SECTION\b|END OF )/i.test(line.trim())}));
   });
   var doc='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-    +'<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+    +'<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"'
+    +' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
     +'<w:body>'+body.join('')
     +'<w:sectPr><w:pgSz w:w="12240" w:h="15840"/>'
     +'<w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440"/></w:sectPr>'
@@ -7383,6 +7497,8 @@ function docxFromWriteup(text,title){
       +'<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>'
       +'<Override PartName="/word/numbering.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml"/>'
       +'<Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>'
+      +Object.keys(exts).map(function(x){
+        return '<Default Extension="'+x+'" ContentType="'+exts[x]+'"/>';}).join('')
       +'</Types>'},
     {name:'_rels/.rels',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
       +'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
@@ -7392,6 +7508,7 @@ function docxFromWriteup(text,title){
       +'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
       +'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering" Target="numbering.xml"/>'
       +'<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>'
+      +rels.join('')
       +'</Relationships>'},
     {name:'word/styles.xml',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
       +'<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
@@ -7402,7 +7519,7 @@ function docxFromWriteup(text,title){
       +'</w:styles>'},
     {name:'word/numbering.xml',data:docxNumbering()},
     {name:'word/document.xml',data:doc}
-  ]);
+  ].concat(media));
 }
 // The name a file lands under is how it is found again six weeks later, so it is the house name,
 // not the register's internal key. Shadi, 2026-08-13: "Package 5 Addendum 01 _ AR _ Write up".
@@ -8561,7 +8678,7 @@ function matchWhyQ(it){
 }
 function inqMatchesQ(p){
   var t=qTerms();if(!t.length)return true;
-  return qHas([p.q,p.a,p.by,'Q'+(p.qno||'')].join(' · '),t);
+  return qHas([p.q,p.a,inqAnswerText(p),p.by,'Q'+(p.qno||'')].join(' \u00b7 '),t);
 }
 function thrMatchesQ(r){
   var t=qTerms();if(!t.length)return true;
@@ -9114,6 +9231,8 @@ function inquiriesFor(key){
   var vault=((window.LAST_DATA&&LAST_DATA.inquiries)||[]).filter(function(q){
     return addKey(q.pkg,q.addendum)===key;}).map(function(q){
       return {type:'inquiry',addendum:key,qno:q.qno,q:q.q,a:q.a,pkg:q.pkg||'',
+              // one answer per ask, when the bidder asked for several things at once
+              parts:(q.parts&&q.parts.length)?q.parts.slice():null,
               program:q.program||'',by:q.by||'',img:q.img||null,
               fromVault:true,id:'vq-'+key+'-'+q.qno};});
   var queued=(readQueue()||[]).filter(function(p){
@@ -9145,6 +9264,91 @@ function addRawOf(key){return rawAddendumFor(key);}
 // are the BIDDER's words and their shape is part of the question, so every line is kept exactly as
 // typed and only indented to sit under its label. Nothing is reflowed, renumbered or turned into a
 // bullet list — §5 is the one place in this document where the words are not ours to tidy.
+// What you have typed but not yet committed, per field. The guard above stops a repaint landing
+// mid-sentence; this is the second line of defence — if a rebuild happens anyway (the browser, a
+// view switch, anything I have not thought of), the box comes back with your words still in it
+// rather than with the last saved version.
+var INQ_DRAFT={};
+function inqDraftKey(key,qno,cls){return String(key)+'|'+String(qno)+'|'+cls;}
+// A data URL is characters; a .docx part is bytes. One decode, used by every picture that issues.
+function dataUrlBytes(src){
+  var m=/^data:([^;,]+)(;base64)?,([\s\S]*)$/.exec(String(src||''));
+  if(!m)return null;
+  var mime=m[1]||'image/png',raw=m[3];
+  try{
+    var bin=m[2]?atob(raw):decodeURIComponent(raw);
+    var u=new Uint8Array(bin.length);
+    for(var i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);
+    var ext=(mime==='image/jpeg'||mime==='image/jpg')?'jpeg'
+           :mime==='image/gif'?'gif':mime==='image/webp'?'webp':'png';
+    return {bytes:u,mime:mime,ext:ext};
+  }catch(e){return null;}
+}
+// Every picture attached to an ANSWERED inquiry on this instrument, in the order the document will
+// meet them. Unanswered inquiries are held out of §5, so their pictures are held out too — a figure
+// with no question above it is worse than no figure.
+function inqFigures(key){
+  var out=[];
+  (inquiriesFor(key)||[]).forEach(function(p){
+    if(!inqAnswered(p))return;
+    var host={id:'inq-'+key+'-'+(p.qno||''),title:inqRef(p),
+              pkg:p.pkg||'',program:p.program||''};
+    var n=0;
+    imagesFor(host).forEach(function(im){
+      if(!im.issue)return;
+      n++;
+      var nm=im.name||'markup';
+      out.push({qno:p.qno,n:n,name:nm,key:im.key,w:im.w,h:im.h,
+                src:im.src||(im.key?IMG_CACHE[im.key]:null)||null,
+                // the line the write-up prints AND the key the .docx swaps for the picture itself
+                line:'Figure Q'+p.qno+'-'+n+' \u2014 '+nm});
+    });
+  });
+  return out;
+}
+// One inquiry, several asks. The bidder writes a lead-in and then a list, and each item on that
+// list is a separate question that wants its own answer. The asks are READ from the question the
+// bidder sent — never invented, never renumbered in storage — so editing the question re-reads them
+// and nothing has to be kept in step by hand.
+var INQ_ASK=/^\s*(?:[-\u2013\u2014\u2022*]|\(?[a-z]\)|\(?\d+[.)])\s+\S/;
+function inqAsks(q){
+  var lines=String(q||'').replace(/\r/g,'').split('\n');
+  var lead=lines.shift()||'',asks=[];
+  lines.forEach(function(l){
+    if(!l.trim())return;
+    if(INQ_ASK.test(l))asks.push({text:l.trim(),cont:[]});
+    else if(asks.length)asks[asks.length-1].cont.push(l.trim());
+    else lead+=' '+l.trim();
+  });
+  return {lead:lead,asks:asks};
+}
+function inqLetter(i){return String.fromCharCode(97+(i%26));}
+// The bidder's words, with only the bullet marker they typed swapped for the letter the document
+// answers under. The words themselves are untouched — a marker is punctuation, not content.
+function inqAskText(a){return String(a&&a.text||'').replace(/^\s*(?:[-\u2013\u2014\u2022*]|\(?[a-z]\)|\(?\d+[.)])\s+/,'');}
+// Answered means every ask is answered. Half a reply is not an answer to a question that asked two
+// things, and §5 must not print one letter and silently drop the other.
+function inqParts(p){return (p&&p.parts&&p.parts.length)?p.parts:null;}
+function inqAnswered(p){
+  var pr=inqParts(p);
+  if(!pr)return !!String(p&&p.a||'').trim();
+  var n=Math.max(pr.length,inqAsks(p.q).asks.length);
+  for(var i=0;i<n;i++)if(!String(pr[i]||'').trim())return false;
+  return n>0;
+}
+function inqMissing(p){
+  var pr=inqParts(p);if(!pr)return [];
+  var n=Math.max(pr.length,inqAsks(p.q).asks.length),out=[];
+  for(var i=0;i<n;i++)if(!String(pr[i]||'').trim())out.push(inqLetter(i));
+  return out;
+}
+// Whatever there is to read as "the answer", split or not — for search, for the seed, for a preview.
+function inqAnswerText(p){
+  var pr=inqParts(p);
+  if(!pr)return String(p&&p.a||'');
+  return pr.map(function(x,i){return '('+inqLetter(i)+') '+String(x||'');})
+           .filter(function(s){return s.replace(/^\(\w\)\s*/,'').trim();}).join('\n');
+}
 function inqLines(lead,label,text,pad){
   var raw=String(text==null?'':text).replace(/\r/g,'').split('\n');
   var out=[lead+label+(raw.shift()||'')];
@@ -9191,17 +9395,28 @@ function nextQno(key){
   var used={};inquiriesFor(key).forEach(function(x){used[String(x.qno)]=1;});
   var n=1;while(used[String(n)])n++;return String(n);
 }
-function saveInquiry(p,q,a){
+function saveInquiry(p,q,a,parts){
   var key=p.addendum;
+  // `undefined` means "leave the split as it is"; null means "collapse back to one answer"
+  var pr=(parts===undefined)?inqParts(p):(parts&&parts.length?parts:null);
   supersede(function(o){return o.type==='inquiry'&&o.addendum===key
     &&String(o.qno)===String(p.qno);});
-  if(p.fromVault&&sameValue(q,p.q)&&sameValue(a,p.a)){buildAddendumRegister();
+  if(p.fromVault&&sameValue(q,p.q)&&sameValue(a,p.a)
+     &&sameValue(JSON.stringify(pr||null),JSON.stringify(inqParts(p)||null))){
+    buildAddendumRegister();
     setStatus('Back to what the vault says — nothing left queued for Q'+p.qno+'.');return;}
-  queueLocally({type:'inquiry',addendum:key,qno:p.qno,q:q,a:a,
+  queueLocally({type:'inquiry',addendum:key,qno:p.qno,q:q,a:a,parts:pr,
     program:p.program||'',pkg:p.pkg||'',
-    text:'§5 Q'+p.qno+': '+String(a||'(no answer yet)').replace(/\s+/g,' ').slice(0,90)});
+    text:'§5 Q'+p.qno+': '
+      +String((pr?inqAnswerText({parts:pr,q:q}):a)||'(no answer yet)')
+        .replace(/\s+/g,' ').slice(0,90)});
   buildAddendumRegister();
-  setStatus(a?('Q'+p.qno+' answered — it writes into §5 and folds at check-in.')
+  var done=inqAnswered({q:q,a:a,parts:pr});
+  var miss=inqMissing({q:q,a:a,parts:pr});
+  setStatus(done?('Q'+p.qno+' answered — it writes into §5 and folds at check-in.')
+             :miss.length?('Q'+p.qno+' saved — still waiting on '
+               +miss.map(function(x){return '('+x+')';}).join(' and ')
+               +'. The whole question is held out of §5 until every ask has an answer.')
              :('Q'+p.qno+' saved, still unanswered — held out of §5 until it has an answer, and '
                +'the gate will not let this issue while it is open.'));
 }
@@ -9241,7 +9456,7 @@ function inqPromote(p,part){
   }
   // What the answer already told us about where this lands. Spec items name a section, not a
   // drawing, so only the \u00a74 half is seeded.
-  var seed=(part==='spec')?null:inqSeedFrom(p.a);
+  var seed=(part==='spec')?null:inqSeedFrom(inqAnswerText(p));
   queueLocally({type:'sheet',program:g.program||p.program||'Concourse B',pkg:g.pkg||p.pkg||'',
     addendum:addRawOf(key),sheet:(seed&&seed.sheet)||'',section:'',part:part,scope:'AR',disc:'AR',
     produces:'',verify:'',inqRef:String(p.qno||''),
@@ -9274,7 +9489,7 @@ function addInquiryBlock(host,key){
   // The subtitle carried the design rationale — true, and read two hundred times by people who
   // already know it. What you come here for is the count and the gap; the reasoning is one click
   // away in the note below.
-  var unN=list.filter(function(q){return !String(q.a||'').trim();}).length;
+  var unN=list.filter(function(q){return !inqAnswered(q);}).length;
   h.innerHTML='Bid inquiries <span class="n">'+n_(list.length,'question')
     +(unN?' \u00b7 <b class="needs">'+unN+' still unanswered</b>':' \u00b7 all answered')+'</span>';
   box.appendChild(h);
@@ -9295,37 +9510,88 @@ function addInquiryBlock(host,key){
     list=kept;
   }
   list.forEach(function(p,ix){
-    var r=document.createElement('div');r.className='inq-row'+(p.a?'':' inq-open');
+    var r=document.createElement('div');r.className='inq-row'+(inqAnswered(p)?'':' inq-open');
     var no=(p.qno||(ix+1));
     // Both halves are editable in place. The answer is the point of the row — it was printed as
     // dead text, which meant the one thing you come here to do could not be done here.
-    function field(cls,lab,val,ph,commit){
+    function field(cls,lab,val,ph,commit,sub){
       var w=document.createElement('div');w.className='inq-f '+cls;
-      var l=document.createElement('span');l.className='inq-lbl';l.textContent=lab+no+':';
+      var l=document.createElement('span');l.className='inq-lbl';
+      l.textContent=lab+no+(sub||'')+':';
       w.appendChild(l);
       var t=document.createElement('textarea');t.className='inq-in';t.rows=1;
-      t.value=val||'';t.placeholder=ph;
+      var dk=inqDraftKey(key,no,cls+(sub||''));
+      // an uncommitted draft outranks the stored value — it is the newer of the two
+      t.value=(INQ_DRAFT[dk]!==undefined)?INQ_DRAFT[dk]:(val||'');
+      t.placeholder=ph;
+      if(INQ_DRAFT[dk]!==undefined&&INQ_DRAFT[dk]!==(val||''))w.classList.add('inq-draft');
       // Half the inquiries that arrive are a lead-in and a list. Enter makes the next line and the
       // shape survives into §5, so the box has to say that rather than look like a one-line field.
       t.title='Enter starts a new line \u2014 a lead-in and a list of asks keeps its shape all the way '
         +'into \u00a75, exactly as typed. Ctrl+Enter (\u2318+Enter) saves.';
       var grow=function(){t.style.height='auto';t.style.height=(t.scrollHeight+2)+'px';};
-      t.addEventListener('input',grow);
+      t.addEventListener('input',function(){grow();INQ_DRAFT[dk]=t.value;});
       t.addEventListener('keydown',function(e){
         e.stopPropagation();
         if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)){t.blur();}});
-      t.addEventListener('blur',function(){commit(t.value.trim());});
+      t.addEventListener('blur',function(){delete INQ_DRAFT[dk];commit(t.value.trim());});
       w.appendChild(t);setTimeout(grow,0);
       return w;
     }
     r.appendChild(field('inq-q','Q',p.q,'The bidder\u2019s question, as they wrote it',
       function(v){if(v!==(p.q||''))saveInquiry(p,v,p.a||'');}));
-    r.appendChild(field('inq-a','A',p.a,
-      'Your answer \u2014 every inquiry gets one; leave it empty only while it is genuinely unsettled',
-      function(v){if(v!==(p.a||''))saveInquiry(p,p.q||'',v);}));
-    if(!p.a){
+    // A question that asked for three things wants three answers, and pairing them by eye in one
+    // box is how (b) ends up answering (c). The asks are read from what the bidder wrote, so this
+    // appears only when there is actually a list to answer.
+    var ASK=inqAsks(p.q),PARTS=inqParts(p);
+    if(PARTS){
+      var head=document.createElement('div');head.className='inq-split-h';
+      head.textContent='One answer per ask \u2014 each prints under its own letter in \u00a75.';
+      r.appendChild(head);
+      var nA=Math.max(ASK.asks.length,PARTS.length);
+      for(var ai=0;ai<nA;ai++)(function(i){
+        var lt=inqLetter(i),ask=ASK.asks[i];
+        var q=document.createElement('div');q.className='inq-ask';
+        q.innerHTML='<b>('+lt+')</b> '+escapeHtml(ask?inqAskText(ask)
+          :'(this answer has no ask above it any more \u2014 the question was edited)');
+        if(!ask)q.className+=' inq-ask-orphan';
+        r.appendChild(q);
+        r.appendChild(field('inq-a','A',PARTS[i]||'',
+          'Your answer to ('+lt+')',
+          function(v){
+            var np=[];for(var j=0;j<nA;j++)np.push(j===i?v:(PARTS[j]||''));
+            if(v!==(PARTS[i]||''))saveInquiry(p,p.q||'',p.a||'',np);
+          },' ('+lt+')'));
+      })(ai);
+      var one=document.createElement('button');one.type='button';one.className='inq-split-b';
+      one.textContent='one answer instead';
+      one.title='Collapse back to a single answer box. What you have typed in the letters is joined '
+        +'into it, so nothing is thrown away.';
+      one.addEventListener('click',function(){
+        saveInquiry(p,p.q||'',inqAnswerText(p)||p.a||'',null);});
+      r.appendChild(one);
+    }else{
+      r.appendChild(field('inq-a','A',p.a,
+        'Your answer \u2014 every inquiry gets one; leave it empty only while it is genuinely unsettled',
+        function(v){if(v!==(p.a||''))saveInquiry(p,p.q||'',v);}));
+      if(ASK.asks.length>1){
+        var sp=document.createElement('button');sp.type='button';sp.className='inq-split-b';
+        sp.textContent='answer each ask separately ('+ASK.asks.length+')';
+        sp.title='This question asks '+ASK.asks.length+' things. One answer box per ask, each one '
+          +'printing under its own letter in \u00a75 beneath the ask it answers.';
+        sp.addEventListener('click',function(){
+          var seed=[];for(var i=0;i<ASK.asks.length;i++)seed.push(i===0?(p.a||''):'');
+          saveInquiry(p,p.q||'',p.a||'',seed);});
+        r.appendChild(sp);
+      }
+    }
+    if(!inqAnswered(p)){
       var gap=document.createElement('div');gap.className='inq-gap';
-      gap.textContent='Not answered yet \u2014 held out of \u00a75 so no placeholder can reach a bidder. '
+      var mss=inqMissing(p);
+      gap.textContent=(mss.length
+        ?('Still waiting on '+mss.map(function(x){return '('+x+')';}).join(' and ')+' \u2014 ')
+        :'Not answered yet \u2014 ')
+        +'the whole question is held out of \u00a75 so no placeholder can reach a bidder. '
         +'The warnings name it, and the gate will not let this issue while it is open.';
       r.appendChild(gap);}
     // Where the bidder marked up a drawing, the picture is the question — a row that prints only
@@ -9348,7 +9614,7 @@ function addInquiryBlock(host,key){
     var pw=document.createElement('span');pw.className='sh-part inq-part';
     // "makes a §4 item… which will need a sheet and a state" left it open who was doing the making.
     // Say it in the first person of the tool: click and it creates the row for you, here, now.
-    var seedNow=inqSeedFrom(p.a);
+    var seedNow=inqSeedFrom(inqAnswerText(p));
     [['drawing','Drawing','4','Click and I create a §4 drawing item on this addendum, titled '
       +'“Bid inquiry Q'+p.qno+' — …”. '
       +(seedNow?('I will point it at '+seedNow.sheet+(seedNow.no?' detail '+seedNow.no:'')
@@ -9529,17 +9795,42 @@ function addImageTo(it,file){
 // Every picture on an item: the ones the generator inlined from `img::`, then the ones added here.
 function imagesFor(it){
   var det=(window.LAST_DATA&&LAST_DATA.details&&LAST_DATA.details[it.id])||{};
-  var out=(det.images||[]).map(function(im){return {src:im.src,name:im.name,vault:true};});
+  var out=(det.images||[]).map(function(im){
+    return {src:im.src,name:im.name,vault:true,issue:!!im.issue};});
   (readQueue()||[]).forEach(function(p){
     if(p.type!=='image'||!p.itemRef)return;
     if((it.title||'').slice(0,60)!==String(p.itemRef).slice(0,60))return;
-    out.push({key:p.imgKey,name:p.name,by:p.by,op:p,w:p.w,h:p.h,pending:true,
+    out.push({key:p.imgKey,name:p.name,by:p.by,op:p,w:p.w,h:p.h,pending:true,issue:!!p.issue,
               src:IMG_CACHE[p.imgKey]||null});
   });
   return out;
 }
+// A thumbnail on a row and a picture that goes INTO the addendum are two different things, and the
+// difference is not visible unless the picture says so. Nearly every picture here is working
+// context — a markup you are reading while you decide something. A bidder's marked-up detail
+// attached to Q2 is not: it is part of the document, it belongs in the .docx and in the List of
+// Attachments, and it has to be issued with everything else. So it is opt-in and it is marked.
+function toggleImgIssue(im){
+  if(!im.op){setStatus('This picture came from the vault \u2014 mark it there with [imgissue:: yes]. '
+    +'Pictures added here can be attached with one click.');return;}
+  var want=!im.issue,body=IMG_CACHE[im.op.imgKey]||null;
+  if(want&&!body){setStatus('This picture is not downloaded on this machine yet, so it cannot be '
+    +'written into the document. Open it once to fetch it, then attach it.');return;}
+  var np={};Object.keys(im.op).forEach(function(k){
+    if(k!=='id'&&k!=='ts'&&k!=='by')np[k]=im.op[k];});
+  np.issue=want;
+  np.text=(want?'image (ATTACHED to the addendum): ':'image: ')+(im.name||'markup')
+    +' ('+(im.op.w||'?')+'\u00d7'+(im.op.h||'?')+')';
+  voidOp(im.op);queueLocally(np,body);
+  buildAddendumRegister();
+  setStatus(want
+    ?((im.name||'The picture')+' is now part of the addendum \u2014 it is embedded in the .docx under '
+      +'the question it belongs to, and named in the List of Attachments.')
+    :((im.name||'The picture')+' is working context again \u2014 on screen only, out of the document.'));
+}
 function imgTile(im,host){
-  var fig=document.createElement('span');fig.className='sh-thumb'+(im.pending?' pending':'');
+  var fig=document.createElement('span');
+  fig.className='sh-thumb'+(im.pending?' pending':'')+(im.issue?' issues':'');
   var img=document.createElement('img');img.alt=im.name||'markup';img.loading='lazy';
   if(im.src)img.src=im.src;
   else{fig.classList.add('loading');
@@ -9549,6 +9840,17 @@ function imgTile(im,host){
     });}
   img.addEventListener('click',function(){if(img.src)showImgModal(img.src);});
   fig.appendChild(img);
+  // The one control that decides whether this picture is in the deliverable.
+  var at=document.createElement('button');at.type='button';
+  at.className='thumb-attach'+(im.issue?' on':'');
+  at.textContent=im.issue?'in the addendum':'attach';
+  at.title=im.issue
+    ?'Part of the addendum: embedded in the .docx under its question, and named in the List of '
+     +'Attachments. Click to make it working context again.'
+    :'Working context only \u2014 on screen, not in the document. Click to attach it to the addendum: '
+     +'it will be embedded in the .docx under the question it belongs to.';
+  at.addEventListener('click',function(e){e.stopPropagation();toggleImgIssue(im);});
+  fig.appendChild(at);
   if(im.pending){
     var x=document.createElement('button');x.type='button';x.className='thumb-x';x.textContent='✕';
     x.title='Remove this picture';
@@ -11121,11 +11423,20 @@ function buildAddendumDoc_(key,opts){
   var head=[_inst.toUpperCase()+'  —  Vol 1 – ARCHITECTURAL'
             +(pk?'   ('+pk+')':''),'',
             '2      General','','List of Attachments:',''];
+  // A picture that issues is an attachment like any drawing or section, so it is named in the one
+  // list that says what went out. Derived, never typed — same rule as the rest of this list.
+  var FIGS=inqFigures(key);
   att.sec.forEach(function(x){head.push('       '+x);});
   if(att.sec.length&&att.dwg.length)head.push('');
   att.dwg.forEach(function(x){
     head.push(((       '       '+(x.no+'                ').slice(0,16)+(x.t||'').toUpperCase())).replace(/\s+$/,''));});
-  if(!att.sec.length&&!att.dwg.length)head.push('       (none — nothing carries an attachment yet)');
+  if(FIGS.length){
+    if(att.sec.length||att.dwg.length)head.push('');
+    FIGS.forEach(function(f){
+      head.push('       '+('Q'+f.qno+' figure'+(f.n>1?' '+f.n:'')+'                ').slice(0,16)
+        +f.name.toUpperCase());});
+  }
+  if(!att.sec.length&&!att.dwg.length&&!FIGS.length)head.push('       (none — nothing carries an attachment yet)');
   var out=head.concat(['','3      Specifications']);
   out=out.concat(L3.length?L3:['       (nothing in §3)']);
   out=out.concat(['','4      Drawings']);
@@ -11142,16 +11453,37 @@ function buildAddendumDoc_(key,opts){
   // a document is only ever one careless paste away from a bidder reading it. Better to leave the
   // question out and say so in the warnings: the gate already refuses to let it issue while one is
   // open, so nothing is being hidden — it is being kept out of the deliverable.
-  var answered=inqs.filter(function(p){return String(p.a||'').trim();});
-  var openQ=inqs.filter(function(p){return !String(p.a||'').trim();});
+  var answered=inqs.filter(inqAnswered);
+  var openQ=inqs.filter(function(p){return !inqAnswered(p);});
   var inq=[];
   answered.forEach(function(p,ix){
     var n=String(p.qno||(ix+1)).replace(/^Q/i,'');
     // 15 characters of lead, then 'Q1: ' — so a second line sits at 19 and reads as the same answer
     var pad='                   ';
-    inqLines('       '+padNum('5.'+(ix+1),8),'Q'+n+': ',p.q||'',pad)
-      .forEach(function(l){inq.push(l);});
-    inqLines('               ','A'+n+': ',p.a,pad).forEach(function(l){inq.push(l);});
+    var pr=inqParts(p);
+    if(pr){
+      // The asks get the letters the answers are given under, so the pairing is on the page rather
+      // than in the reader's head. Only the bullet marker changes; the sentence is the bidder's.
+      var A=inqAsks(p.q);
+      inq.push('       '+padNum('5.'+(ix+1),8)+'Q'+n+': '+A.lead);
+      A.asks.forEach(function(a,i){
+        inq.push(pad+'('+inqLetter(i)+')  '+inqAskText(a));
+        a.cont.forEach(function(c){inq.push(pad+'     '+c);});
+      });
+      inq.push('               '+'A'+n+':');
+      A.asks.forEach(function(a,i){
+        inqLines(pad,'('+inqLetter(i)+')  ',pr[i]||'',pad+'     ')
+          .forEach(function(l){inq.push(l);});
+      });
+    }else{
+      inqLines('       '+padNum('5.'+(ix+1),8),'Q'+n+': ',p.q||'',pad)
+        .forEach(function(l){inq.push(l);});
+      inqLines('               ','A'+n+': ',p.a,pad).forEach(function(l){inq.push(l);});
+    }
+    // The picture sits under the question it answers. In the .docx this line IS the picture, with
+    // the same words as its caption; in the plain text it is the line that says one is attached.
+    FIGS.filter(function(f){return String(f.qno)===String(p.qno);})
+        .forEach(function(f){inq.push('');inq.push(pad+f.line);});
     inq.push('');
   });
   if(openQ.length)warn.push(n_(openQ.length,'bid inquiry','bid inquiries')
@@ -11165,13 +11497,19 @@ function buildAddendumDoc_(key,opts){
   if(undecided.length)warn.push(n_(undecided.length,'item')+' have no state and cannot be in the document: '
     +undecided.slice(0,6).map(function(i){return i.sheet||(i.title||'').slice(0,26);}).join(' · ')
     +(undecided.length>6?' …':''));
+  // A picture marked for the addendum on another machine, never downloaded here, cannot be written
+  // into the file. Say it rather than produce a document quietly missing a figure.
+  var noFig=FIGS.filter(function(f){return !f.src;});
+  if(noFig.length)warn.push(n_(noFig.length,'attached picture')+' not downloaded on this machine, so '
+    +(noFig.length===1?'it':'they')+' cannot go into the .docx: '
+    +noFig.map(function(f){return f.name;}).join(', '));
   var vq=pool.filter(function(i){return i.verify&&inDocument(i);});
   if(vq.length)warn.push(n_(vq.length,'item')+' in the document '+(vq.length===1?'is':'are')
     +' still flagged ? — verify with Chris H before issue');
   return {text:out.join('\n').replace(/\n{3,}/g,'\n\n'),
           att:att,warn:warn,skipped:skipped,n:live.length,undecided:undecided,pool:pool,
           nSpec:secOrder.length,nSheet:shOrder.length,inq:inqs.length,
-          unanswered:inqs.filter(function(p){return !p.a;}).length};
+          unanswered:inqs.filter(function(p){return !inqAnswered(p);}).length};
 }
 // The warnings existed but you had to read them. This answers the only question that matters on
 // the day — CAN THIS GO OUT — and names every reason it cannot, in the order you would fix them.
@@ -11208,7 +11546,7 @@ function issueGate(key){
   // §5 prints "[NOT ANSWERED — write the response]" for a question nobody has answered. That is a
   // placeholder reaching a bid document, which is the same failure as an unfinished §4 line — and
   // the gate was silent about it while six of them sat on an addendum three days from issue.
-  var unans=inquiriesFor(key).filter(function(q){return !String(q.a||'').trim();});
+  var unans=inquiriesFor(key).filter(function(q){return !inqAnswered(q);});
   if(unans.length)blockers.push({n:unans.length,
     t:'bid inquir'+(unans.length!==1?'ies':'y')+' unanswered',
     w:'\u00a75 would print "[NOT ANSWERED \u2014 write the response]" against '
@@ -11445,7 +11783,7 @@ function buildWriteup(key,hostEl){
     +'paste can. Open it and copy into your addendum — Word to Word carries the list definitions.';
   dw.addEventListener('click',function(){
     try{
-      var blob=docxFromWriteup(ta.value,writeupFileName(key,''));
+      var blob=docxFromWriteup(ta.value,writeupFileName(key,''),inqFigures(key));
       var u=URL.createObjectURL(blob);
       var a=document.createElement('a');a.href=u;
       a.download=writeupFileName(key,'.docx');a.click();
