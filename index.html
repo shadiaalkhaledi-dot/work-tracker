@@ -2292,6 +2292,13 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
       real item carrying the Q number so the line can point back at the question. §5 is
       <b>never derived</b> from another register: inventing a bidder's words inside a bid document
       is the one thing this machine refuses to do.</p>
+      <p class="g-p"><b>A question can be as long as it arrived.</b> Most inquiries are one
+      sentence; plenty are a lead-in and then a list of things being asked. Press <kbd>Enter</kbd>
+      in either box and keep typing — the box grows, and the shape you typed survives all the way
+      into §5, where the second and third lines sit indented under the <span class="mono">Q1:</span>
+      they belong to. Nothing is reflowed, renumbered, or turned into a bullet list, because these
+      are the <b>bidder's</b> words: a dash stays a dash. Answers work the same way.
+      <kbd>Ctrl</kbd>+<kbd>Enter</kbd> saves.</p>
       <p class="g-p"><b>The tick creates the item — you do not go and add it.</b> Click
       <i>Drawing §4</i> and a row appears on this addendum called “Bid inquiry Q5 — …”, and the row
       you clicked says so, names where it landed, and offers the way there. If your answer names a
@@ -4580,9 +4587,14 @@ function buildExportText(){
         +(p.neu?' (it is not in the issued set — this addendum introduces it)':'');
     }
     if(p.type==='inquiry'){
-      return '- [Bid inquiry] '+instLong(addNum((p.addendum||'').split('|')[1]||''))
-        +'\n    Q'+(p.qno||'')+': '+(p.q||'')
-        +'\n    A'+(p.qno||'')+': '+(p.a||'[not answered yet]');
+      // Continuation lines are indented deeper than the op's own body, because a bidder's list item
+      // starts with '-' and a line beginning '- ' at the margin is how every op in this text starts.
+      // Left flush, a two-line question would fold in as a new op.
+      var iPad='        ';
+      return ['- [Bid inquiry] '+instLong(addNum((p.addendum||'').split('|')[1]||''))]
+        .concat(inqLines('    ','Q'+(p.qno||'')+': ',p.q||'',iPad))
+        .concat(inqLines('    ','A'+(p.qno||'')+': ',p.a||'[not answered yet]',iPad))
+        .join('\n');
     }
     if(p.type==='image'){
       return '- [Picture] '+(loc?loc+': ':'')+p.name+' ('+p.w+'\u00d7'+p.h+')'+ref
@@ -9129,6 +9141,20 @@ function inqItemOp(p){
 function addRawOf(key){return rawAddendumFor(key);}
 // One inquiry, one name — used for the promoted item's title AND as the picture's itemRef, so a
 // markup added to the question travels with the item the question becomes.
+// A bid inquiry is often not one sentence: a lead-in, then a list of the things being asked. Those
+// are the BIDDER's words and their shape is part of the question, so every line is kept exactly as
+// typed and only indented to sit under its label. Nothing is reflowed, renumbered or turned into a
+// bullet list — §5 is the one place in this document where the words are not ours to tidy.
+function inqLines(lead,label,text,pad){
+  var raw=String(text==null?'':text).replace(/\r/g,'').split('\n');
+  var out=[lead+label+(raw.shift()||'')];
+  raw.forEach(function(l){
+    l=l.replace(/\s+$/,'');
+    // a line the bidder left blank is a paragraph break they made on purpose
+    out.push(l?(pad+l):'');
+  });
+  return out;
+}
 function inqRef(p){
   return ('Bid inquiry Q'+p.qno+' — '+String(p.q||'').replace(/\s+/g,' ')).slice(0,160);
 }
@@ -9173,10 +9199,11 @@ function saveInquiry(p,q,a){
     setStatus('Back to what the vault says — nothing left queued for Q'+p.qno+'.');return;}
   queueLocally({type:'inquiry',addendum:key,qno:p.qno,q:q,a:a,
     program:p.program||'',pkg:p.pkg||'',
-    text:'§5 Q'+p.qno+': '+String(a||'(no answer yet)').slice(0,90)});
+    text:'§5 Q'+p.qno+': '+String(a||'(no answer yet)').replace(/\s+/g,' ').slice(0,90)});
   buildAddendumRegister();
   setStatus(a?('Q'+p.qno+' answered — it writes into §5 and folds at check-in.')
-             :('Q'+p.qno+' saved, still unanswered — §5 will say so out loud.'));
+             :('Q'+p.qno+' saved, still unanswered — held out of §5 until it has an answer, and '
+               +'the gate will not let this issue while it is open.'));
 }
 // Take me to the row this made. The same courtesy the gate chips give — a count you can click —
 // applied to the one place the register creates something you cannot see.
@@ -9278,6 +9305,10 @@ function addInquiryBlock(host,key){
       w.appendChild(l);
       var t=document.createElement('textarea');t.className='inq-in';t.rows=1;
       t.value=val||'';t.placeholder=ph;
+      // Half the inquiries that arrive are a lead-in and a list. Enter makes the next line and the
+      // shape survives into §5, so the box has to say that rather than look like a one-line field.
+      t.title='Enter starts a new line \u2014 a lead-in and a list of asks keeps its shape all the way '
+        +'into \u00a75, exactly as typed. Ctrl+Enter (\u2318+Enter) saves.';
       var grow=function(){t.style.height='auto';t.style.height=(t.scrollHeight+2)+'px';};
       t.addEventListener('input',grow);
       t.addEventListener('keydown',function(e){
@@ -9294,7 +9325,8 @@ function addInquiryBlock(host,key){
       function(v){if(v!==(p.a||''))saveInquiry(p,p.q||'',v);}));
     if(!p.a){
       var gap=document.createElement('div');gap.className='inq-gap';
-      gap.textContent='Not answered yet \u2014 \u00a75 will print that, out loud, rather than leave the question out.';
+      gap.textContent='Not answered yet \u2014 held out of \u00a75 so no placeholder can reach a bidder. '
+        +'The warnings name it, and the gate will not let this issue while it is open.';
       r.appendChild(gap);}
     // Where the bidder marked up a drawing, the picture is the question — a row that prints only
     // the words is asking half of what was asked.
@@ -11115,8 +11147,11 @@ function buildAddendumDoc_(key,opts){
   var inq=[];
   answered.forEach(function(p,ix){
     var n=String(p.qno||(ix+1)).replace(/^Q/i,'');
-    inq.push('       '+padNum('5.'+(ix+1),8)+'Q'+n+': '+(p.q||''));
-    inq.push('               '+'A'+n+': '+p.a);
+    // 15 characters of lead, then 'Q1: ' — so a second line sits at 19 and reads as the same answer
+    var pad='                   ';
+    inqLines('       '+padNum('5.'+(ix+1),8),'Q'+n+': ',p.q||'',pad)
+      .forEach(function(l){inq.push(l);});
+    inqLines('               ','A'+n+': ',p.a,pad).forEach(function(l){inq.push(l);});
     inq.push('');
   });
   if(openQ.length)warn.push(n_(openQ.length,'bid inquiry','bid inquiries')
