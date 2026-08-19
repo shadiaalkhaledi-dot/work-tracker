@@ -9393,6 +9393,7 @@ function inquiriesFor(key){
       return {type:'inquiry',addendum:key,qno:q.qno,q:q.q,a:q.a,pkg:q.pkg||'',from:q.from||'',
               // one answer per ask, when the bidder asked for several things at once
               parts:(q.parts&&q.parts.length)?q.parts.slice():null,
+              imgs:(q.imgs&&q.imgs.length)?q.imgs.slice():null,
               refs:(q.refs&&q.refs.length)?q.refs.slice():null,
               program:q.program||'',by:q.by||'',img:q.img||null,
               fromVault:true,id:'vq-'+key+'-'+q.qno};});
@@ -9568,7 +9569,10 @@ function inqPicHost(p,key){
   return {id:'inq-'+key+'-'+(p.qno||''),title:inqRef(p),
           pkg:p.pkg||(ADD_GROUPS[key]||{}).pkg||'',
           program:p.program||(ADD_GROUPS[key]||{}).program||'',
-          vaultImgs:(p.img&&p.img.src)?[p.img]:[]};
+          // `imgs` when the vault holds several markups on one question — a bidder can circle two
+          // things in two snips — and `img` for the single-picture form that came before it.
+          vaultImgs:(p.imgs&&p.imgs.length)?p.imgs.filter(function(x){return x&&x.src;})
+                   :((p.img&&p.img.src)?[p.img]:[])};
 }
 // The document names a figure, not a file. `.png` in a caption is the filing system talking, and it
 // is the one word on the line that means nothing to whoever opens the addendum.
