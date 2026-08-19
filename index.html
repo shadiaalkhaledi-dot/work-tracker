@@ -2408,6 +2408,17 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
       a Write-up-only item is referenced without promising an attachment. The item the ticks created
       is linked automatically and marked <i>automatic</i>; anything you link by hand can be
       unlinked.</p>
+      <p class="g-p"><b>It links a LINE, and it cites the clause number.</b> An item can land on five
+      details across two drawings, so "refer to that item" is not an answer — the picker offers one
+      entry per §4 line, each already showing the number the document gave it
+      (<span class="mono">4.12.1 · 1/A5.91.01 · STAIR - 59M-SW</span>). §5 then reads
+      <span class="mono">Refer to 4.12.1, STAIR - 59M-SW 1/A5.91.01, issued with this Addendum.</span>
+      — the clause first, because that is what a bidder looks up, then the drawing, because that is
+      what they open. Both are <b>derived at render</b>: the numbering is positional, so inserting an
+      item above it renumbers the clause and the answer follows in the same breath. A spec item, which
+      has no drawing to name, is cited by its §3 clause and section instead. If the exact line is later
+      deleted the chip says <i>line moved</i> and falls back to that item's first drawing rather than
+      pointing at nothing.</p>
       <p class="g-p"><b>Forty-six questions read as a list, not as a scroll.</b> Every question starts
       <b>shut</b>, showing one line: its number, the first line of what was asked, who asked it, and
       the marks that matter — <span class="badge">UNANSWERED</span> (or which letter is still
@@ -9559,6 +9570,16 @@ function inqPicHost(p,key){
           program:p.program||(ADD_GROUPS[key]||{}).program||'',
           vaultImgs:(p.img&&p.img.src)?[p.img]:[]};
 }
+// The document names a figure, not a file. `.png` in a caption is the filing system talking, and it
+// is the one word on the line that means nothing to whoever opens the addendum.
+//
+// Only real image extensions are stripped, from a list. A markup called
+// `stair-59M-SW-detail-6-A5.94.02` ends in a dot and two digits, and a generic "drop everything after
+// the last dot" would take the sheet number off it.
+var FIG_EXT=/\.(png|jpe?g|jpe|webp|gif|bmp|tiff?|heic|heif|avif|svg|pdf)$/i;
+function figLabel(name){
+  return String(name||'markup').replace(FIG_EXT,'');
+}
 function inqFigures(key){
   var out=[];
   (inquiriesFor(key)||[]).forEach(function(p){
@@ -9572,7 +9593,9 @@ function inqFigures(key){
       out.push({qno:p.qno,n:n,name:nm,key:im.key,w:im.w,h:im.h,
                 src:im.src||(im.key?IMG_CACHE[im.key]:null)||null,
                 // the line the write-up prints AND the key the .docx swaps for the picture itself
-                line:'Figure Q'+p.qno+'-'+n+' \u2014 '+nm});
+                // the caption, and the key the .docx swaps for the picture — one string, so they
+                // cannot drift
+                line:'Figure Q'+p.qno+'-'+n+' \u2014 '+figLabel(nm)});
     });
   });
   return out;
@@ -9760,43 +9783,86 @@ function openInquiryImport(host,key){
 // and find it. What closes the question is the drawing reference — and that reference already exists,
 // on the item doing the work. So it is LINKED, never typed: the sentence is derived from the item's
 // own placement, and if the drawing is renumbered or the detail moves, the answer follows it.
+// The key a clause number is filed under. A placement is one line of the document; an item with no
+// placement (a §3 note) is filed under itself.
+function wuClauseKey(it,pl){
+  return String((it&&it.id)||'')+'@'+String((pl&&pl.sheet)||'')+'#'+String((pl&&pl.no)||'');
+}
+// A ref is stored either as a bare item title — how the first cut did it, and still valid — or as
+// {item, sheet, no}, which names the LINE. An item can land on five details across two drawings, and
+// "refer to that item" is not an answer when only one of them is the one you meant.
 function inqLinks(p){
   var r=(p&&p.refs)||[];
-  return r.map(function(x){return String(x||'');}).filter(Boolean);
+  return r.map(function(x){
+    if(!x)return null;
+    if(typeof x==='string')return {item:x,sheet:'',no:''};
+    return {item:String(x.item||''),sheet:String(x.sheet||''),no:String(x.no||'')};
+  }).filter(function(x){return x&&x.item;});
 }
-// Every item this inquiry points at: the ones you linked, plus the item the Drawing/Spec tick made,
-// because that one was created BY this question and pointing at it is the whole reason it exists.
-function inqRefItems(p,key){
-  var want={},order=[];
-  inqLinks(p).forEach(function(ttl){
-    var k=ttl.slice(0,60);if(!want[k]){want[k]=1;order.push(k);}});
-  var made=inqItemOp(p);
-  if(made&&made.text){var k2=String(made.text).slice(0,60);if(!want[k2]){want[k2]=1;order.push(k2);}}
+function inqLinkId(l){return String(l.item).slice(0,60)+'|'+(l.sheet||'')+'|'+(l.no||'');}
+// Resolve each link to the item AND the line on it. A link made before lines were addressable, or one
+// whose line has since been deleted, falls back to the item's first drawing rather than vanishing.
+function inqRefTargets(p,key){
   var byTitle={};
   (addPoolFor(key)||[]).forEach(function(i){byTitle[String(i.title||'').slice(0,60)]=i;});
-  return order.map(function(k){return byTitle[k]||null;}).filter(Boolean);
+  var out=[],seen={};
+  var add=function(l,auto){
+    var it=byTitle[String(l.item).slice(0,60)];
+    if(!it)return;
+    var pls=[];try{pls=placementsOf(it)||[];}catch(e){}
+    var pl=null;
+    if(l.sheet){
+      for(var i=0;i<pls.length;i++){
+        if(String(pls[i].sheet||'')===l.sheet
+           &&String(pls[i].no||'')===String(l.no||'')){pl=pls[i];break;}}
+      // the line it named is gone — say the item, not nothing
+      if(!pl)for(var j=0;j<pls.length;j++){if(pls[j].sheet){pl=pls[j];break;}}
+    }else{
+      for(var k=0;k<pls.length;k++){if(pls[k].sheet){pl=pls[k];break;}}
+    }
+    var id=inqLinkId(l);
+    if(seen[id])return;seen[id]=1;
+    out.push({it:it,pl:pl,link:l,auto:!!auto,stale:!!(l.sheet&&pl&&String(pl.sheet||'')!==l.sheet)});
+  };
+  inqLinks(p).forEach(function(l){add(l,false);});
+  var made=inqItemOp(p);
+  if(made&&made.text)add({item:String(made.text),sheet:'',no:''},true);
+  return out;
+}
+// kept for the counts and the marks, which only need to know how many
+function inqRefItems(p,key){
+  return inqRefTargets(p,key).map(function(x){return x.it;});
 }
 // The reference itself, in the same words §4 uses for the same drawing — one house style, so a
 // bidder reading §5 and §4 is reading the same language. Nothing is claimed about attachment unless
 // the item is actually issuing the sheet.
-function inqRefLine(it){
-  var pls=[];try{pls=placementsOf(it)||[];}catch(e){}
-  var pl=null;
-  for(var i=0;i<pls.length;i++){if(pls[i]&&pls[i].sheet){pl=pls[i];break;}}
-  if(!pl)return null;                       // nothing to point at yet — say nothing rather than guess
+function inqRefLine(tg,clauses){
+  var it=tg&&tg.it,pl=tg&&tg.pl;
+  if(!it)return null;
+  var num=clauses?(clauses[wuClauseKey(it,pl)]||clauses[wuClauseKey(it,null)]||''):'';
+  if(!pl){
+    // a spec item has no drawing to name, so the clause number is the whole reference
+    if(!num)return null;
+    return 'Refer to '+num+(it.section?(', Section '+it.section):'')+'.';
+  }
   var proxy={target:pl.target||'',viewtype:pl.view||'',detail:pl.no||'',room:pl.room||'',
              element:pl.element||'',alt:pl.alt||''};
   var tgt=wuTargetFor(proxy,pl.sheet)||pl.sheet;
+  if(!tgt&&!num)return null;                // nothing to point at yet — say nothing rather than guess
   var attached=(it.produces==='drawings');
-  return 'Refer to '+tgt+(attached?(', issued with this '+wuWord()+'.'):'.');
+  // The clause number first, because that is what a bidder looks up; the drawing after it, because
+  // that is what they open. Both, so neither has to be searched for.
+  return 'Refer to '+(num?(num+', '):'')+tgt+(attached?(', issued with this '+wuWord()+'.'):'.');
 }
-function inqLinkAdd(p,title){
-  var cur=inqLinks(p);
-  if(cur.indexOf(title)!==-1)return;
-  saveInquiry(p,p.q||'',p.a||'',undefined,cur.concat([title]));
+function inqLinkAdd(p,link){
+  var cur=inqLinks(p),id=inqLinkId(link);
+  for(var i=0;i<cur.length;i++)if(inqLinkId(cur[i])===id)return;
+  saveInquiry(p,p.q||'',p.a||'',undefined,cur.concat([link]));
 }
-function inqLinkDrop(p,title){
-  saveInquiry(p,p.q||'',p.a||'',undefined,inqLinks(p).filter(function(x){return x!==title;}));
+function inqLinkDrop(p,link){
+  var id=inqLinkId(link);
+  saveInquiry(p,p.q||'',p.a||'',undefined,
+    inqLinks(p).filter(function(x){return inqLinkId(x)!==id;}));
 }
 function inqLines(lead,label,text,pad){
   var raw=String(text==null?'':text).replace(/\r/g,'').split('\n');
@@ -9980,6 +10046,10 @@ function addInquiryBlock(host,key){
     box.appendChild(qn);
     list=kept;
   }
+  // The clause numbers are positional, so only the document knows them. Built once for the whole tab
+  // — forty-six rows asking individually would be forty-six renders of §3 and §4.
+  var CLAUSES={};
+  try{CLAUSES=(buildAddendumDoc(key,{})||{}).clauses||{};}catch(e){}
   list.forEach(function(p,ix){
     if(!inqPassesFilter(p,key))return;
     var r=document.createElement('div');
@@ -10098,33 +10168,38 @@ function addInquiryBlock(host,key){
     // Linking, and what the link will say. The sentence is shown here exactly as §5 will print it,
     // because a reference you cannot see before it issues is one you have to take on trust.
     (function(){
-      var linked=inqRefItems(p,key);
-      var made=inqItemOp(p);
-      var madeKey=made&&made.text?String(made.text).slice(0,60):null;
-      if(linked.length){
+      var targets=inqRefTargets(p,key);
+      if(targets.length){
         var lw=document.createElement('div');lw.className='inq-refs';
-        linked.forEach(function(ri){
+        targets.forEach(function(tg){
           var chip=document.createElement('span');chip.className='inq-ref';
-          var ln=inqRefLine(ri);
-          var isMade=madeKey&&String(ri.title||'').slice(0,60)===madeKey;
+          var ln=inqRefLine(tg,CLAUSES);
           var t1=document.createElement('b');
-          t1.textContent=ln||'no drawing named on it yet';
+          t1.textContent=ln||'nothing to point at on it yet — it needs a drawing and a state';
           if(!ln)chip.className+=' inq-ref-bare';
           chip.appendChild(t1);
           var t2=document.createElement('span');t2.className='inq-ref-t';
-          t2.textContent=String(ri.title||'').slice(0,52)+(isMade?'  · made by this question':'');
+          t2.textContent=String(tg.it.title||'').slice(0,46)
+            +(tg.auto?'  · made by this question':'');
           chip.appendChild(t2);
+          if(tg.stale){
+            var st=document.createElement('span');st.className='inq-ref-n';
+            st.textContent='line moved';
+            st.title='The exact line this pointed at is not on that item any more, so the reference '
+              +'has fallen back to its first drawing. Re-link it if that is the wrong one.';
+            chip.appendChild(st);
+          }
           var go=document.createElement('button');go.type='button';go.className='inq-ref-b';
           go.textContent='open';go.title='Take me to the row this points at';
           go.addEventListener('click',function(e){e.stopPropagation();
-            jumpToSheetRow(key,ri.title||'');});
+            jumpToSheetRow(key,tg.it.title||'');});
           chip.appendChild(go);
-          if(!isMade){
+          if(!tg.auto){
             var x=document.createElement('button');x.type='button';x.className='inq-ref-b';
             x.textContent='unlink';
-            x.title='Stop pointing this answer at that item. The item itself is untouched.';
+            x.title='Stop pointing this answer at that line. The item itself is untouched.';
             x.addEventListener('click',function(e){e.stopPropagation();
-              inqLinkDrop(p,String(ri.title||'').slice(0,60));});
+              inqLinkDrop(p,tg.link);});
             chip.appendChild(x);
           }else{
             var nb=document.createElement('span');nb.className='inq-ref-n';
@@ -10137,29 +10212,46 @@ function addInquiryBlock(host,key){
         });
         r.appendChild(lw);
       }
-      // The picker: everything already riding this instrument, named by what it lands on.
-      var pool=(addPoolFor(key)||[]).filter(function(i){
-        if(madeKey&&String(i.title||'').slice(0,60)===madeKey)return false;
-        return inqLinks(p).indexOf(String(i.title||'').slice(0,60))===-1;});
-      if(!pool.length)return;
+      // The picker offers LINES, not items: one entry per §4 line, with the clause number the
+      // document gave it, because "which of that item's five details did you mean" is the whole
+      // question. An item with no drawing on it yet is offered once, as itself.
+      var already={};
+      inqRefTargets(p,key).forEach(function(tg){already[inqLinkId(tg.link)]=1;});
+      var opts=[];
+      byPlaceOrder(addPoolFor(key)||[]).forEach(function(i){
+        var ttl=String(i.title||'').slice(0,60);
+        var pls=[];try{pls=placementsOf(i)||[];}catch(e){}
+        var withSheet=pls.filter(function(x){return x&&x.sheet;});
+        if(!withSheet.length){
+          var l0={item:ttl,sheet:'',no:''};
+          if(!already[inqLinkId(l0)])opts.push({link:l0,label:'(no drawing yet)  \u00b7  '+ttl.slice(0,54)});
+          return;}
+        withSheet.forEach(function(pl){
+          var l1={item:ttl,sheet:String(pl.sheet||''),no:String(pl.no||'')};
+          if(already[inqLinkId(l1)])return;
+          var num=CLAUSES[wuClauseKey(i,pl)]||'';
+          opts.push({link:l1,
+            label:(num?(num+'  \u00b7  '):'')+((pl.no?pl.no+'/':'')+pl.sheet)
+              +'  \u00b7  '+String(pl.view||i.title||'').slice(0,44)});
+        });
+      });
+      if(!opts.length)return;
       var sel=document.createElement('select');sel.className='inq-link';
       var o0=document.createElement('option');o0.value='';
-      o0.textContent='link an item already on this '+(instWord(addNum(String(key).split('|')[1]||'')).toLowerCase())+'\u2026';
+      o0.textContent='link a line already on this '+(instWord(addNum(String(key).split('|')[1]||'')).toLowerCase())+'\u2026';
       sel.appendChild(o0);
-      byPlaceOrder(pool).forEach(function(i){
-        var pls=[];try{pls=placementsOf(i)||[];}catch(e){}
-        var f=null;for(var z=0;z<pls.length;z++){if(pls[z]&&pls[z].sheet){f=pls[z];break;}}
-        var o=document.createElement('option');o.value=String(i.title||'').slice(0,60);
-        o.textContent=(f?((f.no?f.no+'/':'')+f.sheet+'  \u00b7  '):'(no drawing yet)  \u00b7  ')
-          +String(i.title||'').slice(0,54);
-        sel.appendChild(o);});
-      sel.title='Point this answer at work already on this instrument. \u00a75 then reads "Refer to '
-        +'<detail>/<sheet>" in the same words \u00a74 uses \u2014 derived from that item, not typed here, so it '
-        +'cannot go stale.';
+      opts.forEach(function(o,oi){
+        var e2=document.createElement('option');e2.value=String(oi);e2.textContent=o.label;
+        sel.appendChild(e2);});
+      sel.title='Point this answer at one LINE of this instrument. \u00a75 then reads "Refer to 4.12.1, '
+        +'STAIR - 59M-SW 1/A5.91.01" \u2014 the clause number the document gave that line, and the drawing '
+        +'in the same words \u00a74 uses. Both are derived, so renumbering a sheet or reordering the '
+        +'document rewrites the answer for you.';
       sel.addEventListener('click',function(e){e.stopPropagation();});
       sel.addEventListener('change',function(){
-        if(!sel.value)return;
-        inqLinkAdd(p,sel.value);});
+        if(sel.value==='')return;
+        var o=opts[parseInt(sel.value,10)];
+        if(o)inqLinkAdd(p,o.link);});
       r.appendChild(sel);
     })();
     // Half of these questions ARE pictures — a bidder circles a detail and asks what it is. The
@@ -11971,6 +12063,10 @@ function buildAddendumDoc_(key,opts){
   // A finished item is still addendum content. Only the STATE decides what is in the document.
   var live=pool.filter(inDocument);
   var warn=[],att={sec:[],dwg:[]},L3=[],L4=[],skipped=0;
+  // Which clause number each line ended up with. The numbering is positional and computed here, so
+  // it is the only place that knows §4.12.1 is that stair elevation — and a §5 answer that says
+  // "refer to the elevation" without saying WHERE is a bidder's next question.
+  var CLAUSE={};
 
   // ---- §3 Specifications, grouped by section --------------------------------------------------
   var secs={},secOrder=[];
@@ -11979,24 +12075,28 @@ function buildAddendumDoc_(key,opts){
     if(!secs[k]){secs[k]=[];secOrder.push(k);}secs[k].push(i);});
   secOrder.sort();
   secOrder.forEach(function(sk,ix){
-    var mine=secs[sk],lines=[];
+    var mine=secs[sk],lines=[],lineOwner=[];
     mine.forEach(function(it){
       var st=wuStepsOf(it);skipped+=st.skipped;
-      wuSpecLines(it,st.keep.length?st.keep:[it.title||'']).forEach(function(l){lines.push(l);});
+      wuSpecLines(it,st.keep.length?st.keep:[it.title||'']).forEach(function(l){
+        lines.push(l);lineOwner.push(it);});
       if(!it.section)warn.push('§3 "'+(it.title||'').slice(0,44)+'" has no section number');
     });
     // the block may name itself; if it does not, it is filed under its section, as it always was
     var headLine='';
-    lines=lines.filter(function(l){
-      if(l&&typeof l==='object'&&l.head&&!headLine){headLine=l.t;return false;}
-      return true;});
+    var keep3=[],keepOwner=[];
+    lines.forEach(function(l,i){
+      if(l&&typeof l==='object'&&l.head&&!headLine){headLine=l.t;return;}
+      keep3.push(l);keepOwner.push(lineOwner[i]);});
+    lines=keep3;lineOwner=keepOwner;
     L3.push('       '+padNum('3.'+(ix+1),8)+(headLine?headLine.toUpperCase()
                                                      :'SECTION '+sk.toUpperCase()));
     // Numbering runs down the tiers, and a bullet takes no number at all — it belongs to the
     // numbered line above it and printing 3.1.2.3 beside a dash would say otherwise.
     var n2=0,n3=0,flat=[];
-    lines.forEach(function(l){
+    lines.forEach(function(l,li){
       var o=(typeof l==='string')?{t:l,lvl:0}:l;
+      var own=lineOwner[li];
       flat.push(o.t);
       if(o.bullet){
         L3.push('                       •  '+o.t);return;}
@@ -12005,6 +12105,8 @@ function buildAddendumDoc_(key,opts){
         n3++;L3.push('                   '+padNum('3.'+(ix+1)+'.'+n2+'.'+n3,11)+o.t);return;}
       n2++;n3=0;
       L3.push('               '+padNum('3.'+(ix+1)+'.'+n2,9)+o.t);
+      // the first numbered line an item produces is the one to cite
+      if(own&&!CLAUSE[wuClauseKey(own,null)])CLAUSE[wuClauseKey(own,null)]='3.'+(ix+1)+'.'+n2;
     });
     if(attachesIn(flat))att.sec.push('SECTION '+sk);
   });
@@ -12032,6 +12134,7 @@ function buildAddendumDoc_(key,opts){
       var ka=plOrderKey(a.pl),kb=plOrderKey(b.pl);
       return ka<kb?-1:ka>kb?1:0;});
     var lines=[],seenIt={};
+    var lineSrc=[];
     mine.forEach(function(e){
       var it=e.it,pl=e.pl;
       if(!seenIt[it.id]){seenIt[it.id]=1;skipped+=wuStepsOf(it).skipped;}
@@ -12040,23 +12143,33 @@ function buildAddendumDoc_(key,opts){
         warn.push('§4 '+(sn||'?')+' still has an unfinished line — \u201c'+_ln.slice(0,44)
           +'\u201d — the \u27e8slots\u27e9 have to be filled in before issue');
       if(!(pl.text||'').trim()&&!(pl.override||'').trim()){
-        lines.push('[NO MARKUP RECORDED — write the line]');
+        lines.push('[NO MARKUP RECORDED — write the line]');lineSrc.push(e);
         // An Issue-drawing placement with no words is the quiet failure: the sheet is meant to be
         // attached, but nothing in the document says so, so it never reaches the List of Attachments.
         if(it.produces==='drawings')
           warn.push('§4 '+(sn||'?')+' is marked "Issue drawing" but one of its lines is empty — it '
             +'will not reach the List of Attachments until it is written');
         return;}
-      lines.push(placementLine(it,pl));
+      lines.push(placementLine(it,pl));lineSrc.push(e);
     });
     var ttl=sheetTitleFor(sn,pool,key);
+    var note4=function(jx,num){
+      var e=lineSrc[jx];if(!e)return;
+      var k=wuClauseKey(e.it,e.pl);
+      // First line wins. An item can carry two lines on the SAME detail — two changes to one place —
+      // and they share this key; the link resolves to the first of them, so the number has to be the
+      // first one too or the answer cites a clause that is not the line it meant.
+      if(!CLAUSE[k])CLAUSE[k]=num;
+    };
     if(ADD_NUMBERING==='plain'){
       L4.push((ix+1)+'.  DRAWING '+(sn||'[SHEET ___]')+(ttl?'  '+ttl.toUpperCase():''));
-      lines.forEach(function(l,jx){L4.push('    '+(jx+1)+'.  '+l);});
+      lines.forEach(function(l,jx){L4.push('    '+(jx+1)+'.  '+l);
+        note4(jx,(ix+1)+'.'+(jx+1));});
       L4.push('');
     }else{
       L4.push('       '+padNum('4.'+(ix+1),8)+'DRAWING '+(sn||'[SHEET ___]')+(ttl?' - '+ttl.toUpperCase():''));
-      lines.forEach(function(l,jx){L4.push('               '+padNum('4.'+(ix+1)+'.'+(jx+1),9)+l);});
+      lines.forEach(function(l,jx){L4.push('               '+padNum('4.'+(ix+1)+'.'+(jx+1),9)+l);
+        note4(jx,'4.'+(ix+1)+'.'+(jx+1));});
     }
     if(attachesIn(lines)&&sn){
       att.dwg.push({no:sn,t:ttl});
@@ -12096,7 +12209,7 @@ function buildAddendumDoc_(key,opts){
     if(att.sec.length||att.dwg.length)head.push('');
     FIGS.forEach(function(f){
       head.push('       '+('Q'+f.qno+' figure'+(f.n>1?' '+f.n:'')+'                ').slice(0,16)
-        +f.name.toUpperCase());});
+        +figLabel(f.name).toUpperCase());});
   }
   if(!att.sec.length&&!att.dwg.length&&!FIGS.length)head.push('       (none — nothing carries an attachment yet)');
   var out=head.concat(['','3      Specifications']);
@@ -12152,8 +12265,8 @@ function buildAddendumDoc_(key,opts){
     }
     // What the answer points at, in §4's own words. Derived from the linked item's placement, so a
     // renumbered drawing or a moved detail changes this sentence without anybody editing it.
-    inqRefItems(p,key).forEach(function(ri){
-      var ln=inqRefLine(ri);
+    inqRefTargets(p,key).forEach(function(tg){
+      var ln=inqRefLine(tg,CLAUSE);
       if(ln)inq.push(pad+ln);
     });
     // The picture sits under the question it answers. In the .docx this line IS the picture, with
@@ -12182,7 +12295,8 @@ function buildAddendumDoc_(key,opts){
   var vq=pool.filter(function(i){return i.verify&&inDocument(i);});
   if(vq.length)warn.push(n_(vq.length,'item')+' in the document '+(vq.length===1?'is':'are')
     +' still flagged ? — verify with Chris H before issue');
-  return {text:out.join('\n').replace(/\n{3,}/g,'\n\n'),
+  return {clauses:CLAUSE,
+          text:out.join('\n').replace(/\n{3,}/g,'\n\n'),
           att:att,warn:warn,skipped:skipped,n:live.length,undecided:undecided,pool:pool,
           nSpec:secOrder.length,nSheet:shOrder.length,inq:inqs.length,
           unanswered:inqs.filter(function(p){return !inqAnswered(p);}).length};
