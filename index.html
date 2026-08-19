@@ -1812,6 +1812,20 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
 .inq-keeps{color:var(--faint);font-size:11px;margin-top:3px;}
 /* a field holding words that are typed but not yet saved */
 .inq-f.inq-draft .inq-in{border-color:var(--gold);background:#fffdf6;}
+/* bringing a round of inquiries in from the log */
+.inq-imp-row{margin:4px 0 10px}
+.inq-imp{border:1px solid var(--border);border-radius:10px;padding:11px 13px;margin:0 0 14px;
+  background:var(--raise)}
+.inq-imp-h{font-size:11.5px;color:var(--muted);line-height:1.55;margin-bottom:8px}
+.inq-imp-h b{color:var(--text)}
+.inq-imp-t{width:100%;box-sizing:border-box;font:inherit;font-size:12px;line-height:1.45;
+  border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:var(--card);
+  color:var(--text);resize:vertical}
+.inq-imp-t:focus{outline:none;border-color:var(--sel)}
+.inq-imp-rep{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);margin:7px 0 0}
+.inq-imp-o{font-size:11.5px;color:var(--text);line-height:1.5;margin:8px 0 0;min-height:1.2em}
+.inq-imp-o b{font-weight:700}
+.inq-imp-a{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
 /* one answer per ask */
 .inq-split-h{font-size:10.5px;color:var(--faint);margin:6px 0 2px;letter-spacing:.02em}
 .inq-ask{font-size:11.5px;color:var(--muted);margin:6px 0 1px;line-height:1.45}
@@ -7762,9 +7776,52 @@ var ADD_ORDER_NUMERIC=false;
 function natSheetKey(s){
   return String(s||'').toUpperCase().replace(/\d+/g,function(n){return String(n.length)+n;});
 }
+// Sheet, then detail number. A document whose sub-items climb 4.1.1, 4.1.2, 4.1.3 while the details
+// they name read 12, 3, 7 is a document somebody has to reorder by hand before it can issue — and
+// the list you fix them in has to agree with it, or you are reading two different orders at once.
+//
+// The detail may be a range ('7-8') or a list ('1, 5, 7'): the first number is what the eye files it
+// under, which is what the issued addenda do. A line with no detail number is the whole drawing, so
+// it sorts after the numbered places on it.
+function plDetailNum(no){
+  var m=String(no==null?'':no).match(/\d+/);
+  return m?parseInt(m[0],10):null;
+}
+function plOrderKey(pl){
+  var n=plDetailNum(pl&&pl.no);
+  return natSheetKey((pl&&pl.sheet)||'')
+    +'|'+((n===null)?'z':('a'+String(n).padStart(6,'0')))
+    +'|'+String((pl&&pl.view)||'').toUpperCase();
+}
+// Deliberately not comparing the LINE as well: two lines on the same detail were written in the
+// order they are meant to be read ('Add wall tag' then 'Revise the dimension string'), and the sort
+// is stable, so equal keys keep the order they were authored in.
+function plSortInPlace(list){
+  return (list||[]).slice().sort(function(a,b){
+    var ka=plOrderKey(a),kb=plOrderKey(b);
+    return ka<kb?-1:ka>kb?1:0;});
+}
+// The key is derived from the row's placements, so computing it inside a comparator would rebuild
+// it on every comparison. Once per row, then sort — and a comparator that can return 0, so rows
+// that genuinely tie stay in the order they arrived rather than shuffling on each repaint.
+function byPlaceOrder(rows){
+  return (rows||[]).map(function(it,i){return {it:it,i:i,k:sheetRowSortKey(it)};})
+    .sort(function(a,b){return a.k<b.k?-1:a.k>b.k?1:(a.i-b.i);})
+    .map(function(x){return x.it;});
+}
 function sheetRowSortKey(it){
-  var sh=(typeof it==='string')?it:(it&&it.sheet)||'';
-  return natSheetKey(sh)+'|'+((typeof it==='string')?'':((it&&it.title)||''));
+  if(typeof it==='string')return natSheetKey(it)+'|';
+  // The row's sheet field is not always the whole truth — the sheets a drawing row actually lands on
+  // are its placements, and a row with no `sheet::` but a placement on A5.94.06 belongs with the
+  // other A5.94.06 rows rather than at the top under a blank. Its FIRST placement in document
+  // order is what the list files it under, detail number included.
+  var pls=[];try{pls=placementsOf(it)||[];}catch(e){}
+  var first=pls[0]||null;
+  var sh=(it&&it.sheet)||(first&&first.sheet)||'';
+  var n=plDetailNum(first&&first.no);
+  return natSheetKey(sh)
+    +'|'+((n===null)?'z':('a'+String(n).padStart(6,'0')))
+    +'|'+((it&&it.title)||'');
 }
 function sheetSortKey(it){
   var sh=(typeof it==='string')?it:(it&&it.sheet)||'';
@@ -8342,7 +8399,7 @@ function addWorkbench(host,key,pool){
   var groups=(ADD_STATE==='ask'||ADD_STATE==='done')?null
     :(ADD_PART==='spec'?['drawings','writeup','none','']:['drawings','writeup','none','']);
   if(!groups){
-    var flat=rows.slice().sort(function(a,b){return sheetRowSortKey(a)<sheetRowSortKey(b)?-1:1;});
+    var flat=byPlaceOrder(rows);
     var fh=document.createElement('div');fh.className='sh-group g-'+ADD_STATE;
     fh.innerHTML=escapeHtml(ADD_STATE==='ask'?'Waiting on an answer':'Finished')
       +' <span class="n">'+flat.length+' \u00b7 '
@@ -8359,8 +8416,7 @@ function addWorkbench(host,key,pool){
     host.appendChild(wb);return;
   }
   groups.forEach(function(g){
-    var grp=rows.filter(function(i){return (i.produces||'')===g;})
-      .sort(function(a,b){return sheetRowSortKey(a)<sheetRowSortKey(b)?-1:1;});
+    var grp=byPlaceOrder(rows.filter(function(i){return (i.produces||'')===g;}));
     if(!grp.length)return;
     var h=document.createElement('div');h.className='sh-group g-'+(g||'untriaged');
     h.innerHTML=escapeHtml(produceLabel(partForLabels,g))+' <span class="n">'+grp.length+' · '
@@ -8678,7 +8734,7 @@ function matchWhyQ(it){
 }
 function inqMatchesQ(p){
   var t=qTerms();if(!t.length)return true;
-  return qHas([p.q,p.a,inqAnswerText(p),p.by,'Q'+(p.qno||'')].join(' \u00b7 '),t);
+  return qHas([p.q,p.a,inqAnswerText(p),p.from,p.by,'Q'+(p.qno||'')].join(' \u00b7 '),t);
 }
 function thrMatchesQ(r){
   var t=qTerms();if(!t.length)return true;
@@ -9230,7 +9286,7 @@ function addQuestionsPanel(host,key,g){
 function inquiriesFor(key){
   var vault=((window.LAST_DATA&&LAST_DATA.inquiries)||[]).filter(function(q){
     return addKey(q.pkg,q.addendum)===key;}).map(function(q){
-      return {type:'inquiry',addendum:key,qno:q.qno,q:q.q,a:q.a,pkg:q.pkg||'',
+      return {type:'inquiry',addendum:key,qno:q.qno,q:q.q,a:q.a,pkg:q.pkg||'',from:q.from||'',
               // one answer per ask, when the bidder asked for several things at once
               parts:(q.parts&&q.parts.length)?q.parts.slice():null,
               program:q.program||'',by:q.by||'',img:q.img||null,
@@ -9348,6 +9404,142 @@ function inqAnswerText(p){
   if(!pr)return String(p&&p.a||'');
   return pr.map(function(x,i){return '('+inqLetter(i)+') '+String(x||'');})
            .filter(function(s){return s.replace(/^\(\w\)\s*/,'').trim();}).join('\n');
+}
+// ---- bringing a round of inquiries in from the log -------------------------------------------
+// Forty-six questions arrive as a spreadsheet, not as forty-six visits to this page. Two shapes are
+// accepted: the columns pasted straight out of Excel (Q# · Question · Answer · From), which is what
+// you will have next round, and a JSON block, which is how a prepared mapping of sub-answers gets
+// in — a split answer cannot be expressed in a flat cell.
+function parseInqPaste(txt){
+  txt=String(txt||'').replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim();
+  if(!txt)return {rows:[],err:''};
+  if(txt.charAt(0)==='['){
+    try{
+      var j=JSON.parse(txt);
+      if(!Array.isArray(j))throw new Error('not a list');
+      return {rows:j.map(function(o){
+        return {qno:String(o.qno==null?'':o.qno).trim(),
+                q:String(o.q||''),a:String(o.a||''),
+                parts:(o.parts&&o.parts.length)?o.parts.map(function(x){return String(x==null?'':x);}):null,
+                from:String(o.from||o.by||'')};
+      }).filter(function(r){return r.qno&&r.q;}),err:''};
+    }catch(e){return {rows:[],err:'That starts with “[” so I read it as JSON, and it would not parse: '
+      +(e&&e.message||e)};}
+  }
+  // Excel puts a multi-line cell in quotes and doubles any quote inside it, so the tabs and newlines
+  // that belong to a question have to be told apart from the ones that end a cell or a row.
+  var rows=[],row=[],cur='',inQ=false;
+  for(var i=0;i<txt.length;i++){
+    var c=txt.charAt(i);
+    if(inQ){
+      if(c==='"'){ if(txt.charAt(i+1)==='"'){cur+='"';i++;} else inQ=false; }
+      else cur+=c;
+    }
+    else if(c==='"'&&!cur)inQ=true;
+    else if(c==='\t'){row.push(cur);cur='';}
+    else if(c==='\n'){row.push(cur);cur='';rows.push(row);row=[];}
+    else cur+=c;
+  }
+  row.push(cur);if(row.length)rows.push(row);
+  var out=[];
+  rows.forEach(function(r){
+    var n=String(r[0]||'').trim();
+    // the log has a title, an addenda schedule and a header row above the questions; a record is a
+    // row whose first cell is a bare number
+    if(!/^\d+$/.test(n))return;
+    var q=String(r[1]||'').trim();
+    if(!q)return;
+    out.push({qno:n,q:q,a:String(r[2]||'').trim(),parts:null,from:String(r[3]||'').trim()});
+  });
+  return {rows:out,err:''};
+}
+function importInquiries(key,rows,replace){
+  var have={};inquiriesFor(key).forEach(function(p){have[String(p.qno)]=p;});
+  var g=ADD_GROUPS[key]||{};
+  var added=0,updated=0,kept=0;
+  rows.forEach(function(r){
+    var ex=have[String(r.qno)];
+    if(ex&&!replace){kept++;return;}
+    supersede(function(o){return o.type==='inquiry'&&o.addendum===key
+      &&String(o.qno)===String(r.qno);});
+    var txt=(r.parts?r.parts.filter(function(x){return String(x||'').trim();}).join(' \u00b7 '):r.a)
+      ||'(no answer yet)';
+    queueLocally({type:'inquiry',addendum:key,qno:r.qno,q:r.q,a:r.a,
+      parts:(r.parts&&r.parts.length)?r.parts:null,
+      // the bidder who asked, kept apart from `by`, which is whoever made the op
+      from:r.from||'',
+      program:g.program||'',pkg:g.pkg||'',
+      text:'\u00a75 Q'+r.qno+': '+String(txt).replace(/\s+/g,' ').slice(0,90)});
+    if(ex)updated++;else added++;
+  });
+  buildAddendumRegister();
+  setStatus(added+' inquir'+(added===1?'y':'ies')+' added'
+    +(updated?', '+updated+' replaced':'')
+    +(kept?', '+kept+' already here and left alone':'')
+    +' \u2014 on this register now, folded into the vault at check-in.');
+}
+function openInquiryImport(host,key){
+  var ex=host.querySelector('.inq-imp');if(ex){ex.remove();return;}
+  var box=document.createElement('div');box.className='inq-imp';
+  var h=document.createElement('div');h.className='inq-imp-h';
+  h.innerHTML='<b>Bring in a round of inquiries.</b> In the log, select the <b>Q#</b>, '
+    +'<b>Questions</b>, <b>Discipline response</b> and <b>From</b> columns \u2014 in that order \u2014 '
+    +'copy, and paste here. Rows without a number in the first cell are ignored, so the title and the '
+    +'addenda schedule above the table do no harm. A prepared JSON block also pastes here, which is '
+    +'how answers that are already split into parts arrive.';
+  box.appendChild(h);
+  var ta=document.createElement('textarea');ta.className='inq-imp-t';ta.rows=6;
+  ta.placeholder='Paste here \u2014 tab-separated from Excel, or a JSON block';
+  ta.addEventListener('keydown',function(e){e.stopPropagation();});
+  box.appendChild(ta);
+  var rep=document.createElement('label');rep.className='inq-imp-rep';
+  var cb=document.createElement('input');cb.type='checkbox';
+  rep.appendChild(cb);
+  rep.appendChild(document.createTextNode(' replace questions that are already here'));
+  rep.title='Off, an inquiry whose Q number already exists is left exactly as it is \u2014 your answers '
+    +'are never overwritten by a paste. On, the pasted version wins.';
+  box.appendChild(rep);
+  var out=document.createElement('div');out.className='inq-imp-o';
+  box.appendChild(out);
+  var act=document.createElement('div');act.className='inq-imp-a';
+  var pv=document.createElement('button');pv.type='button';pv.className='hist-more';
+  pv.textContent='Check it';
+  var go=document.createElement('button');go.type='button';go.className='hist-more';
+  go.textContent='Import';go.disabled=true;
+  var LAST={rows:[]};
+  pv.addEventListener('click',function(){
+    var r=parseInqPaste(ta.value);LAST=r;
+    if(r.err){out.textContent=r.err;go.disabled=true;return;}
+    if(!r.rows.length){
+      out.textContent='Nothing recognised. A record is a row whose FIRST cell is just a number — if '
+        +'the Q# column was not first in your selection, that is why.';
+      go.disabled=true;return;}
+    var have={};inquiriesFor(key).forEach(function(p){have[String(p.qno)]=1;});
+    var dup=r.rows.filter(function(x){return have[String(x.qno)];}).length;
+    var withA=r.rows.filter(function(x){
+      return x.parts?x.parts.some(function(y){return String(y||'').trim();}):!!String(x.a||'').trim();}).length;
+    var split=r.rows.filter(function(x){return x.parts&&x.parts.length;}).length;
+    out.innerHTML='<b>'+r.rows.length+'</b> question'+(r.rows.length===1?'':'s')+' read \u2014 Q'
+      +r.rows[0].qno+' to Q'+r.rows[r.rows.length-1].qno+'. <b>'+withA+'</b> carr'
+      +(withA===1?'ies':'y')+' an answer, '+(r.rows.length-withA)+' still open'
+      +(split?(', <b>'+split+'</b> answered in parts'):'')
+      +(dup?('. <b>'+dup+'</b> already on this register — '
+        +(cb.checked?'they will be replaced.':'they will be left alone.')):'.');
+    go.disabled=false;
+  });
+  go.addEventListener('click',function(){
+    if(!LAST.rows.length)return;
+    if(!window.confirm('Import '+LAST.rows.length+' inquiries onto '
+      +(addLabelFor(key)||'this instrument')+'?'))return;
+    importInquiries(key,LAST.rows,cb.checked);
+  });
+  act.appendChild(pv);act.appendChild(go);
+  var cx=document.createElement('button');cx.type='button';cx.className='hist-more';
+  cx.textContent='Close';cx.addEventListener('click',function(){box.remove();});
+  act.appendChild(cx);
+  box.appendChild(act);
+  host.appendChild(box);
+  ta.focus();
 }
 function inqLines(lead,label,text,pad){
   var raw=String(text==null?'':text).replace(/\r/g,'').split('\n');
@@ -9499,6 +9691,15 @@ function addInquiryBlock(host,key){
     +'<b>Not</b> the threads in “Our questions”, and <b>not</b> the RFI register — an RFI is ours, '
     +'raised during the work. Until a real one exists, §5 is not written at all.';
   box.appendChild(lede);
+  (function(){
+    var row=document.createElement('div');row.className='inq-imp-row';
+    var b=document.createElement('button');b.type='button';b.className='hist-more';
+    b.textContent='import from the RFI log';
+    b.title='Paste a round of inquiries straight out of the log rather than typing them one at a time';
+    b.addEventListener('click',function(){openInquiryImport(box,key);});
+    row.appendChild(b);
+    box.appendChild(row);
+  })();
   // A search narrows these the same way it narrows everything else — but a bid inquiry you cannot
   // see is one you might answer twice, so say plainly how many are being held back.
   if(ADD_Q&&list.length){
@@ -9546,16 +9747,23 @@ function addInquiryBlock(host,key){
     var ASK=inqAsks(p.q),PARTS=inqParts(p);
     if(PARTS){
       var head=document.createElement('div');head.className='inq-split-h';
-      head.textContent='One answer per ask \u2014 each prints under its own letter in \u00a75.';
+      head.textContent=ASK.asks.length
+        ?'One answer per ask \u2014 each prints under its own letter in \u00a75.'
+        :'This answer is in parts. The question asks more than one thing in one sentence, so \u00a75 '
+         +'prints it as the bidder wrote it and letters the answers.';
       r.appendChild(head);
       var nA=Math.max(ASK.asks.length,PARTS.length);
       for(var ai=0;ai<nA;ai++)(function(i){
         var lt=inqLetter(i),ask=ASK.asks[i];
-        var q=document.createElement('div');q.className='inq-ask';
-        q.innerHTML='<b>('+lt+')</b> '+escapeHtml(ask?inqAskText(ask)
-          :'(this answer has no ask above it any more \u2014 the question was edited)');
-        if(!ask)q.className+=' inq-ask-orphan';
-        r.appendChild(q);
+        // No enumerated asks at all: the split lives on the answer side and there is nothing missing
+        // above it. Only a question that DID list its asks can have a letter with none.
+        var orphan=ASK.asks.length>0&&!ask;
+        if(ask||orphan){
+          var q=document.createElement('div');q.className='inq-ask'+(orphan?' inq-ask-orphan':'');
+          q.innerHTML='<b>('+lt+')</b> '+escapeHtml(ask?inqAskText(ask)
+            :'(this answer has no ask above it any more \u2014 the question was edited)');
+          r.appendChild(q);
+        }
         r.appendChild(field('inq-a','A',PARTS[i]||'',
           'Your answer to ('+lt+')',
           function(v){
@@ -9563,6 +9771,12 @@ function addInquiryBlock(host,key){
             if(v!==(PARTS[i]||''))saveInquiry(p,p.q||'',p.a||'',np);
           },' ('+lt+')'));
       })(ai);
+      var more=document.createElement('button');more.type='button';more.className='inq-split-b';
+      more.textContent='+ another part';
+      more.title='A third thing was asked in the same breath \u2014 add a box for it.';
+      more.addEventListener('click',function(){
+        saveInquiry(p,p.q||'',p.a||'',PARTS.concat(['']));});
+      r.appendChild(more);
       var one=document.createElement('button');one.type='button';one.className='inq-split-b';
       one.textContent='one answer instead';
       one.title='Collapse back to a single answer box. What you have typed in the letters is joined '
@@ -9574,6 +9788,17 @@ function addInquiryBlock(host,key){
       r.appendChild(field('inq-a','A',p.a,
         'Your answer \u2014 every inquiry gets one; leave it empty only while it is genuinely unsettled',
         function(v){if(v!==(p.a||''))saveInquiry(p,p.q||'',v);}));
+      if(ASK.asks.length<2){
+        // The question reads as one sentence but asked for two things — two hatched areas, two walls.
+        // Nothing in the text to split on, so this is the door to doing it by hand.
+        var sp2=document.createElement('button');sp2.type='button';sp2.className='inq-split-b';
+        sp2.textContent='answer in parts';
+        sp2.title='This question asks more than one thing without listing them. Two answer boxes, '
+          +'lettered (a) and (b) in \u00a75, under the question exactly as the bidder wrote it.';
+        sp2.addEventListener('click',function(){
+          saveInquiry(p,p.q||'',p.a||'',[(p.a||''),'']);});
+        r.appendChild(sp2);
+      }
       if(ASK.asks.length>1){
         var sp=document.createElement('button');sp.type='button';sp.className='inq-split-b';
         sp.textContent='answer each ask separately ('+ASK.asks.length+')';
@@ -9606,7 +9831,9 @@ function addInquiryBlock(host,key){
     r.appendChild(imageStrip({id:'inq-'+key+'-'+no,title:inqRef(p),
                               pkg:p.pkg||(ADD_GROUPS[key]||{}).pkg||'',
                               program:p.program||(ADD_GROUPS[key]||{}).program||''}));
-    if(p.by){var by=document.createElement('span');by.className='op-by';by.textContent='· '+p.by;r.appendChild(by);}
+    var whoAsked=p.from||p.by;
+    if(whoAsked){var by=document.createElement('span');by.className='op-by';
+      by.textContent='\u00b7 '+whoAsked;by.title='The bidder who asked it';r.appendChild(by);}
     // Answering a bidder is one thing; changing a document because of the answer is another. These
     // two ticks are where you say which. One click and it becomes a real row on this addendum,
     // titled with the Q number so the line it eventually writes can point back here.
@@ -10010,7 +10237,9 @@ function derivePlacements(it){
                 element:it.element||'',alt:it.alt||'',text:t,override:''});
     });
   });
-  return out;
+  // the derived default is compared against a saved list to decide whether anything is worth
+  // queueing, so it has to be in the same order that list will be in
+  return plSortInPlace(out);
 }
 // Every placement is normalised on the way in, so a `= …` that a previous parser left sitting in
 // the text field is recognised for what it is rather than printed as an equals sign into a bid
@@ -10021,7 +10250,10 @@ function plNorm(list){
     if(p&&!p.override&&typeof p.text==='string'&&/^\s*=/.test(p.text)){
       p.override=p.text.replace(/^\s*=\s*/,'');p.text='';}
   });
-  return list;
+  // Sorted here, once, so the editor, the row preview, the sheet list and the write-up cannot
+  // disagree about the order. A copy of the array, not a reordering of the vault's own — the
+  // placement objects are the same ones, so editing them still edits the item.
+  return plSortInPlace(list);
 }
 function placementsOf(it){
   if(it.placements){
@@ -11369,7 +11601,13 @@ function buildAddendumDoc_(key,opts){
   });
   shOrder.sort(function(a,b){return sheetSortKey(a)<sheetSortKey(b)?-1:1;});
   shOrder.forEach(function(sn,ix){
-    var mine=sheets[sn],lines=[],seenIt={};
+    // Within one drawing the sub-items are its details, so they climb the way the details do —
+    // 4.11.1 is detail 3 and 4.11.2 is detail 7, never the other way round. Two items can both
+    // land on this sheet, so the sort is across the whole group, not inside each item.
+    var mine=sheets[sn].slice().sort(function(a,b){
+      var ka=plOrderKey(a.pl),kb=plOrderKey(b.pl);
+      return ka<kb?-1:ka>kb?1:0;});
+    var lines=[],seenIt={};
     mine.forEach(function(e){
       var it=e.it,pl=e.pl;
       if(!seenIt[it.id]){seenIt[it.id]=1;skipped+=wuStepsOf(it).skipped;}
@@ -11465,14 +11703,22 @@ function buildAddendumDoc_(key,opts){
       // The asks get the letters the answers are given under, so the pairing is on the page rather
       // than in the reader's head. Only the bullet marker changes; the sentence is the bidder's.
       var A=inqAsks(p.q);
-      inq.push('       '+padNum('5.'+(ix+1),8)+'Q'+n+': '+A.lead);
-      A.asks.forEach(function(a,i){
-        inq.push(pad+'('+inqLetter(i)+')  '+inqAskText(a));
-        a.cont.forEach(function(c){inq.push(pad+'     '+c);});
-      });
+      if(A.asks.length){
+        inq.push('       '+padNum('5.'+(ix+1),8)+'Q'+n+': '+A.lead);
+        A.asks.forEach(function(a,i){
+          inq.push(pad+'('+inqLetter(i)+')  '+inqAskText(a));
+          a.cont.forEach(function(c){inq.push(pad+'     '+c);});
+        });
+      }else{
+        // A question can ask two things in one sentence — one markup with two hatched areas, two
+        // walls, two columns. The bidder did not number them, so neither do we: the question prints
+        // exactly as it arrived and only the ANSWER carries the letters.
+        inqLines('       '+padNum('5.'+(ix+1),8),'Q'+n+': ',p.q||'',pad)
+          .forEach(function(l){inq.push(l);});
+      }
       inq.push('               '+'A'+n+':');
-      A.asks.forEach(function(a,i){
-        inqLines(pad,'('+inqLetter(i)+')  ',pr[i]||'',pad+'     ')
+      pr.forEach(function(x,i){
+        inqLines(pad,'('+inqLetter(i)+')  ',x||'',pad+'     ')
           .forEach(function(l){inq.push(l);});
       });
     }else{
