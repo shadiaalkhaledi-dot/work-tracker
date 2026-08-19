@@ -4751,9 +4751,18 @@ function buildExportText(){
       }else{
         out=out.concat(inqLines('    ','A'+(p.qno||'')+': ',p.a||'[not answered yet]',iPad));
       }
-      inqLinks(p).forEach(function(ttl){
-        out.push('        \u2192 answer references the addendum item \u201c'+ttl+'\u201d '
-          +'(record as [ref:: <item>] on the inquiry \u2014 \u00a75 derives the drawing reference from it)');});
+      // A ref names a LINE, not just an item \u2014 {item, sheet, no} \u2014 and printing the object gave the
+      // check-in "[object Object]" to fold in. Say the drawing and the detail, which is the part that
+      // makes the reference worth anything.
+      inqLinks(p).forEach(function(l){
+        var where=l.sheet?((l.no?l.no+'/':'')+l.sheet):'';
+        out.push('        \u2192 answer references the addendum item \u201c'+l.item+'\u201d'
+          +(where?(', line '+where):'')+' '
+          +'(record as [ref:: '+l.item+(where?(' | '+where):'')+'] on the inquiry \u2014 \u00a75 derives '
+          +'the drawing reference and the clause number from it)');});
+      if(p.noauto)out.push('        \u2192 the answer must NOT reference the item this question '
+        +'created \u2014 it was unlinked on purpose after a specific line was linked instead '
+        +'(record as [noauto:: yes] on the inquiry)');
       return out.join('\n');
     }
     if(p.type==='imgissue'){
@@ -9395,6 +9404,9 @@ function inquiriesFor(key){
               parts:(q.parts&&q.parts.length)?q.parts.slice():null,
               imgs:(q.imgs&&q.imgs.length)?q.imgs.slice():null,
               refs:(q.refs&&q.refs.length)?q.refs.slice():null,
+              // a reference the answer was told NOT to make survives a check-in the same way one it
+              // was told to make does — otherwise folding the queue re-adds the link you removed
+              noauto:!!q.noauto,
               program:q.program||'',by:q.by||'',img:q.img||null,
               fromVault:true,id:'vq-'+key+'-'+q.qno};});
   var queued=(readQueue()||[]).filter(function(p){
@@ -9830,9 +9842,16 @@ function inqRefTargets(p,key){
   };
   inqLinks(p).forEach(function(l){add(l,false);});
   var made=inqItemOp(p);
-  if(made&&made.text)add({item:String(made.text),sheet:'',no:''},true);
+  if(made&&made.text&&!inqNoAuto(p))add({item:String(made.text),sheet:'',no:''},true);
   return out;
 }
+// The tick creates the item AND points the answer at it, which is right the first time and wrong the
+// moment you re-link to the exact line you meant: you then have two references, one of them the
+// vague one, and no way to drop it short of unticking — which would delete the item you had just
+// linked to. So the automatic reference is a DEFAULT, not a fixture. Dropping it suppresses the
+// reference only; the item stays on the addendum, and its lines stay in the picker below, so the
+// same click that removes "refer to the item" leaves "refer to detail 6 of it" available.
+function inqNoAuto(p){return !!(p&&p.noauto);}
 // kept for the counts and the marks, which only need to know how many
 function inqRefItems(p,key){
   return inqRefTargets(p,key).map(function(x){return x.it;});
@@ -9867,6 +9886,16 @@ function inqLinkDrop(p,link){
   var id=inqLinkId(link);
   saveInquiry(p,p.q||'',p.a||'',undefined,
     inqLinks(p).filter(function(x){return inqLinkId(x)!==id;}));
+}
+// Unlinking the automatic one is not the same operation as unlinking a manual one: there is no entry
+// in refs to remove. It is a suppression, and it has to be reversible in one click, because the only
+// other way back used to be untick-and-retick — which deletes the item and everything placed on it.
+function inqAutoSet(p,off){
+  saveInquiry(p,p.q||'',p.a||'',undefined,undefined,!!off);
+  setStatus(off
+    ?('Q'+p.qno+' no longer points at the item it made — the item itself is untouched, and its '
+      +'lines are still in the link list if you want to name one.')
+    :('Q'+p.qno+' points at the item it made again.'));
 }
 function inqLines(lead,label,text,pad){
   var raw=String(text==null?'':text).replace(/\r/g,'').split('\n');
@@ -9914,19 +9943,20 @@ function nextQno(key){
   var used={};inquiriesFor(key).forEach(function(x){used[String(x.qno)]=1;});
   var n=1;while(used[String(n)])n++;return String(n);
 }
-function saveInquiry(p,q,a,parts,refs){
+function saveInquiry(p,q,a,parts,refs,noauto){
   var key=p.addendum;
   // `undefined` means "leave the split as it is"; null means "collapse back to one answer"
   var pr=(parts===undefined)?inqParts(p):(parts&&parts.length?parts:null);
   var rf=(refs===undefined)?inqLinks(p):(refs&&refs.length?refs:null);
+  var na=(noauto===undefined)?inqNoAuto(p):!!noauto;
   supersede(function(o){return o.type==='inquiry'&&o.addendum===key
     &&String(o.qno)===String(p.qno);});
-  if(p.fromVault&&sameValue(q,p.q)&&sameValue(a,p.a)
+  if(p.fromVault&&sameValue(q,p.q)&&sameValue(a,p.a)&&na===inqNoAuto(p)
      &&sameValue(JSON.stringify(pr||null),JSON.stringify(inqParts(p)||null))
      &&sameValue(JSON.stringify(rf||null),JSON.stringify(inqLinks(p)||null))){
     buildAddendumRegister();
     setStatus('Back to what the vault says — nothing left queued for Q'+p.qno+'.');return;}
-  queueLocally({type:'inquiry',addendum:key,qno:p.qno,q:q,a:a,parts:pr,refs:rf,
+  queueLocally({type:'inquiry',addendum:key,qno:p.qno,q:q,a:a,parts:pr,refs:rf,noauto:na||undefined,
     from:p.from||'',program:p.program||'',pkg:p.pkg||'',
     text:'§5 Q'+p.qno+': '
       +String((pr?inqAnswerText({parts:pr,q:q}):a)||'(no answer yet)')
@@ -10173,7 +10203,9 @@ function addInquiryBlock(host,key){
     // because a reference you cannot see before it issues is one you have to take on trust.
     (function(){
       var targets=inqRefTargets(p,key);
-      if(targets.length){
+      var madeOp=inqItemOp(p);
+      var suppressed=!!(madeOp&&madeOp.text&&inqNoAuto(p));
+      if(targets.length||suppressed){
         var lw=document.createElement('div');lw.className='inq-refs';
         targets.forEach(function(tg){
           var chip=document.createElement('span');chip.className='inq-ref';
@@ -10198,22 +10230,43 @@ function addInquiryBlock(host,key){
           go.addEventListener('click',function(e){e.stopPropagation();
             jumpToSheetRow(key,tg.it.title||'');});
           chip.appendChild(go);
-          if(!tg.auto){
-            var x=document.createElement('button');x.type='button';x.className='inq-ref-b';
-            x.textContent='unlink';
-            x.title='Stop pointing this answer at that line. The item itself is untouched.';
-            x.addEventListener('click',function(e){e.stopPropagation();
-              inqLinkDrop(p,tg.link);});
-            chip.appendChild(x);
-          }else{
+          var x=document.createElement('button');x.type='button';x.className='inq-ref-b';
+          x.textContent='unlink';
+          x.title=tg.auto
+            ? 'Stop the answer pointing at the item this question made. The item stays on the '
+              +'addendum and its lines stay in the list below — use this once you have linked the '
+              +'exact line you meant.'
+            : 'Stop pointing this answer at that line. The item itself is untouched.';
+          x.addEventListener('click',function(e){e.stopPropagation();
+            if(tg.auto)inqAutoSet(p,true);else inqLinkDrop(p,tg.link);});
+          chip.appendChild(x);
+          if(tg.auto){
             var nb=document.createElement('span');nb.className='inq-ref-n';
             nb.textContent='automatic';
             nb.title='This item was created by the Drawing/Spec tick on this question, so the answer '
-              +'points at it without being asked. Untick above to drop it.';
+              +'points at it without being asked. Unlink to drop just the reference.';
             chip.appendChild(nb);
           }
           lw.appendChild(chip);
         });
+        // A suppression you cannot see is a bug in waiting: the tick above still reads "Drawing §4",
+        // so without this line the answer silently stops referencing the row it made and nothing on
+        // the page says why. One click puts it back.
+        if(suppressed){
+          var sc=document.createElement('span');sc.className='inq-ref inq-ref-bare';
+          var sb=document.createElement('b');
+          sb.textContent='not pointing at the item this question made';
+          sc.appendChild(sb);
+          var s2=document.createElement('span');s2.className='inq-ref-t';
+          s2.textContent=String(madeOp.text||'').slice(0,46)+'  · you unlinked it';
+          sc.appendChild(s2);
+          var sr=document.createElement('button');sr.type='button';sr.className='inq-ref-b';
+          sr.textContent='relink';
+          sr.title='Point the answer back at the item this question created.';
+          sr.addEventListener('click',function(e){e.stopPropagation();inqAutoSet(p,false);});
+          sc.appendChild(sr);
+          lw.appendChild(sc);
+        }
         r.appendChild(lw);
       }
       // The picker offers LINES, not items: one entry per §4 line, with the clause number the
