@@ -2027,6 +2027,17 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
 .mod-row.ms-done{border-left-color:rgba(43,125,85,.35);opacity:.72;}
 .mod-row.ms-done:hover{opacity:1;}
 .mod-row.ms-none{border-left-color:var(--border-soft);}
+/* A row header that squeezes its own title to nothing is worse than one that wraps. On a phone the
+   marks block took the whole line and the title measured ZERO — the Gate Desk row showed its badges
+   and not its name, because it carries one badge more than the others. This is the shared header, so
+   the fix lands on the bid inquiry rows too, which were down to 111px of question text at 390px. */
+/* Narrow only: on a wide screen the marks belong on the title's line, and letting them wrap there
+   made every long question two lines taller for nothing. */
+@media (max-width:820px){
+  .inq-head{flex-wrap:wrap;}
+  .inq-head .inq-ht{min-width:150px;}
+  .inq-head .inq-hm{flex:0 1 auto;}
+}
 .mod-head{gap:7px;}
 .mod-glyph{flex:0 0 auto;width:13px;text-align:center;font-size:12px;color:var(--faint);}
 .mod-row.ms-ready .mod-glyph{color:var(--ok);}
@@ -2079,7 +2090,17 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
 .mod-part.ms-done:hover{opacity:1;}
 .mod-part-top{display:flex;flex-wrap:wrap;gap:5px;align-items:center;}
 .mod-part-top .mod-in{flex:1 1 130px;width:auto;}
-.mod-meet{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin:5px 0 0;}
+.mod-meet,.mod-up{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin:5px 0 0;}
+.mod-up .mod-in{flex:1 1 160px;width:auto;}
+/* when the current state started — the half of "waiting on Goldray" that tells you to phone them */
+.mod-since{font-size:11px;color:var(--faint);margin:2px 0 6px;}
+.mod-mv{font-size:8px;line-height:1.6;padding:1px 5px;}
+.mod-mv.is-off{opacity:.28;cursor:default;}
+/* the chase list's modeling section */
+.mod-court-li{display:block;width:100%;text-align:left;font:inherit;font-size:12.5px;
+  color:var(--text);background:transparent;border:0;border-bottom:1px solid var(--border-soft);
+  padding:6px 10px;cursor:pointer;}
+.mod-court-li:hover{background:var(--border-soft);}
 .mod-meet .mod-in{flex:1 1 130px;width:auto;}
 .mod-x{font:inherit;font-size:10px;color:var(--faint);background:transparent;
   border:1px solid var(--border);border-radius:999px;padding:1px 6px;cursor:pointer;flex:0 0 auto;}
@@ -2104,6 +2125,8 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
   font-weight:600;}
 .inq-mk.mk-due.due-soon{color:var(--gold);}
 .inq-mk.mk-due.due-past{color:var(--stop);font-weight:700;}
+.inq-mk.mk-stale{background:var(--gold);color:#fff;}
+.inq-mk.mk-idle{background:transparent;color:var(--gold);border:1px solid var(--gold);}
 .inq-mk.mk-st-ready{background:rgba(43,125,85,.12);color:var(--ok);}
 .inq-mk.mk-st-discuss{background:var(--gold);color:#fff;}
 .inq-mk.mk-st-modeling{background:var(--border-soft);color:var(--text);}
@@ -4889,6 +4912,7 @@ function buildExportText(){
       mfield('project',p.project);
       mfield('pkg',p.pkg);
       mfield('due',p.due);
+      mfield('since',p.since);
       if(String(p.note||'').trim())
         mo=mo.concat(inqLines('    ','note: ',p.note,'        '));
       (p.parts||[]).forEach(function(x){
@@ -4896,9 +4920,14 @@ function buildExportText(){
         mo.push('    - '+x.name
           +(x.state?('  [state:: '+x.state+']'):'')
           +(x.who?('  [who:: '+x.who+']'):'')
-          +(x.waiting?('  [waiting:: '+x.waiting+']'):''));
+          +(x.waiting?('  [waiting:: '+x.waiting+']'):'')
+          +(x.since?('  [since:: '+x.since+']'):''));
         if(String(x.note||'').trim())
           mo=mo.concat(inqLines('        ','note: ',x.note,'            '));
+      });
+      (p.updates||[]).forEach(function(u){
+        if(!u||!String(u.text||'').trim())return;
+        mo=mo.concat(inqLines('    ',(u.date||'(no date)')+': ',u.text,'        '));
       });
       (p.meets||[]).forEach(function(m){
         if(!m)return;
@@ -5286,6 +5315,53 @@ function buildCourtView(){
     sectionHead(c,'Delegated — still my responsibility, they execute','var(--teal)');
     var dbox=document.createElement('div');delegated.forEach(function(it){dbox.appendChild(makeAltClone(it.id));});c.appendChild(dbox);
   }
+  // Modeling held on someone. This view answers one question — who do I chase today — and a family
+  // stuck on Goldray for nine days is that question, whatever register it happens to live in. It is
+  // its own section rather than merged into the per-person groups above because those render ITEMS,
+  // and a family is not one; pretending otherwise is how a list starts lying about its own counts.
+  (function(){
+    if(typeof modelFamilies!=='function')return;
+    var held=[];
+    modelFamilies().forEach(function(f){
+      if(modWaitingState(f.state)&&String(f.waiting||'').trim())
+        held.push({name:f.waiting,what:f.name,state:f.state,since:f.since,sub:''});
+      modPartsOf(f).forEach(function(p){
+        if(modWaitingState(p.state)&&String(p.waiting||'').trim())
+          held.push({name:p.waiting,what:f.name,state:p.state,since:p.since,sub:p.name});});
+    });
+    if(!held.length)return;
+    sectionHead(c,'Modeling held on someone — Registers → Modeling','var(--gold)');
+    var by={};held.forEach(function(h){(by[h.name]=by[h.name]||[]).push(h);});
+    Object.keys(by).sort(function(a,b){return by[b].length-by[a].length;}).forEach(function(name){
+      var grp=document.createElement('div');grp.className='altgroup';
+      var gh=document.createElement('div');gh.className='altgroup-head';
+      gh.style.borderLeftColor='var(--gold)';
+      var gn=document.createElement('span');gn.className='name';gn.textContent=name;
+      var ages=by[name].map(function(h){return modDaysSince(h.since);})
+        .filter(function(a){return a!==null;});
+      var oldest=ages.length?Math.max.apply(null,ages):null;
+      var gc=document.createElement('span');gc.className='counts';
+      gc.textContent=n_(by[name].length,'family','families')
+        +(oldest!==null?(' \u00b7 oldest held '+oldest+'d'):'');
+      if(oldest!==null&&oldest>=MOD_CHASE_DAYS)gc.style.color='#b45309';
+      gh.appendChild(gn);gh.appendChild(gc);grp.appendChild(gh);
+      by[name].forEach(function(h){
+        var li=document.createElement('button');li.type='button';li.className='mod-court-li';
+        li.textContent=h.what+(h.sub?(' \u203a '+h.sub):'')
+          +'  \u2014 '+modStateName(h.state).toLowerCase()
+          +(modDaysSince(h.since)!==null?(', '+modDaysSince(h.since)+'d'):'');
+        li.title='Open it in the Modeling register';
+        li.addEventListener('click',function(){
+          setView('registers');setRegTab('mod');
+          MOD_FILTER='';MOD_Q='';
+          modelFamilies().forEach(function(f){
+            if(f.name===h.what)MOD_OPEN[f.slug]=true;});
+          buildModelRegister();});
+        grp.appendChild(li);
+      });
+      c.appendChild(grp);
+    });
+  })();
 }
 
 function buildFlowStrip(){
@@ -12947,8 +13023,44 @@ function modPartsOf(f){
     if(!x)return null;
     if(typeof x==='string')return {name:x,state:'',who:'',waiting:'',note:''};
     return {name:String(x.name||''),state:String(x.state||''),who:String(x.who||''),
-            waiting:String(x.waiting||''),note:String(x.note||'')};
+            waiting:String(x.waiting||''),note:String(x.note||''),since:String(x.since||'')};
   }).filter(function(x){return x&&x.name;});
+}
+// A note you overwrite is not a record. Everything else in this system keeps a DATED stream and
+// this had one editable paragraph, which meant "when did it become ready, and who said so" had no
+// answer. Newest first, append-only, never rewritten by a state change.
+function modUpdatesOf(f){
+  var u=(f&&f.updates)||[];
+  return u.map(function(x){
+    if(!x)return null;
+    if(typeof x==='string')return {date:'',text:x};
+    return {date:String(x.date||''),text:String(x.text||'')};
+  }).filter(function(x){return x&&x.text;})
+    .sort(function(a,b){return (a.date||'')<(b.date||'')?1:-1;});
+}
+function modToday(){return new Date().toISOString().slice(0,10);}
+function modDaysSince(d){
+  var s=String(d||'').trim();if(!/^\d{4}-\d{2}-\d{2}$/.test(s))return null;
+  var then=Date.parse(s+'T00:00:00Z'),now=Date.parse(modToday()+'T00:00:00Z');
+  if(isNaN(then)||isNaN(now))return null;
+  return Math.round((now-then)/864e5);
+}
+// The vault chases at five days when the ball is in someone else's court. Same number here, because
+// a modeling item held on a manufacturer is the same kind of stuck.
+var MOD_CHASE_DAYS=5, MOD_IDLE_DAYS=7;
+// Stuck: held on a named person or firm for longer than the chase threshold.
+function modStale(f){
+  if(!modWaitingState(f.state))return 0;
+  var d=modDaysSince(f.since);
+  return (d!==null&&d>=MOD_CHASE_DAYS)?d:0;
+}
+// The state nobody notices: it CAN be started, and nobody has been given it. Not a blocker, not a
+// wait — just work sitting in the open with no name on it, which is how a ready item stays ready
+// for three weeks.
+function modIdle(f){
+  if(f.state!=='ready'||String(f.who||'').trim())return 0;
+  var d=modDaysSince(f.since);
+  return (d===null||d>=MOD_IDLE_DAYS)?(d===null?-1:d):0;
 }
 function modMeetsOf(f){
   var m=(f&&f.meets)||[];
@@ -12984,7 +13096,8 @@ function modelFamilies(){
       state:String(src.state||''),who:String(src.who||''),waiting:String(src.waiting||''),
       where:modWhereList(src.where),
       project:String(src.project||''),pkg:String(src.pkg||''),
-      due:String(src.due||''),note:String(src.note||''),
+      due:String(src.due||''),note:String(src.note||''),since:String(src.since||''),
+      updates:modUpdatesOf(src),
       parts:modPartsOf(src),meets:modMeetsOf(src),
       fromVault:!op});
   });
@@ -13005,15 +13118,31 @@ function familyBySlug(slug){
 function saveFamily(f,patch){
   var cur={slug:f.slug,name:f.name,state:f.state,who:f.who,waiting:f.waiting,
            where:(f.where||[]).slice(),project:f.project,pkg:f.pkg,due:f.due,note:f.note,
+           since:f.since||'',updates:modUpdatesOf(f),
            parts:modPartsOf(f),meets:(f.meets||[]).slice()};
   Object.keys(patch||{}).forEach(function(k){cur[k]=patch[k];});
   cur.where=modWhereList(cur.where);
   cur.parts=modPartsOf(cur);
   cur.meets=modMeetsOf(cur);
+  cur.updates=modUpdatesOf(cur);
+  // The clock starts when the state moves, not when the record is touched. Without this, "waiting on
+  // Goldray" and "waiting on Goldray since the 14th" are the same sentence, and only one of them
+  // tells you to pick up the phone.
+  var toldSince=!!(patch&&patch.since!==undefined);
+  if(!toldSince&&String(cur.state||'')!==String(f.state||''))cur.since=cur.state?modToday():'';
+  var was={};modPartsOf(f).forEach(function(x){was[x.name]=x;});
+  cur.parts=cur.parts.map(function(x){
+    var w=was[x.name];
+    var moved=!w||String(w.state||'')!==String(x.state||'');
+    // a date the caller supplied and that differs from what was there is a correction, not a move
+    var told=x.since&&(!w||x.since!==w.since);
+    return {name:x.name,state:x.state,who:x.who,waiting:x.waiting,note:x.note,
+            since:told?x.since:(moved?(x.state?modToday():''):(x.since||(w&&w.since)||''))};
+  });
   supersede(function(o){return o.type==='family'&&o.slug===f.slug;});
   queueLocally({type:'family',slug:cur.slug,name:cur.name,state:cur.state,who:cur.who,
     waiting:cur.waiting,where:cur.where,project:cur.project,pkg:cur.pkg,due:cur.due,
-    note:cur.note,parts:cur.parts,meets:cur.meets,
+    note:cur.note,since:cur.since,updates:cur.updates,parts:cur.parts,meets:cur.meets,
     text:'Modeling: '+(cur.name||cur.slug)+' — '+modStateName(cur.state).toLowerCase()
       +(cur.who?(' · '+cur.who):'')
       +(cur.waiting?(' · waiting on '+cur.waiting):'')});
@@ -13063,6 +13192,8 @@ function modPassesFilter(f){
   if(MOD_FILTER==='waiting')return modWaitingState(f.state)
     ||modPartsOf(f).some(function(p){return modWaitingState(p.state);});
   if(MOD_FILTER==='due')return !!modDueFlag(f.due);
+  if(MOD_FILTER==='stale')return !!modStale(f);
+  if(MOD_FILTER==='idle')return !!modIdle(f);
   if(MOD_FILTER===f.state)return true;
   // a family with no state of its own still belongs to the pile its sub-items are in
   return modPartsOf(f).some(function(p){return p.state===MOD_FILTER;});
@@ -13240,6 +13371,18 @@ function buildModelRegister(){
       wrap.appendChild(x);}
     fnd.appendChild(wrap);c.appendChild(fnd);
   })();
+  (function(){
+    var row=document.createElement('div');row.className='inq-imp-row';
+    var b=document.createElement('button');b.type='button';b.className='hist-more';
+    b.textContent='copy for the meeting';
+    b.title='The whole list as text, grouped by what somebody has to do about it \u2014 ready, needs '
+      +'discussion, held on someone, not triaged. Paste it into an agenda or an email.';
+    b.addEventListener('click',function(){
+      var t=modMeetingText();
+      copyText(t,'Copied \u2014 '+t.split('\n').length+' lines, grouped by what needs doing.');});
+    row.appendChild(b);
+    c.appendChild(row);
+  })();
   // ---- filters -----------------------------------------------------------------------------------
   (function(){
     var fr=document.createElement('div');fr.className='add-filter add-filter-lead';
@@ -13251,6 +13394,10 @@ function buildModelRegister(){
       +'it can start']);
     opts.push(['waiting','Waiting on someone','Held on a decision or a manufacturer, at either level '
       +'— these are the ones to chase']);
+    opts.push(['stale','Held too long','Waiting on a decision or a manufacturer for '
+      +MOD_CHASE_DAYS+' days or more — the same threshold the rest of the tracker chases at']);
+    opts.push(['idle','Nobody on it','Ready to start with no name against it. Not blocked, not '
+      +'waiting — just sitting in the open, which is how a ready item stays ready for three weeks']);
     opts.push(['due','Has a date','The only ones with a clock on them']);
     var count=function(k){
       var was=MOD_FILTER;MOD_FILTER=k;
@@ -13297,6 +13444,8 @@ function buildModelRegister(){
     var nRdy=all.filter(function(f){return f.state==='ready';}).length;
     nt.textContent=MOD_FILTER
       ?('Only '+({nostate:'the ones nobody has triaged',waiting:'what is held on someone',
+                  stale:'what has been held longer than '+MOD_CHASE_DAYS+' days',
+                  idle:'what is ready with nobody on it',
                   due:'what has a date'}[MOD_FILTER]
                  ||modStateName(MOD_FILTER).toLowerCase())+'.')
       :(all.length
@@ -13400,6 +13549,16 @@ function modFamilyRow(f,people){
       top.appendChild(modText(p.waiting,'waiting on',function(v){
         var np=parts.slice();np[pi]={name:p.name,state:p.state,who:p.who,waiting:v,note:p.note};
         saveFamily(f,{parts:np});},'pt|'+f.slug+'|'+pi,'modWhoList'));
+      [['\u25b2',-1,'Move it up'],['\u25bc',1,'Move it down']].forEach(function(o){
+        var mv=document.createElement('button');mv.type='button';mv.className='mod-x mod-mv';
+        mv.textContent=o[0];mv.title=o[1];
+        var to=pi+o[1];
+        if(to<0||to>=parts.length){mv.disabled=true;mv.className+=' is-off';}
+        mv.addEventListener('click',function(e){e.stopPropagation();
+          var np=parts.slice(),tmp=np[pi];np[pi]=np[to];np[to]=tmp;
+          saveFamily(f,{parts:np});});
+        top.appendChild(mv);
+      });
       var x=document.createElement('button');x.type='button';x.className='mod-x';x.textContent='✕';
       x.title='Remove this sub-item';
       x.addEventListener('click',function(e){e.stopPropagation();
@@ -13419,6 +13578,52 @@ function modFamilyRow(f,people){
       saveFamily(f,{parts:parts.concat([{name:'New sub-item',state:'',who:'',waiting:'',note:''}])});
       MOD_OPEN[f.slug]=true;buildModelRegister();});
     body.appendChild(add);
+  })();
+  // ---- what happened, and when -------------------------------------------------------------------
+  (function(){
+    var ups=modUpdatesOf(f);
+    var h=document.createElement('div');h.className='mod-sec-h';
+    h.textContent=ups.length?('Updates \u2014 '+n_(ups.length,'entry','entries')):'Updates';
+    h.title='Dated, newest first, and never rewritten \u2014 the same way every other record in this '
+      +'tracker keeps its history. The note above is what the thing IS; this is what has happened '
+      +'to it.';
+    body.appendChild(h);
+    if(f.since){
+      var sc=document.createElement('div');sc.className='mod-since';
+      var d=modDaysSince(f.since);
+      sc.textContent=modStateName(f.state)+' since '+f.since
+        +(d!==null?(' \u2014 '+(d===0?'today':n_(d,'day'))):'');
+      sc.title='Set automatically when the state moves. It is what turns \u201cwaiting on Goldray\u201d '
+        +'into \u201cwaiting on Goldray for nine days\u201d.';
+      body.appendChild(sc);
+    }
+    ups.forEach(function(u,ui){
+      var row=document.createElement('div');row.className='mod-up';
+      var dt=document.createElement('input');dt.type='date';dt.className='mod-in mod-date';
+      dt.value=u.date||'';
+      dt.addEventListener('click',function(e){e.stopPropagation();});
+      dt.addEventListener('change',function(){
+        var nu=ups.slice();nu[ui]={date:dt.value,text:u.text};saveFamily(f,{updates:nu});});
+      row.appendChild(dt);
+      row.appendChild(modText(u.text,'what happened',function(v){
+        var nu=ups.slice();
+        if(!v)nu.splice(ui,1);else nu[ui]={date:u.date,text:v};
+        saveFamily(f,{updates:nu});},'u|'+f.slug+'|'+ui,null,true));
+      var ux=document.createElement('button');ux.type='button';ux.className='mod-x';
+      ux.textContent='\u2715';ux.title='Remove this entry';
+      ux.addEventListener('click',function(e){e.stopPropagation();
+        var nu=ups.slice();nu.splice(ui,1);saveFamily(f,{updates:nu});});
+      row.appendChild(ux);
+      body.appendChild(row);
+    });
+    var addU=document.createElement('button');addU.type='button';addU.className='inq-split-b';
+    addU.textContent='+ update';
+    addU.title='One dated line. At check-in these fold into the vault with the source named, the '
+      +'same as every other dated update.';
+    addU.addEventListener('click',function(e){e.stopPropagation();
+      saveFamily(f,{updates:[{date:modToday(),text:'\u2026'}].concat(ups)});
+      MOD_OPEN[f.slug]=true;buildModelRegister();});
+    body.appendChild(addU);
   })();
   // ---- meetings ----------------------------------------------------------------------------------
   (function(){
@@ -13509,8 +13714,19 @@ function modFamilyRow(f,people){
         'What the sub-items add up to. A family can be half-startable.');
     }
     if(f.who)mark('mk-who',f.who,'Who is modelling it');
-    if(f.waiting)mark('mk-wait','waiting on '+f.waiting,
-      'Who the answer, the product or the decision sits with');
+    if(f.waiting){
+      var held=modWaitingState(f.state),wd=held?modDaysSince(f.since):null;
+      mark('mk-wait',(held?'waiting on ':'was on ')+f.waiting+(wd!==null?(' \u00b7 '+wd+'d'):''),
+        held?('Who the answer, the product or the decision sits with'
+              +(f.since?(', since '+f.since):''))
+            :'Who it was held on. The state has moved on, so the clock has stopped.');
+    }
+    if(modStale(f))mark('mk-stale','held '+modStale(f)+'d',
+      'Held on someone for '+MOD_CHASE_DAYS+' days or more. This is the chase list.');
+    var idle=modIdle(f);
+    if(idle)mark('mk-idle','nobody on it',
+      idle>0?('Ready to start, and nobody has taken it for '+idle+' days.')
+            :'Ready to start and nobody has taken it.');
     if(modMeetsOf(f).length)mark('mk-meet',n_(modMeetsOf(f).length,'meeting'),
       'There is a meeting log on this one');
     var dflag=modDueFlag(f.due);
@@ -13533,6 +13749,62 @@ function modFamilyRow(f,people){
     r.appendChild(hd);r.appendChild(body);
   })();
   return r;
+}
+// This list was born on a whiteboard in a meeting and it goes back into one every week. Reading it
+// off the screen row by row is the thing a written agenda exists to avoid, so: one block, grouped by
+// what somebody has to DO about it, in the order you would say it out loud.
+function modMeetingText(){
+  var all=modelFamilies().filter(modPassesTag);
+  var out=['Modeling'+(MOD_TAG?(' \u2014 '+MOD_TAG):'')+' \u2014 '+modToday(),''];
+  var line=function(f,pre){
+    var bits=[];
+    if((f.where||[]).length)bits.push((f.where||[]).join(' + '));
+    if(f.who)bits.push(f.who);
+    if(f.waiting&&modWaitingState(f.state)){
+      var d=modDaysSince(f.since);
+      bits.push('waiting on '+f.waiting+(d!==null?(', '+d+'d'):''));
+    }
+    if(f.due)bits.push('target '+f.due);
+    return '  \u00b7 '+(pre||'')+f.name+(bits.length?('  \u2014 '+bits.join(' \u00b7 ')):'');
+  };
+  var block=function(title,rows,tail){
+    if(!rows.length)return;
+    out.push(title.toUpperCase());
+    rows.forEach(function(r){out.push(r);if(tail)tail(r);});
+    out.push('');
+  };
+  block('Ready to start',all.filter(function(f){return f.state==='ready';}).map(function(f){
+    var sub=modPartsOf(f).map(function(p){return p.name;}).join(', ');
+    return line(f)+(sub?('\n      inside: '+sub):'')
+      +(modIdle(f)?'\n      \u2192 nobody on it':'');}));
+  block('Needs discussion',all.filter(function(f){return f.state==='discuss';}).map(function(f){
+    return line(f);}));
+  // a sub-item held up while the family runs is the thing that gets lost in a verbal round-up
+  var subs=[];
+  all.forEach(function(f){
+    modPartsOf(f).forEach(function(p){
+      if(p.state!=='discuss'&&!modWaitingState(p.state))return;
+      var d=modDaysSince(p.since);
+      subs.push('  \u00b7 '+f.name+' \u203a '+p.name+'  \u2014 '+modStateName(p.state).toLowerCase()
+        +(p.waiting?(', '+p.waiting):'')+(d!==null?(', '+d+'d'):''));});});
+  block('Sub-items needing a decision',subs);
+  block('Held on someone',all.filter(function(f){return modWaitingState(f.state);}).map(function(f){
+    var m=modMeetsOf(f)[0];
+    return line(f)+(m?('\n      last: '+(m.date||'')+' '+modMeetName(m.kind).toLowerCase()
+      +(m.who?(' with '+m.who):'')+(m.note?(' \u2014 '+m.note):'')):'');}));
+  block('Being modelled',all.filter(function(f){return f.state==='modeling';}).map(function(f){
+    return line(f);}));
+  block('Needs review',all.filter(function(f){return f.state==='review';}).map(function(f){
+    return line(f);}));
+  var un=all.filter(function(f){return !f.state;});
+  if(un.length){
+    out.push('NOT TRIAGED');
+    out.push('  '+un.map(function(f){return f.name;}).join('  \u00b7  '));
+    out.push('');
+  }
+  var done=all.filter(function(f){return f.state==='done';});
+  if(done.length)out.push('Done: '+done.map(function(f){return f.name;}).join(', '));
+  return out.join('\n').replace(/\n{3,}/g,'\n\n').replace(/\s+$/,'')+'\n';
 }
 function modAddForm(){
   var f=document.createElement('div');f.className='sh-addform inq-form mod-add';
