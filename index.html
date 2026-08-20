@@ -2009,6 +2009,108 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
 .wu-find-b{font:inherit;font-size:10.5px;color:var(--muted);background:transparent;
   border:1px solid var(--border);border-radius:999px;padding:1px 8px;cursor:pointer;}
 .wu-find-b:hover{border-color:var(--faint);color:var(--text);}
+/* ---- Modeling register ------------------------------------------------------------------------
+   Seven states, three colours. The palette rule at the top of this file says a hue means one thing,
+   so ready and done take --ok (the token is literally "settled · ready · done"), needs-discussion
+   takes --gold (a decision owed by you), being-modeled takes a dark neutral, and the two waiting
+   states are a DASHED edge — a texture rather than a borrowed meaning. The word is always beside
+   the colour, which is what makes that legal. */
+.mod-row{border:1px solid var(--border);border-left:3px solid var(--border);border-radius:7px;
+  padding:9px 12px;margin-bottom:7px;position:relative;background:var(--card);}
+.mod-row.mod-shut{padding-top:6px;padding-bottom:6px;}
+.mod-row.mod-shut+.mod-row.mod-shut{margin-top:-1px;}
+.mod-row.ms-ready{border-left-color:var(--ok);}
+.mod-row.ms-discuss{border-left-color:var(--gold);}
+.mod-row.ms-doing{border-left-color:var(--deep,var(--text));}
+.mod-row.ms-wait{border-left-color:var(--faint);border-left-style:dashed;}
+.mod-row.ms-review{border-left-color:var(--muted);}
+.mod-row.ms-done{border-left-color:rgba(43,125,85,.35);opacity:.72;}
+.mod-row.ms-done:hover{opacity:1;}
+.mod-row.ms-none{border-left-color:var(--border-soft);}
+.mod-head{gap:7px;}
+.mod-glyph{flex:0 0 auto;width:13px;text-align:center;font-size:12px;color:var(--faint);}
+.mod-row.ms-ready .mod-glyph{color:var(--ok);}
+.mod-row.ms-discuss .mod-glyph{color:var(--gold);}
+.mod-row.ms-doing .mod-glyph,.mod-row.ms-review .mod-glyph{color:var(--muted);}
+.mod-row.ms-done .mod-glyph{color:var(--ok);}
+.mod-name{font-weight:600;}
+.mod-body{padding-top:6px;}
+/* the state row — one click, and clicking the state it is in clears it */
+.mod-pick{display:flex;flex-wrap:wrap;gap:5px;margin:4px 0 9px;}
+.mod-pb{font:inherit;font-size:10.5px;font-weight:600;padding:3px 9px;cursor:pointer;
+  border:1px solid var(--border);border-radius:999px;background:var(--raise);color:var(--muted);}
+.mod-pb:hover{border-color:var(--faint);color:var(--text);}
+.mod-pb.on{background:var(--sel);border-color:var(--sel);color:var(--sel-fg);}
+.mod-pb.ms-ready.on{background:var(--ok);border-color:var(--ok);color:#fff;}
+.mod-pb.ms-discuss.on{background:var(--gold);border-color:var(--gold);color:#fff;}
+.mod-pb.ms-done.on{background:rgba(43,125,85,.16);border-color:rgba(43,125,85,.45);
+  color:var(--ok);}
+.mod-pb.ms-wait.on{border-style:dashed;}
+/* the fields */
+.mod-grid{display:flex;flex-wrap:wrap;gap:5px 14px;margin:0 0 4px;}
+.mod-f{display:flex;flex-direction:column;gap:2px;margin:2px 0;min-width:0;flex:1 1 190px;}
+.mod-lbl{font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;
+  color:var(--faint);}
+.mod-in{font:inherit;font-size:12.5px;line-height:1.45;color:var(--text);background:transparent;
+  border:1px solid transparent;border-bottom-color:var(--border-soft);border-radius:5px;
+  padding:3px 5px;width:100%;box-sizing:border-box;}
+.mod-in::placeholder{color:var(--faint);}
+.mod-in:hover{border-color:var(--border);}
+.mod-in:focus{border-color:var(--gold);background:var(--card-solid,var(--raise));outline:none;}
+.mod-in.mod-draft{border-color:var(--gold);background:#fffdf6;}
+.mod-in-w{flex:1 1 auto;}
+.mod-area{resize:vertical;min-height:2.6em;}
+.mod-date{max-width:150px;}
+.mod-sel{font:inherit;font-size:11.5px;color:var(--muted);background:var(--raise);
+  border:1px solid var(--border);border-radius:7px;padding:2px 6px;max-width:100%;}
+.mod-sel:hover{border-color:var(--faint);color:var(--text);}
+.mod-sel-s{max-width:120px;}
+.mod-sec-h{font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;font-weight:700;
+  color:var(--faint);margin:12px 0 5px;border-top:1px solid var(--border-soft);padding-top:8px;}
+/* a sub-item: the same edge language one level down, so a half-startable family reads as one */
+.mod-part{border:1px solid var(--border-soft);border-left:3px solid var(--border-soft);
+  border-radius:6px;padding:5px 8px;margin:0 0 5px;background:var(--raise);}
+.mod-part.ms-ready{border-left-color:var(--ok);}
+.mod-part.ms-discuss{border-left-color:var(--gold);}
+.mod-part.ms-doing{border-left-color:var(--deep,var(--text));}
+.mod-part.ms-wait{border-left-color:var(--faint);border-left-style:dashed;}
+.mod-part.ms-review{border-left-color:var(--muted);}
+.mod-part.ms-done{border-left-color:rgba(43,125,85,.35);opacity:.7;}
+.mod-part.ms-done:hover{opacity:1;}
+.mod-part-top{display:flex;flex-wrap:wrap;gap:5px;align-items:center;}
+.mod-part-top .mod-in{flex:1 1 130px;width:auto;}
+.mod-meet{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin:5px 0 0;}
+.mod-meet .mod-in{flex:1 1 130px;width:auto;}
+.mod-x{font:inherit;font-size:10px;color:var(--faint);background:transparent;
+  border:1px solid var(--border);border-radius:999px;padding:1px 6px;cursor:pointer;flex:0 0 auto;}
+.mod-x:hover{border-color:var(--stop);color:var(--stop);}
+.mod-del-row{margin-top:16px;padding-top:10px;border-top:1px solid var(--border-soft);}
+.mod-del{margin:0;color:var(--faint);}
+.mod-del:hover{color:var(--stop);border-color:var(--stop);}
+.mod-add{margin-top:14px;}
+/* the marks on a shut row */
+.inq-mk.mk-where{background:var(--border-soft);color:var(--muted);text-transform:none;
+  letter-spacing:0;}
+.inq-mk.mk-none{background:transparent;color:var(--faint);border:1px dashed var(--border);}
+.inq-mk.mk-sub{background:transparent;color:var(--muted);text-transform:none;letter-spacing:0;
+  font-weight:600;}
+.inq-mk.mk-who{background:transparent;color:var(--muted);text-transform:none;letter-spacing:0;
+  font-weight:600;}
+.inq-mk.mk-wait{background:transparent;color:var(--faint);text-transform:none;letter-spacing:0;
+  font-weight:600;border:1px dashed var(--border);}
+.inq-mk.mk-meet{background:var(--border-soft);color:var(--faint);}
+.inq-mk.mk-tag{background:transparent;color:var(--faint);text-transform:none;letter-spacing:0;}
+.inq-mk.mk-due{background:transparent;color:var(--muted);text-transform:none;letter-spacing:0;
+  font-weight:600;}
+.inq-mk.mk-due.due-soon{color:var(--gold);}
+.inq-mk.mk-due.due-past{color:var(--stop);font-weight:700;}
+.inq-mk.mk-st-ready{background:rgba(43,125,85,.12);color:var(--ok);}
+.inq-mk.mk-st-discuss{background:var(--gold);color:#fff;}
+.inq-mk.mk-st-modeling{background:var(--border-soft);color:var(--text);}
+.inq-mk.mk-st-decision,.inq-mk.mk-st-mfr{background:transparent;color:var(--muted);
+  border:1px dashed var(--faint);}
+.inq-mk.mk-st-review{background:var(--border-soft);color:var(--muted);}
+.inq-mk.mk-st-done{background:transparent;color:var(--ok);}
 </style>
 </head>
 <body>
@@ -2180,11 +2282,13 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
       <button type="button" data-reg="pcn" onclick="setRegTab('pcn')" title="PCN and SI — what a package issues once it is in contract administration">PCN / SI</button>
       <button type="button" data-reg="rfi" onclick="setRegTab('rfi')">RFIs</button>
       <button type="button" data-reg="pkg" onclick="setRegTab('pkg')">Packages</button>
+      <button type="button" data-reg="mod" onclick="setRegTab('mod')" title="Modeling — what the team is building in Revit, and where each piece stands">Modeling</button>
       
     </div>
     <div id="regPaneAdd"><div id="addRegView"></div><div id="sheetsView" style="display:none"></div></div>
     <div id="regPaneRfi" style="display:none"><div class="sec-lead">RFIs — aging first, because old RFIs become claims</div><div id="rfiRegView"></div></div>
     <div id="regPanePkg" style="display:none"><div class="sec-lead">Packages — where each one stands</div><div id="overviewView"></div></div>
+    <div id="regPaneMod" style="display:none"><div class="sec-lead">Modeling — what the team is building in Revit</div><div id="modRegView"></div></div>
   </div>
   <div id="historyView" style="display:none">
     <div class="regtabs" id="histTabs">
@@ -3690,7 +3794,7 @@ function setView(view){
   if(showKey==='rfis')buildRfiBoardView();
   if(showKey==='package')buildPackageView();
   if(showKey==='court')buildCourtView();
-  if(showKey==='registers'){buildOverviewView();buildAddendumRegister();buildRfiRegister();setRegTab(regTab);}
+  if(showKey==='registers'){buildOverviewView();buildAddendumRegister();buildRfiRegister();buildModelRegister();setRegTab(regTab);}
   if(showKey==='history'){buildFlowStrip();buildHistoryView();renderCompleted(LAST_DATA);setHistTab(histTab);}
   buildImpactChips();
   applySearchFilter();
@@ -3736,7 +3840,9 @@ function setRegTab(k){
   // addendum carries, the sheet list says what fills it — so it now opens inside the Addenda card.
   if(k==='sheets'){regTab=k='add';buildAddendumRegister();}
   if(k==='add'||k==='pcn'){REG_KIND=(k==='pcn')?'pcn':'addendum';buildAddendumRegister();}
-  var panes={add:'regPaneAdd',pcn:'regPaneAdd',rfi:'regPaneRfi',pkg:'regPanePkg'};
+  // Not an instrument, so not a REG_KIND: its own renderer, its own pane. See the Modeling section.
+  if(k==='mod')buildModelRegister();
+  var panes={add:'regPaneAdd',pcn:'regPaneAdd',rfi:'regPaneRfi',pkg:'regPanePkg',mod:'regPaneMod'};
   Object.keys(panes).forEach(function(kk){
     var el=document.getElementById(panes[kk]);if(el)el.style.display=(panes[kk]===panes[k])?'':'none';
   });
@@ -4316,7 +4422,7 @@ function addCapture(){
   if(!API_URL||API_URL.indexOf('PASTE_')===0){queueLocally(payload);refreshBoard();setStatus('Added to the board ('+queueCount()+' pending). Click “Copy for check-in” to sync with Claude.');return;}
   sendToSheet(payload,function(ok){if(ok)setStatus('Saved to your tracker sheet — tell Claude to sync next session.');else{queueLocally(payload);setStatus('Could not reach the sheet — saved locally, will retry.');}});
 }
-function typeLabel(type){return type==='answer'?'Answered \u2192':type==='addendum'?'Addendum +':type==='unaddendum'?'Addendum \u2013':type==='note'?'Note':type==='complete'?'Done':type==='blocker'?'Blocker':type==='watch'?'Watch':type==='subtask'?'Subtask':type==='stepdone'?'Step done':type==='court'?'Court \u2192':type==='topic'?'Topic \u2192':type==='due'?'Due \u2192':type==='delegate'?'Delegate \u2192':type==='image'?'Picture':type==='inquiry'?'Bid inquiry':type==='rfistate'?'RFI state \u2192':type==='addmeta'?'Addendum field \u2192':type==='sheet'?'Sheet +':type==='produces'?'Addendum state \u2192':'New';}
+function typeLabel(type){return type==='answer'?'Answered \u2192':type==='addendum'?'Addendum +':type==='unaddendum'?'Addendum \u2013':type==='note'?'Note':type==='complete'?'Done':type==='blocker'?'Blocker':type==='watch'?'Watch':type==='subtask'?'Subtask':type==='stepdone'?'Step done':type==='court'?'Court \u2192':type==='topic'?'Topic \u2192':type==='due'?'Due \u2192':type==='delegate'?'Delegate \u2192':type==='image'?'Picture':type==='inquiry'?'Bid inquiry':type==='family'?'Modeling':type==='rfistate'?'RFI state \u2192':type==='addmeta'?'Addendum field \u2192':type==='sheet'?'Sheet +':type==='produces'?'Addendum state \u2192':'New';}
 function formatTs(ts){if(!ts)return'';var d=new Date(ts);if(isNaN(d.getTime()))return'';return d.toLocaleDateString(undefined,{month:'short',day:'numeric'})+' · '+d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});}
 
 function renderPendingRow(payload){updateCaptureSummary();var list=document.getElementById('pendingList');var empty=list.querySelector('.pending-empty');if(empty)empty.remove();var row=document.createElement('div');row.className='pending-row';renderPendingRowView(row,payload);list.appendChild(row);}
@@ -4500,9 +4606,15 @@ function syncHeaders(){var h={'Content-Type':'text/plain'};if(SYNC.key)h['x-wt-k
 // mid-sentence replaces the box under the cursor and the rest of the sentence goes nowhere.
 function registerTyping(){
   try{
-    var host=document.getElementById('addRegView');
     var el=document.activeElement;
-    if(!host||!el||!host.contains(el))return false;
+    if(!el)return false;
+    // Two panes now hold editable rows. Either one being typed in defers the repaint; the addendum
+    // guard alone would have let a store update wipe a half-typed family name.
+    var host=document.getElementById('addRegView');
+    var mhost=document.getElementById('modRegView');
+    var inAdd=!!(host&&host.contains(el)),inMod=!!(mhost&&mhost.contains(el));
+    if(!inAdd&&!inMod)return false;
+    if(el.id==='modQ')return false;               // the modeling search redraws per keystroke too
     // The register's own search box is the exception, and it has to be: it narrows the list ON every
     // keystroke, which means rebuilding while the cursor is still in it. Deferring that turned the
     // search into a box that did nothing until you clicked away — and it did it everywhere, Bid
@@ -4523,6 +4635,7 @@ function deferRegisterRepaint(){
       if(!document.getElementById('addRegView'))return;
       if(registerTyping())return;
       SYNC.dirty=false;buildAddendumRegister();
+      if(document.getElementById('modRegView'))buildModelRegister();
     },0);
   },true);
 }
@@ -4765,6 +4878,40 @@ function buildExportText(){
         +'(record as [noauto:: yes] on the inquiry)');
       return out.join('\n');
     }
+    if(p.type==='family'){
+      if(p.drop)return '- [Modeling] remove \u201c'+(p.name||p.slug)+'\u201d from Projects/Modeling.md';
+      var mo=['- [Modeling] '+(p.name||p.slug)+'  [slug:: '+(p.slug||'')+']'];
+      var mfield=function(k,v){if(String(v||'').trim())mo.push('    ['+k+':: '+String(v).trim()+']');};
+      mfield('state',p.state);
+      mfield('who',p.who);
+      mfield('waiting',p.waiting);
+      mfield('where',(p.where||[]).join(', '));
+      mfield('project',p.project);
+      mfield('pkg',p.pkg);
+      mfield('due',p.due);
+      if(String(p.note||'').trim())
+        mo=mo.concat(inqLines('    ','note: ',p.note,'        '));
+      (p.parts||[]).forEach(function(x){
+        if(!x||!x.name)return;
+        mo.push('    - '+x.name
+          +(x.state?('  [state:: '+x.state+']'):'')
+          +(x.who?('  [who:: '+x.who+']'):'')
+          +(x.waiting?('  [waiting:: '+x.waiting+']'):''));
+        if(String(x.note||'').trim())
+          mo=mo.concat(inqLines('        ','note: ',x.note,'            '));
+      });
+      (p.meets||[]).forEach(function(m){
+        if(!m)return;
+        mo.push('    > '+(m.date||'(no date)')+' '+(m.kind||'internal')
+          +(m.who?(' \u2014 '+m.who):''));
+        if(String(m.note||'').trim())
+          mo=mo.concat(inqLines('        ','','\u2192 '+m.note,'            '));
+      });
+      // Once per family, and short: repeated at length it drowned the entries it was annotating.
+      mo.push('      \u2192 Projects/Modeling.md, keyed on the slug (a work list \u2014 nothing here '
+        +'belongs on an instrument)');
+      return mo.join('\n');
+    }
     if(p.type==='imgissue'){
       return '- [Picture '+(p.issue?'\u2014 IN THE ADDENDUM':'\u2014 working context')+'] '
         +(p.name||'markup')+ref
@@ -4826,6 +4973,7 @@ function unfoldedOps(){
     if(p.type==='sheet'){out.push({p:p,what:'a row that exists only here: “'
       +String(p.text||'').slice(0,60)+'”'});return;}
     if(p.type==='inquiry'){out.push({p:p,what:'bid inquiry Q'+(p.qno||'')});return;}
+    if(p.type==='family'){out.push({p:p,what:'modeling \u2014 '+(p.name||p.slug||'')});return;}
     if(p.type==='addmeta'&&p.field){
       if(!b){out.push({p:p,what:(p.field)+' on “'+String(p.itemRef||'').slice(0,50)+'”'});return;}
       var cur;
@@ -12722,6 +12870,706 @@ function boot(d){LAST_DATA=d;MILESTONES=d.milestones||[];STAKEHOLDERS=d.stakehol
   BASE_ITEMS=_all.filter(function(it){return !it.lane;});
   BASE_DETAILS=d.details||{};applyPendingOverlay();init();buildImpactChips();restoreUiState();syncConfigure(d);}
 
+// ---- Modeling: what the team is building in Revit ---------------------------------------------
+// This is NOT an instrument. It is not numbered, not written up, not issued, and it has no gate, so
+// it gets its own renderer rather than a third REG_KIND — pushing it through the addendum machinery
+// would have dragged clause numbering, placements and a §4 builder behind a list that has none of
+// those things. What it borrows is the bid-inquiry ROW, because that shape was built for exactly
+// this problem: forty rows you scroll past, each of which has to say enough on one line to decide
+// whether to open it.
+//
+// Two levels, not the board's three. Portals → Top Bonnet → (Light, Perforation, Glass) is one
+// piece of work with three things to draw on it: the third level is a note, because a level you
+// cannot start, assign or wait on is not a level.
+//
+// COLOUR. The palette rule at the top of this file is that a hue means one thing and nothing may
+// borrow it, so seven states do NOT get seven colours. Only three earn one: ready and done are
+// --ok ("settled · ready · done" is literally what that token is for), and needs-discussion is
+// --gold, which already means a decision is owed by you. Being-modeled is a dark neutral, and the
+// two waiting states are a DASHED edge — a texture, not a hue — because "whose turn is it" is
+// carried by words everywhere else in this app and should be here too.
+var MOD_STATES=[
+ ['ready','Ready to start','ms-ready','●',
+  'Nothing is in the way — someone can open Revit and model this today. The green dot on the board.'],
+ ['discuss','Needs discussion','ms-discuss','★',
+  'Cannot be modeled until it is talked through. The star on the board — it is asking for a '
+  +'conversation, not for a decision from somebody else.'],
+ ['modeling','Being modeled','ms-doing','◐',
+  'Open in Revit right now. Say who has it, or nobody else can tell.'],
+ ['decision','Waiting on a decision','ms-wait','…',
+  'Ready to model and stuck on an answer from someone. Name them — that is what makes it chaseable.'],
+ ['mfr','Waiting on a manufacturer','ms-wait','…',
+  'Held on a product, shop drawings, or a meeting that has not happened yet.'],
+ ['review','Modeled — needs review','ms-review','○',
+  'It is in the model and nobody has checked it.'],
+ ['done','Done','ms-done','✓',
+  'In the model and checked. It dims and sorts to the bottom so it stops asking for attention.']
+];
+function modState(k){
+  for(var i=0;i<MOD_STATES.length;i++)if(MOD_STATES[i][0]===String(k||''))return MOD_STATES[i];
+  return null;
+}
+function modStateName(k){var s=modState(k);return s?s[1]:'Not triaged';}
+function modWaitingState(k){return k==='decision'||k==='mfr';}
+// Manufacturer, internal, client, consultant, site. "Meetings with manufacturers" was the ask, but a
+// decision on the Gate Desk CPU door gets made in an internal review just as often, and a log that
+// can only hold one kind of meeting is a log you keep somewhere else.
+var MOD_MEETS=[['mfr','Manufacturer'],['internal','Internal'],['client','Client'],
+               ['consultant','Consultant'],['site','Site']];
+function modMeetName(k){
+  for(var i=0;i<MOD_MEETS.length;i++)if(MOD_MEETS[i][0]===String(k||''))return MOD_MEETS[i][1];
+  return 'Meeting';
+}
+var MOD_FILTER='';    // '' | a state key | nostate | waiting | due
+var MOD_TAG='';       // project or package tag, '' = everything
+var MOD_Q='';
+var MOD_OPEN={};
+var MOD_DRAFT={};
+var MOD_HELP=false;
+// Titles are ids everywhere else in this system and they are ids here too, except that a family gets
+// renamed ("New Screen" becomes "Hammerhead Screen") and losing its notes to a rename would be a
+// bad trade. So the slug is minted once from the first name and then never moves.
+function modSlug(s){
+  return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-')
+    .replace(/^-+|-+$/g,'').slice(0,48);
+}
+function modWhereList(v){
+  if(!v)return [];
+  if(Object.prototype.toString.call(v)==='[object Array]')
+    return v.map(function(x){return String(x==null?'':x).trim();})
+            .filter(function(x){return !!x;});
+  return String(v).split(/\s*[,;\/]\s*/).map(function(x){return x.trim();})
+    .filter(function(x){return !!x;});
+}
+function modPartsOf(f){
+  var p=(f&&f.parts)||[];
+  return p.map(function(x){
+    if(!x)return null;
+    if(typeof x==='string')return {name:x,state:'',who:'',waiting:'',note:''};
+    return {name:String(x.name||''),state:String(x.state||''),who:String(x.who||''),
+            waiting:String(x.waiting||''),note:String(x.note||'')};
+  }).filter(function(x){return x&&x.name;});
+}
+function modMeetsOf(f){
+  var m=(f&&f.meets)||[];
+  return m.map(function(x){
+    if(!x)return null;
+    return {date:String(x.date||''),kind:String(x.kind||'internal'),
+            who:String(x.who||''),note:String(x.note||'')};
+  }).filter(function(x){return x&&(x.date||x.who||x.note);})
+    .sort(function(a,b){return (a.date||'')<(b.date||'')?1:-1;});   // newest first
+}
+// The vault holds the list; the queue holds what you have changed since the last check-in. A queued
+// op carries the WHOLE family, the same way one op carries a whole bid inquiry — a family is a small
+// record, and field-level ops would make the check-in text unreadable for no gain.
+function modelFamilies(){
+  var base={},order=[];
+  ((window.LAST_DATA&&LAST_DATA.families)||[]).forEach(function(f){
+    var slug=String(f.slug||modSlug(f.name));
+    if(!slug||base[slug])return;
+    base[slug]=f;order.push(slug);
+  });
+  var q={};
+  (readQueue()||[]).forEach(function(o){
+    if(o.type!=='family'||!o.slug)return;
+    q[o.slug]=o;                                  // ops arrive in time order, so the last one wins
+    if(order.indexOf(o.slug)===-1)order.push(o.slug);
+  });
+  var out=[];
+  order.forEach(function(slug){
+    var op=q[slug],v=base[slug],src=op||v;
+    if(!src||(op&&op.drop))return;
+    out.push({slug:slug,
+      name:String(src.name||(v&&v.name)||''),
+      state:String(src.state||''),who:String(src.who||''),waiting:String(src.waiting||''),
+      where:modWhereList(src.where),
+      project:String(src.project||''),pkg:String(src.pkg||''),
+      due:String(src.due||''),note:String(src.note||''),
+      parts:modPartsOf(src),meets:modMeetsOf(src),
+      fromVault:!op});
+  });
+  // Done drops to the bottom; everything else keeps the order the list was written in, which is the
+  // order it was thought in and therefore the order it reads best in.
+  var i=0;
+  out.forEach(function(f){f._ord=i++;});
+  out.sort(function(a,b){
+    var ad=a.state==='done'?1:0,bd=b.state==='done'?1:0;
+    return ad!==bd?ad-bd:a._ord-b._ord;});
+  return out;
+}
+function familyBySlug(slug){
+  var all=modelFamilies();
+  for(var i=0;i<all.length;i++)if(all[i].slug===slug)return all[i];
+  return null;
+}
+function saveFamily(f,patch){
+  var cur={slug:f.slug,name:f.name,state:f.state,who:f.who,waiting:f.waiting,
+           where:(f.where||[]).slice(),project:f.project,pkg:f.pkg,due:f.due,note:f.note,
+           parts:modPartsOf(f),meets:(f.meets||[]).slice()};
+  Object.keys(patch||{}).forEach(function(k){cur[k]=patch[k];});
+  cur.where=modWhereList(cur.where);
+  cur.parts=modPartsOf(cur);
+  cur.meets=modMeetsOf(cur);
+  supersede(function(o){return o.type==='family'&&o.slug===f.slug;});
+  queueLocally({type:'family',slug:cur.slug,name:cur.name,state:cur.state,who:cur.who,
+    waiting:cur.waiting,where:cur.where,project:cur.project,pkg:cur.pkg,due:cur.due,
+    note:cur.note,parts:cur.parts,meets:cur.meets,
+    text:'Modeling: '+(cur.name||cur.slug)+' — '+modStateName(cur.state).toLowerCase()
+      +(cur.who?(' · '+cur.who):'')
+      +(cur.waiting?(' · waiting on '+cur.waiting):'')});
+  buildModelRegister();
+  return cur;
+}
+function dropFamily(f){
+  supersede(function(o){return o.type==='family'&&o.slug===f.slug;});
+  if(f.fromVault){
+    queueLocally({type:'family',slug:f.slug,name:f.name,drop:1,
+      text:'Modeling: remove “'+f.name+'”'});
+    setStatus('“'+f.name+'” comes off the list at the next check-in.');
+  }else{
+    setStatus('“'+f.name+'” removed — it was never folded in, so it leaves no trace.');
+  }
+  buildModelRegister();
+}
+// Counts of the sub-items by state, for the one line the shut row shows.
+function modPartRoll(f){
+  var r={n:0};
+  modPartsOf(f).forEach(function(p){
+    r.n++;var k=p.state||'none';r[k]=(r[k]||0)+1;});
+  return r;
+}
+function modDueFlag(d){
+  var s=String(d||'').trim();if(!s)return '';
+  var today=new Date();var t=today.toISOString().slice(0,10);
+  if(s<t)return 'past';
+  var soon=new Date(today.getTime()+7*864e5).toISOString().slice(0,10);
+  return s<=soon?'soon':'';
+}
+function modTags(){
+  var seen={},out=[];
+  modelFamilies().forEach(function(f){
+    [f.project,f.pkg].forEach(function(t){
+      t=String(t||'').trim();if(!t||seen[t])return;seen[t]=1;out.push(t);});});
+  out.sort();return out;
+}
+function modPassesTag(f){
+  if(!MOD_TAG)return true;
+  return String(f.project||'')===MOD_TAG||String(f.pkg||'')===MOD_TAG;
+}
+function modPassesFilter(f){
+  if(!modPassesTag(f))return false;
+  if(!MOD_FILTER)return true;
+  if(MOD_FILTER==='nostate')return !f.state;
+  if(MOD_FILTER==='waiting')return modWaitingState(f.state)
+    ||modPartsOf(f).some(function(p){return modWaitingState(p.state);});
+  if(MOD_FILTER==='due')return !!modDueFlag(f.due);
+  if(MOD_FILTER===f.state)return true;
+  // a family with no state of its own still belongs to the pile its sub-items are in
+  return modPartsOf(f).some(function(p){return p.state===MOD_FILTER;});
+}
+function modHaystack(f){
+  var bits=[f.name,f.who,f.waiting,f.note,f.project,f.pkg,(f.where||[]).join(' '),
+            modStateName(f.state)];
+  modPartsOf(f).forEach(function(p){bits.push(p.name,p.who,p.waiting,p.note,modStateName(p.state));});
+  modMeetsOf(f).forEach(function(m){bits.push(m.who,m.note,modMeetName(m.kind),m.date);});
+  return bits.join(' · ').toLowerCase();
+}
+function modMatchesQ(f){
+  var t=String(MOD_Q||'').trim().toLowerCase();if(!t)return true;
+  var hay=modHaystack(f);
+  return t.split(/\s+/).every(function(w){return hay.indexOf(w)!==-1;});
+}
+function modelTyping(){
+  try{
+    var host=document.getElementById('modRegView');
+    var el=document.activeElement;
+    if(!host||!el||!host.contains(el))return false;
+    if(el.id==='modQ')return false;               // the search box has to redraw per keystroke
+    return /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName||'');
+  }catch(e){return false;}
+}
+function modSearchSet(v,caret){
+  MOD_Q=String(v||'');
+  buildModelRegister();
+  var el=document.getElementById('modQ');
+  if(el&&caret!=null){el.focus();try{el.setSelectionRange(caret,caret);}catch(e){}}
+}
+// Everyone the vault knows, plus everyone already named on this list — so the second time you assign
+// Emad you pick him rather than spell him.
+function modPeople(){
+  var seen={},out=[];
+  var add=function(n){n=String(n||'').trim();if(!n||seen[n])return;seen[n]=1;out.push(n);};
+  (window.STAKEHOLDERS||[]).forEach(function(s){add(s.name);});
+  modelFamilies().forEach(function(f){
+    add(f.who);add(f.waiting);
+    modPartsOf(f).forEach(function(p){add(p.who);add(p.waiting);});
+    modMeetsOf(f).forEach(function(m){add(m.who);});});
+  out.sort();return out;
+}
+function modDataList(id,vals){
+  var d=document.createElement('datalist');d.id=id;
+  vals.forEach(function(v){var o=document.createElement('option');o.value=v;d.appendChild(o);});
+  return d;
+}
+function modFieldRow(lab,el,hint){
+  var w=document.createElement('div');w.className='mod-f';
+  var l=document.createElement('span');l.className='mod-lbl';l.textContent=lab;
+  if(hint)l.title=hint;
+  w.appendChild(l);w.appendChild(el);return w;
+}
+function modText(val,ph,commit,dk,listId,wide){
+  var t=document.createElement('input');t.type='text';
+  t.className='mod-in'+(wide?' mod-in-w':'');
+  t.value=(MOD_DRAFT[dk]!==undefined)?MOD_DRAFT[dk]:String(val||'');
+  t.placeholder=ph||'';t.autocomplete='off';
+  if(listId)t.setAttribute('list',listId);
+  if(MOD_DRAFT[dk]!==undefined&&MOD_DRAFT[dk]!==String(val||''))t.className+=' mod-draft';
+  t.addEventListener('input',function(){MOD_DRAFT[dk]=t.value;});
+  t.addEventListener('keydown',function(e){e.stopPropagation();if(e.key==='Enter')t.blur();});
+  t.addEventListener('blur',function(){
+    delete MOD_DRAFT[dk];
+    var v=t.value.trim();
+    if(v!==String(val||'').trim())commit(v);
+  });
+  return t;
+}
+function modArea(val,ph,commit,dk){
+  var t=document.createElement('textarea');t.className='mod-in mod-area';t.rows=2;
+  t.value=(MOD_DRAFT[dk]!==undefined)?MOD_DRAFT[dk]:String(val||'');
+  t.placeholder=ph||'';
+  if(MOD_DRAFT[dk]!==undefined&&MOD_DRAFT[dk]!==String(val||''))t.className+=' mod-draft';
+  var grow=function(){t.style.height='auto';t.style.height=(t.scrollHeight+2)+'px';};
+  t.addEventListener('input',function(){grow();MOD_DRAFT[dk]=t.value;});
+  t.addEventListener('keydown',function(e){e.stopPropagation();
+    if(e.key==='Enter'&&(e.metaKey||e.ctrlKey))t.blur();});
+  t.addEventListener('blur',function(){
+    delete MOD_DRAFT[dk];
+    var v=t.value.replace(/\s+$/,'');
+    if(v!==String(val||''))commit(v);
+  });
+  setTimeout(grow,0);
+  return t;
+}
+function modStateSelect(val,commit){
+  var s=document.createElement('select');s.className='mod-sel';
+  var o0=document.createElement('option');o0.value='';o0.textContent='not triaged';
+  s.appendChild(o0);
+  MOD_STATES.forEach(function(st){
+    var o=document.createElement('option');o.value=st[0];o.textContent=st[1];s.appendChild(o);});
+  s.value=String(val||'');
+  s.title='What stage this is at. Every option says what it means when you hover it in the family '
+    +'row above.';
+  s.addEventListener('click',function(e){e.stopPropagation();});
+  s.addEventListener('change',function(){commit(s.value);});
+  return s;
+}
+function modStatePicker(f){
+  var w=document.createElement('div');w.className='mod-pick';
+  var mk=function(k,label,cls,glyph,ttl){
+    var b=document.createElement('button');b.type='button';
+    b.className='mod-pb '+(cls||'')+((f.state||'')===k?' on':'');
+    b.textContent=(glyph?glyph+' ':'')+label;
+    b.title=ttl;
+    b.addEventListener('click',function(e){
+      e.stopPropagation();
+      var next=(f.state===k)?'':k;                       // clicking the state it is in clears it
+      saveFamily(f,{state:next});
+      setStatus(next?('“'+f.name+'” — '+modStateName(next).toLowerCase()+'.')
+                    :('“'+f.name+'” is back to not triaged.'));
+    });
+    w.appendChild(b);
+  };
+  mk('','not triaged','ms-none','','No state yet — it is on the board and nobody has said where it '
+    +'stands. Clicking the state it is already in also clears it.');
+  MOD_STATES.forEach(function(st){mk(st[0],st[1],st[2],st[3],st[4]);});
+  return w;
+}
+function buildModelRegister(){
+  var c=document.getElementById('modRegView');if(!c)return;
+  // Same rule as the addendum register: a repaint must never land mid-sentence.
+  if(modelTyping()){deferRegisterRepaint();return;}
+  c.innerHTML='';
+  var all=modelFamilies();
+  var people=modPeople(),tags=modTags();
+  var whereSeen={},wheres=[];
+  all.forEach(function(f){(f.where||[]).forEach(function(x){
+    if(!whereSeen[x]){whereSeen[x]=1;wheres.push(x);}});});
+  c.appendChild(modDataList('modWhoList',people));
+  c.appendChild(modDataList('modWhereList',wheres.sort()));
+  c.appendChild(modDataList('modTagList',tags));
+  (function(){
+    var tg=document.createElement('button');tg.type='button';tg.className='inq-help-t';
+    var lede=document.createElement('div');lede.className='wb-lede';
+    lede.innerHTML='<b>What the team is building in Revit</b>, and where each piece stands. This is '
+      +'a work list, not an instrument — nothing here is numbered, written up or issued, and '
+      +'nothing here blocks an addendum from going out. Two levels: a <b>family</b>, and the '
+      +'<b>sub-items</b> inside it that can be started, assigned or waited on separately. A third '
+      +'level — the finishes and lights inside one sub-item — belongs in its note, because '
+      +'a level you cannot assign is not a level.<br><br>'
+      +'Green means someone can open Revit today. A star means it needs talking through. The two '
+      +'waiting states carry a <b>name</b>, which is what makes them chaseable rather than just '
+      +'stuck.';
+    var paint=function(){
+      lede.style.display=MOD_HELP?'':'none';
+      tg.textContent=(MOD_HELP?'–':'+')+'  what this list is for';};
+    tg.addEventListener('click',function(){MOD_HELP=!MOD_HELP;paint();});
+    paint();c.appendChild(tg);c.appendChild(lede);
+  })();
+  // ---- search ------------------------------------------------------------------------------------
+  (function(){
+    var fnd=document.createElement('div');fnd.className='reg-find';
+    var wrap=document.createElement('div');wrap.className='rf-wrap';
+    var mag=document.createElement('span');mag.className='rf-mag';mag.textContent='⌕';
+    wrap.appendChild(mag);
+    var inp=document.createElement('input');inp.type='text';inp.id='modQ';inp.className='rf-in';
+    inp.autocomplete='off';inp.value=MOD_Q;
+    inp.placeholder='Find a family, a sub-item, a person, a manufacturer, a note';
+    inp.title='Searches everything a row carries — sub-item names, who has it, who it waits on, '
+      +'the notes, and the meeting log. Two words narrows: both must appear.';
+    inp.addEventListener('input',function(){modSearchSet(inp.value,inp.selectionStart);});
+    inp.addEventListener('keydown',function(e){
+      e.stopPropagation();
+      if(e.key==='Escape'){e.preventDefault();MOD_Q='';buildModelRegister();
+        var e2=document.getElementById('modQ');if(e2)e2.focus();}});
+    wrap.appendChild(inp);
+    if(MOD_Q){
+      var x=document.createElement('button');x.type='button';x.className='rf-x';x.textContent='✕';
+      x.title='Clear the search';
+      x.addEventListener('click',function(){MOD_Q='';buildModelRegister();
+        var e3=document.getElementById('modQ');if(e3)e3.focus();});
+      wrap.appendChild(x);}
+    fnd.appendChild(wrap);c.appendChild(fnd);
+  })();
+  // ---- filters -----------------------------------------------------------------------------------
+  (function(){
+    var fr=document.createElement('div');fr.className='add-filter add-filter-lead';
+    var lb=document.createElement('span');lb.className='add-filter-lbl';lb.textContent='Show';
+    fr.appendChild(lb);
+    var opts=[['','Everything','Every family on the list']];
+    MOD_STATES.forEach(function(st){opts.push([st[0],st[1],st[4]]);});
+    opts.push(['nostate','Not triaged','On the board with no state yet — nobody has said whether '
+      +'it can start']);
+    opts.push(['waiting','Waiting on someone','Held on a decision or a manufacturer, at either level '
+      +'— these are the ones to chase']);
+    opts.push(['due','Has a date','The only ones with a clock on them']);
+    var count=function(k){
+      var was=MOD_FILTER;MOD_FILTER=k;
+      var n=all.filter(modPassesFilter).length;MOD_FILTER=was;return n;};
+    opts.forEach(function(o){
+      var n=count(o[0]);
+      var b=document.createElement('button');b.type='button';
+      b.className='add-flag-b'+(MOD_FILTER===o[0]?' on':'')+((!n&&o[0])?' is-zero':'');
+      b.appendChild(document.createTextNode(o[1]));
+      var s=document.createElement('span');s.className='fc';s.textContent=n;b.appendChild(s);
+      b.title=o[2]+(n?'':' — none right now');
+      b.addEventListener('click',function(){MOD_FILTER=o[0];buildModelRegister();});
+      fr.appendChild(b);});
+    var sp=document.createElement('span');sp.className='add-filter-lbl';sp.style.marginLeft='10px';
+    sp.textContent='Rows';fr.appendChild(sp);
+    [['open all',true],['close all',false]].forEach(function(o){
+      var b=document.createElement('button');b.type='button';b.className='add-filter-b';
+      b.textContent=o[0];
+      b.addEventListener('click',function(){
+        all.forEach(function(f){if(modPassesFilter(f)&&modMatchesQ(f))MOD_OPEN[f.slug]=o[1];});
+        buildModelRegister();});
+      fr.appendChild(b);});
+    c.appendChild(fr);
+    // The tag row only appears once there is more than one thing to choose between. Today every
+    // family is Concourse B and a filter with one option is furniture.
+    if(tags.length>1){
+      var tr=document.createElement('div');tr.className='add-filter';
+      var tl=document.createElement('span');tl.className='add-filter-lbl';tl.textContent='Project';
+      tr.appendChild(tl);
+      [''].concat(tags).forEach(function(t){
+        var n=all.filter(function(f){
+          return !t||String(f.project||'')===t||String(f.pkg||'')===t;}).length;
+        var b=document.createElement('button');b.type='button';
+        b.className='add-flag-b'+(MOD_TAG===t?' on':'')+((!n&&t)?' is-zero':'');
+        b.appendChild(document.createTextNode(t||'All projects'));
+        var s=document.createElement('span');s.className='fc';s.textContent=n;b.appendChild(s);
+        b.title=t?('Only what is tagged '+t):'Every project and package';
+        b.addEventListener('click',function(){MOD_TAG=t;buildModelRegister();});
+        tr.appendChild(b);});
+      c.appendChild(tr);
+    }
+    var nt=document.createElement('div');nt.className='add-filter-note';
+    var nUn=all.filter(function(f){return !f.state;}).length;
+    var nRdy=all.filter(function(f){return f.state==='ready';}).length;
+    nt.textContent=MOD_FILTER
+      ?('Only '+({nostate:'the ones nobody has triaged',waiting:'what is held on someone',
+                  due:'what has a date'}[MOD_FILTER]
+                 ||modStateName(MOD_FILTER).toLowerCase())+'.')
+      :(all.length
+        ?(n_(all.length,'family','families')+' on the list'
+          +(nRdy?(' · '+nRdy+' can start today'):'')
+          +(nUn?(' · '+nUn+' not triaged yet'):'')+'.')
+        :'Nothing on the list yet.');
+    c.appendChild(nt);
+  })();
+  var list=all.filter(modPassesFilter);
+  if(MOD_Q&&list.length){
+    var kept=list.filter(modMatchesQ);
+    var qn=document.createElement('div');qn.className='wb-lede';
+    qn.innerHTML='<b>'+kept.length+'</b> of '+list.length+' carry “'+escapeHtml(MOD_Q)+'”'
+      +(kept.length?'.':' — the rest are hidden, not gone.');
+    c.appendChild(qn);
+    list=kept;
+  }
+  if(!all.length){
+    var em=document.createElement('div');em.className='sec-lead';
+    em.textContent='Add the first family below. Everything you add here is yours until the next '
+      +'check-in folds it into the vault.';
+    c.appendChild(em);
+  }
+  list.forEach(function(f){c.appendChild(modFamilyRow(f,people));});
+  c.appendChild(modAddForm());
+}
+function modFamilyRow(f,people){
+  var r=document.createElement('div');r.className='mod-row';
+  var st=f.state||'';
+  r.className+=st?(' '+(modState(st)||[])[2]):' ms-none';
+  if(modWaitingState(st))r.className+=' is-waiting';
+  var body=document.createElement('div');body.className='mod-body';
+  // ---- the family's own fields -------------------------------------------------------------------
+  body.appendChild(modStatePicker(f));
+  var g1=document.createElement('div');g1.className='mod-grid';
+  g1.appendChild(modFieldRow('Who is modelling it',
+    modText(f.who,'nobody yet',function(v){
+      saveFamily(f,{who:v});
+      setStatus(v?(v+' has “'+f.name+'”.'):('“'+f.name+'” has nobody on it.'));},
+      'w|'+f.slug,'modWhoList'),
+    'The person with it open in Revit, or the person it is assigned to.'));
+  g1.appendChild(modFieldRow('Waiting on',
+    modText(f.waiting,modWaitingState(st)?'name them — this is what makes it chaseable':'nobody',
+      function(v){saveFamily(f,{waiting:v});},'wt|'+f.slug,'modWhoList'),
+    'Who the decision, the product or the answer sits with. Separate from who is modelling it.'));
+  g1.appendChild(modFieldRow('Where it lands',
+    modText((f.where||[]).join(', '),'Finger, Arrivals…',function(v){
+      saveFamily(f,{where:modWhereList(v)});},'wh|'+f.slug,'modWhereList'),
+    'One family can land in more than one place — the Gate Desk is the same family at the '
+    +'Finger gates and at Arrivals. Comma separated.'));
+  g1.appendChild(modFieldRow('Target date',
+    (function(){
+      var d=document.createElement('input');d.type='date';d.className='mod-in mod-date';
+      d.value=String(f.due||'');
+      d.title='Optional. Set one only where a date genuinely exists — an empty date never nags.';
+      d.addEventListener('click',function(e){e.stopPropagation();});
+      d.addEventListener('change',function(){saveFamily(f,{due:d.value});});
+      return d;})(),
+    'Optional — most of these have no date and should not pretend to.'));
+  g1.appendChild(modFieldRow('Project',
+    modText(f.project,'Concourse B',function(v){saveFamily(f,{project:v});},
+      'pj|'+f.slug,'modTagList'),
+    'Everything is Concourse B today. Tagging it now is what lets the list split by project later '
+    +'without going back through every row.'));
+  g1.appendChild(modFieldRow('Package',
+    modText(f.pkg,'blank unless it matters',function(v){saveFamily(f,{pkg:v});},
+      'pk|'+f.slug,'modTagList'),
+    'Optional. Fill it in when a family belongs to one package rather than the model at large.'));
+  body.appendChild(g1);
+  body.appendChild(modFieldRow('Note',
+    modArea(f.note,'What this is, what is unresolved, what was decided — anything the name does '
+      +'not carry',function(v){saveFamily(f,{note:v});},'n|'+f.slug),
+    'The family’s own note. Ctrl+Enter (⌘+Enter) saves.'));
+  // ---- sub-items ---------------------------------------------------------------------------------
+  (function(){
+    var parts=modPartsOf(f);
+    var h=document.createElement('div');h.className='mod-sec-h';
+    h.textContent=parts.length?('Inside it — '+n_(parts.length,'sub-item'))
+                              :'Inside it';
+    h.title='The pieces that can be started, assigned or waited on separately. Anything finer than '
+      +'that — the lights and the glass inside one bonnet — goes in the sub-item’s note.';
+    body.appendChild(h);
+    parts.forEach(function(p,pi){
+      var pr=document.createElement('div');pr.className='mod-part'
+        +(p.state?(' '+(modState(p.state)||[])[2]):' ms-none');
+      var top=document.createElement('div');top.className='mod-part-top';
+      top.appendChild(modText(p.name,'what it is',function(v){
+        var np=parts.slice();
+        if(!v){np.splice(pi,1);}else{np[pi]={name:v,state:p.state,who:p.who,waiting:p.waiting,
+          note:p.note};}
+        saveFamily(f,{parts:np});
+        setStatus(v?'':'Sub-item removed — clearing the name is how you delete one.');
+      },'pn|'+f.slug+'|'+pi,null,true));
+      top.appendChild(modStateSelect(p.state,function(v){
+        var np=parts.slice();np[pi]={name:p.name,state:v,who:p.who,waiting:p.waiting,note:p.note};
+        saveFamily(f,{parts:np});}));
+      top.appendChild(modText(p.who,'who',function(v){
+        var np=parts.slice();np[pi]={name:p.name,state:p.state,who:v,waiting:p.waiting,note:p.note};
+        saveFamily(f,{parts:np});},'pw|'+f.slug+'|'+pi,'modWhoList'));
+      top.appendChild(modText(p.waiting,'waiting on',function(v){
+        var np=parts.slice();np[pi]={name:p.name,state:p.state,who:p.who,waiting:v,note:p.note};
+        saveFamily(f,{parts:np});},'pt|'+f.slug+'|'+pi,'modWhoList'));
+      var x=document.createElement('button');x.type='button';x.className='mod-x';x.textContent='✕';
+      x.title='Remove this sub-item';
+      x.addEventListener('click',function(e){e.stopPropagation();
+        var np=parts.slice();np.splice(pi,1);saveFamily(f,{parts:np});
+        setStatus('“'+p.name+'” removed from '+f.name+'.');});
+      top.appendChild(x);
+      pr.appendChild(top);
+      pr.appendChild(modText(p.note,'note — what is on it',
+        function(v){
+          var np=parts.slice();np[pi]={name:p.name,state:p.state,who:p.who,waiting:p.waiting,note:v};
+          saveFamily(f,{parts:np});},'pnn|'+f.slug+'|'+pi,null,true));
+      body.appendChild(pr);
+    });
+    var add=document.createElement('button');add.type='button';add.className='inq-split-b';
+    add.textContent='+ sub-item';
+    add.addEventListener('click',function(e){e.stopPropagation();
+      saveFamily(f,{parts:parts.concat([{name:'New sub-item',state:'',who:'',waiting:'',note:''}])});
+      MOD_OPEN[f.slug]=true;buildModelRegister();});
+    body.appendChild(add);
+  })();
+  // ---- meetings ----------------------------------------------------------------------------------
+  (function(){
+    var meets=modMeetsOf(f);
+    var h=document.createElement('div');h.className='mod-sec-h';
+    h.textContent=meets.length?('Meetings — '+n_(meets.length,'entry','entries')):'Meetings';
+    h.title='Manufacturer, internal, client, consultant or site. Newest first. This is where '
+      +'“met Goldray on the 14th, waiting on shop drawings” lives, so the state above can '
+      +'stay a state instead of a paragraph.';
+    body.appendChild(h);
+    meets.forEach(function(m,mi){
+      var row=document.createElement('div');row.className='mod-meet';
+      var d=document.createElement('input');d.type='date';d.className='mod-in mod-date';
+      d.value=m.date||'';
+      d.addEventListener('click',function(e){e.stopPropagation();});
+      d.addEventListener('change',function(){
+        var nm=meets.slice();nm[mi]={date:d.value,kind:m.kind,who:m.who,note:m.note};
+        saveFamily(f,{meets:nm});});
+      row.appendChild(d);
+      var ks=document.createElement('select');ks.className='mod-sel mod-sel-s';
+      MOD_MEETS.forEach(function(o){
+        var op=document.createElement('option');op.value=o[0];op.textContent=o[1];ks.appendChild(op);});
+      ks.value=m.kind||'internal';
+      ks.addEventListener('click',function(e){e.stopPropagation();});
+      ks.addEventListener('change',function(){
+        var nm=meets.slice();nm[mi]={date:m.date,kind:ks.value,who:m.who,note:m.note};
+        saveFamily(f,{meets:nm});});
+      row.appendChild(ks);
+      row.appendChild(modText(m.who,'who was there',function(v){
+        var nm=meets.slice();nm[mi]={date:m.date,kind:m.kind,who:v,note:m.note};
+        saveFamily(f,{meets:nm});},'mw|'+f.slug+'|'+mi,'modWhoList'));
+      var mx=document.createElement('button');mx.type='button';mx.className='mod-x';
+      mx.textContent='✕';mx.title='Remove this entry';
+      mx.addEventListener('click',function(e){e.stopPropagation();
+        var nm=meets.slice();nm.splice(mi,1);saveFamily(f,{meets:nm});});
+      row.appendChild(mx);
+      body.appendChild(row);
+      body.appendChild(modText(m.note,'what came out of it',function(v){
+        var nm=meets.slice();nm[mi]={date:m.date,kind:m.kind,who:m.who,note:v};
+        saveFamily(f,{meets:nm});},'mn|'+f.slug+'|'+mi,null,true));
+    });
+    var add=document.createElement('button');add.type='button';add.className='inq-split-b';
+    add.textContent='+ log a meeting';
+    add.addEventListener('click',function(e){e.stopPropagation();
+      var t=new Date().toISOString().slice(0,10);
+      saveFamily(f,{meets:[{date:t,kind:'internal',who:'',note:''}].concat(meets)});
+      MOD_OPEN[f.slug]=true;buildModelRegister();});
+    body.appendChild(add);
+  })();
+  // ---- removing it -------------------------------------------------------------------------------
+  (function(){
+    var wrap=document.createElement('div');wrap.className='mod-del-row';
+    var x=document.createElement('button');x.type='button';x.className='inq-split-b mod-del';
+    x.textContent='remove this family';
+    x.title=f.fromVault?'Comes off the list at the next check-in':'Remove it — it was never folded in';
+    x.addEventListener('click',function(e){e.stopPropagation();
+      if(!confirm('Remove “'+f.name+'” and everything on it?'))return;
+      dropFamily(f);});
+    wrap.appendChild(x);body.appendChild(wrap);
+  })();
+  // ---- the shut row: enough on one line to decide whether to open it -----------------------------
+  (function(){
+    var hd=document.createElement('button');hd.type='button';hd.className='inq-head mod-head';
+    var car=document.createElement('span');car.className='inq-car';hd.appendChild(car);
+    var glyph=document.createElement('span');glyph.className='mod-glyph';
+    glyph.textContent=st?((modState(st)||[])[3]||''):'·';
+    glyph.title=st?modStateName(st):'Not triaged yet';
+    hd.appendChild(glyph);
+    var nm=document.createElement('span');nm.className='inq-ht mod-name';
+    nm.textContent=f.name||'(unnamed)';
+    hd.appendChild(nm);
+    var mk=document.createElement('span');mk.className='inq-hm';
+    var mark=function(cls,txt,ttl){
+      var s=document.createElement('span');s.className='inq-mk '+cls;s.textContent=txt;
+      s.title=ttl;mk.appendChild(s);};
+    if((f.where||[]).length)mark('mk-where',(f.where||[]).join(' + '),
+      'Where this family lands');
+    if(st)mark('mk-st-'+st,modStateName(st),(modState(st)||[])[4]);
+    else mark('mk-none','not triaged','Nobody has said where this stands yet');
+    var roll=modPartRoll(f);
+    if(roll.n){
+      var bits=[];
+      if(roll.ready)bits.push(roll.ready+' ready');
+      if(roll.discuss)bits.push(roll.discuss+' ★');
+      if(roll.decision||roll.mfr)bits.push(((roll.decision||0)+(roll.mfr||0))+' waiting');
+      if(roll.done)bits.push(roll.done+' done');
+      mark('mk-sub',roll.n+' inside'+(bits.length?(' · '+bits.join(', ')):''),
+        'What the sub-items add up to. A family can be half-startable.');
+    }
+    if(f.who)mark('mk-who',f.who,'Who is modelling it');
+    if(f.waiting)mark('mk-wait','waiting on '+f.waiting,
+      'Who the answer, the product or the decision sits with');
+    if(modMeetsOf(f).length)mark('mk-meet',n_(modMeetsOf(f).length,'meeting'),
+      'There is a meeting log on this one');
+    var dflag=modDueFlag(f.due);
+    if(f.due)mark('mk-due'+(dflag?(' due-'+dflag):''),f.due,
+      dflag==='past'?'The target date has gone by':'Target date');
+    if(f.pkg)mark('mk-tag',f.pkg,'Package');
+    hd.appendChild(mk);
+    var open=(MOD_OPEN[f.slug]!==undefined)?MOD_OPEN[f.slug]:(!!MOD_Q);
+    var paint=function(){
+      body.style.display=open?'':'none';
+      r.classList.toggle('mod-shut',!open);
+      car.textContent=open?'–':'+';
+      hd.title=open?('Collapse '+f.name)
+        :(f.name+' — open it to set where it stands, who has it, and what is inside it');};
+    paint();
+    hd.addEventListener('click',function(e){
+      e.stopPropagation();open=!open;MOD_OPEN[f.slug]=open;paint();
+      if(open)body.querySelectorAll('.mod-area').forEach(function(el){
+        el.style.height='auto';el.style.height=(el.scrollHeight+2)+'px';});});
+    r.appendChild(hd);r.appendChild(body);
+  })();
+  return r;
+}
+function modAddForm(){
+  var f=document.createElement('div');f.className='sh-addform inq-form mod-add';
+  var nm=document.createElement('input');nm.type='text';nm.className='sh-in';
+  nm.placeholder='A family — Portals, Gate Desk, Hammerhead Screen…';
+  var wh=document.createElement('input');wh.type='text';wh.className='sh-in sh-in-no';
+  wh.placeholder='where';wh.setAttribute('list','modWhereList');
+  wh.title='Optional — Finger, Arrivals, or blank';
+  var stSel=modStateSelect('',function(){});
+  var save=document.createElement('button');save.type='button';save.className='hist-more';
+  save.style.margin='0';save.textContent='Add family';
+  var go=function(){
+    var name=nm.value.trim();if(!name){nm.focus();return;}
+    var slug=modSlug(name);
+    if(!slug){setStatus('That name has nothing in it to file under.');return;}
+    var seen=familyBySlug(slug);
+    if(seen){
+      setStatus('“'+seen.name+'” is already on the list — open it rather than adding a '
+        +'second one.');
+      MOD_OPEN[slug]=true;buildModelRegister();return;}
+    supersede(function(o){return o.type==='family'&&o.slug===slug;});
+    queueLocally({type:'family',slug:slug,name:name,state:stSel.value,who:'',waiting:'',
+      where:modWhereList(wh.value),project:(modTags()[0]||'Concourse B'),pkg:'',due:'',note:'',
+      parts:[],meets:[],
+      text:'Modeling: '+name+' — '+modStateName(stSel.value).toLowerCase()});
+    nm.value='';wh.value='';
+    MOD_OPEN[slug]=true;
+    buildModelRegister();
+    setStatus('“'+name+'” added. It queues for the next check-in like everything else.');
+  };
+  nm.addEventListener('keydown',function(e){e.stopPropagation();if(e.key==='Enter')go();});
+  wh.addEventListener('keydown',function(e){e.stopPropagation();if(e.key==='Enter')go();});
+  save.addEventListener('click',go);
+  f.appendChild(nm);f.appendChild(wh);f.appendChild(stSel);f.appendChild(save);
+  return f;
+}
+
 // ---- encrypted data (data.enc.json) — password gate ----
 var GATE_PASS_KEY='wt-gate-pass';
 function b64ToBuf(b64){var bin=atob(b64);var u=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u.buffer;}
@@ -12776,7 +13624,10 @@ function saveUiState(){
       focusOpen:document.getElementById('focusPanel').open,
       // the Addenda page remembers which instrument, which view and which discipline you were on
       addOpen:ADD_OPEN,addMode:ADD_MODE,addDisc:ADD_DISC,
-      addStyle:ADD_LINESTYLE,addNum:ADD_NUMBERING,addOrderNum:ADD_ORDER_NUMERIC
+      addStyle:ADD_LINESTYLE,addNum:ADD_NUMBERING,addOrderNum:ADD_ORDER_NUMERIC,
+      // Five tabs in that view now. Always landing on Addenda meant re-clicking to Modeling every
+      // reload, and the modeling filter is a way of working, not a momentary choice.
+      regTab:regTab,modFilter:MOD_FILTER,modTag:MOD_TAG
     }));
   }catch(e){}
 }
@@ -12789,6 +13640,9 @@ function restoreUiState(){
     if(s.addStyle)ADD_LINESTYLE=s.addStyle;
     if(s.addNum)ADD_NUMBERING=s.addNum;
     if(typeof s.addOrderNum==='boolean')ADD_ORDER_NUMERIC=s.addOrderNum;
+    if(s.regTab&&['add','pcn','rfi','pkg','mod'].indexOf(s.regTab)!==-1)regTab=s.regTab;
+    if(s.modFilter)MOD_FILTER=s.modFilter;
+    if(s.modTag)MOD_TAG=s.modTag;
     (s.horizons||[]).forEach(function(h){var b=document.querySelector('.fchip[data-horizon="'+h+'"]');if(b&&!activeHorizons[h])toggleHorizonChip(b);});
     (s.actions||[]).forEach(function(a){var b=document.querySelector('.fchip[data-action="'+a+'"]');if(b&&!activeActions[a])toggleActionChip(b);});
     if(s.myCourt){var e2=document.getElementById('myCourtBtn');if(e2)e2.classList.add('active');}
