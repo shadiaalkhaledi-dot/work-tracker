@@ -3,6 +3,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<!-- Added 2026-08-27. There are EIGHT `@media (max-width: …)` blocks in this stylesheet and not one
+     of them has ever fired on a phone: without this tag a mobile browser reports a ~980px viewport
+     and renders the desktop layout zoomed out. Every responsive rule already written starts working
+     the moment this line exists. `viewport-fit=cover` so the notch does not eat the sticky header. -->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Work Tracker — Quick Capture</title>
 <style>
   :root{color-scheme:light;
@@ -609,6 +614,7 @@ select.pl-in{cursor:pointer}
   .sh-head{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;}
   .sh-no{font-weight:700;font-size:13.5px;color:var(--text);font-variant-numeric:tabular-nums;}
   .sh-title{font-size:13.5px;color:var(--text);flex:1 1 240px;}
+  .sh-saved{min-height:1em;font-size:10.5px;opacity:.75;}
   .add-card-tw{background:none;border:none;color:var(--gold);font-size:12px;line-height:1;
     padding:0 6px 0 0;cursor:pointer;font-family:inherit;}
   .add-card-tw:hover{color:var(--text);}
@@ -1333,6 +1339,32 @@ select.pl-in{cursor:pointer}
 .pl-in,.pl-line-t{flex:0 0 auto}
 .pl-line-t{min-height:30px;max-height:120px}
 .hintline{font-size:10.5px;color:var(--terracotta);margin-top:3px}
+
+/* ── the PCN card ──────────────────────────────────────────────────────────────────────
+   Read first, edit on click. Two blocks, each labelled once, neither printed twice. */
+.sh-blk-bare{border-left-color:transparent;padding-left:14px}
+.sh-re{margin:0 0 14px;max-width:680px}
+.sh-re-l{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--gold);
+  font-weight:700;margin-bottom:5px}
+.sh-re-v{font-size:12.5px;line-height:1.55;cursor:text;border-radius:3px;
+  padding:7px 9px;border:1px solid transparent;background:var(--surface-2,rgba(0,0,0,.02))}
+.sh-re-v:hover{border-color:var(--line)}
+.sh-re-p{white-space:pre-wrap}
+.sh-re-empty{color:var(--faint);font-style:italic}
+.sh-re-ta{width:100%;font:inherit;font-size:12.5px;line-height:1.55;padding:6px 8px;
+  resize:none;overflow:hidden;display:block}
+/* what goes out is the client's half — it reads as a quote, not as a working note */
+.sh-re-out .sh-re-v{border-left:2px solid var(--teal);background:none;padding-left:11px}
+.sh-lands{font-size:11px;color:var(--muted);font-style:italic;margin-top:6px;padding-left:11px}
+.sh-lands-gap{color:var(--terracotta);font-style:normal}
+/* the note, when it is written as Draw / Because / Watch / Leave / Blocked */
+.nl{display:grid;grid-template-columns:5.4em 1fr;gap:4px 11px;margin:0}
+.nl dt{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);
+  font-weight:700;padding-top:.28em}
+.nl dt.nl-stop{color:var(--terracotta)}
+.nl dd{margin:0}
+@media(max-width:640px){.nl{grid-template-columns:1fr;gap:1px 0}.nl dd{margin:0 0 7px}}
+.sh-verb{font-weight:700;letter-spacing:.04em;color:var(--text);font-size:11.5px;margin-right:4px}
 
 .sh-preview{margin:13px 0 0;padding:0 0 0 14px;border-left:2px solid var(--gold);
   background:none;border-radius:0}
@@ -4161,13 +4193,75 @@ function syncHeaders(){var h={'Content-Type':'text/plain'};if(SYNC.key)h['x-wt-k
 // to land there — but never mid-keystroke. Rebuilding it replaces every input, including the one
 // under the caret, which is how a previous build made the fields feel broken. If someone is typing,
 // the repaint waits for focus to leave and then goes.
+// Is a person mid-sentence? Asked once, of the whole document, before ANY poll-driven repaint.
+//
+// This used to be asked only of the register, and only in syncRepaintRegisters() — which runs
+// THIRD, after rebuildPendingList() and refreshBoard() have already rebuilt half the page. If
+// either of those took the focus, the register's own check then saw an idle document and cheerfully
+// repainted the textarea out from under the words being typed. From the keyboard it reads as the
+// page "tripping" mid-sentence, every eight seconds, and it eats whatever was not yet saved.
+//
+// A repaint is never urgent. Someone else's change can wait until this person stops typing; the
+// reverse is not true, because their sentence cannot be recovered.
+function isEditing(){
+  var el=document.activeElement;
+  if(!el)return false;
+  var t=el.tagName||'';
+  if(t==='TEXTAREA')return true;
+  if(t==='INPUT'){
+    // A checkbox, a radio or a dropdown cannot lose a half-written sentence, and treating them as
+    // "typing" freezes the page for anyone who merely tabbed onto one. Only a field holding text
+    // has something to protect.
+    // `password` is here for a reason worth keeping: the gate field auto-focuses on load and is
+    // never blurred until you click something, so counting it as "typing" holds every repaint
+    // until the first click — the page looks live and is frozen. Caught by verify_livesync, which
+    // unlocks and then never clicks. `search` is the same shape of harm for no benefit.
+    var ty=String(el.type||'text').toLowerCase();
+    return !/^(checkbox|radio|button|submit|reset|range|color|file|image|password|search)$/.test(ty);
+  }
+  return !!el.isContentEditable;
+}
+// `SYNC.dirty` is the ONE deferral flag — the register guard already used it, so a second name
+// would let the two disagree about whether a repaint is owed.
+var REPAINT_HOOKED=false;
+function doSyncRepaint(){
+  try{rebuildPendingList();}catch(e){}
+  try{refreshBoard();}catch(e){}
+  try{syncRepaintRegisters();}catch(e){}
+}
+// A deferral must not be able to outlive the typing. Focus can get stuck in ways no listener sees
+// — a field inside something that got detached, a browser that never fires focusout — and a page
+// that has quietly stopped updating is worse than one that repaints under your hands, because
+// nothing on screen says it has stopped. After a minute, the screen wins.
+var REPAINT_HELD_SINCE=0;
+function repaintFromSync(){
+  if(isEditing()&&(!REPAINT_HELD_SINCE||Date.now()-REPAINT_HELD_SINCE<60000)){
+    if(!SYNC.dirty)REPAINT_HELD_SINCE=Date.now();
+    SYNC.dirty=true;
+    if(!REPAINT_HOOKED){
+      REPAINT_HOOKED=true;
+      // On the document, not on any host: every rebuild replaces the hosts.
+      document.addEventListener('focusout',function(){
+        // setTimeout so focus has landed wherever it is going — tabbing between two fields must
+        // not count as having stopped.
+        setTimeout(function(){
+          if(!SYNC.dirty||isEditing())return;
+          SYNC.dirty=false;REPAINT_HELD_SINCE=0;doSyncRepaint();
+        },0);
+      },true);
+    }
+    return;
+  }
+  SYNC.dirty=false;REPAINT_HELD_SINCE=0;doSyncRepaint();
+}
 function syncRepaintRegisters(){
   try{
     var host=document.getElementById('addRegView');
     if(!host||!host.childNodes.length)return;          // register not open — nothing to repaint
-    var typing=function(el){
-      return !!el&&/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName||'')&&host.contains(el);
-    };
+    // `host` is captured at call time and is detached by the next rebuild, so a closure over it
+    // answers "no one is typing" forever after. Ask the document instead — the same question the
+    // outer guard asks, so the two can never disagree.
+    var typing=isEditing;
     if(typing(document.activeElement)){
       SYNC.dirty=true;
       if(!SYNC.dirtyHook){
@@ -4233,9 +4327,19 @@ function syncPull(first){
       // A picture that arrived from someone else is fetched once, then it is local like any other.
       (j.ops||[]).forEach(function(o){
         if(o&&o.type==='image'&&o.imgKey&&!IMG_CACHE[o.imgKey])syncFetchBody(o);});
-      if(fresh){SYNC.idle=0;QCACHE=null;rebuildPendingList();refreshBoard();syncRepaintRegisters();
-        if(!first)setStatus(fresh+' change'+(fresh!==1?'s':'')+' arrived from someone else.');}
-      else SYNC.idle++;
+      // Clearing the merge cache is NOT a repaint and must never be deferred: readQueue() answers
+      // from QCACHE, so holding it back would leave someone else's change unmerged in the DATA
+      // while the page merely looked calm. The words being typed are protected by holding the DOM
+      // rebuild; the facts underneath update immediately.
+      if(fresh){SYNC.idle=0;QCACHE=null;repaintFromSync();
+        if(!first)setStatus(fresh+' change'+(fresh!==1?'s':'')+' arrived from someone else.'
+          +(SYNC.dirty?' \u2014 the screen updates when you stop typing.':''));}
+      // A deferred repaint that never got its focusout — the field was still focused when the tab
+      // was hidden, or focus moved somewhere the listener did not fire. Catch it on the next poll
+      // rather than leaving the page quietly stale.
+      else{SYNC.idle++;
+        if(SYNC.dirty&&(!isEditing()||(REPAINT_HELD_SINCE&&Date.now()-REPAINT_HELD_SINCE>=60000))){
+          SYNC.dirty=false;REPAINT_HELD_SINCE=0;doSyncRepaint();}}
       renderSyncChip();
     })
     .catch(function(e){SYNC.err=String(e&&e.message||e);renderSyncChip();});
@@ -7725,6 +7829,55 @@ function buildRowPreview(it,live){
     }
     return pv;
 }
+// A note is one field and always has been. What changed on 2026-08-27 is how it is WRITTEN and
+// therefore how it can be read: five labels at the start of a line. The card splits on them and
+// lays them out as a grid; a note written without them renders as the paragraph it always was, so
+// nothing breaks and no note has to be migrated before it is useful.
+//
+// The labels are not decoration. `Because` is the one that earns its place — "the partition is
+// open to above, so the head has nothing to land on" is the sentence that stops the next person
+// drawing a wall that cannot stand up, and in a paragraph it is the third clause nobody reaches.
+var NOTE_LABELS=['Draw','Because','Watch','Leave','Blocked'];
+var NOTE_RE=new RegExp('(?:^|[\\n\\r]|(?<=[.;])\\s+)('+NOTE_LABELS.join('|')+')\\s*:\\s*','g');
+function parseNote(text){
+  var t=String(text||'').trim();
+  if(!t)return null;
+  var parts=[],m,last=null,lastAt=-1;
+  NOTE_RE.lastIndex=0;
+  while((m=NOTE_RE.exec(t))){
+    if(last!==null)parts.push([last,t.slice(lastAt,m.index).trim()]);
+    last=m[1];lastAt=NOTE_RE.lastIndex;
+  }
+  if(last===null)return null;
+  parts.push([last,t.slice(lastAt).trim()]);
+  parts=parts.filter(function(p){return p[1];});
+  return parts.length?parts:null;
+}
+function noteGrid(text){
+  var parts=parseNote(text);
+  if(!parts)return null;
+  var dl=document.createElement('dl');dl.className='nl';
+  parts.forEach(function(p){
+    var dt=document.createElement('dt');dt.textContent=p[0];
+    if(p[0]==='Blocked')dt.classList.add('nl-stop');
+    var dd=document.createElement('dd');dd.textContent=p[1];
+    dl.appendChild(dt);dl.appendChild(dd);});
+  return dl;
+}
+// Where the change lands, in one quiet line. This is all that survives of the old preview block:
+// the preview existed to show a sentence the machine was going to GENERATE, and on a PCN the
+// sentence is typed six inches above it. Echoing it back was a third of the card's height spent
+// on a mirror.
+function pcnLandingLine(it){
+  var sheets=itemSheets(it).length?itemSheets(it):placementSheets(it);
+  var row=(typeof addendumDateFor==='function')?addendumDateFor(it.pkg,it.addendum):null;
+  var when=(row&&/^\d{4}-\d{2}-\d{2}/.test(row.date||''))?row.date:'';
+  var d=document.createElement('div');d.className='sh-lands';
+  d.textContent='Issues with '+instLong(addNum(it.addendum))+(when?' on '+when:'')
+    +' \u00b7 '+(sheets.length?('clouded on '+sheets.join(', ')):'no drawing named yet');
+  if(!sheets.length)d.classList.add('sh-lands-gap');
+  return d;
+}
 function buildPcnPreview(it){
   var has=pcnHasWords(it),sheets=itemSheets(it).length?itemSheets(it):placementSheets(it);
   var pv=shBlock('It will issue as',has?'this drawing, clouded, with this description beside it'
@@ -7758,10 +7911,15 @@ function buildPcnPreview(it){
 }
 function shBlock(title,hint){
   var b=document.createElement('div');b.className='sh-blk';
-  var h=document.createElement('div');h.className='sh-blk-h';
-  h.appendChild(document.createTextNode(title));
-  if(hint){var sp=document.createElement('span');sp.textContent=hint;h.appendChild(sp);}
-  b.appendChild(h);return b;
+  // An empty title used to render an empty heading that still held its margin — a labelled gap.
+  // The PCN card asks for no wrapper heading at all: its two blocks label themselves.
+  if(title){
+    var h=document.createElement('div');h.className='sh-blk-h';
+    h.appendChild(document.createTextNode(title));
+    if(hint){var sp=document.createElement('span');sp.textContent=hint;h.appendChild(sp);}
+    b.appendChild(h);
+  }else b.classList.add('sh-blk-bare');
+  return b;
 }
 // ── the left edge ────────────────────────────────────────────────────────────────────────────
 // A row already tells you what it is (§4/§3, at the front) and what it does (the state group). The
@@ -7906,8 +8064,10 @@ function sheetRow(it){
     var inp=document.createElement('input');inp.type='text';inp.value=it.title||'';
     var save=document.createElement('button');save.type='button';save.className='sh-tbtn';
     save.textContent='\u2713';save.title='Save the new name';
+    // NOT another ✕. The row already has one, and it drops the item from the instrument — the two
+    // sat side by side wearing the same glyph with opposite consequences.
     var cx=document.createElement('button');cx.type='button';cx.className='sh-tbtn';
-    cx.textContent='\u2715';cx.title='Leave the name as it was';
+    cx.textContent='\u21a9';cx.title='Cancel the rename \u2014 leave the name as it was';
     function commitName(){
       var v=inp.value.trim();
       if(!v||v===(it.title||'')){paintTitle();return;}
@@ -7983,13 +8143,13 @@ function sheetRow(it){
   var xb=document.createElement('button');xb.type='button';xb.className='sh-x';
   xb.textContent='\u2715';
   xb.title=it.pendingLocal?'Delete this item \u2014 it was added here and never folded'
-    :('Drop this item from Addendum '+addNum(it.addendum)
+    :('Drop this item from '+instLong(addNum(it.addendum))
       +' \u2014 off the list now, out of the vault at check-in');
   xb.addEventListener('click',function(e){
     e.stopPropagation();
     if(!window.confirm(it.pendingLocal
       ?('Delete \u201c'+(it.title||'').slice(0,60)+'\u201d? It was added here and never folded, so it goes for good.')
-      :('Drop \u201c'+(it.title||'').slice(0,60)+'\u201d from Addendum '+addNum(it.addendum)+'?')))return;
+      :('Drop \u201c'+(it.title||'').slice(0,60)+'\u201d from '+instLong(addNum(it.addendum))+'?')))return;
     if(it.pendingLocal&&it.srcOp){
       voidOp({id:it.srcOp});
       buildAddendumRegister();rebuildPendingList();
@@ -7998,7 +8158,7 @@ function sheetRow(it){
     }
     var payload={type:'unaddendum',program:it.program||'',pkg:it.pkg||'',
                  itemRef:(it.title||'').slice(0,160),
-                 text:'Remove from Addendum '+addNum(it.addendum),ts:new Date().toISOString()};
+                 text:'Remove from '+instLong(addNum(it.addendum)),ts:new Date().toISOString()};
     queueLocally(payload);renderPendingRow(payload);
     buildAddendumRegister();
     setStatus('Dropped from Addendum '+addNum(it.addendum)
@@ -8027,8 +8187,8 @@ function sheetRow(it){
   body.appendChild(sm2);
 
   // where it goes — the editor for the fields the write-up reads
-  var ed=shBlock(isPcnItem(it)?'What this change is':'Where it goes',
-    isPcnItem(it)?'one note for whoever draws it, one description for whoever prices it'
+  var ed=shBlock(isPcnItem(it)?'':'Where it goes',
+    isPcnItem(it)?''
     :(isSpecPart(it)?'§3 — Specifications packages this one'
     :(itemPart(it)==='both'?'§3 note + §4 lines':'§4 — written here, in full')));
   ed.classList.add('sh-edit');
@@ -8055,28 +8215,108 @@ function sheetRow(it){
     ta.value=val||'';ta.rows=3;ta.placeholder=ph||'';ta.title=hint||'';
     ta.addEventListener('keydown',function(e){e.stopPropagation();
       if(e.key==='Escape'){ta.value=val||'';ta.blur();}});
-    ta.addEventListener('blur',function(){
-      if((ta.value.trim()||'')!==(val||''))setAddMeta(it.id,fieldName,ta.value.trim(),saveLabel,true);});
+    // Saving only on blur means a description written over ten minutes exists nowhere until you
+    // click away. These are the two longest fields on the site and the ones most worth not losing,
+    // so they also save themselves after a pause. `quiet` is what makes this safe: setAddMeta with
+    // quiet=true queues the op and does NOT rebuild, so an autosave can never redraw the field you
+    // are still typing in. The op is coalesced per field, so a hundred pauses leave one op.
+    var last=val||'',tmr=null;
+    function commit(){
+      var v=ta.value.trim();
+      if(v===last)return;
+      last=v;setAddMeta(it.id,fieldName,v,saveLabel,true);
+      var d=w.querySelector('.sh-saved');if(d)d.textContent='saved';
+    }
+    ta.addEventListener('input',function(){
+      if(tmr)clearTimeout(tmr);
+      var d=w.querySelector('.sh-saved');if(d)d.textContent='\u2026';
+      tmr=setTimeout(commit,1500);
+    });
+    ta.addEventListener('blur',function(){if(tmr)clearTimeout(tmr);commit();});
     w.appendChild(ta);
+    var sv=document.createElement('div');sv.className='hintline sh-saved';
+    sv.title='Saved to the capture queue as you type. It reaches the vault at the next check-in.';
+    w.appendChild(sv);
     if(!val&&emptyHint){var eh=document.createElement('div');eh.className='hintline';
       eh.textContent=emptyHint;w.appendChild(eh);}
+    return w;
+  }
+  // Read first, edit on click. The card used to show the note in a three-row scroll box AND print
+  // it again underneath — the same words twice, in a card whose whole job is to be read once. Now
+  // the block shows the note as it reads, and clicking it hands you the textarea. One copy, always.
+  function readEdit(label,value,ph,hint,fieldName,saveLabel,emptyHint,render){
+    var w=document.createElement('div');w.className='sh-re';
+    var l=document.createElement('div');l.className='sh-re-l';l.textContent=label;l.title=hint||'';
+    w.appendChild(l);
+    var view=document.createElement('div');view.className='sh-re-v';
+    var editing=false;
+    function paint(){
+      view.innerHTML='';view.className='sh-re-v';
+      var v=String(value||'').trim();
+      if(!v){
+        view.classList.add('sh-re-empty');
+        view.textContent=emptyHint||'Click to write it.';
+      }else{
+        var g=render?render(v):null;
+        if(g)view.appendChild(g);
+        else{var pp=document.createElement('div');pp.className='sh-re-p';pp.textContent=v;view.appendChild(pp);}
+      }
+      view.title='Click to edit';
+    }
+    function edit(){
+      if(editing)return;editing=true;
+      view.innerHTML='';view.classList.remove('sh-re-empty');view.title='';
+      var ta=document.createElement('textarea');ta.className='sh-in sh-re-ta';
+      ta.value=value||'';ta.placeholder=ph||'';
+      // Auto-grow. A scrollbar inside a scrolling page, on the longest field of the card, is how
+      // a note gets written and never read again.
+      function grow(){ta.style.height='auto';ta.style.height=Math.max(64,ta.scrollHeight+2)+'px';}
+      var last=value||'',tmr=null;
+      function commit(){
+        var v=ta.value.trim();
+        if(v===last)return;
+        last=v;value=v;setAddMeta(it.id,fieldName,v,saveLabel,true);
+        sv.textContent='saved';
+      }
+      ta.addEventListener('input',function(){grow();
+        sv.textContent='\u2026';if(tmr)clearTimeout(tmr);tmr=setTimeout(commit,1500);});
+      ta.addEventListener('keydown',function(e){e.stopPropagation();
+        if(e.key==='Escape'){ta.value=last;editing=false;paint();}});
+      ta.addEventListener('blur',function(){
+        if(tmr)clearTimeout(tmr);commit();editing=false;paint();});
+      view.appendChild(ta);grow();ta.focus();
+    }
+    view.addEventListener('click',function(e){
+      if(editing)return;
+      // a click that was really a text selection is not a request to edit
+      var sel=window.getSelection&&window.getSelection();
+      if(sel&&String(sel).length>2)return;
+      e.stopPropagation();edit();});
+    w.appendChild(view);
+    var sv=document.createElement('div');sv.className='hintline sh-saved';
+    sv.title='Saved to the capture queue as you type. It reaches the vault at the next check-in.';
+    w.appendChild(sv);
+    paint();
     return w;
   }
   if(isPcnItem(it)){
     // No placement editor: a PCN line is not built from TARGET; ACTION; clause, so there is
     // nothing to assemble. The sheet is a REFERENCE to the drawing being clouded, and a detail
     // number is as legitimate a reference as a sheet number.
-    ed.appendChild(field('Drawings','','A5.100.10, A5.100.04',
-      'The drawings this change is clouded on. A detail number is a legitimate reference too — 6/A5.94.17.',
+    ed.appendChild(field('Drawings','','A5.100.10, 6/A5.94.17',
+      'The drawings this change is clouded on. A detail number is a legitimate reference too.',
       function(v){setAddMeta(it.id,'sheets',v,'Drawings',true);},itemSheets(it).join(', ')));
-    ed.appendChild(bigtext('Note — for whoever draws it',it.note,
-      'e.g. The partition is open to above, so the new head has nothing to land on — add a box beam tied back to structure. Sizes are structural\u2019s; show the beam and the tie-back zone.',
-      'Internal. Say what to draw and why, including the reason nobody would infer from the title. Never issued.',
-      'note','Note','Without this, whoever picks it up is working from the title alone.'));
-    ed.appendChild(bigtext('Description — goes out with the PCN',it.desc,
+    ed.appendChild(readEdit('What to draw',it.note,
+      'Draw: the change itself.\nBecause: the reason nobody would infer from the title.\nWatch: the trap.\nLeave: what belongs to the fabricator.\nBlocked: only if something has to land first.',
+      'Internal, never issued. Written as Draw / Because / Watch / Leave / Blocked, it lays out as a grid; written as prose it stays prose.',
+      'note','Note','No note \u2014 whoever picks this up is working from the title alone.',noteGrid));
+    var dw=readEdit('What goes out',it.desc,
       'e.g. The one-hour rated partition is relocated and the door repositioned. A box beam is added at the head and tied back to the building structure.',
-      'What the PCN says this change is. Written, not generated \u2014 a PCN has no sentence machine to derive it from. Say what changed, not why.',
-      'desc','Description','Nothing to issue with \u2014 the drawing would go out clouded and unexplained.'));
+      'What the PCN says this change is. Say what changed, not why \u2014 the why lives in the note.',
+      'desc','Description','No description \u2014 the drawing would issue clouded and unexplained.',null);
+    dw.classList.add('sh-re-out');
+    dw.appendChild(pcnLandingLine(it));
+    ed.appendChild(dw);
   }
   else if(isSpecPart(it)){
     ed.appendChild(field('Specification section',it.section,'09 06 00 – Schedule for Finishes',
@@ -8107,18 +8347,34 @@ function sheetRow(it){
   body.appendChild(ed);
 
   // The answer to "what do these fields do": show the lines. Same renderer as the document, so a
-  // preview can never disagree with what gets written.
-  body.appendChild(buildRowPreview(it));
+  // preview can never disagree with what gets written. An ADDENDUM only — see pcnLandingLine.
+  if(!isPcnItem(it))body.appendChild(buildRowPreview(it));
 
   if(steps.length){
-    var sb=shBlock('Markups','what the sheet list recorded · greyed ones are process, not addendum content');
+    // On an ADDENDUM these are markups, and the grey ones are greyed for a reason: a step that
+    // tells YOU to do something is not addendum content and gets left out of the write-up.
+    // On a PCN that distinction does not exist — nothing here is being turned into a sentence, so
+    // every step is simply work, and greying the live ones (as this did) buried the only part of
+    // the card that was still owed. It was also headed "addendum content" on a PCN card.
+    var pcnSteps=isPcnItem(it);
+    var sb=shBlock(pcnSteps?'Left to do':'Markups',
+      pcnSteps?'the steps still open on this change'
+              :'what the sheet list recorded · greyed ones are process, not addendum content');
     var sl=document.createElement('div');sl.className='sh-steps';
     steps.forEach(function(t){
       var txt=String(t).replace(/^✓\s*/,'');
       var e=document.createElement('div');
-      if(!WU_VERBS.test(txt.toUpperCase()))e.className='proc';
-      e.textContent='• '+txt;
-      e.title=WU_VERBS.test(txt.toUpperCase())?'This becomes a line in the document':'Process — not addendum content, excluded from the write-up';
+      if(!pcnSteps&&!WU_VERBS.test(txt.toUpperCase()))e.className='proc';
+      // The leading verb is the whole point of the house style — SEND / ASK / WAIT / CHECK / DRAW
+      // tell you the KIND of move at a glance. Show it as one.
+      var vm=/^([A-Z][A-Z/]{2,})\b\s*(.*)$/.exec(txt);
+      if(vm){
+        var vb=document.createElement('b');vb.className='sh-verb';vb.textContent=vm[1];
+        e.appendChild(vb);e.appendChild(document.createTextNode(' '+vm[2]));
+      }else e.textContent='\u2022 '+txt;
+      e.title=pcnSteps?'Open step on this change'
+        :(WU_VERBS.test(txt.toUpperCase())?'This becomes a line in the document'
+          :'Process — not addendum content, excluded from the write-up');
       sl.appendChild(e);});
     sb.appendChild(sl);body.appendChild(sb);
   }
