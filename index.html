@@ -1942,7 +1942,127 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
    argument: there is no way for this block to change the desktop, because a desktop never
    matches it. Nothing above was edited to make room for it.
    ═══════════════════════════════════════════════════════════════════════════════════════ */
+
+/* ── the freeze strip: the page's reason to exist, before anything else ───────────────────────
+   Gold, because gold in this palette means exactly one thing — a decision is owed BY YOU — and
+   that is precisely what a freeze three days out is. Overdue escalates to --stop, and a freeze
+   whose rows are all named, written and clouded drops the colour entirely: a strip that is always
+   coloured is a strip nobody reads. */
+.fz-strip-host{margin:14px 0 0;}
+.fz-strip{border:1px solid var(--border);border-radius:14px;background:var(--raise);
+  box-shadow:var(--shadow-1);padding:12px 15px 10px;}
+.fz-strip.fz-soon{border-color:rgba(160,122,0,.45);background:rgba(160,122,0,.05);}
+.fz-strip.fz-late{border-color:rgba(191,44,34,.45);background:rgba(191,44,34,.05);}
+.fz-lead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+.fz-lead>b{font-size:15px;font-weight:700;letter-spacing:-.01em;color:var(--text);}
+.fz-when{font-size:12.5px;font-weight:650;color:var(--gold);font-variant-numeric:tabular-nums;}
+.fz-strip.fz-late .fz-when{color:var(--stop);}
+.fz-strip:not(.fz-soon):not(.fz-late) .fz-when{color:var(--muted);}
+.fz-cnt{font-size:12px;color:var(--muted);flex:1 1 260px;min-width:0;}
+.fz-cnt.fz-empty{font-style:italic;color:var(--stop);}
+.fz-go{font:inherit;font-size:10.5px;font-weight:650;padding:3px 10px;border-radius:8px;
+  border:1px solid var(--border);background:var(--card-solid);color:var(--muted);cursor:pointer;
+  white-space:nowrap;}
+.fz-go:hover{border-color:var(--gold);color:var(--gold);}
+.fz-go.on{background:var(--sel);border-color:var(--sel);color:var(--sel-fg);}
+.fz-gaps{margin-top:7px;font-size:11.5px;color:var(--stop);line-height:1.5;}
+.fz-gaps b{font-weight:700;}
+.fz-chips{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:9px;
+  padding-top:8px;border-top:1px solid var(--border-soft);}
+.fz-lab{font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);
+  margin-right:2px;}
+.fz-chip{font:inherit;font-size:11px;font-weight:600;padding:3px 9px;border-radius:8px;
+  border:1px solid var(--border);background:var(--card-solid);color:var(--muted);cursor:pointer;
+  display:inline-flex;align-items:center;gap:5px;}
+.fz-chip:hover{border-color:var(--gold);color:var(--gold);}
+.fz-chip.on{background:var(--sel);border-color:var(--sel);color:var(--sel-fg);}
+.fz-chip.is-zero{opacity:.5;}
+.fz-chip.late{border-color:rgba(191,44,34,.4);}
+.fz-chip .fc{font-size:10px;font-weight:700;opacity:.75;font-variant-numeric:tabular-nums;}
+.fz-warn{font-style:normal;font-size:10px;font-weight:700;color:var(--stop);}
+.fz-chip.on .fz-warn{color:#ffb4ae;}
+.reg-sub b.ok{color:var(--ok);}
+
+/* ── by drawing: the same items, along the axis the work runs on ─────────────────────────────── */
+.dwb-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0 0 10px;}
+.dwb-head>b{font-size:14px;}
+.dwb-sum{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums;}
+.dwb-note{font-size:11px;color:var(--faint);font-style:italic;}
+.dwb-none{font-size:12.5px;color:var(--muted);font-style:italic;padding:10px 2px;}
+.dwb-sheet{border:1px solid var(--border);border-radius:11px;background:var(--raise);
+  margin:8px 0;overflow:hidden;box-shadow:var(--shadow-1);}
+.dwb-sh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding:9px 13px;
+  background:var(--sink);border-bottom:1px solid var(--border-soft);}
+.dwb-no{font-size:13px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;}
+.dwb-nm{font-size:12.5px;color:var(--text);flex:1 1 200px;min-width:0;}
+.dwb-unknown{color:var(--stop);font-style:italic;}
+.dwb-st{font-size:11px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums;}
+.dwb-cl{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  padding:1px 7px;border-radius:8px;white-space:nowrap;}
+.dwb-cl.all{color:var(--ok);background:rgba(43,125,85,.10);}
+.dwb-cl.some{color:var(--gold);background:rgba(160,122,0,.10);}
+.dwb-cl.none{color:var(--muted);background:var(--border-soft);}
+.dwb-who{font-size:11px;color:var(--muted);white-space:nowrap;}
+.dwb-who.dwb-free{color:var(--gold);font-style:italic;}
+.dwb-row{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;padding:6px 13px;
+  font-size:12.5px;cursor:pointer;border-top:1px solid var(--border-soft);}
+.dwb-row:first-of-type{border-top:none;}
+.dwb-row:hover{background:var(--border-soft);}
+.dwb-row.dwb-done{opacity:.55;}
+.dwb-det{font-size:11px;color:var(--muted);flex:0 0 auto;font-variant-numeric:tabular-nums;
+  min-width:26px;}
+.dwb-view{font-size:11px;color:var(--muted);flex:0 0 auto;max-width:230px;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap;}
+.dwb-t{flex:1 1 220px;min-width:0;color:var(--text);}
+.dwb-what{font-size:11px;color:var(--faint);font-style:italic;flex:0 1 auto;max-width:280px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.dwb-need{font-size:10px;font-weight:700;color:var(--stop);border:1px solid rgba(191,44,34,.35);
+  border-radius:7px;padding:0 6px;white-space:nowrap;}
+.dwb-need.dwb-need-soft{color:var(--gold);border-color:rgba(160,122,0,.35);}
+.dwb-orphan .dwb-sh{background:rgba(191,44,34,.06);}
+
+/* ── the pool, on the board ──────────────────────────────────────────────────────────────────── */
+.my-work.pool{border-left-color:var(--gold);}
+.pool-take{font:inherit;font-size:10.5px;font-weight:650;padding:2px 9px;border-radius:7px;
+  border:1px solid var(--border);background:var(--card-solid);color:var(--muted);cursor:pointer;
+  flex:0 0 auto;white-space:nowrap;}
+.pool-take:hover{border-color:var(--gold);color:var(--gold);}
+.mw-more{font:inherit;font-size:11px;color:var(--muted);background:none;border:none;cursor:pointer;
+  padding:6px 6px 0;text-align:left;}
+.mw-more:hover{color:var(--gold);text-decoration:underline;}
+
+/* ── clouded is its own fact ─────────────────────────────────────────────────────────────────── */
+.sh-pick button.cl{color:var(--muted);}
+.sh-pick button.cl.on{background:var(--ok);border-color:var(--ok);color:#fff;}
+.sh-lands b.sh-cl-yes{color:var(--ok);font-weight:650;font-style:normal;}
+.sh-lands b.sh-cl-no{color:var(--gold);font-weight:650;font-style:normal;}
+
+/* ── the pool door, and the sheets riding nothing ────────────────────────────────────────────── */
+.add-open.add-pool{color:var(--gold);border-color:rgba(160,122,0,.4);margin-left:8px;}
+.add-open.add-pool:hover{background:var(--gold);color:#fff;}
+.add-card.add-orphans{border-left:3px solid var(--stop);}
+.add-orphan-why{font-size:11.5px;color:var(--muted);line-height:1.55;margin:6px 0 8px;}
+.orph-row{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;padding:5px 2px;
+  font-size:12.5px;border-top:1px solid var(--border-soft);}
+.orph-row:hover{background:var(--border-soft);}
+
 @media (max-width:700px){
+  /* The strip carries the most information per pixel on the page and must not become a wall on a
+     phone: the lead wraps, the counts drop to their own line, the chips scroll sideways rather
+     than stacking into six rows. */
+  .fz-strip{padding:11px 12px 9px;border-radius:12px;}
+  .fz-lead{gap:6px;}
+  .fz-lead>b{flex:1 1 100%;}
+  .fz-cnt{flex:1 1 100%;}
+  .fz-go{margin-top:4px;}
+  .fz-chips{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;
+    padding-bottom:4px;scrollbar-width:none;}
+  .fz-chips::-webkit-scrollbar{display:none;}
+  .fz-chip{flex:0 0 auto;}
+  .dwb-view,.dwb-what{max-width:none;white-space:normal;}
+  .dwb-sh{gap:7px;padding:8px 11px;}
+  .dwb-row{padding:7px 11px;}
+  .dwb-t{flex:1 1 100%;}
 
   /* 1. Nothing may push the page sideways. A single wide child turns every vertical scroll
         into a fight, and the usual culprit is a grid with a px minimum. */
@@ -2077,6 +2197,11 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
     <div class="stat"><div class="n" style="color:var(--teal)" id="statSprintEnd">—</div><div class="l" id="statSprintEndLabel">due soon</div></div>
   </div>
   <div class="my-work" id="myWorkSec"></div>
+  <!-- The pool. Unclaimed work existed only as a filter inside the register workbench, which
+       means somebody with a free hour had no surface anywhere that said "here is what nobody
+       has taken". A claim system whose unclaimed half is invisible is a claim system that
+       only ever tells you about work you already own. -->
+  <div class="my-work pool" id="poolSec"></div>
   <div class="my-day" id="myDaySec"></div>
   <div class="today-focus" id="todayFocus">
     <span class="tag" id="todayTag">Today</span>
@@ -3615,9 +3740,162 @@ var REG_OPEN_CARDS={};
 // client approval, all items go out in PCN 1 on Sep 25th." So the freeze is when the work is OWED,
 // which is the only date a person can act on — and it is read straight off the item's due date
 // rather than declared, so nothing has to be kept in step by hand.
-var FREEZES={'2026-08-28':{n:1,what:'vending and ATM · benches and planters · hammerhead AV · Arrivals holdroom · corner guards'},
-             '2026-09-04':{n:2,what:'floor-mounted AV screens · gate boarding layout, hammerhead finger · concessions bulkhead'},
-             '2026-09-11':{n:3,what:'portal bulkhead lighting · portal finishes and hardware · gate boarding millwork and e-gates · stroller and cart stands'}};
+// The freeze CONTENTS, one entry per named body of work, each with the test that decides whether
+// anything on the register is actually covering it. Written as a list rather than a sentence for
+// exactly one reason: a register can only ever draw what exists, and the expensive mistake on this
+// job is a topic the schedule owes on a date that has no item at all behind it. A sentence cannot
+// be checked. A list with a matcher can, and says so out loud — see freezeGaps().
+var FREEZES={
+  '2026-08-28':{n:1,topics:[
+    {t:'vending enclosure',            re:/vending/i},
+    {t:'ATM and FX locations',         re:/\bATM\b|foreign\s*exchange|\bFX\b|currency/i},
+    {t:'benches and planters',         re:/bench|planter/i},
+    {t:'hammerhead AV',                re:/hammerhead/i},
+    {t:'Arrivals holdroom',            re:/hold\s*room|holdroom/i},
+    {t:'corner guards',                re:/corner\s*guard|kick\s*plate|kickplate/i}]},
+  '2026-09-04':{n:2,topics:[
+    {t:'floor-mounted AV screens',     re:/screen/i},
+    {t:'gate boarding layout',         re:/gate\s*(desk|boarding)|boarding\s*desk|finger/i},
+    {t:'concessions bulkhead',         re:/concession/i}]},
+  '2026-09-11':{n:3,topics:[
+    {t:'portal bulkhead lighting',     re:/portal[^.]{0,40}light|light[^.]{0,40}portal/i},
+    {t:'portal finishes and hardware', re:/portal[^.]{0,40}(finish|hardware|glass|structur|stone)/i},
+    {t:'gate boarding millwork',       re:/millwork/i},
+    {t:'e-gates',                      re:/e-?gate/i},
+    {t:'stroller and cart stands',     re:/stroller|baggage\s*cart|cart\s*stand/i}]}};
+// The sentence the hint used to carry, rebuilt from the list so the two can never disagree.
+function freezeWhat(f){return (f&&f.topics||[]).map(function(x){return x.t;}).join(' \u00b7 ');}
+// Everything an item can be matched on. Title alone is too thin — 'Relocate and re-family' names
+// no subject, and the note is where the subject lives.
+function itemHay(it){
+  return [it&&it.title,it&&it.note,it&&it.desc,it&&it.topic,it&&it.sheet,
+          (placementsOf(it)||[]).map(function(p){return (p.room||'')+' '+(p.view||'')+' '+(p.text||'');}).join(' ')
+         ].join(' \u00b7 ');
+}
+// The topics this freeze owes that NOTHING on the register is covering. The one question a list
+// cannot answer about itself.
+function freezeGaps(key,pool){
+  var f=FREEZES[key];if(!f)return [];
+  var hay=(pool||[]).map(itemHay);
+  return f.topics.filter(function(tp){
+    for(var i=0;i<hay.length;i++){if(tp.re.test(hay[i]))return false;}
+    return true;});
+}
+// ---- the strip that stands above the register ----------------------------------------------
+// The whole page's reason to exist, in one band, before anything else. It answers three questions
+// a grouped list cannot: WHEN is the next stop, WHAT IS NOT READY inside it, and WHAT IS MISSING
+// from it entirely. The third is the one that pays for the band — a register renders what exists,
+// so a freeze that owes a topic nobody has written an item for looks exactly like a freeze that is
+// fully covered.
+function fzWhen(d){
+  return d==null?'':d<0?((-d)+' day'+(d===-1?'':'s')+' ago'):d===0?'today':d===1?'tomorrow':('in '+d+' days');
+}
+function buildFreezeStrip(host,pool){
+  if(!host)return;host.innerHTML='';
+  if(!pool||!pool.length)return;
+  var byKey={},keys=[];
+  pool.forEach(function(i){var k=freezeKeyFor(i);if(!byKey[k]){byKey[k]=[];keys.push(k);}byKey[k].push(i);});
+  // A declared freeze with nothing dated to it still gets a chip. An empty freeze is not an empty
+  // space, it is a question, and dropping it from the strip is how it stays unasked.
+  Object.keys(FREEZES).forEach(function(k){if(keys.indexOf(k)===-1){keys.push(k);byKey[k]=[];}});
+  keys.sort(function(a,b){if(a==='_nodate')return 1;if(b==='_nodate')return -1;return a<b?-1:a>b?1:0;});
+  // The lead is the next stop that has not passed. Everything overdue is worse than that, so an
+  // overdue freeze takes the lead instead — you do not want to be told about Friday while Tuesday
+  // is still owed.
+  // ⚠ THE LEAD IS A FREEZE, not merely the nearest date. The first cut took the earliest key with
+  // work on it and led with "Due today · 2026-08-27 — 1 still open": one stray item, at the top of
+  // the page, in the band whose whole job is to name the next design stop. A date that is not a
+  // freeze is a chip, not a headline.
+  var isFz=function(k){return !!FREEZES[k];};
+  var openOn=function(k){return (byKey[k]||[]).filter(function(x){
+    return x.status!=='completed'&&!x.pendingComplete;}).length;};
+  var lead=null;
+  // An overdue freeze that still owes work beats the next one — you do not want to be told about
+  // Friday while Tuesday is still open.
+  for(var i=0;i<keys.length;i++){var k=keys[i];
+    if(!isFz(k))continue;var d=daysTo(k);
+    if(d!=null&&d<0&&openOn(k)){lead=k;break;}}
+  if(!lead)for(var j=0;j<keys.length;j++){var k2=keys[j];
+    if(!isFz(k2))continue;var d2=daysTo(k2);
+    if(d2!=null&&d2>=0){lead=k2;break;}}
+  // Every freeze has passed: fall back to the last one, then to any date at all, so the band still
+  // says something true rather than disappearing.
+  if(!lead)for(var j2=keys.length-1;j2>=0;j2--){if(isFz(keys[j2])){lead=keys[j2];break;}}
+  if(!lead)for(var j3=0;j3<keys.length;j3++){if(keys[j3]!=='_nodate'){lead=keys[j3];break;}}
+  if(!lead)lead=keys[0];
+  var strip=document.createElement('div');strip.className='fz-strip';
+  var inf=freezeInfo(lead),rows=byKey[lead]||[];
+  var open=rows.filter(function(x){return x.status!=='completed'&&!x.pendingComplete;});
+  var rd=pcnReadiness(open);
+  var d0=daysTo(lead);
+  if(d0!=null&&d0<=1)strip.classList.add('fz-soon');
+  if(d0!=null&&d0<0)strip.classList.add('fz-late');
+  var l1=document.createElement('div');l1.className='fz-lead';
+  var nm=document.createElement('b');nm.textContent=inf.freeze?('Design Freeze '+inf.n):inf.t.split('  \u00b7  ')[0];
+  l1.appendChild(nm);
+  var wh=document.createElement('span');wh.className='fz-when';wh.textContent=fzWhen(d0)+' \u00b7 '+lead;
+  l1.appendChild(wh);
+  var cnt=document.createElement('span');cnt.className='fz-cnt';
+  if(!rows.length){cnt.textContent='nothing on the register is dated to it';cnt.className+=' fz-empty';}
+  else{
+    var deficits=[];
+    if(rd.n-rd.drawn)deficits.push((rd.n-rd.drawn)+' with no drawing named');
+    if(rd.n-rd.desc)deficits.push((rd.n-rd.desc)+' with nothing written to go out');
+    if(rd.n-rd.clouded)deficits.push((rd.n-rd.clouded)+' not clouded');
+    if(rd.n-rd.claimed)deficits.push((rd.n-rd.claimed)+' unclaimed');
+    cnt.textContent=open.length+' still open'+(deficits.length?' — '+deficits.join(', '):' — all named, written and clouded');
+    // Counted across EVERYTHING on the instrument — board items and the sheet punch list together —
+    // which is not the population Contents renders. Said out loud, because two numbers disagreeing
+    // in one glance costs you every other number on the page.
+    cnt.title='Counted across every row on '+instLong((ADD_GROUPS[ADD_OPEN]||{}).num||'')
+      +' — the board items and the sheet punch list together. The Contents list below shows the '
+      +'board items only, so its count is smaller on purpose.';
+  }
+  l1.appendChild(cnt);
+  var go=document.createElement('button');go.type='button';go.className='fz-go';
+  go.textContent=(ADD_FREEZE===lead?'showing only this freeze':'show only this freeze');
+  if(ADD_FREEZE===lead)go.classList.add('on');
+  go.addEventListener('click',function(){ADD_FREEZE=(ADD_FREEZE===lead?'':lead);buildAddendumRegister();});
+  l1.appendChild(go);
+  strip.appendChild(l1);
+  // ── what this freeze owes that nothing here covers ─────────────────────────────────────────
+  var gaps=freezeGaps(lead,rows);
+  if(gaps.length){
+    var gl=document.createElement('div');gl.className='fz-gaps';
+    var glb=document.createElement('b');glb.textContent='Owed on this date, nothing on the register: ';
+    gl.appendChild(glb);
+    gl.appendChild(document.createTextNode(gaps.map(function(x){return x.t;}).join(' \u00b7 ')));
+    gl.title='Read off the production schedule, matched against every title, note, description and '
+      +'placement on this freeze. A topic here is not late — it is unwritten, which is worse, because '
+      +'nothing on the page can remind you of it.';
+    strip.appendChild(gl);
+  }
+  // ── the other dates, as chips ──────────────────────────────────────────────────────────────
+  var chips=document.createElement('div');chips.className='fz-chips';
+  var lab=document.createElement('span');lab.className='fz-lab';lab.textContent='Freeze';chips.appendChild(lab);
+  var all=document.createElement('button');all.type='button';
+  all.className='fz-chip'+(ADD_FREEZE?'':' on');all.textContent='All dates';
+  all.addEventListener('click',function(){ADD_FREEZE='';buildAddendumRegister();});
+  chips.appendChild(all);
+  keys.forEach(function(k){
+    var rws=byKey[k]||[],inf2=freezeInfo(k),d=k==='_nodate'?null:daysTo(k);
+    var b=document.createElement('button');b.type='button';
+    b.className='fz-chip'+(ADD_FREEZE===k?' on':'')+(rws.length?'':' is-zero')+(d!=null&&d<0?' late':'');
+    // 'F1' beside '08-11' reads as two different kinds of thing because it IS two different kinds
+    // of thing, and the eye cannot tell which without the tooltip. A freeze carries both.
+    b.textContent=(inf2.freeze?('F'+inf2.n+' \u00b7 '+k.slice(5)):k==='_nodate'?'No date':k.slice(5));
+    var c2=document.createElement('span');c2.className='fc';c2.textContent=rws.length;b.appendChild(c2);
+    var gp=k==='_nodate'?[]:freezeGaps(k,rws);
+    if(gp.length){var w=document.createElement('i');w.className='fz-warn';w.textContent='\u25cb'+gp.length;
+      w.title=gp.length+' topic'+(gp.length!==1?'s':'')+' this freeze owes with nothing on the register: '
+        +gp.map(function(x){return x.t;}).join(', ');
+      b.appendChild(w);}
+    b.title=inf2.t+(d!=null?(' \u2014 '+fzWhen(d)):'')+'\n'+(inf2.hint||'');
+    b.addEventListener('click',function(){ADD_FREEZE=(ADD_FREEZE===k?'':k);buildAddendumRegister();});
+    chips.appendChild(b);});
+  strip.appendChild(chips);
+  host.appendChild(strip);
+}
 function freezeKeyFor(it){return it&&it.due?String(it.due):'_nodate';}
 function daysTo(d){
   if(!/^\d{4}-\d{2}-\d{2}$/.test(String(d||'')))return null;
@@ -3627,8 +3905,8 @@ function freezeInfo(k){
   if(k==='_nodate')return {t:'No date \u2014 not held by any freeze',days:null,
     hint:'Nothing says when this has to stop moving. It will be the last thing anyone looks at.'};
   var f=FREEZES[k];
-  if(f)return {t:'Design Freeze '+f.n+'  \u00b7  '+k,days:daysTo(k),
-    hint:'Design stops moving on '+k+': '+f.what+'. Nothing issues on this date \u2014 PCN 1 issues in one piece on 2026-09-25.'};
+  if(f)return {t:'Design Freeze '+f.n+'  ·  '+k,days:daysTo(k),n:f.n,freeze:true,
+    hint:'Design stops moving on '+k+': '+freezeWhat(f)+'. Nothing issues on this date \u2014 PCN 1 issues in one piece on 2026-09-25.'};
   // 09-18 and 09-25 are real dates in the same chain, and neither is a freeze: one is the last
   // formal draft to Haptic, the other is the issue. Naming them stops a reader treating them as a
   // fourth and fifth freeze, and stops anyone re-dating work onto them by accident.
@@ -5122,22 +5400,79 @@ function instrumentsForPkg(pkgName){
     var pl=(m.package||'').split('[')[0].trim();if(pkgNum(pl)!==want)return;
     (m.rows||[]).forEach(function(r){
       if(r.status!=='upcoming')return;
-      var tok=null,mm=/addendum\s*0?(\d+[\w.]*)/i.exec(r.what||'');
-      if(mm)tok=mm[1];else{var pm=/\b(pcn|si)\s*0?(\d[\w.]*)/i.exec(r.what||'');if(pm)tok=pm[1]+pm[2];}
-      if(!tok)return;var n=addNum(tok);if(seen[n])return;seen[n]=1;out.push({num:n,pkg:pl});});});
+      // Every instrument the row names, not the first form that happens to match. A row reading
+      // "PCN 1 — ... this package has no more addenda" used to resolve on the addendum branch,
+      // fail the digit test, and report nothing at all.
+      instTokensOfRow(r).forEach(function(tok){
+        var n=addNum(tok);if(seen[n])return;seen[n]=1;out.push({num:n,pkg:pl});});});});
   return out;
+}
+// ⚠ FIXED 2026-08-27, and the bug it carried had been on screen for a day.
+// This returned the FIRST milestone row naming the instrument. PCN 1 now has four such rows —
+// three design freezes and the issue — because the freezes are named for the instrument they hold
+// content for. So the register header read "PCN 1 · issues Fri, August 28", which is Freeze 1: an
+// internal design-stop on which nothing issues at all. The instrument issues 2026-09-25.
+// A freeze is not an issue date, and the register said it was.
+// The rule is now explicit rather than positional: rows that describe a freeze or an internal stop
+// are not candidates for an ISSUE date. If that leaves nothing, the old behaviour stands, so an
+// instrument whose only row happens to be worded oddly still reports something rather than nothing.
+// Every instrument a sentence names, as tokens. Deliberately a LIST and deliberately digit-bound,
+// because both alternatives have already shipped bugs:
+//   · `/addendum\s*(\w+)/` with no digit requirement read "...no longer has an addendum to ride"
+//     as an instrument called 'to', and drew it a chip.
+//   · taking the FIRST match and stopping meant a row reading "PCN 1 — ... this package has no more
+//     addenda" resolved to the addendum form, missed, and never tried the PCN form. That is how the
+//     register came to print "PCN 1 · issues Fri, August 28" — Freeze 1, a day nothing issues on.
+// One sentence can legitimately name two instruments. Return both and let the caller match.
+function instTokensIn(text){
+  var w=String(text||'').toLowerCase(),out=[],m;
+  var re1=/addendum\s*0*(\d[\w.]*)/g;
+  while((m=re1.exec(w)))out.push(m[1].replace(/^0+/,''));
+  var re2=/\b(pcn|si)\s*0*(\d[\w.]*)/g;
+  while((m=re2.exec(w)))out.push(m[1]+m[2].replace(/^0+/,''));
+  return out;
+}
+// ⚠ SCAN THE HEAD, NOT THE WHOLE ROW. A milestone row's `what` is a paragraph — the Addendum 1
+// row runs to two thousand characters and mentions PCN 1 four times in passing ("...moved to PCN 1
+// the same day"), while the PCN 1 issue row mentions Design Freeze 3. Reading instrument names out
+// of free prose therefore made the 08-20 addendum answer to 'pcn1' and made the 09-25 issue look
+// like a freeze. Every row in this vault names its subject FIRST, before the em-dash — 'Addendum 1
+// (post-BID) — ISSUED...', 'PCN 1 — Design Freeze 1 (...)', 'BID set — ...' — so that is what is
+// read. Prose after the dash is commentary about other instruments and must not vote.
+function msHead(r){
+  var w=String((r&&r.what)||'');
+  var i=w.search(/\s[\u2014\u2013-]\s/);
+  return i===-1?w.slice(0,80):w.slice(0,i);
+}
+// The subject plus the clause that qualifies it — enough to see 'Design Freeze 1', not enough to
+// reach the paragraph where every other instrument gets a mention.
+function msLead(r){
+  var w=String((r&&r.what)||'');
+  var m=/^([^.]{0,180})/.exec(w);
+  return m?m[1]:w.slice(0,180);
+}
+function instTokensOfRow(r){return instTokensIn(msHead(r));}
+function rowNamesInst(r,want){return instTokensOfRow(r).indexOf(want)!==-1;}
+function isFreezeRow(r){
+  return /design\s*freeze|internal design-stop|design-stop/i.test(msLead(r));
 }
 function addendumDateFor(pkgName,num){
   var ms=milestoneFor(pkgName,'');if(!ms)return null;
-  var want=addNum(num);
-  for(var i=0;i<(ms.rows||[]).length;i++){
-    var w=(ms.rows[i].what||'').toLowerCase();
-    var m=/addendum\s*0?(\w+)/.exec(w);
-    var tok=m?m[1]:null;
-    if(!tok){var pm=/\b(pcn|si)\s*0?(\d\w*)/.exec(w);if(pm)tok=pm[1]+pm[2];}
-    if(tok&&tok.replace(/^0+/,'')===want.replace(/^0+/,''))return ms.rows[i];
-  }
-  return null;
+  var want=addNum(num).replace(/^0+/,'');
+  var hits=(ms.rows||[]).filter(function(r){return rowNamesInst(r,want);});
+  if(!hits.length)return null;
+  // An ISSUE date is a date something goes out on. A design freeze is a date design stops moving,
+  // and PCN 1 has three of them — all of which name the instrument, and all of which sort before
+  // the issue. Position was doing the choosing; now the meaning is.
+  var issues=hits.filter(function(r){return !isFreezeRow(r);});
+  return issues.length?issues[0]:hits[0];
+}
+// Every milestone row that names this instrument and is NOT its issue — the freezes. Read here so
+// the register never has to keep a second copy of the schedule in step by hand.
+function freezeRowsFor(pkgName,num){
+  var ms=milestoneFor(pkgName,'');if(!ms)return [];
+  var want=addNum(num).replace(/^0+/,'');
+  return (ms.rows||[]).filter(function(r){return rowNamesInst(r,want)&&isFreezeRow(r);});
 }
 // Open a thread where it lives -- the Board's Threads mode -- rather than duplicating it here.
 // One home, many doors: the register names the thread, the Board renders it.
@@ -5178,22 +5513,28 @@ function buildAddendumRegister(){
     g.items.push(it);
   });
   // milestone-declared addenda with no items yet still deserve a card — an empty addendum is a question
+  // ⚠ 2026-08-27. This read `r.status!=='upcoming'` and skipped everything else, and Package 5
+  // Addendum 1 nevertheless had a card — not because anything here minted it, but because the
+  // PCN 1 row's PROSE says "This row was *Addendum 1* until 2026-08-11" and the old scanner read
+  // instrument names out of free paragraphs. Tightening that scan to the row's head (correctly)
+  // took the card with it: a closed instrument that eleven finished sheets still ride, drawn by
+  // accident and then undrawn. An instrument earns a card when it is UPCOMING or when something
+  // actually rides it — issued and closed is not the same as gone.
+  var _rides={};
+  laneItems().forEach(function(i){if(i.addendum)_rides[addKey(i.pkg,i.addendum)]=1;});
   MILESTONES.forEach(function(m){
     (m.rows||[]).forEach(function(r){
-      if(r.status!=='upcoming')return;
       // `\w+` matched the next word after "addendum", so a row whose PROSE said "...no longer has
       // an addendum to ride" minted an instrument called "to" and drew it a chip. A milestone names
       // an addendum by NUMBER; anything else is a sentence that happens to contain the word.
       // PCN and SI rows are named the same way and carry the same digit requirement — 'PCN 1'
       // is an instrument, 'a PCN to follow' is a sentence.
-      var tok=null;
-      var mm=/addendum\s*0?(\d+[\w.]*)/i.exec(r.what||'');
-      if(mm)tok=mm[1];
-      else{var pm=/\b(pcn|si)\s*0?(\d[\w.]*)/i.exec(r.what||'');if(pm)tok=pm[1]+pm[2];}
-      if(!tok||!wantKind(tok))return;
       var pkgLabel=(m.package||'').split('[')[0].trim();
-      var k=addKey(pkgLabel,tok);
-      if(!groups[k]){groups[k]={pkg:pkgLabel,program:'',num:addNum(tok),items:[]};order.push(k);}
+      instTokensOfRow(r).forEach(function(tok){
+        if(!wantKind(tok))return;
+        var k=addKey(pkgLabel,tok);
+        if(r.status!=='upcoming'&&!_rides[k])return;
+        if(!groups[k]){groups[k]={pkg:pkgLabel,program:'',num:addNum(tok),items:[]};order.push(k);}});
     });
   });
   if(!order.length)return;
@@ -5208,6 +5549,11 @@ function buildAddendumRegister(){
   var hGate=document.createElement('div');
   var hTabs=document.createElement('div');hTabs.className='reg-tabs';
   var hFilt=document.createElement('div');hFilt.className='reg-filters';
+  // The strip goes ABOVE the title, which is the only place it can go and still do its job. The
+  // register knew Freeze 1 was tomorrow and said so three scrolls down, in a heading with the same
+  // visual weight as the one holding work owed in four weeks. Grouping is not warning.
+  var hStrip=document.createElement('div');hStrip.className='fz-strip-host';
+  c.appendChild(hStrip);
   c.appendChild(hHead);c.appendChild(hGate);c.appendChild(hTabs);c.appendChild(hFilt);
   var discsPresent=[];
   // `disc::` is occasionally multi-valued ('ME,AR') and `scope::` and `disc::` can name the same
@@ -5284,7 +5630,7 @@ function buildAddendumRegister(){
     // Addendum 1 that read All 0 against 13 real rows, two days after the addendum issued: the
     // first addendum this project has issued with items still open on it, which is why no earlier
     // one exposed it. The count now comes from the same set the list draws, filtered the same way.
-    var flagPool=(ADD_MODE==='sheets'?addPoolFor(ADD_OPEN)
+    var flagPool=((ADD_MODE==='sheets'||ADD_MODE==='drawings')?addPoolFor(ADD_OPEN)
                  :(function(){
                     var g0=groups[ADD_OPEN];if(!g0)return [];
                     var d=addDiscFilter_();
@@ -5376,8 +5722,21 @@ function buildAddendumRegister(){
     bits.push(pool.length+' item'+(pool.length!==1?'s':''));
     if(done)bits.push(done+' finished');
     if(un)bits.push('<b class="needs">'+un+' question'+(un!==1?'s':'')+' unanswered</b>');
-    sub.innerHTML=bits.join(' \u00b7 ');
+    // ── readiness, on a PCN ────────────────────────────────────────────────────────────────
+    // The register showed EXISTENCE — forty-five items — and nothing about whether any of them
+    // could issue. Three facts decide that, and a deficit is written as a deficit: "7 with no
+    // description" is actionable, "38 described" is a scoreboard.
+    if(instKind(g.num)!=='addendum'&&pool.length){
+      var rd=pcnReadiness(pool);
+      var miss=[];
+      if(rd.n-rd.drawn)miss.push('<b class="needs">'+(rd.n-rd.drawn)+' with no drawing named</b>');
+      if(rd.n-rd.desc)miss.push('<b class="needs">'+(rd.n-rd.desc)+' with nothing written to go out</b>');
+      if(rd.n-rd.clouded)miss.push('<b class="needs">'+(rd.n-rd.clouded)+' not clouded yet</b>');
+      bits.push(miss.length?miss.join(' · '):'<b class="ok">every row named, written and clouded — issuable</b>');
+    }
+    sub.innerHTML=bits.join(' · ');
     hHead.appendChild(sub);
+    if(instKind(g.num)!=='addendum')buildFreezeStrip(hStrip,pool);
   })();
   var pickRow=document.createElement('div');pickRow.className='add-filter add-pick-row';
   // Grouped by programme, because Concourse B is not the only programme that issues documents —
@@ -5410,6 +5769,9 @@ function buildAddendumRegister(){
   [['reg','Contents','What this addendum carries — the items, by consultant scope'],
    ['threads','Our questions','Design questions WE are chasing — ours to answer. Not bid inquiries: those come from bidders, after the documents go out, and live in §5 of the Write-up.'],
    ['sheets','Sheet work','The sheet-by-sheet punch list — where the states get set'],
+   ['drawings','By drawing','The same items, transposed: one row per DRAWING, the changes under it. '
+     +'Contents and Sheet work are item-shaped; an afternoon is sheet-shaped — you open a sheet '
+     +'once and put every cloud on it that it is owed.'],
    ['inq','Bid inquiries','Questions from BIDDERS after the documents went out. Each one is answered '
      +'here, and the answer can also become a drawing revision or a spec note on this addendum.'],
    ['wu','Write-up','\u00a73, \u00a74, the List of Attachments and \u00a75 Bid inquiries']
@@ -5435,6 +5797,7 @@ function buildAddendumRegister(){
 
   if(ADD_MODE==='inq'){addInquiryBlock(c,ADD_OPEN);return;}
   if(ADD_MODE==='sheets'){addWorkbench(c,ADD_OPEN,addPoolFor(ADD_OPEN));return;}
+  if(ADD_MODE==='drawings'){addDrawingBoard(c,ADD_OPEN,addPoolFor(ADD_OPEN));return;}
   if(ADD_MODE==='threads'){addQuestionsPanel(c,ADD_OPEN,groups[ADD_OPEN]);return;}
   if(ADD_MODE==='wu'){
     var h=document.createElement('div');h.id='wuHost-'+ADD_OPEN;c.appendChild(h);
@@ -5513,13 +5876,29 @@ function buildAddendumRegister(){
       var lab=document.createElement('span');lab.className='add-sheets-lab';
       // On a PCN the three states do not exist, so counting "untriaged" against them is counting
       // against a question nobody is asked. What is missing on a PCN row is the description.
+      // Counted over EVERY row, finished ones included. A completed change still needs the cloud
+      // and the revision on its sheet before it can issue — excluding it made this line say 44
+      // while the header two inches above said 45, which is how a reader stops trusting both.
+      var uncl=pool.filter(function(i2){return !isClouded(i2);}).length;
       lab.textContent=(instKind(g.num)==='addendum')
-        ? (dn+' issue a drawing'+(un?' \u00b7 '+un+' untriaged':'')+(vn?' \u00b7 '+vn+' to verify':''))
+        ? (dn+' issue a drawing'+(un?' · '+un+' untriaged':'')+(vn?' · '+vn+' to verify':''))
         : (pool.length+' drawing'+(pool.length!==1?'s':'')
-           +(nodesc?' \u00b7 '+nodesc+' with no description':'')
-           +(unclaimed?' \u00b7 '+unclaimed+' unclaimed':'')
-           +(vn?' \u00b7 '+vn+' to verify':''));
+           +(nodesc?' · '+nodesc+' with no description':'')
+           +(uncl?' · '+uncl+' not clouded':'')
+           +(vn?' · '+vn+' to verify':''));
       strip.appendChild(lab);
+      // The pool, as a door rather than a number. It read "33 unclaimed" in grey next to four other
+      // grey numbers — a fact with nowhere to go. One click now stands you in front of exactly those
+      // rows, which is the only thing anybody wanted to do with that number.
+      if(unclaimed){
+        var pb=document.createElement('button');pb.type='button';pb.className='add-open add-pool';
+        pb.textContent=unclaimed+' unclaimed →';
+        pb.title='Open just the rows nobody has taken — the pool for this instrument';
+        pb.addEventListener('click',function(e){e.stopPropagation();
+          ADD_OPEN=k;ADD_MODE='sheets';ADD_WHO='free';buildAddendumRegister();
+          var el=document.getElementById('addRegView');if(el)el.scrollIntoView({block:'start'});});
+        strip.appendChild(pb);
+      }
       // This strip was built and then dropped on the floor — `card.appendChild(strip)` was never
       // called, so "Sheet work · N →" has never rendered and the punch list has only ever been
       // reachable from elsewhere. Found 2026-08-26.
@@ -5567,6 +5946,7 @@ function buildAddendumRegister(){
       var inf=pcnCard?freezeInfo(sk):scopeInfo(sk==='_none'?'':sk);
       if(!pcnCard&&addDiscFilter_()&&inf.d!==addDiscFilter_())return;
       var rows=byScope[sk].filter(function(it){
+        if(!inFreeze(it))return false;
         if(ADD_WHO==='mine'&&!isMine(it))return false;
         if(ADD_WHO==='free'&&(it.delegate||'').trim())return false;
         if(ADD_FLAG==='verify')return !!it.verify;
@@ -5666,7 +6046,8 @@ function buildAddendumRegister(){
     });
     if(!shown){
       var nores=document.createElement('div');nores.className='add-row add-none';
-      nores.textContent=ADD_WHO==='mine'?'Nothing here has your name on it yet — try Unclaimed.'
+      nores.textContent=ADD_FREEZE?('Nothing on this instrument is dated to '+ADD_FREEZE+'.')
+        :ADD_WHO==='mine'?'Nothing here has your name on it yet — try Unclaimed.'
         :ADD_WHO==='free'?'Every row here is claimed.'
         :ADD_FLAG==='verify'?'Nothing on this addendum is flagged with a ?.'
         :ADD_FLAG==='open'?'Everything on this addendum is finished.'
@@ -5681,6 +6062,69 @@ function buildAddendumRegister(){
     act.appendChild(addBtn);card.appendChild(act);
     c.appendChild(card);
   });
+  // ── sheets riding no instrument ────────────────────────────────────────────────────────────
+  // The register draws instruments and what rides them, so a sheet on nobody's instrument is drawn
+  // nowhere at all — invisible in exactly the way that matters, because it is work that has been
+  // planned, dated and in some cases finished, and has no document to go out on. Four of them sit
+  // in Package 5 today. Absence is the one thing a list cannot report about itself unless it is
+  // built to.
+  (function(){
+    var pkgs={},pkgOrder=[];
+    order.forEach(function(k){var g=groups[k];if(!g||!g.pkg)return;
+      var pn=pkgNum(g.pkg);if(pn==null||pkgs[pn])return;pkgs[pn]=g.pkg;pkgOrder.push(pn);});
+    var orphans=laneItems().filter(function(i){
+      if(String(i.addendum||'').trim())return false;
+      if(i.pendingLocal)return false;
+      return pkgNum(i.pkg)!=null&&pkgs[pkgNum(i.pkg)]!==undefined;});
+    if(!orphans.length)return;
+    var card=document.createElement('div');card.className='add-card add-orphans';
+    var head=document.createElement('div');head.className='add-card-head';
+    var nm=document.createElement('span');nm.className='add-card-name';
+    nm.textContent='On no instrument';head.appendChild(nm);
+    var cnt=document.createElement('span');cnt.className='add-card-count';
+    var doneN=orphans.filter(function(i){return i.status==='completed'||i.pendingComplete;}).length;
+    cnt.textContent=orphans.length+' sheet'+(orphans.length!==1?'s':'')
+      +' with work on '+(orphans.length!==1?'them':'it')+' and no document to go out on'
+      +(doneN?('  \u00b7  '+doneN+' already finished'):'');
+    head.appendChild(cnt);
+    card.appendChild(head);
+    var why=document.createElement('div');why.className='add-orphan-why';
+    why.textContent='Each of these carries a date and a change and no addendum:: tag, so it appears '
+      +'on no register above. Put it on an instrument or take the date off it \u2014 the one state '
+      +'nothing can act on is work owed to nobody\u2019s document.';
+    card.appendChild(why);
+    orphans.sort(function(a,b){var da=a.due||'9999',db=b.due||'9999';
+      return da<db?-1:da>db?1:(String(a.title)<String(b.title)?-1:1);});
+    orphans.forEach(function(it){
+      // ⚠ NOT `.add-row`. Every count on this page keys on that class — "Contents renders N rows",
+      // the Done filter's own assertion — and these rows are deliberately outside the filters,
+      // because an absence report that narrows when you narrow the register is an absence report
+      // that disappears exactly when you are looking hardest. Its own class keeps it visible and
+      // keeps it out of the register's arithmetic.
+      var r=document.createElement('div');r.className='orph-row';
+      var dot=document.createElement('span');dot.className='sib-dot sd-'+(it.status||'open');r.appendChild(dot);
+      var ti=document.createElement('span');ti.className='ar-t';ti.textContent=String(it.title||'').slice(0,96);
+      ti.addEventListener('click',function(){openDrawer(it.id);});r.appendChild(ti);
+      var dd=document.createElement('span');dd.className='ar-who';
+      dd.textContent=it.due?('owed '+it.due):'no date';
+      r.appendChild(dd);
+      var dests=addendaForPkg(it.pkg);
+      if(dests.length){
+        var mv=document.createElement('select');mv.className='ar-move';
+        var m0=document.createElement('option');m0.value='';m0.textContent='put it on \u2192';mv.appendChild(m0);
+        dests.forEach(function(k2){var op=document.createElement('option');op.value=k2;
+          op.textContent=instLong(ADD_GROUPS[k2]?ADD_GROUPS[k2].num:k2.split('|')[1]);
+          mv.appendChild(op);});
+        mv.addEventListener('click',function(e){e.stopPropagation();});
+        mv.addEventListener('change',function(e){e.stopPropagation();
+          if(!mv.value)return;
+          moveToAddendum(it.id,mv.value);buildAddendumRegister();});
+        r.appendChild(mv);
+      }
+      card.appendChild(r);
+    });
+    c.appendChild(card);
+  })();
 }
 function openAddendumAdder(host,g){
   if(host.querySelector('.add-picker'))return;
@@ -6896,7 +7340,10 @@ function mdDueChip(it){
 // So this is its own panel, above My Day, and it appears only when a name is picked. It is the
 // smallest true version of "everyone gets their own list": what you hold, what is open on it, and
 // when it freezes — with one click through to the place the work is actually done.
-function buildMyWork(){
+// Two lists, always drawn together: what you hold, and what nobody holds. The second one is not
+// a sub-view of the first — it is the reason the first one can grow.
+function buildMyWork(){buildMyWorkInner();buildPool();}
+function buildMyWorkInner(){
   var sec=document.getElementById('myWorkSec');if(!sec)return;
   sec.innerHTML='';
   var me=(typeof syncWho==='function')?String(syncWho()||'').trim():'';
@@ -6972,6 +7419,90 @@ function buildMyWork(){
     });
     sec.appendChild(row);
   });
+}
+// ---- the pool: work nobody has taken -------------------------------------------------------
+// Measured on the day this was written: 33 of the 45 open rows on PCN 1 carried no name, and the
+// only place that number appeared anywhere on the site was as a segment inside the register
+// workbench — a control you have to already be standing in front of. So a person with a free hour
+// had nowhere to look, and thirty-three items sat there owned by nobody rather than waiting for
+// someone. This is that list, on the board, where a person actually lands.
+function buildPool(){
+  var sec=document.getElementById('poolSec');if(!sec)return;
+  sec.innerHTML='';
+  var pool=(typeof laneItems==='function')?laneItems():[];
+  var free=pool.filter(function(i){
+    if(!i||!i.addendum)return false;                       // claiming lives on an instrument
+    if(i.status==='completed'||i.pendingComplete)return false;
+    if(String(i.delegate||'').trim())return false;
+    return true;});
+  if(!free.length){sec.style.display='none';return;}
+  sec.style.display='';
+  free.sort(function(a,b){
+    var da=a.due||'9999',db=b.due||'9999';
+    return da<db?-1:da>db?1:(String(a.title)<String(b.title)?-1:1);});
+  var head=document.createElement('div');head.className='mw-head';
+  var tag=document.createElement('span');tag.className='tag';tag.textContent='Up for grabs';head.appendChild(tag);
+  var sum=document.createElement('span');sum.className='mw-sum';
+  var soon=free.filter(function(i){var d=daysTo(i.due);return d!=null&&d<=2;}).length;
+  sum.textContent=free.length+' item'+(free.length!==1?'s':'')+' nobody has taken'
+    +(soon?('  \u00b7  '+soon+' owed within two days'):'');
+  head.appendChild(sum);
+  var note=document.createElement('span');note.className='mw-note';
+  note.textContent='pick a name and it moves onto their list';
+  head.appendChild(note);
+  sec.appendChild(head);
+  // Deliberately capped, and it SAYS it is capped. A pool that silently shows the first eight of
+  // thirty-three reads as "there are eight" — which is the failure this whole block exists to fix.
+  var CAP=8,show=free.slice(0,CAP);
+  var lastG='';
+  show.forEach(function(it){
+    var g=it.due||'';
+    if(g!==lastG){
+      lastG=g;
+      var inf=freezeInfo(g||'_nodate');
+      var h=document.createElement('div');h.className='mw-grp';
+      var t=document.createElement('span');t.textContent=inf.t;h.appendChild(t);
+      var d=daysTo(g);
+      if(d!=null){var i2=document.createElement('i');
+        i2.textContent=d<0?((-d)+'d ago'):d===0?'today':d===1?'tomorrow':('in '+d+'d');
+        if(d<=1)i2.className='mw-soon';h.appendChild(i2);}
+      sec.appendChild(h);
+    }
+    var row=document.createElement('div');row.className='mw-row pool-row';
+    var sh=(it.sheet||(it.sheets&&it.sheets[0])||(placementsOf(it)[0]||{}).sheet||'');
+    if(sh){var sp=document.createElement('code');sp.className='mw-sheet';sp.textContent=sh;row.appendChild(sp);}
+    var ti=document.createElement('span');ti.className='mw-t';
+    ti.textContent=String(it.title||'').replace(/^A\S+\s+\u2014\s+/,'');
+    row.appendChild(ti);
+    var inst=document.createElement('span');inst.className='mw-n';
+    inst.textContent=instShort(addNum(it.addendum));
+    row.appendChild(inst);
+    var take=document.createElement('button');take.type='button';take.className='pool-take';
+    take.textContent='take it';
+    take.title='Put a name on it \u2014 yours or anyone on the technical team';
+    take.addEventListener('click',function(e){e.stopPropagation();openClaimPicker(it,take,'');});
+    row.appendChild(take);
+    row.title='Open it in the register';
+    row.addEventListener('click',function(){
+      setView('registers');
+      setRegTab(instKind(it.addendum)!=='addendum'?'pcn':'add');
+      ADD_WHO='free';
+      setSheetFilter(addKey(it.pkg,it.addendum));
+      var el=document.getElementById('sh-'+it.id);
+      if(el&&el.scrollIntoView)el.scrollIntoView({block:'center'});});
+    sec.appendChild(row);
+  });
+  if(free.length>CAP){
+    var more=document.createElement('button');more.type='button';more.className='mw-more';
+    more.textContent='the other '+(free.length-CAP)+' \u2014 open the pool in the register \u2192';
+    more.addEventListener('click',function(){
+      var it=free[CAP];
+      setView('registers');
+      setRegTab(instKind(it.addendum)!=='addendum'?'pcn':'add');
+      ADD_WHO='free';
+      setSheetFilter(addKey(it.pkg,it.addendum));});
+    sec.appendChild(more);
+  }
 }
 function buildMyDay(){
   var sec=document.getElementById('myDaySec');if(!sec)return;
@@ -7528,7 +8059,7 @@ function sheetSortKey(it){
 // ---- state ---------------------------------------------------------------------------------
 var sheetFilter='';        // legacy: which instrument the old Sheets tab was pinned to
 var ADD_OPEN=null;         // which addendum is selected — one is always selected
-var ADD_MODE='reg';        // reg | sheets | inq | wu
+var ADD_MODE='reg';        // reg | sheets | drawings | threads | inq | wu
 var ADD_DISC='AR';         // Architecture is the default and says so. This is an ARCH addendum.
 var ADD_PART='';           // '' both · 'spec' §3 · 'drawing' §4
 var ADD_STATE='';          // '' | drawings | writeup | none | untriaged | verify | ask | done
@@ -7540,6 +8071,31 @@ var ADD_FLAG='';           // '' | verify | done   — `verify` is the yellow ? 
 // and unclaimed work with nowhere to see it is invisible to everyone rather than owned by nobody.
 // '' = everyone · 'mine' = what I hold · 'free' = what nobody holds, which is the pool.
 var ADD_WHO='';
+// WHICH FREEZE. A PCN this size is not one deadline, it is three, and until now the only way to
+// see just the body of work owed on Friday was to scroll to its heading and read around it. Armed
+// from the strip at the top of the register, cleared from the same place.
+var ADD_FREEZE='';         // '' = every date · a YYYY-MM-DD key = that freeze only
+function inFreeze(it){return !ADD_FREEZE||freezeKeyFor(it)===ADD_FREEZE;}
+// ---- is this instrument issuable, and how far off ------------------------------------------
+// A PCN ships a clouded drawing and a sentence. Three things have to be true of every row before
+// the instrument can go, and until now none of them was visible without opening forty-five cards:
+// a drawing has to be NAMED, the sentence has to be WRITTEN, and the sheet has to be CLOUDED with
+// its revision bumped. Counting them is the difference between a list and a readiness instrument.
+function pcnReadiness(pool){
+  var r={n:0,desc:0,drawn:0,clouded:0,claimed:0,done:0};
+  (pool||[]).forEach(function(i){
+    r.n++;
+    if(String(i.desc||'').trim())r.desc++;
+    if((placementsOf(i)||[]).some(function(p){return p&&p.sheet;}))r.drawn++;
+    if(isClouded(i))r.clouded++;
+    if(String(i.delegate||'').trim())r.claimed++;
+    if(i.status==='completed'||i.pendingComplete)r.done++;
+  });
+  return r;
+}
+// `clouded:: yes` is deliberately NOT the done tick. Done says the design is settled; clouded says
+// the sheet is issuable. On a PCN only the second one ships.
+function isClouded(it){return /^(yes|y|true|1)$/i.test(String((it&&it.clouded)||'').trim());}
 var SH_OPEN={};
 var SH_ROW_OPEN={};
 var WU_EXCLUDE={};
@@ -7670,13 +8226,26 @@ function laneItems(){
 // must not do is invent a spelling: Package 5 writes `TP5-A1` and Package 4.2 writes `5`, and a
 // tag that disagrees with what Milestones says draws two cards for one instrument.
 var ADD_GROUPS={},ADD_ORDER=[];
+// ⚠ FIXED 2026-08-27. This read ADD_ORDER, which holds only the instruments the OPEN PANE just
+// drew. On the PCN tab that is PCN 1 and nothing else, so `dests.length>1` was false and the
+// crossover control — the one gesture whose entire purpose is to move work BETWEEN an addendum and
+// a PCN — rendered for nobody on Package 5, the only package that has both. It was logged as
+// "spanning both panes is a feature, not a patch" and left; it was a hole. instrumentsForPkg()
+// already reads items, lane items and milestones directly and is deliberately kind-blind, which is
+// exactly what a move target list needs to be. ADD_ORDER is still unioned in so an instrument that
+// exists only as a rendered group (a milestone-declared empty one) is not lost.
 function addendaForPkg(pkg){
-  var p=String(pkgNum(pkg)||pkg||'?');
-  return ADD_ORDER.filter(function(k){return k.split('|')[0]===p;})
-    .sort(function(a,b){
-      var na=parseFloat(a.split('|')[1]),nb=parseFloat(b.split('|')[1]);
-      if(isNaN(na)||isNaN(nb))return a<b?-1:1;
-      return na-nb;});
+  var p=String(pkgNum(pkg)||pkg||'?'),seen={},keys=[];
+  instrumentsForPkg(pkg).forEach(function(x){
+    var k=addKey(x.pkg||pkg,x.num);
+    if(k.split('|')[0]!==p||seen[k])return;seen[k]=1;keys.push(k);});
+  ADD_ORDER.forEach(function(k){
+    if(k.split('|')[0]!==p||seen[k])return;seen[k]=1;keys.push(k);});
+  // Addenda first, then PCNs, then SIs — the order the project actually runs in. Within a kind,
+  // numerically, so PCN 10 sorts after PCN 9 rather than between 1 and 2.
+  function rank(k){var nn=k.split('|')[1],kk=instKind(nn);
+    return (kk==='addendum'?0:kk==='pcn'?1:2)*1e6+(parseFloat(String(nn).replace(/^\D+/,''))||0);}
+  return keys.sort(function(a,b){return rank(a)-rank(b);});
 }
 // The raw tag for a destination, read off an item already riding it — so the spelling comes from
 // the vault rather than from here. An addendum with no items yet inherits the shape its siblings
@@ -7688,13 +8257,20 @@ function rawAddendumFor(key){
   for(var j=0;j<all.length;j++){
     if(!all[j].addendum)continue;
     if(addKey(all[j].pkg,all[j].addendum).split('|')[0]!==pkgP)continue;
-    var m=/^(tp[\d.]*-a)/i.exec(String(all[j].addendum));
-    if(m)return m[1].toUpperCase()+num;}
-  return num;
+    // The house prefix, not the whole tag: TP5-A1 lends 'TP5-' to a sibling, and what follows it
+    // is decided by the KIND of the destination. Spelling a new PCN 'TP5-A pcn1' would mint a
+    // second card for one instrument, which is the exact failure this function exists to prevent.
+    var m=/^(tp[\d.]*-)a/i.exec(String(all[j].addendum));
+    if(m){var pre=m[1].toUpperCase();
+      return instKind(num)==='addendum'?(pre+'A'+num):(pre+String(num).toUpperCase());}}
+  return instKind(num)==='addendum'?num:String(num).toUpperCase();
 }
+// The label a move offers and a status line reports. It said 'Add 1' for everything, PCNs
+// included, which on the one control that crosses the two kinds is the single most misleading
+// word it could use.
 function addLabelFor(key){
-  var g=ADD_GROUPS[key];
-  return g?(pkgChip(g.pkg)+' \u00b7 Add '+g.num):('Addendum '+key.split('|')[1]);
+  var g=ADD_GROUPS[key],num=g?g.num:key.split('|')[1];
+  return (g?(pkgChip(g.pkg)+' · '):'')+instLong(num);
 }
 function moveToAddendum(id,key,quiet){
   var it=findLane(id);if(!it)return false;
@@ -7825,6 +8401,163 @@ function setAddMeta(id,field,value,label,quiet){
   setStatus((label||field)+' set — queued for check-in.');
 }
 
+// ---- the same instrument, seen the way the work is actually done -------------------------------
+// Contents and Sheet work are both ITEM-shaped: one row per change, the drawings a detail inside
+// it. But nobody does the work that way. Kirk opens A5.100.01 once and puts every cloud on it that
+// it is owed, then closes it and opens the next sheet. A register that hands him forty-five items
+// makes him reconstruct that grouping in his head every morning.
+// This is the same forty-five items, transposed — sheet as the row, changes as its children — so
+// the list matches the afternoon. Nothing here is a new fact; it is the existing placements read
+// along the other axis.
+function addDrawingBoard(host,key,pool){
+  var g=ADD_GROUPS[key]||{},pkg=g.pkg||(pool[0]&&pool[0].pkg)||'';
+  var wrap=document.createElement('div');wrap.className='wb dwb';
+  host.appendChild(wrap);
+  var rows=(pool||[]).filter(function(i){
+    if(!inFreeze(i))return false;
+    if(ADD_WHO==='mine'&&!isMine(i))return false;
+    if(ADD_WHO==='free'&&String(i.delegate||'').trim())return false;
+    if(ADD_FLAG==='open')return !(i.status==='completed'||i.pendingComplete);
+    if(ADD_FLAG==='done')return i.status==='completed'||i.pendingComplete;
+    if(ADD_FLAG==='verify')return !!i.verify;
+    return true;});
+  var bySheet={},order=[],nosheet=[];
+  rows.forEach(function(it){
+    var pls=(placementsOf(it)||[]).filter(function(x){return x&&x.sheet;});
+    if(!pls.length){nosheet.push(it);return;}
+    var seen={};
+    pls.forEach(function(pl){
+      var sn=String(pl.sheet).toUpperCase();
+      if(!bySheet[sn]){bySheet[sn]=[];order.push(sn);}
+      bySheet[sn].push({it:it,pl:pl});
+      seen[sn]=1;});
+  });
+  // Sheet number order, which for these is also drawing-set order — A5.0.x before A5.94.x before
+  // A5.100.x. A plain string sort puts .100 before .94, so the numeric runs are compared as numbers.
+  function sortKey(n){return String(n).split(/[.\s]/).map(function(x){
+    return /^\d+$/.test(x)?String(1e6+parseInt(x,10)):x;}).join('.');}
+  order.sort(function(a,b){var ka=sortKey(a),kb=sortKey(b);return ka<kb?-1:ka>kb?1:0;});
+
+  var head=document.createElement('div');head.className='dwb-head';
+  var ht=document.createElement('b');
+  ht.textContent=order.length+' drawing'+(order.length!==1?'s':'')+' to touch';
+  head.appendChild(ht);
+  var totalCl=0,total=0;
+  order.forEach(function(sn){bySheet[sn].forEach(function(r){total++;if(isClouded(r.it))totalCl++;});});
+  var hs=document.createElement('span');hs.className='dwb-sum';
+  hs.textContent=total+' change'+(total!==1?'s':'')+' across them \u00b7 '+totalCl+' clouded'
+    +(nosheet.length?('  \u00b7  '+nosheet.length+' change'+(nosheet.length!==1?'s':'')+' with no drawing named'):'');
+  head.appendChild(hs);
+  var hn=document.createElement('span');hn.className='dwb-note';
+  hn.textContent='one row per sheet \u2014 open it once and do everything it is owed';
+  head.appendChild(hn);
+  wrap.appendChild(head);
+
+  if(!order.length&&!nosheet.length){
+    var non=document.createElement('div');non.className='dwb-none';
+    non.textContent=ADD_FREEZE?('Nothing dated to '+ADD_FREEZE+' names a drawing.')
+                   :'Nothing on this instrument names a drawing yet.';
+    wrap.appendChild(non);return;
+  }
+
+  order.forEach(function(sn){
+    var list=bySheet[sn];
+    var box=document.createElement('div');box.className='dwb-sheet';
+    var sh=document.createElement('div');sh.className='dwb-sh';
+    var no=document.createElement('code');no.className='dwb-no';no.textContent=sn;sh.appendChild(no);
+    var nm=knownSheet(pkg,sn);
+    var t=document.createElement('span');t.className='dwb-nm';
+    if(nm){t.textContent=nm;}
+    else{t.textContent='not on the drawing list';t.className+=' dwb-unknown';
+      t.title=sn+' is not in the project drawing register. Either it is a sheet this instrument '
+        +'ADDS, or the register is out of date \u2014 both are worth knowing before it prints in a document.';}
+    sh.appendChild(t);
+    var cl=list.filter(function(r){return isClouded(r.it);}).length;
+    var st=document.createElement('span');st.className='dwb-st';
+    st.textContent=list.length+' change'+(list.length!==1?'s':'');
+    sh.appendChild(st);
+    var cb=document.createElement('span');
+    cb.className='dwb-cl'+(cl===list.length?' all':cl?' some':' none');
+    // "0 OF 1 CLOUDED" is a fraction where a word will do, and a sheet with one change on it is the
+    // common case. Fractions appear only when there is actually a fraction to report.
+    cb.textContent=(list.length===1)?(cl?'clouded':'not clouded')
+      :(cl===list.length?'clouded':(cl+' of '+list.length+' clouded'));
+    cb.title='Clouded and revision bumped. Not the same fact as the work being done \u2014 a finished '
+      +'change on a sheet that carries no cloud cannot issue.';
+    sh.appendChild(cb);
+    // Who is holding this sheet — distinct names, because a sheet held by two people is the thing
+    // you want to see before both of them open it.
+    var who={},whoL=[];
+    list.forEach(function(r){var d=String(r.it.delegate||'').trim();if(d&&!who[d]){who[d]=1;whoL.push(d);}});
+    var w=document.createElement('span');w.className='dwb-who';
+    w.textContent=whoL.length?whoL.join(', '):'nobody';
+    if(!whoL.length)w.className+=' dwb-free';
+    if(whoL.length>1)w.title='Two people are holding changes on this one sheet.';
+    sh.appendChild(w);
+    box.appendChild(sh);
+    list.forEach(function(r){
+      var it=r.it,pl=r.pl;
+      var row=document.createElement('div');row.className='dwb-row';
+      if(it.status==='completed'||it.pendingComplete)row.classList.add('dwb-done');
+      var d=document.createElement('code');d.className='dwb-det';
+      d.textContent=pl.no?('/'+pl.no):'\u2014';
+      d.title=pl.no?('Detail '+pl.no+' on '+sn):'No detail number on this placement';
+      row.appendChild(d);
+      var vw=document.createElement('span');vw.className='dwb-view';
+      vw.textContent=pl.view||pl.room||'(view not named)';
+      if(!pl.view&&!pl.room)vw.className+=' dwb-unknown';
+      row.appendChild(vw);
+      var ti=document.createElement('span');ti.className='dwb-t';
+      ti.textContent=String(it.title||'').replace(/^A\S+\s+\u2014\s+/,'');
+      row.appendChild(ti);
+      var wt=String(pl.override||pl.text||'').trim();
+      if(wt){var wc=document.createElement('span');wc.className='dwb-what';wc.textContent=wt;row.appendChild(wc);}
+      if(!String(it.desc||'').trim()){
+        var nd=document.createElement('span');nd.className='dwb-need';nd.textContent='no description';
+        nd.title='Nothing is written for this change to go out with the instrument.';
+        row.appendChild(nd);}
+      // Only when the sheet DISAGREES with itself. When every change on a drawing is in the same
+      // state the header has already said so, and repeating it on each row is the same word twice
+      // in one glance — which is how a reader learns to stop reading either of them.
+      if(!isClouded(it)&&cl>0){
+        var nc=document.createElement('span');nc.className='dwb-need dwb-need-soft';nc.textContent='not clouded';
+        row.appendChild(nc);}
+      row.title='Open it in Sheet work';
+      row.addEventListener('click',function(){
+        ADD_MODE='sheets';SH_ROW_OPEN[it.id]=true;buildAddendumRegister();
+        var el=document.getElementById('sh-'+it.id);
+        if(el&&el.scrollIntoView)el.scrollIntoView({block:'center'});});
+      box.appendChild(row);
+    });
+    wrap.appendChild(box);
+  });
+
+  if(nosheet.length){
+    var box2=document.createElement('div');box2.className='dwb-sheet dwb-orphan';
+    var sh2=document.createElement('div');sh2.className='dwb-sh';
+    var n2=document.createElement('code');n2.className='dwb-no dwb-unknown';n2.textContent='\u2014';sh2.appendChild(n2);
+    var t2=document.createElement('span');t2.className='dwb-nm dwb-unknown';
+    t2.textContent='No drawing named yet';sh2.appendChild(t2);
+    var s2=document.createElement('span');s2.className='dwb-st';
+    s2.textContent=nosheet.length+' change'+(nosheet.length!==1?'s':'');sh2.appendChild(s2);
+    var h2=document.createElement('span');h2.className='dwb-who dwb-free';
+    h2.textContent='cannot issue until each names a sheet';sh2.appendChild(h2);
+    box2.appendChild(sh2);
+    nosheet.forEach(function(it){
+      var row=document.createElement('div');row.className='dwb-row';
+      var d=document.createElement('code');d.className='dwb-det dwb-unknown';d.textContent='?';row.appendChild(d);
+      var ti=document.createElement('span');ti.className='dwb-t';ti.textContent=it.title||'';row.appendChild(ti);
+      var w2=document.createElement('span');w2.className='dwb-who';
+      w2.textContent=String(it.delegate||'').trim()||'nobody';row.appendChild(w2);
+      row.title='Open it and pick the drawing';
+      row.addEventListener('click',function(){
+        ADD_MODE='sheets';SH_ROW_OPEN[it.id]=true;buildAddendumRegister();
+        var el=document.getElementById('sh-'+it.id);
+        if(el&&el.scrollIntoView)el.scrollIntoView({block:'center'});});
+      box2.appendChild(row);});
+    wrap.appendChild(box2);
+  }
+}
 // ---- the workbench render ----------------------------------------------------------------------
 function addWorkbench(host,key,pool){
   var live=pool.filter(function(i){return !i.pendingComplete&&i.status!=='completed';});
@@ -7955,6 +8688,9 @@ function addWorkbench(host,key,pool){
   (function(){
     var on=[];
     if(ADD_WHO)on.push({t:(ADD_WHO==='mine'?'Mine':'Unclaimed'),c:function(){ADD_WHO='';}});
+    if(ADD_FREEZE)on.push({t:(function(){var fi=freezeInfo(ADD_FREEZE);
+                                return fi.freeze?('Design Freeze '+fi.n):ADD_FREEZE;})(),
+                           c:function(){ADD_FREEZE='';}});
     if(ADD_FLAG)on.push({t:({open:'Open',verify:'Questions',done:'Done'})[ADD_FLAG]||ADD_FLAG,
                          c:function(){ADD_FLAG='';}});
     if(ADD_STATE)on.push({t:({untriaged:'No state yet',verify:'Flagged ?',nosheet:'No drawing',
@@ -7977,7 +8713,7 @@ function addWorkbench(host,key,pool){
     var all=document.createElement('button');all.type='button';all.className='filt-clear';
     all.textContent='Clear all';
     all.addEventListener('click',function(){
-      ADD_FLAG='';ADD_STATE='';ADD_PART='';ADD_DISC='AR';buildAddendumRegister();});
+      ADD_FLAG='';ADD_STATE='';ADD_PART='';ADD_DISC='AR';ADD_WHO='';ADD_FREEZE='';buildAddendumRegister();});
     strip.appendChild(all);
     wb.appendChild(strip);
     // the count is only knowable after the rows are filtered — filled in below
@@ -8077,6 +8813,7 @@ function addWorkbench(host,key,pool){
     // Same trap as the note below, and I walked straight into it: the Whose control was drawn on
     // the workbench and applied only in the register card, so Mine returned all 44 rows. A filter
     // has to be applied where its control is, or it is a switch wired to nothing.
+    if(!inFreeze(i))return false;
     if(ADD_WHO==='mine'&&!isMine(i))return false;
     if(ADD_WHO==='free'&&String(i.delegate||'').trim())return false;
     // the page-level Show filter applies here too. It sat above every view and moved only
@@ -8363,9 +9100,21 @@ function pcnLandingLine(it){
   var row=(typeof addendumDateFor==='function')?addendumDateFor(it.pkg,it.addendum):null;
   var when=(row&&/^\d{4}-\d{2}-\d{2}/.test(row.date||''))?row.date:'';
   var d=document.createElement('div');d.className='sh-lands';
+  // It read "clouded on A5.94.15", which states as a fact the one thing on this card that is
+  // usually not true yet. Naming the drawing is intent; the cloud and the revision triangle are a
+  // separate act, and a PCN ships the second one. So the sentence says where it GOES, and the
+  // state of the cloud is reported beside it rather than assumed by it.
   d.textContent='Issues with '+instLong(addNum(it.addendum))+(when?' on '+when:'')
-    +' \u00b7 '+(sheets.length?('clouded on '+sheets.join(', ')):'no drawing named yet');
+    +' · '+(sheets.length?('to be clouded on '+sheets.join(', ')):'no drawing named yet');
   if(!sheets.length)d.classList.add('sh-lands-gap');
+  if(sheets.length){
+    var cs=document.createElement('b');cs.className=isClouded(it)?'sh-cl-yes':'sh-cl-no';
+    cs.textContent=isClouded(it)?'  ·  clouded ✓':'  ·  not clouded yet';
+    cs.title=isClouded(it)?'The sheet carries the cloud and the bumped revision.'
+      :'The drawing is named. Nobody has recorded that the cloud and revision are on the sheet, '
+       +'so this row cannot issue yet even if the work is finished.';
+    d.appendChild(cs);
+  }
   return d;
 }
 // Drawings and views for a PCN, as REFERENCES rather than sentence-parts.
@@ -8745,6 +9494,23 @@ function sheetRow(it){
     b.addEventListener('click',function(e){e.stopPropagation();
       setProduces(it.id,it.produces===p[0]?'':p[0]);});
     pick.appendChild(b);});
+  // ── clouded, which is not the same fact as done ────────────────────────────────────────────
+  // The done tick says the design is settled. This says the SHEET carries the cloud and the bumped
+  // revision — the thing a PCN actually issues. They came apart on this job the moment a change was
+  // modelled, detailed, agreed and finished on a drawing nobody had clouded, and the register had
+  // no way to hold that difference.
+  if(isPcnItem(it)){
+    var clb=document.createElement('button');clb.type='button';clb.className='cl';
+    clb.textContent='clouded';
+    clb.title='The sheet carries the cloud and its revision is bumped. Deliberately separate from '
+      +'the done tick: done means the design is settled, clouded means the drawing is issuable, and '
+      +'only the second one ships with the PCN.';
+    if(isClouded(it))clb.classList.add('on');
+    clb.setAttribute('aria-pressed',isClouded(it)?'true':'false');
+    clb.addEventListener('click',function(e){e.stopPropagation();
+      setAddMeta(it.id,'clouded',isClouded(it)?'':'yes','Clouded');});
+    pick.appendChild(clb);
+  }
   var q=document.createElement('button');q.type='button';q.textContent='?';q.title='needs verifying — Chris H';
   if(it.verify)q.classList.add('on','q');
   q.addEventListener('click',function(e){e.stopPropagation();toggleVerify(it.id);});
@@ -8753,18 +9519,31 @@ function sheetRow(it){
   // a single answer is a control you learn to ignore. Changing it queues the retag; it does not
   // touch the vault until the next check-in, same as every other field on this row.
   var dests=addendaForPkg(it.pkg),here=addKey(it.pkg,it.addendum);
+  if(here&&dests.indexOf(here)===-1)dests=[here].concat(dests);
   if(dests.length>1){
     var mv=document.createElement('select');mv.className='sh-move';
-    mv.title='Which addendum this item rides. Changing it queues a retag for the next check-in — '
-      +'the state still decides what the document says, this only decides which document.';
-    mv.setAttribute('aria-label','Addendum for '+(it.title||''));
+    mv.title='Which instrument this item rides — addenda and PCN/SI together, because the move '
+      +'that matters most is the one that crosses from bid to contract administration. Changing it '
+      +'queues a retag for the next check-in; the state still decides what the document says, this '
+      +'only decides which document.';
+    mv.setAttribute('aria-label','Instrument for '+(it.title||''));
     dests.forEach(function(k){
       var o=document.createElement('option');o.value=k;
-      o.textContent='Add '+(ADD_GROUPS[k]?ADD_GROUPS[k].num:k.split('|')[1]);
+      o.textContent=instLong(ADD_GROUPS[k]?ADD_GROUPS[k].num:k.split('|')[1]);
       if(here===k)o.selected=true;
       mv.appendChild(o);});
     mv.addEventListener('click',function(e){e.stopPropagation();});
-    mv.addEventListener('change',function(e){e.stopPropagation();moveToAddendum(it.id,mv.value);});
+    mv.addEventListener('change',function(e){e.stopPropagation();
+      var to=mv.value;
+      // Crossing kinds is not the same edit as renumbering. An addendum item answers a bidder
+      // before the contract exists; a PCN item is a change to a contract that does. Moving one to
+      // the other changes what the row MEANS, so it asks, and a retag inside one kind does not.
+      if(instKind(here.split('|')[1])!==instKind(to.split('|')[1])
+         &&!window.confirm('Move “'+String(it.title||'').slice(0,60)+'” from '
+             +instLong(addNum(it.addendum))+' to '+instLong(to.split('|')[1])+'?\n\n'
+             +'That crosses from one kind of instrument to the other.')){
+        mv.value=here;return;}
+      moveToAddendum(it.id,to);});
     head.appendChild(mv);
   }
   head.appendChild(pick);
@@ -10580,13 +11359,42 @@ function issueGate(key){
   var pool=addPoolFor(key);
   var doc=buildAddendumDoc(key,{});
   var blockers=[],cautions=[];
-  var untriaged=pool.filter(function(i){return !i.produces;});
+  // ⚠ A PCN IS GATED ON DIFFERENT FACTS. Everything below the else was written for an addendum: it
+  // asks whether each item has a `produces::` state, whether its §4 sentence is finished, whether
+  // an attached drawing has a name for the §4 heading. A PCN has no §3/§4 and no three-state pick —
+  // the card deliberately refuses to offer one — so the gate was demanding a decision the rest of
+  // the page says does not exist, and reading "24 items with no state" on an instrument where state
+  // is not a thing. What actually stops a PCN issuing is narrower and harder: a drawing has to be
+  // NAMED, a sentence has to be WRITTEN, and the sheet has to be CLOUDED with its revision bumped.
+  var _num=(ADD_GROUPS[key]||{}).num||addNum((pool[0]||{}).addendum||'');
+  var isPcnInst=instKind(_num)!=='addendum';
+  if(isPcnInst){
+    var noDraw=pool.filter(function(i){
+      return !(placementsOf(i)||[]).some(function(pl){return pl&&pl.sheet;});});
+    if(noDraw.length)blockers.push({n:noDraw.length,
+      t:'change'+(noDraw.length!==1?'s':'')+' with no drawing named',
+      w:'A PCN issues a drawing. A change that names none has nothing to be clouded on.',
+      go:function(){ADD_MODE='drawings';buildAddendumRegister();}});
+    var noDesc=pool.filter(function(i){return !String(i.desc||'').trim();});
+    if(noDesc.length)blockers.push({n:noDesc.length,
+      t:'with nothing written to go out',
+      w:'The description is what accompanies the drawing. Nothing generates it — it is written.',
+      go:function(){ADD_MODE='sheets';buildAddendumRegister();}});
+    var noCloud=pool.filter(function(i){return !isClouded(i);});
+    if(noCloud.length)blockers.push({n:noCloud.length,t:'not clouded yet',
+      w:'The sheet has to carry the cloud and the bumped revision. Deliberately not the done tick: '
+        +'done says the design is settled, this says the drawing is issuable.',
+      go:function(){ADD_MODE='drawings';buildAddendumRegister();}});
+  }
+  var untriaged=isPcnInst?[]:pool.filter(function(i){return !i.produces;});
   if(untriaged.length)blockers.push({n:untriaged.length,
     t:'item'+(untriaged.length!==1?'s':'')+' with no state',
     w:'Nothing is written for them, so the document is short by that much.',
     go:function(){ADD_MODE='sheets';ADD_STATE='untriaged';ADD_FLAG='';buildAddendumRegister();}});
   var slots=[],noSheet=[],unnamed=[];
-  pool.filter(inDocument).forEach(function(i){
+  // §3 slots, §4 sentences and List-of-Attachments names are addendum machinery. On a PCN there is
+  // no sentence to leave half-written, so this whole pass is skipped rather than run and ignored.
+  if(!isPcnInst)pool.filter(inDocument).forEach(function(i){
     if(isSpecPart(i)&&!(i.note||'').trim())slots.push(i);
     if(!isDrawPart(i))return;
     placementsOf(i).forEach(function(pl){
