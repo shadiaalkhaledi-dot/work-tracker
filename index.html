@@ -609,6 +609,16 @@ select.pl-in{cursor:pointer}
   .sh-head{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;}
   .sh-no{font-weight:700;font-size:13.5px;color:var(--text);font-variant-numeric:tabular-nums;}
   .sh-title{font-size:13.5px;color:var(--text);flex:1 1 240px;}
+  .add-card-tw{background:none;border:none;color:var(--gold);font-size:12px;line-height:1;
+    padding:0 6px 0 0;cursor:pointer;font-family:inherit;}
+  .add-card-tw:hover{color:var(--text);}
+  .add-head-click{cursor:pointer;}
+  .add-closed .add-card-head{opacity:.92;}
+  .add-collapsible.add-closed{padding-bottom:6px;}
+  /* Hidden, not unrendered. The search filter walks these rows and so does every check that
+     counts them; a collapsed card is a reading posture, not an absence. */
+  .add-closed .add-row,.add-closed .add-scope,.add-closed .add-actions,
+  .add-closed .add-sheets,.add-closed .add-threads{display:none;}
   .sh-pick{display:inline-flex;gap:0;border:1px solid var(--border);border-radius:7px;overflow:hidden;}
   .sh-pick button{background:none;border:none;border-right:1px solid var(--border);color:var(--muted);font:inherit;font-size:11px;font-weight:700;padding:2px 9px;cursor:pointer;}
   .sh-pick button:last-child{border-right:none;}
@@ -3348,6 +3358,40 @@ var regTab='add';
 // in the way. They share this pane and this renderer; only the kind changes, and ADD_OPEN's
 // existing "reset when the selected card is not in this list" rule handles the switch for free.
 var REG_KIND='addendum';
+// Which instrument cards are expanded. Deliberately not persisted to the URL: it is a reading
+// posture, not a place. Empty means "use the default", which depends on how many cards there are.
+var REG_OPEN_CARDS={};
+// A design freeze is not a submission. Faisal's production schedule fixes three dates on which the
+// design for a named body of content has to STOP moving so the client-approval chain behind it can
+// run; PCN 1 still issues in one piece on 2026-09-25. Shadi, 2026-08-26: "Faisal's schedule is for
+// client approval, all items go out in PCN 1 on Sep 25th." So the freeze is when the work is OWED,
+// which is the only date a person can act on — and it is read straight off the item's due date
+// rather than declared, so nothing has to be kept in step by hand.
+var FREEZES={'2026-08-28':{n:1,what:'vending and ATM · benches and planters · hammerhead AV · Arrivals holdroom · corner guards'},
+             '2026-09-04':{n:2,what:'floor-mounted AV screens · gate boarding layout, hammerhead finger · concessions bulkhead'},
+             '2026-09-11':{n:3,what:'portal bulkhead lighting · portal finishes and hardware · gate boarding millwork and e-gates · stroller and cart stands'}};
+function freezeKeyFor(it){return it&&it.due?String(it.due):'_nodate';}
+function daysTo(d){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(String(d||'')))return null;
+  return Math.ceil((new Date(d+'T00:00:00').getTime()-Date.now())/86400000);
+}
+function freezeInfo(k){
+  if(k==='_nodate')return {t:'No date \u2014 not held by any freeze',days:null,
+    hint:'Nothing says when this has to stop moving. It will be the last thing anyone looks at.'};
+  var f=FREEZES[k];
+  if(f)return {t:'Design Freeze '+f.n+'  \u00b7  '+k,days:daysTo(k),
+    hint:'Design stops moving on '+k+': '+f.what+'. Nothing issues on this date \u2014 PCN 1 issues in one piece on 2026-09-25.'};
+  // 09-18 and 09-25 are real dates in the same chain, and neither is a freeze: one is the last
+  // formal draft to Haptic, the other is the issue. Naming them stops a reader treating them as a
+  // fourth and fifth freeze, and stops anyone re-dating work onto them by accident.
+  if(k==='2026-09-18')return {t:'Last formal draft to Haptic  \u00b7  '+k,days:daysTo(k),
+    hint:'The last formal draft. After this the window is QA/QC only \u2014 it is not a freeze, and work dated here has skipped one.'};
+  if(k==='2026-09-25')return {t:'Issue \u2014 PCN 1  \u00b7  '+k,days:daysTo(k),
+    hint:'The day PCN 1 issues. Work still dated here has no freeze holding it \u2014 it is owed earlier than it says.'};
+  var dd=daysTo(k);
+  return {t:(dd!=null&&dd<0?'Overdue  \u00b7  ':'Due  \u00b7  ')+k,days:dd,
+    hint:'Not one of the three design freezes.'};
+}
 // Three registers stacked in one scroll meant reaching RFIs by scrolling past every addendum.
 // Each lands at the top of its own pane now.
 function setRegTab(k){
@@ -5103,6 +5147,30 @@ function buildAddendumRegister(){
       +(condN?' \u00b7 '+condN+' conditional':'')
       +(scopeBits.length>1?'  \u00b7  '+scopeBits.join(' / '):'')):'empty — nothing tagged to it yet';
     head.appendChild(cnt);
+    // PCN 1 is the first of many — Package 5 alone will run PCN 2, 3, and SIs after them — so this
+    // list grows without bound while an addendum list never did. One card is always open, because
+    // collapsing the only card is a control with a single answer. From two upward the cards close
+    // by default and remember what you opened, so the register reads as a LIST of instruments
+    // first and a pile of items second.
+    var many=order.length>1;
+    // Closing every card leaves the tab looking empty, which is its own kind of wrong. The first
+    // card — the nearest instrument — stays open; the rest fold away and remember what you open.
+    var openThis=(REG_OPEN_CARDS[k]!==undefined)?!!REG_OPEN_CARDS[k]:(!many||order.indexOf(k)===0);
+    if(many){
+      card.classList.add('add-collapsible');
+      var tw=document.createElement('button');tw.type='button';tw.className='add-card-tw';
+      tw.textContent=openThis?'\u25be':'\u25b8';
+      tw.title=(openThis?'Collapse ':'Show what rides ')+instLong(g.num);
+      tw.setAttribute('aria-expanded',openThis?'true':'false');
+      tw.setAttribute('aria-label',(openThis?'Collapse ':'Expand ')+instLong(g.num));
+      function toggleCard(e){if(e)e.stopPropagation();
+        REG_OPEN_CARDS[k]=!openThis;buildAddendumRegister();}
+      tw.addEventListener('click',toggleCard);
+      head.insertBefore(tw,head.firstChild);
+      head.classList.add('add-head-click');
+      head.addEventListener('click',toggleCard);
+      if(!openThis)card.classList.add('add-closed');
+    }
     card.appendChild(head);
     // The sheet list for this instrument, if there is one. Compact by design: the card answers
     // "what rides this addendum", and the sheet-by-sheet detail lives one click away in Sheets.
@@ -5113,6 +5181,7 @@ function buildAddendumRegister(){
       var un=pool.filter(function(i2){return !i2.produces;}).length;
       var dn=pool.filter(function(i2){return i2.produces==='drawings';}).length;
       var vn=pool.filter(function(i2){return i2.verify;}).length;
+      var nodesc=pool.filter(function(i2){return !String(i2.desc||'').trim();}).length;
       var ob=document.createElement('button');ob.type='button';ob.className='add-open';
       ob.textContent='Sheet work · '+pool.length+' \u2192';
       ob.title='Open the punch list for this addendum';
@@ -5121,8 +5190,17 @@ function buildAddendumRegister(){
         var el=document.getElementById('addRegView');if(el)el.scrollIntoView({block:'start'});});
       strip.appendChild(ob);
       var lab=document.createElement('span');lab.className='add-sheets-lab';
-      lab.textContent=dn+' issue a drawing'+(un?' · '+un+' untriaged':'')+(vn?' · '+vn+' to verify':'');
+      // On a PCN the three states do not exist, so counting "untriaged" against them is counting
+      // against a question nobody is asked. What is missing on a PCN row is the description.
+      lab.textContent=(instKind(g.num)==='addendum')
+        ? (dn+' issue a drawing'+(un?' \u00b7 '+un+' untriaged':'')+(vn?' \u00b7 '+vn+' to verify':''))
+        : (pool.length+' drawing'+(pool.length!==1?'s':'')
+           +(nodesc?' \u00b7 '+nodesc+' with no description':'')+(vn?' \u00b7 '+vn+' to verify':''));
       strip.appendChild(lab);
+      // This strip was built and then dropped on the floor — `card.appendChild(strip)` was never
+      // called, so "Sheet work · N →" has never rendered and the punch list has only ever been
+      // reachable from elsewhere. Found 2026-08-26.
+      card.appendChild(strip);
     })();
     // The questions used to sit here as a row of chips, and at fifteen of them across three
     // packages that row was unreadable — the one cross-cut the Programme > Package tree cannot
@@ -5146,15 +5224,25 @@ function buildAddendumRegister(){
     g.items.sort(function(a,b){return (a.status==='completed'?1:0)-(b.status==='completed'?1:0);});
     // Rows grouped by whose scope they are, ours first. A single-scope addendum gets no headers,
     // so the grouping appears exactly when it earns the space.
+    // On an ADDENDUM, whose scope a row belongs to is the question — the register attributes each
+    // line to a consultant. On a PCN it is not: PCN 1 is one architectural instrument, and what a
+    // person actually needs to see is WHICH DESIGN FREEZE holds a row, because that is the date the
+    // work is owed. The instrument issues in one piece on 09-25; the freezes are when each body of
+    // content has to stop moving. Grouping by scope there would sort 45 rows into one heading.
     var byScope={},scopeKeys=[];
-    g.items.forEach(function(it){var k=it.scope||'_none';if(!byScope[k]){byScope[k]=[];scopeKeys.push(k);}byScope[k].push(it);});
-    scopeKeys.sort(function(a,b){
+    var pcnCard=(instKind(g.num)!=='addendum');
+    g.items.forEach(function(it){var k=pcnCard?freezeKeyFor(it):(it.scope||'_none');
+      if(!byScope[k]){byScope[k]=[];scopeKeys.push(k);}byScope[k].push(it);});
+    scopeKeys.sort(pcnCard?function(a,b){
+      // undated last; otherwise the freeze order is simply date order
+      if(a==='_nodate')return 1; if(b==='_nodate')return -1; return a<b?-1:(a>b?1:0);
+    }:function(a,b){
       var ia=SCOPE_ORDER.indexOf(a),ib=SCOPE_ORDER.indexOf(b);
       if(ia===-1)ia=98;if(ib===-1)ib=98;if(a==='_none')ia=99;if(b==='_none')ib=99;return ia-ib;});
     var showHeaders=scopeKeys.length>1,shown=0;
     scopeKeys.forEach(function(sk){
-      var inf=scopeInfo(sk==='_none'?'':sk);
-      if(addDiscFilter_()&&inf.d!==addDiscFilter_())return;
+      var inf=pcnCard?freezeInfo(sk):scopeInfo(sk==='_none'?'':sk);
+      if(!pcnCard&&addDiscFilter_()&&inf.d!==addDiscFilter_())return;
       var rows=byScope[sk].filter(function(it){
         if(ADD_FLAG==='verify')return !!it.verify;
         if(ADD_FLAG==='open')return !(it.status==='completed'||it.pendingComplete);
@@ -5165,11 +5253,14 @@ function buildAddendumRegister(){
       if(showHeaders){
         var sh=document.createElement('div');sh.className='add-scope'+(inf.ours?' ours':'');
         var sht=document.createElement('span');sht.className='as-t';
-        sht.textContent=sk==='_none'?'Scope not set':inf.t;
-        if(sk==='_none')sht.title='No scope:: tag \u2014 cannot be attributed to a consultant';
+        sht.textContent=pcnCard?inf.t:(sk==='_none'?'Scope not set':inf.t);
+        if(!pcnCard&&sk==='_none')sht.title='No scope:: tag \u2014 cannot be attributed to a consultant';
+        if(pcnCard)sht.title=inf.hint||'';
         sh.appendChild(sht);
         var shn=document.createElement('span');shn.className='as-n';
-        shn.textContent=rows.length+(inf.ours?' \u00b7 ours':'');
+        shn.textContent=rows.length+(pcnCard?(inf.days!=null?' \u00b7 '+(inf.days<0?(-inf.days)+'d ago'
+                                        :inf.days===0?'today':'in '+inf.days+'d'):'')
+                                     :(inf.ours?' \u00b7 ours':''));
         sh.appendChild(shn);card.appendChild(sh);
       }
       rows.forEach(function(it){
@@ -6971,6 +7062,17 @@ function addUntaggedFor(key){
     return addKey(i.pkg,i.addendum)===key&&!itemDiscList(i).length;});
 }
 function itemPart(it){return it.part||(it.section?'spec':'drawing');}
+// A PCN is not an addendum, and the difference is not cosmetic. An addendum writes SENTENCES —
+// TARGET; ACTION; "attached and forms part of this Addendum" — and derives its List of Attachments
+// from whether that clause is present on a line. A PCN issues the DRAWING: clouded, carrying a
+// revision, with a description of the work beside it. There is no §3/§4 to file into, no
+// attachment clause to derive, and no "Fix only" — a card that is not a change in the work is not
+// a PCN item at all. So the three-state pick disappears and two written fields take its place:
+// `note` for whoever draws it, `desc` for what goes out.
+// Kind is READ OFF the tag, never declared — `instKind` is the single authority, and an SI issues
+// the same way a PCN does.
+function isPcnItem(it){var k=instKind(it&&it.addendum);return k==='pcn'||k==='si';}
+function pcnHasWords(it){return !!(String((it&&it.desc)||'').trim());}
 // `both` is a real answer, so nothing may test `part==='spec'` directly any more.
 function isSpecPart(it){var p=itemPart(it);return p==='spec'||p==='both';}
 function isDrawPart(it){var p=itemPart(it);return p==='drawing'||p==='both';}
@@ -7561,6 +7663,11 @@ function openAddSheet(anchor,addNo,pkg,program){
 // which only catches up on blur — so the lines under the fields moved and the block above them
 // did not, which is exactly the disagreement this block exists to prevent.
 function buildRowPreview(it,live){
+    // A PCN has nothing to assemble. The addendum preview exists because §3/§4 lines are BUILT —
+    // target, verb, clause — and a preview is the only way to see what the machine will emit.
+    // Here the words are typed, so the preview's job is different: show what leaves the office
+    // and what stays in it, side by side, because the whole risk on a PCN is the two drifting.
+    if(isPcnItem(it))return buildPcnPreview(it);
     var pv=shBlock('It will read',inDocument(it)?'exactly this, in the document'
       :(it.produces==='none'?'nothing — Fix only never reaches the bid'
                             :'nothing yet — pick a state above'));
@@ -7618,6 +7725,37 @@ function buildRowPreview(it,live){
     }
     return pv;
 }
+function buildPcnPreview(it){
+  var has=pcnHasWords(it),sheets=itemSheets(it).length?itemSheets(it):placementSheets(it);
+  var pv=shBlock('It will issue as',has?'this drawing, clouded, with this description beside it'
+                                       :'nothing yet — the description is what goes out');
+  pv.classList.add('sh-preview');
+  if(!has)pv.classList.add('sh-preview-off');
+  if(sheets.length){
+    var d0=document.createElement('div');d0.className='sh-preview-l';
+    d0.textContent=sheets.join('  ·  ')+'\u2003clouded, revision to follow';
+    pv.appendChild(d0);
+  }else{
+    var dn=document.createElement('div');dn.className='sh-preview-x';
+    dn.textContent='No drawing named yet \u2014 a PCN issues a sheet, so this one has nothing to cloud.';
+    pv.appendChild(dn);
+  }
+  if(has){
+    var d1=document.createElement('div');d1.className='sh-preview-l';
+    d1.textContent=String(it.desc||'').trim();
+    pv.appendChild(d1);
+    var at=document.createElement('div');at.className='sh-preview-a';
+    at.textContent='\u2192 the drawing is issued with the PCN. Nothing "forms part of an Addendum" '
+      +'here \u2014 there is no List of Attachments to derive, because the sheet IS the instrument.';
+    pv.appendChild(at);
+  }
+  if(String(it.note||'').trim()){
+    var d2=document.createElement('div');d2.className='sh-preview-x';
+    d2.textContent='Stays in the office: '+String(it.note||'').trim();
+    pv.appendChild(d2);
+  }
+  return pv;
+}
 function shBlock(title,hint){
   var b=document.createElement('div');b.className='sh-blk';
   var h=document.createElement('div');h.className='sh-blk-h';
@@ -7642,6 +7780,16 @@ function shBlock(title,hint){
 function rowEdge(it){
   if(it.titleClash)return 'stop';
   if(it.pendingComplete||it.status==='completed')return 'done';
+  // PCN rows never pass through the three-state gate — every card is a change, so there is no
+  // state to pick. What makes one shippable is the pair of words and a drawing to cloud. A sheet
+  // that has not been named yet is a decision owed, not a defect: the change is real either way.
+  if(isPcnItem(it)){
+    if(it.verify)return 'ask';
+    if(!pcnHasWords(it))return 'ask';
+    if(!String(it.note||'').trim())return 'ask';
+    if(!placementSheets(it).length&&!itemSheets(it).length)return 'ask';
+    return 'ready';
+  }
   if(!it.produces)return 'ask';
   if(it.verify)return 'ask';
   if(it.produces==='none')return 'quiet';
@@ -7664,7 +7812,8 @@ function sheetRow(it){
   var row=document.createElement('div');
   row.id='sh-'+it.id;
   var edge=rowEdge(it);
-  row.className='sh-row pt-'+part+' e-'+edge+(!it.produces?' untriaged':'')+(it.verify?' verify':'')
+  row.className='sh-row pt-'+part+' e-'+edge
+    +((isPcnItem(it)?!pcnHasWords(it):!it.produces)?' untriaged':'')+(it.verify?' verify':'')
     +(sheets.length?'':' noSheet')+(it.pendingComplete||it.status==='completed'?' sh-doneRow':'');
   row.title=({stop:'Would ship wrong — see the gate above',
               ask:'Needs a decision from you before anything can be written',
@@ -7729,7 +7878,9 @@ function sheetRow(it){
     // An amber edge is a colour you have to remember the meaning of. These say it.
     [it.verify?['sh-pill-q','flagged ?','Not yet confirmed with Chris H']:null,
      it.ask?['sh-pill-a','question out','Waiting on an answer from someone else']:null,
-     (!it.produces)?['sh-pill-u','no state','Nothing is written for it, so the document is short by that much']:null
+     (isPcnItem(it)
+       ? (!pcnHasWords(it)?['sh-pill-u','no description','A PCN issues the drawing and the words beside it. Without a description there is nothing to issue with.']:null)
+       : (!it.produces?['sh-pill-u','no state','Nothing is written for it, so the document is short by that much']:null))
     ].forEach(function(p){
       if(!p)return;
       var sp=document.createElement('span');sp.className='sh-pill '+p[0];
@@ -7773,6 +7924,10 @@ function sheetRow(it){
   }
   paintTitle();
   var pick=document.createElement('span');pick.className='sh-pick';
+  // Issue drawing / Write-up only / Fix only is addendum grammar: it asks whether the change
+  // reaches the document as a drawing, as words, or not at all. On a PCN all three collapse into
+  // one answer, so offering the choice invites a decision that does not exist.
+  if(!isPcnItem(it))
   [['drawings'],['writeup'],['none']].forEach(function(p){
     var b=document.createElement('button');b.type='button';
     b.textContent=produceLabel(part,p[0]);b.title=produceHint(part,p[0]);
@@ -7859,8 +8014,12 @@ function sheetRow(it){
   body.open=!!SH_ROW_OPEN[it.id];
   body.addEventListener('toggle',function(){SH_ROW_OPEN[it.id]=body.open;});
   var sm2=document.createElement('summary');
-  sm2.textContent=(nLines?nLines+' line'+(nLines!==1?'s':'')+' across '+sheets.length+' drawing'
-      +(sheets.length!==1?'s':'')+'  —  edit them here':'Where this goes in the addendum')
+  sm2.textContent=(isPcnItem(it)
+      ? ((pcnHasWords(it)?'The note and the description':'No description yet')
+         +(sheets.length?'  —  '+sheets.length+' drawing'+(sheets.length!==1?'s':''):'  —  no drawing named')
+         +'  —  edit them here')
+      : (nLines?nLines+' line'+(nLines!==1?'s':'')+' across '+sheets.length+' drawing'
+      +(sheets.length!==1?'s':'')+'  —  edit them here':'Where this goes in the addendum'))
     +(nLines?'':'  —  '+(steps.length?steps.length+' markup'+(steps.length!==1?'s':''):'no markup yet'))
     +(function(){var n=imagesFor(it).length;
         return n?', '+n+' picture'+(n!==1?'s':''):'';})()
@@ -7868,10 +8027,13 @@ function sheetRow(it){
   body.appendChild(sm2);
 
   // where it goes — the editor for the fields the write-up reads
-  var ed=shBlock('Where it goes',isSpecPart(it)?'§3 — Specifications packages this one'
-    :(itemPart(it)==='both'?'§3 note + §4 lines':'§4 — written here, in full'));
+  var ed=shBlock(isPcnItem(it)?'What this change is':'Where it goes',
+    isPcnItem(it)?'one note for whoever draws it, one description for whoever prices it'
+    :(isSpecPart(it)?'§3 — Specifications packages this one'
+    :(itemPart(it)==='both'?'§3 note + §4 lines':'§4 — written here, in full')));
   ed.classList.add('sh-edit');
-  function field(lbl,val,ph,hint,onSave){
+  function field(lbl,val,ph,hint,onSave,shown){
+    if(shown!==undefined)val=shown;
     var w=document.createElement('span');w.className='sh-f';
     var l=document.createElement('label');l.textContent=lbl;l.title=hint||'';w.appendChild(l);
     var i2=document.createElement('input');i2.type='text';i2.value=val||'';i2.placeholder=ph||'';
@@ -7882,7 +8044,41 @@ function sheetRow(it){
     i2.addEventListener('blur',function(){if((i2.value.trim()||'')!==(val||''))onSave(i2.value.trim());});
     w.appendChild(i2);return w;
   }
-  if(isSpecPart(it)){
+  // Two words fields, one job each, and the split is the whole point. The NOTE carries the reason
+  // — "the partition is open to above, so the head has nothing to land on" — which is what stops
+  // the next person quietly drawing something that cannot be built. The DESCRIPTION never carries
+  // the reason: it says what changed, because that is what gets priced.
+  function bigtext(lbl,val,ph,hint,fieldName,saveLabel,emptyHint){
+    var w=document.createElement('div');w.className='sh-note-f';
+    var l=document.createElement('label');l.textContent=lbl;l.title=hint||'';w.appendChild(l);
+    var ta=document.createElement('textarea');ta.className='sh-in sh-note-in';
+    ta.value=val||'';ta.rows=3;ta.placeholder=ph||'';ta.title=hint||'';
+    ta.addEventListener('keydown',function(e){e.stopPropagation();
+      if(e.key==='Escape'){ta.value=val||'';ta.blur();}});
+    ta.addEventListener('blur',function(){
+      if((ta.value.trim()||'')!==(val||''))setAddMeta(it.id,fieldName,ta.value.trim(),saveLabel,true);});
+    w.appendChild(ta);
+    if(!val&&emptyHint){var eh=document.createElement('div');eh.className='hintline';
+      eh.textContent=emptyHint;w.appendChild(eh);}
+    return w;
+  }
+  if(isPcnItem(it)){
+    // No placement editor: a PCN line is not built from TARGET; ACTION; clause, so there is
+    // nothing to assemble. The sheet is a REFERENCE to the drawing being clouded, and a detail
+    // number is as legitimate a reference as a sheet number.
+    ed.appendChild(field('Drawings','','A5.100.10, A5.100.04',
+      'The drawings this change is clouded on. A detail number is a legitimate reference too — 6/A5.94.17.',
+      function(v){setAddMeta(it.id,'sheets',v,'Drawings',true);},itemSheets(it).join(', ')));
+    ed.appendChild(bigtext('Note — for whoever draws it',it.note,
+      'e.g. The partition is open to above, so the new head has nothing to land on — add a box beam tied back to structure. Sizes are structural\u2019s; show the beam and the tie-back zone.',
+      'Internal. Say what to draw and why, including the reason nobody would infer from the title. Never issued.',
+      'note','Note','Without this, whoever picks it up is working from the title alone.'));
+    ed.appendChild(bigtext('Description — goes out with the PCN',it.desc,
+      'e.g. The one-hour rated partition is relocated and the door repositioned. A box beam is added at the head and tied back to the building structure.',
+      'What the PCN says this change is. Written, not generated \u2014 a PCN has no sentence machine to derive it from. Say what changed, not why.',
+      'desc','Description','Nothing to issue with \u2014 the drawing would go out clouded and unexplained.'));
+  }
+  else if(isSpecPart(it)){
     ed.appendChild(field('Specification section',it.section,'09 06 00 – Schedule for Finishes',
       'The §3 heading. Written as it appears in the document.',
       function(v){setAddMeta(it.id,'section',v,'Section',true);}));
@@ -7904,7 +8100,7 @@ function sheetRow(it){
       nh.textContent='Without a note this section reaches Specifications empty.';nw.appendChild(nh);}
     ed.appendChild(nw);
   }
-  if(isDrawPart(it)){
+  if(isDrawPart(it)&&!isPcnItem(it)){
     ed.appendChild(placementEditor(it));
 
   }
