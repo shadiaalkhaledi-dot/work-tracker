@@ -614,12 +614,44 @@ select.pl-in{cursor:pointer}
   .sh-head{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;}
   .sh-no{font-weight:700;font-size:13.5px;color:var(--text);font-variant-numeric:tabular-nums;}
   .sh-title{font-size:13.5px;color:var(--text);flex:1 1 240px;}
-.sh-dw{margin:0 0 14px;max-width:680px}
+.my-work{margin:0 0 14px;border-left:2px solid var(--teal);padding:0 0 2px 12px}
+  .mw-head{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-bottom:7px}
+  .mw-head b{font-size:13px}
+  .mw-sum{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .mw-note{font-size:11px;color:var(--faint);font-style:italic}
+  .mw-grp{display:flex;gap:8px;align-items:baseline;font-size:10px;letter-spacing:.07em;
+    text-transform:uppercase;color:var(--muted);margin:9px 0 3px;font-weight:700}
+  .mw-grp i{font-style:normal;letter-spacing:0;text-transform:none;font-weight:400;color:var(--faint)}
+  .mw-grp i.mw-soon{color:var(--terracotta);font-weight:700}
+  .mw-row{display:flex;gap:9px;align-items:baseline;padding:4px 6px;border-radius:5px;cursor:pointer;
+    font-size:12.5px;line-height:1.45}
+  .mw-row:hover{background:var(--border-soft)}
+  .mw-sheet{font-size:11px;color:var(--muted);flex:0 0 auto}
+  .mw-t{flex:1 1 auto;min-width:0}
+  .mw-n{font-size:11px;color:var(--teal);flex:0 0 auto;white-space:nowrap}
+  .mw-n0{color:var(--faint);font-style:italic}
+  .claim-pop{position:absolute;z-index:40;margin-top:4px;background:var(--raise);
+    border:1px solid var(--border);border-radius:7px;padding:5px;min-width:210px;
+    box-shadow:0 6px 22px rgba(0,0,0,.13);display:flex;flex-direction:column;gap:1px}
+  .claim-pop-h{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
+    padding:3px 7px 5px}
+  .claim-opt{text-align:left;font:inherit;font-size:12px;padding:4px 8px;border:none;
+    background:none;color:var(--text);border-radius:5px;cursor:pointer}
+  .claim-opt:hover{background:var(--border-soft)}
+  .claim-opt.on{color:var(--teal);font-weight:700}
+  .claim-off{color:var(--muted);border-top:1px solid var(--border);border-radius:0;margin-top:3px;padding-top:6px}
+  .claim-pop-f{font-size:9.5px;color:var(--faint);padding:5px 7px 2px;line-height:1.4}
+  .sh-head{position:relative}
+  .wb-mine{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 9px;padding:6px 10px;
+    border-left:2px solid var(--teal);font-size:11.5px;color:var(--muted)}
+  .wb-mine b{color:var(--text);font-size:12px}
+  .wb-seg-pool{border-color:var(--gold)}
+  .sh-dw{margin:0 0 14px;max-width:680px}
   .sh-dw-row{display:flex;gap:6px;align-items:center;margin-bottom:5px;flex-wrap:wrap}
   .sh-dw-s{flex:2 1 260px;min-width:0}
   .sh-dw-v{flex:1 1 190px;min-width:0}
   .sh-dw-row select{font:inherit;font-size:11.5px;padding:3px 6px;border:1px solid var(--border);
-    border-radius:5px;background:var(--surface);color:var(--text);max-width:100%}
+    border-radius:5px;background:var(--raise);color:var(--text);max-width:100%}
   .sh-dw-row select:disabled{opacity:.5}
   .sh-dw-x{background:none;border:none;color:var(--faint);cursor:pointer;font-size:11px;padding:0 3px}
   .sh-dw-x:hover{color:var(--terracotta)}
@@ -1249,10 +1281,32 @@ select.pl-in{cursor:pointer}
   .topbar .brand{font-weight:700;font-size:13px;letter-spacing:.02em;white-space:nowrap;}
   .topbar .brand small{font-weight:400;color:var(--muted);}
   .topbar-spacer{flex:1 1 auto;}
+  .tb-proj{font:inherit;font-size:11.5px;font-weight:700;padding:3px 11px;border-radius:20px;
+    border:1px solid var(--border);background:var(--raise);color:var(--muted);cursor:pointer;
+    white-space:nowrap;max-width:220px;overflow:hidden;text-overflow:ellipsis;}
+  .tb-proj:hover{border-color:var(--gold);color:var(--text);}
+  .tb-proj-one{border-color:var(--teal);color:var(--teal);}
+  .proj-ov{position:fixed;inset:0;z-index:120;background:rgba(20,18,15,.72);
+    display:flex;align-items:center;justify-content:center;padding:24px;}
+  .proj-box{background:var(--raise);border-radius:14px;padding:26px 26px 18px;max-width:760px;
+    width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:88vh;overflow:auto;}
+  .proj-h{font-size:22px;font-weight:700;letter-spacing:-.01em;}
+  .proj-sub{font-size:12.5px;color:var(--muted);margin:5px 0 18px;}
+  .proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:11px;}
+  .proj-tile{display:flex;flex-direction:column;gap:3px;align-items:flex-start;text-align:left;
+    font:inherit;padding:15px 15px 13px;border:1px solid var(--border);border-radius:10px;
+    background:var(--raise);cursor:pointer;transition:border-color .12s,transform .12s;}
+  .proj-tile:hover{border-color:var(--gold);transform:translateY(-1px);}
+  .proj-tile.on{border-color:var(--teal);box-shadow:inset 0 0 0 1px var(--teal);}
+  .proj-tile b{font-size:14px;line-height:1.25;}
+  .proj-n{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;}
+  .proj-note{font-size:10.5px;color:var(--faint);font-style:italic;}
+  .proj-f{font-size:10.5px;color:var(--faint);margin-top:16px;line-height:1.5;}
+  @media (prefers-reduced-motion:reduce){.proj-tile{transition:none}}
   .tb-pick{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);white-space:nowrap;}
   .tb-pick>span{letter-spacing:.06em;text-transform:uppercase;font-size:9.5px;}
   .tb-pick select{font:inherit;font-size:11.5px;padding:2px 5px;border:1px solid var(--border);
-    border-radius:5px;background:var(--surface);color:var(--text);max-width:190px;}
+    border-radius:5px;background:var(--raise);color:var(--text);max-width:190px;}
   .tb-pick select.tb-unset{border-color:var(--gold);color:var(--gold);}
   @media(max-width:820px){.tb-pick>span{display:none}.tb-pick select{max-width:120px}}
   .topbar #viewToggle{margin:0;}
@@ -1269,17 +1323,21 @@ select.pl-in{cursor:pointer}
 .sh-row{border-left:3px solid transparent;padding:11px 12px 6px;margin-bottom:7px;
   border-radius:0 8px 8px 0;background:transparent}
 .sh-row:hover{background:rgba(245,158,11,.03)}
-.sh-head{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto auto auto auto;gap:10px;align-items:start}
+.sh-head{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto auto auto auto auto;gap:10px;align-items:start}
 /* Every cell says which column it is in. Auto-placement was fine until a row could carry a
    PENDING badge or an author chip, at which point the title slid into an `auto` column, stopped
    being the flexible one, and a long drawing name pushed the controls off the row. */
 .sh-head>.sh-part{grid-column:1}
 .sh-head>.sh-no{grid-column:2}
 .sh-head>.sh-title{grid-column:3}
-.sh-head>.sh-move{grid-column:4}
-.sh-head>.sh-pick{grid-column:5}
-.sh-head>.sh-done{grid-column:6}
-.sh-head>.sh-x{grid-column:7}
+/* CLAIM needs a column of its own. Without one it auto-placed into whatever cell happened to be
+   free, which on a grid whose other seven children are all pinned means the first gap — a
+   different gap depending on whether the row had a move dropdown. Added 2026-08-27. */
+.sh-head>.sh-claim{grid-column:4}
+.sh-head>.sh-move{grid-column:5}
+.sh-head>.sh-pick{grid-column:6}
+.sh-head>.sh-done{grid-column:7}
+.sh-head>.sh-x{grid-column:8}
 /* Which addendum a row rides. A select rather than a button because the answer is "which one",
    not "yes or no" — and because a package can grow a third instrument without the control
    changing shape. It only appears when there is more than one to choose between. */
@@ -1369,7 +1427,7 @@ select.pl-in{cursor:pointer}
 .sh-re-l{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--gold);
   font-weight:700;margin-bottom:5px}
 .sh-re-v{font-size:12.5px;line-height:1.55;cursor:text;border-radius:3px;
-  padding:7px 9px;border:1px solid transparent;background:var(--surface-2,rgba(0,0,0,.02))}
+  padding:7px 9px;border:1px solid transparent;background:var(--sink,rgba(0,0,0,.025))}
 .sh-re-v:hover{border-color:var(--line)}
 .sh-re-p{white-space:pre-wrap}
 .sh-re-empty{color:var(--faint);font-style:italic}
@@ -1633,7 +1691,7 @@ select.pl-in{cursor:pointer}
 .sh-no{color:var(--text);font-weight:700;}
 .sh-title{color:var(--text);font-size:13.5px;line-height:1.4;}
 .sh-row.sh-doneRow .sh-no,.sh-row.sh-doneRow .sh-title{text-decoration:none;color:var(--muted);}
-.sh-head{grid-template-columns:auto auto minmax(320px,1fr) auto auto auto auto;}
+.sh-head{grid-template-columns:auto auto minmax(220px,1fr) auto auto auto auto auto;}
 
 /* ── the gate is the one place status runs at full strength ───────────────────────────────── */
 .gs-chip-b{border-color:rgba(191,44,34,.35);background:rgba(191,44,34,.06);}
@@ -1725,7 +1783,7 @@ h2.sec-head,.sec-head b{color:var(--text);}
 .sh-head{display:flex!important;flex-wrap:wrap;align-items:center;gap:10px;}
 .sh-head>.sh-title{flex:1 1 260px;min-width:200px;}
 .sh-head>.sh-part,.sh-head>.sh-no{flex:0 0 auto;}
-.sh-head>.sh-move,.sh-head>.sh-pick,.sh-head>.sh-done,.sh-head>.sh-x{flex:0 0 auto;margin-left:0;}
+.sh-head>.sh-move,.sh-head>.sh-pick,.sh-head>.sh-done,.sh-head>.sh-x,.sh-head>.sh-claim{flex:0 0 auto;margin-left:0;}
 .sh-head>.sh-move{margin-left:auto;background:var(--raise);}
 
 /* ── last pass over the render ────────────────────────────────────────────────────────────── */
@@ -1744,7 +1802,7 @@ h2.sec-head,.sec-head b{color:var(--text);}
 
 /* the row's two control clusters read as one line, and the addendum select stops floating away */
 .sh-head>.sh-move{margin-left:8px;}
-.sh-head>.sh-title{flex:1 1 320px;}
+.sh-head>.sh-title{flex:1 1 220px;}
 .gs-meta{color:var(--faint);font-size:11px;}
 
 /* On the live build the "none answered" badge was gold on gold — the one number you most need to
@@ -1871,6 +1929,85 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
   color:var(--ok);border-radius:999px;padding:1px 9px;cursor:pointer;margin-left:2px;}
 .inq-go:hover{background:var(--ok);border-color:var(--ok);color:#fff;}
 .inq-keeps{color:var(--faint);font-size:11px;margin-top:3px;}
+
+/* ══ PHONES ═══════════════════════════════════════════════════════════════════════════════
+   Written 2026-08-27, the day the viewport tag was added — which is to say the first day any
+   rule in this file could fire on a phone at all. Before that a phone reported a ~980px
+   viewport and rendered the desktop layout zoomed out.
+
+   EVERY rule below sits inside the media query. That is deliberate and it is the whole safety
+   argument: there is no way for this block to change the desktop, because a desktop never
+   matches it. Nothing above was edited to make room for it.
+   ═══════════════════════════════════════════════════════════════════════════════════════ */
+@media (max-width:700px){
+
+  /* 1. Nothing may push the page sideways. A single wide child turns every vertical scroll
+        into a fight, and the usual culprit is a grid with a px minimum. */
+  body{overflow-x:hidden;}
+  .wrap,.sh-re,.sh-dw,.add-card,.sh-blk,.sh-edit{max-width:100%;}
+  .sh-head{grid-template-columns:1fr;gap:6px;}
+  .sh-head>*{grid-column:1/-1 !important;}
+  .sh-head>.sh-title{min-width:0;}
+
+  /* 2. The row head, restacked. On one column the order matters more than it does on seven:
+        the sheet number is what a person scans for, the title is what they read, and the two
+        controls that CHANGE something sit together at the bottom where a thumb is. */
+  .sh-head{display:flex;flex-wrap:wrap;align-items:center;}
+  .sh-head>.sh-no{order:1;flex:0 0 auto;}
+  .sh-head>.sh-claim{order:2;flex:0 0 auto;margin-left:auto;}
+  .sh-head>.sh-title{order:3;flex:1 1 100%;}
+  .sh-head>.sh-part{order:4;flex:0 0 auto;}
+  .sh-head>.sh-pick{order:5;flex-wrap:wrap;}
+  .sh-head>.sh-move{order:6;max-width:100%;}
+  .sh-head>.sh-done{order:7;}
+  .sh-head>.sh-x{order:8;margin-left:auto;}
+
+  /* 3. iOS Safari zooms the page whenever a focused field is under 16px, and every field on
+        this site is 12.5px. On a form-heavy page that is not a nicety — it is the difference
+        between typing a description on a phone and fighting the viewport for it. */
+  input[type=text],input[type=search],input[type=number],textarea,select{font-size:16px !important;}
+  /* `!important` on exactly one rule, and it earns it: a dozen more specific selectors set 10px,
+     11.5px and 15px on these same fields — .tb-pick select, select.rr-state, .capture-row input —
+     and specificity, not order, decides. Measured in Chromium at 390px: 23 fields were still under
+     16 after the first attempt. Checkboxes are deliberately not in the list; only a focused TEXT
+     field triggers the zoom. */
+
+  /* 4. Thumbs. 32px is the smallest thing a person hits reliably while standing up. */
+  #viewToggle button,.wb-seg,.add-flag-b,.sh-claim,.tb-proj,.sh-inherit,
+  .add-pick,.regtabs button,.claim-opt{min-height:32px;}
+  .sh-done{width:22px;height:22px;}
+
+  /* 5. The top bar: tabs scroll rather than wrap into three rows and eat the screen. */
+  .topbar-row{gap:8px;}
+  .topbar-spacer{display:none;}
+  #viewToggle{order:9;flex:1 1 100%;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  #viewToggle button{flex:0 0 auto;}
+  .tb-proj{max-width:46vw;}
+  .tb-pick select{max-width:34vw;}
+
+  /* 6. Filter bands and card heads wrap instead of overflowing. */
+  .wb-bar,.add-card-head,.regtabs,.filt-strip,.edge-key,.wb-mine{flex-wrap:wrap;}
+  .regtabs{overflow-x:auto;flex-wrap:nowrap;}
+
+  /* 7. The drawing picker: two selects side by side at 360px is two unreadable selects. */
+  .sh-dw-s,.sh-dw-v{flex:1 1 100%;}
+
+  /* 8. The claim picker becomes a sheet at the bottom — an absolutely-positioned popover
+        anchored to a row that is now full-width would hang off the screen. */
+  .claim-pop{position:fixed;left:10px;right:10px;bottom:10px;top:auto;min-width:0;
+    max-height:60vh;overflow:auto;}
+  .claim-opt{font-size:14px;padding:8px 10px;}
+
+  /* 9. The project picker is the first thing a new person sees on a phone. One column. */
+  .proj-box{padding:18px 15px 13px;border-radius:12px;}
+  .proj-grid{grid-template-columns:1fr;}
+  .proj-h{font-size:19px;}
+
+  /* 10. Wide content scrolls inside its own box, never the page. */
+  .g-tbl,.rfi-table,table{display:block;max-width:100%;overflow-x:auto;}
+  .sh-blk,.sh-edit{padding-left:9px;}
+  .nl{grid-template-columns:1fr;}
+}
 </style>
 </head>
 <body>
@@ -1888,8 +2025,8 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
         <button data-view="guide" class="guide-btn" onclick="setView('guide')" title="Guide — how the tracker thinks">?</button>
       </div>
       <span class="topbar-spacer"></span>
-      <label class="tb-pick" title="Which project you are looking at. Everything on the page follows it.">
-        <span>Project</span><select id="projectPick" onchange="setProject(this.value)"></select></label>
+      <button type="button" class="tb-proj" id="projectChip" onclick="openProjectPicker()"
+        title="Which project you are looking at. Click to switch.">All projects</button>
       <label class="tb-pick" title="Who you are. Every change you make is stamped with this name, and it is what a claim writes.">
         <span>You</span><select id="whoPick" onchange="pickWho(this.value)"></select></label>
     </div>
@@ -1936,6 +2073,7 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
     <div class="stat"><div class="n" id="statOverdue">0</div><div class="l">overdue (yours)</div></div>
     <div class="stat"><div class="n" style="color:var(--teal)" id="statSprintEnd">—</div><div class="l" id="statSprintEndLabel">due soon</div></div>
   </div>
+  <div class="my-work" id="myWorkSec"></div>
   <div class="my-day" id="myDaySec"></div>
   <div class="today-focus" id="todayFocus">
     <span class="tag" id="todayTag">Today</span>
@@ -2302,7 +2440,11 @@ try{PROJECT=localStorage.getItem('wt-project')||'';}catch(e){}
 // ever touched — consultants, client, contractor — and "who are you" is not a question you ask the
 // client. ⚠ Andrea and Behnaz are not in `data.stakeholders`, which is exactly why this list is
 // written here rather than derived from it.
-var TEAM=['Shadi','Chris Heinaranta','Kirk Gomez','Luke','Andrea Dam','Behnaz'];
+// Full names, because `isMine()` compares exact strings: a claim made from this list writes what
+// this list says, and the vault writes what the vault says. 'Luke' here against 'Luke Sherban' in
+// the vault is a person whose own list is silently empty. Surname captured 2026-08-27 from the
+// site queue. ⚠ Behnaz has no surname recorded anywhere yet.
+var TEAM=['Shadi','Chris Heinaranta','Kirk Gomez','Luke Sherban','Andrea Dam','Behnaz'];
 function projectsList(){
   var seen={},out=[];
   (BASE_ITEMS||[]).concat(window.LANE_ITEMS||[]).forEach(function(i){
@@ -2310,6 +2452,17 @@ function projectsList(){
   return out.sort();
 }
 function inProject(i){return !PROJECT||((i&&i.program)||'')===PROJECT;}
+// Mine is not only what I claimed. Work handed to me sits in the same field, and work waiting on
+// me sits in `court` — a list that showed only claims would quietly hide the half of someone's
+// day that arrived rather than being taken.
+function isMine(it){
+  var me=(typeof syncWho==='function')?String(syncWho()||'').trim():'';
+  if(!me||!it)return false;
+  if(String(it.delegate||'').trim()===me)return true;
+  var c=it.court;
+  if(Array.isArray(c))return c.some(function(x){return String(x||'').trim()===me;});
+  return String(c||'').trim()===me;
+}
 function setProject(p){
   PROJECT=p||'';
   try{localStorage.setItem('wt-project',PROJECT);}catch(e){}
@@ -2891,7 +3044,7 @@ function renderItem(itemData){
       el.classList.remove('done-pending');restoreBadge(el);
       removeQueued('complete','',itemData.title.slice(0,200));rebuildPendingList();
     }
-    recalcCounts();buildFocusPanel();buildTodayFocus();buildMyDay();
+    recalcCounts();buildFocusPanel();buildTodayFocus();buildMyWork();buildMyDay();
   });
   el.appendChild(doneCb);
   if(itemData.pendingComplete){doneCb.checked=true;setBadgeComplete(el);}
@@ -5340,6 +5493,7 @@ function buildAddendumRegister(){
       var dn=pool.filter(function(i2){return i2.produces==='drawings';}).length;
       var vn=pool.filter(function(i2){return i2.verify;}).length;
       var nodesc=pool.filter(function(i2){return !String(i2.desc||'').trim();}).length;
+      var unclaimed=pool.filter(function(i2){return !String(i2.delegate||'').trim();}).length;
       var ob=document.createElement('button');ob.type='button';ob.className='add-open';
       ob.textContent='Sheet work · '+pool.length+' \u2192';
       ob.title='Open the punch list for this addendum';
@@ -5353,7 +5507,9 @@ function buildAddendumRegister(){
       lab.textContent=(instKind(g.num)==='addendum')
         ? (dn+' issue a drawing'+(un?' \u00b7 '+un+' untriaged':'')+(vn?' \u00b7 '+vn+' to verify':''))
         : (pool.length+' drawing'+(pool.length!==1?'s':'')
-           +(nodesc?' \u00b7 '+nodesc+' with no description':'')+(vn?' \u00b7 '+vn+' to verify':''));
+           +(nodesc?' \u00b7 '+nodesc+' with no description':'')
+           +(unclaimed?' \u00b7 '+unclaimed+' unclaimed':'')
+           +(vn?' \u00b7 '+vn+' to verify':''));
       strip.appendChild(lab);
       // This strip was built and then dropped on the floor — `card.appendChild(strip)` was never
       // called, so "Sheet work · N →" has never rendered and the punch list has only ever been
@@ -5402,6 +5558,8 @@ function buildAddendumRegister(){
       var inf=pcnCard?freezeInfo(sk):scopeInfo(sk==='_none'?'':sk);
       if(!pcnCard&&addDiscFilter_()&&inf.d!==addDiscFilter_())return;
       var rows=byScope[sk].filter(function(it){
+        if(ADD_WHO==='mine'&&!isMine(it))return false;
+        if(ADD_WHO==='free'&&(it.delegate||'').trim())return false;
         if(ADD_FLAG==='verify')return !!it.verify;
         if(ADD_FLAG==='open')return !(it.status==='completed'||it.pendingComplete);
         if(ADD_FLAG==='done')return it.status==='completed'||it.pendingComplete;
@@ -5499,7 +5657,9 @@ function buildAddendumRegister(){
     });
     if(!shown){
       var nores=document.createElement('div');nores.className='add-row add-none';
-      nores.textContent=ADD_FLAG==='verify'?'Nothing on this addendum is flagged with a ?.'
+      nores.textContent=ADD_WHO==='mine'?'Nothing here has your name on it yet — try Unclaimed.'
+        :ADD_WHO==='free'?'Every row here is claimed.'
+        :ADD_FLAG==='verify'?'Nothing on this addendum is flagged with a ?.'
         :ADD_FLAG==='open'?'Everything on this addendum is finished.'
         :ADD_FLAG==='done'?'Nothing on this addendum is finished yet.'
         :(addDiscFilter_()?'Nothing in this addendum is '+addDiscFilter_()+' scope.':'');
@@ -6151,25 +6311,84 @@ document.addEventListener('click',function(e){
   }
 });
 function toggleCardsExpanded(){document.body.classList.toggle('cards-expanded',document.getElementById('cardsExpToggle').checked);}
+// The project picker. Shadi asked for this to be the front door rather than a dropdown in a
+// toolbar — you land on it, you pick, and you can come back and switch. A dropdown is something you
+// find; a picker is something you are handed, and on a first visit the difference is the whole
+// onboarding.
+//
+// It opens by itself only ONCE, on a browser that has never chosen — after that it is a click on
+// the header chip. Auto-opening every visit would put a door in front of someone who has already
+// walked through it.
+function projectStats(p){
+  var all=(BASE_ITEMS||[]).concat(window.LANE_ITEMS||[]);
+  var mine=all.filter(function(i){return !p||((i.program||'')===p);});
+  var open=mine.filter(function(i){return i.status!=='completed';});
+  var soon=null;
+  open.forEach(function(i){if(i.due&&(!soon||i.due<soon))soon=i.due;});
+  return {n:open.length,soon:soon};
+}
+function openProjectPicker(){
+  var old=document.getElementById('projOverlay');if(old)old.remove();
+  var ov=document.createElement('div');ov.id='projOverlay';ov.className='proj-ov';
+  var box=document.createElement('div');box.className='proj-box';
+  var h=document.createElement('div');h.className='proj-h';h.textContent='Which project?';
+  box.appendChild(h);
+  var sub=document.createElement('div');sub.className='proj-sub';
+  sub.textContent='Everything on the page follows this. You can switch any time from the top.';
+  box.appendChild(sub);
+  var grid=document.createElement('div');grid.className='proj-grid';
+  var opts=[''].concat(projectsList());
+  opts.forEach(function(pj){
+    var st=projectStats(pj);
+    var t=document.createElement('button');t.type='button';
+    t.className='proj-tile'+(pj===PROJECT?' on':'');
+    var nm=document.createElement('b');nm.textContent=pj||'All projects';t.appendChild(nm);
+    var c=document.createElement('span');c.className='proj-n';
+    c.textContent=st.n+' open'+(st.soon?('  \u00b7  next '+st.soon):'');
+    t.appendChild(c);
+    if(!pj){var note=document.createElement('span');note.className='proj-note';
+      note.textContent='every programme at once';t.appendChild(note);}
+    t.addEventListener('click',function(e){e.stopPropagation();
+      try{localStorage.setItem('wt-project-seen','1');}catch(err){}
+      ov.remove();
+      if(pj!==PROJECT)setProject(pj); else renderPickers();
+    });
+    grid.appendChild(t);});
+  box.appendChild(grid);
+  var foot=document.createElement('div');foot.className='proj-f';
+  foot.textContent='This decides what you are LOOKING at, not what you are allowed to see \u2014 '
+    +'every project is still inside this one download. Per-project keys are not built yet.';
+  box.appendChild(foot);
+  ov.appendChild(box);
+  ov.addEventListener('click',function(e){if(e.target===ov){
+    try{localStorage.setItem('wt-project-seen','1');}catch(err){}ov.remove();}});
+  document.body.appendChild(ov);
+}
+function maybeOpenProjectPicker(){
+  var seen='';try{seen=localStorage.getItem('wt-project-seen')||'';}catch(e){}
+  if(seen)return;
+  if(projectsList().length<2){try{localStorage.setItem('wt-project-seen','1');}catch(e){}return;}
+  openProjectPicker();
+}
 function pickWho(n){
   syncSetWho(n||'');
   renderPickers();
   refreshBoard();buildAddendumRegister();
+  if(typeof buildMyWork==='function')buildMyWork();
   setStatus(n?('You are '+n+'. Claims and changes are stamped with this name.')
              :'Name cleared \u2014 changes will be unattributed.');
 }
 function renderPickers(){
-  var ps=document.getElementById('projectPick');
-  if(ps){
-    ps.innerHTML='';
-    var all=document.createElement('option');all.value='';all.textContent='All projects';
-    ps.appendChild(all);
-    projectsList().forEach(function(p){
-      var o=document.createElement('option');o.value=p;o.textContent=p;ps.appendChild(o);});
-    ps.value=PROJECT;
-    // A project that vanished from the payload would otherwise leave the control showing a value
-    // it is not applying — the one failure mode of a filter you cannot see.
-    if(ps.value!==PROJECT){PROJECT='';try{localStorage.setItem('wt-project','');}catch(e){}ps.value='';}
+  var chip=document.getElementById('projectChip');
+  if(chip){
+    // A project that vanished from the payload would otherwise leave the chip naming something it
+    // is not applying — the one failure mode of a filter you cannot see.
+    if(PROJECT&&projectsList().indexOf(PROJECT)===-1){
+      PROJECT='';try{localStorage.setItem('wt-project','');}catch(e){}}
+    chip.textContent=PROJECT||'All projects';
+    chip.classList.toggle('tb-proj-one',!!PROJECT);
+    chip.title=(PROJECT?('Showing '+PROJECT+' only.'):'Showing every project.')
+      +' Click to switch.';
   }
   var ws=document.getElementById('whoPick');
   if(ws){
@@ -6193,7 +6412,7 @@ function init(){
   buildMsStrip();
   // honour the address the page was opened at, once the views exist
   try{routeFromHash();}catch(e){}
-  buildProgramView();recalcCounts();applyComputedPriorities();buildFocusPanel();buildTodayFocus();buildRadarPanel();buildDeltaStrip();buildMyDay();refreshPins();updateTabCounts();refreshCapPkg();flushLocalQueue();loadPending();updateCaptureSummary();initStatClicks();
+  buildProgramView();recalcCounts();applyComputedPriorities();buildFocusPanel();buildTodayFocus();buildRadarPanel();buildDeltaStrip();buildMyWork();buildMyDay();refreshPins();updateTabCounts();refreshCapPkg();flushLocalQueue();loadPending();updateCaptureSummary();initStatClicks();
   var cbx=document.getElementById('captureBox');if(cbx)cbx.addEventListener('toggle',function(){if(!cbx.open)cbx.dataset.userClosed='1';});
 }
 var BASE_ITEMS=[],BASE_DETAILS={};
@@ -6656,6 +6875,94 @@ function mdDueChip(it){
   else if(n<=2){out.txt=ed.date.slice(5)+' · '+n+'d';out.cls='d-soon';}
   else out.txt=ed.date.slice(5);
   return out;
+}
+// Your work — the list a person who is NOT Shadi opens the site to see.
+//
+// My Day cannot carry it. My Day is seeded from the check-in's Today block, which is one block and
+// it is Shadi's, and its rows resolve through `itemById()` — which searches board items only, so a
+// claimed SHEET card cannot be a row in it at all. Nine of the twelve claims on PCN 1 today are
+// sheet cards. Widening `itemById` to reach lane items would put sheet cards into the drawer, the
+// router and every counter that has been carefully kept clear of them, to fix a list.
+//
+// So this is its own panel, above My Day, and it appears only when a name is picked. It is the
+// smallest true version of "everyone gets their own list": what you hold, what is open on it, and
+// when it freezes — with one click through to the place the work is actually done.
+function buildMyWork(){
+  var sec=document.getElementById('myWorkSec');if(!sec)return;
+  sec.innerHTML='';
+  var me=(typeof syncWho==='function')?String(syncWho()||'').trim():'';
+  if(!me){sec.style.display='none';return;}
+  var det=(window.LAST_DATA&&LAST_DATA.details)||{};
+  var pool=(ITEMS||[]).concat((typeof laneItems==='function')?laneItems():[]);
+  var seen={},mine=[];
+  pool.forEach(function(i){
+    if(!i||seen[i.id])return;
+    if(i.status==='completed'||i.pendingComplete)return;
+    if(!isMine(i))return;
+    seen[i.id]=1;
+    var open=((det[i.id]||{}).subtasks||[]).filter(function(x){return !String(x).startsWith('\u2713');});
+    mine.push({it:i,steps:open});
+  });
+  if(!mine.length){sec.style.display='none';return;}
+  sec.style.display='';
+  mine.sort(function(a,b){
+    var da=a.it.due||'9999',db=b.it.due||'9999';
+    return da<db?-1:da>db?1:(String(a.it.title)<String(b.it.title)?-1:1);});
+  var steps=mine.reduce(function(n,r){return n+r.steps.length;},0);
+  var head=document.createElement('div');head.className='mw-head';
+  var tag=document.createElement('span');tag.className='tag';tag.textContent='Your work';head.appendChild(tag);
+  var who=document.createElement('b');who.textContent=me;head.appendChild(who);
+  var sum=document.createElement('span');sum.className='mw-sum';
+  sum.textContent=mine.length+' item'+(mine.length!==1?'s':'')+'  \u00b7  '+steps+' step'+(steps!==1?'s':'')+' open';
+  head.appendChild(sum);
+  var note=document.createElement('span');note.className='mw-note';
+  note.textContent='what you have claimed, or what is waiting on you';
+  head.appendChild(note);
+  sec.appendChild(head);
+  var lastG='';
+  mine.forEach(function(r){
+    var g=r.it.due||'';
+    var inf=(typeof freezeInfo==='function')?freezeInfo(g||'_nodate'):{t:g||'No date',days:null};
+    if(g!==lastG){
+      lastG=g;
+      var h=document.createElement('div');h.className='mw-grp';
+      var t=document.createElement('span');t.textContent=inf.t;h.appendChild(t);
+      if(inf.days!==null){
+        var d=document.createElement('i');
+        d.textContent=inf.days<0?((-inf.days)+'d ago'):inf.days===0?'today':inf.days===1?'tomorrow':('in '+inf.days+'d');
+        if(inf.days<=1)d.className='mw-soon';
+        h.appendChild(d);}
+      sec.appendChild(h);
+    }
+    var row=document.createElement('div');row.className='mw-row';
+    var sh=(r.it.sheet||(r.it.sheets&&r.it.sheets[0])||'');
+    if(sh){var sp=document.createElement('code');sp.className='mw-sheet';sp.textContent=sh;row.appendChild(sp);}
+    var ti=document.createElement('span');ti.className='mw-t';
+    ti.textContent=String(r.it.title||'').replace(/^A\S+\s+\u2014\s+/,'');
+    row.appendChild(ti);
+    if(r.steps.length){
+      var n=document.createElement('span');n.className='mw-n';
+      n.textContent=r.steps.length+' step'+(r.steps.length!==1?'s':'');
+      n.title=r.steps.map(function(x){return '\u2022 '+String(x).replace(/\*\*/g,'');}).join('\n');
+      row.appendChild(n);
+    }else{
+      var nn=document.createElement('span');nn.className='mw-n mw-n0';nn.textContent='no steps';
+      nn.title='Claimed, with nothing written down to do next. That is either finished or unscoped.';
+      row.appendChild(nn);}
+    // one click to where the work is actually done
+    row.title='Open it';
+    row.addEventListener('click',function(){
+      if(r.it.lane){
+        setView('registers');
+        setRegTab((typeof instKind==='function'&&instKind(r.it.addendum)!=='addendum')?'pcn':'add');
+        ADD_WHO='mine';
+        setSheetFilter(addKey(r.it.pkg,r.it.addendum));
+        var el=document.getElementById('sh-'+r.it.id);
+        if(el&&el.scrollIntoView)el.scrollIntoView({block:'center'});
+      }else openDrawer(r.it.id);
+    });
+    sec.appendChild(row);
+  });
 }
 function buildMyDay(){
   var sec=document.getElementById('myDaySec');if(!sec)return;
@@ -7220,6 +7527,10 @@ var ADD_STATE='';          // '' | drawings | writeup | none | untriaged | verif
 // in the document, this asks what is still open. Separate from ADD_STATE so switching view does
 // not carry a filter across with you without saying so.
 var ADD_FLAG='';           // '' | verify | done   — `verify` is the yellow ? on a row
+// Whose work. The other half of claiming: a claim that produces no list is a button, not a system,
+// and unclaimed work with nowhere to see it is invisible to everyone rather than owned by nobody.
+// '' = everyone · 'mine' = what I hold · 'free' = what nobody holds, which is the pool.
+var ADD_WHO='';
 var SH_OPEN={};
 var SH_ROW_OPEN={};
 var WU_EXCLUDE={};
@@ -7549,6 +7860,60 @@ function addWorkbench(host,key,pool){
     pr.appendChild(b);});
   wb.appendChild(pr);
 
+  // Your work, in one line, whenever a name is set. This is the smallest honest version of "every
+  // person gets their own list": not a new page, just the answer to what a person opens the site to
+  // ask. It counts STEPS, not rows, because a claimed sheet with nothing open on it is not work.
+  (function(){
+    var me=(typeof syncWho==='function')?String(syncWho()||'').trim():'';
+    if(!me)return;
+    var mine=pool.filter(isMine);
+    if(!mine.length)return;
+    var det=(window.LAST_DATA&&LAST_DATA.details)||{};
+    var steps=0,soon=null,soonN=0;
+    mine.forEach(function(i){
+      steps+=((det[i.id]||{}).subtasks||[]).filter(function(x){return !String(x).startsWith('\u2713');}).length;
+      if(i.due&&(!soon||i.due<soon))soon=i.due;});
+    mine.forEach(function(i){if(i.due===soon)soonN++;});
+    var d=daysTo(soon);
+    var bar=document.createElement('div');bar.className='wb-mine';
+    var t=document.createElement('b');t.textContent=me;bar.appendChild(t);
+    var rest=document.createElement('span');
+    rest.textContent='  \u00b7  '+mine.length+' drawing'+(mine.length!==1?'s':'')
+      +'  \u00b7  '+steps+' step'+(steps!==1?'s':'')+' open'
+      +(soon?('  \u00b7  next '+soonN+' on '+soon+(d===null?'':d<0?(' \u2014 '+(-d)+'d ago'):d===0?' \u2014 today':d===1?' \u2014 tomorrow':(' \u2014 in '+d+'d'))):'');
+    bar.appendChild(rest);
+    var go=document.createElement('button');go.type='button';go.className='sh-inherit';
+    go.textContent=(ADD_WHO==='mine'?'show everything':'show only mine');
+    go.addEventListener('click',function(){ADD_WHO=(ADD_WHO==='mine'?'':'mine');buildAddendumRegister();});
+    bar.appendChild(go);
+    wb.appendChild(bar);
+  })();
+
+  // Whose. Sits with the other filters rather than in the header, because it narrows THIS list —
+  // and the counts are on the buttons so the pool is a number you can see without pressing it.
+  (function(){
+    var me=(typeof syncWho==='function')?String(syncWho()||'').trim():'';
+    var mineN=pool.filter(isMine).length;
+    var freeN=pool.filter(function(i){return !String(i.delegate||'').trim();}).length;
+    var wr=document.createElement('div');wr.className='wb-bar wb-filter';
+    var wl=document.createElement('span');wl.className='wb-lbl';wl.textContent='Whose';wr.appendChild(wl);
+    [['','Everyone',pool.length,'Every row on this instrument'],
+     ['mine',(me?('Mine \u2014 '+me.split(' ')[0]):'Mine'),mineN,
+      me?('What '+me+' holds, plus anything waiting on them')
+        :'Pick who you are at the top first — without a name there is no "mine"'],
+     ['free','Unclaimed',freeN,'Nobody has put their name on these. This is the pool — the queue a person picks from.']
+    ].forEach(function(o){
+      var b=document.createElement('button');b.type='button';
+      b.className='wb-seg'+((ADD_WHO===o[0])?' on':'')+(!o[2]?' is-zero':'')
+        +(o[0]==='free'&&o[2]?' wb-seg-pool':'');
+      b.textContent=o[1]+'  '+o[2];
+      b.title=o[3];
+      if(o[0]==='mine'&&!me)b.disabled=true;
+      b.addEventListener('click',function(){ADD_WHO=o[0];buildAddendumRegister();});
+      wr.appendChild(b);});
+    wb.appendChild(wr);
+  })();
+
   // A colour column you have to work out is a colour column nobody reads. Five words, once.
   (function(){
     var k=document.createElement('div');k.className='edge-key';
@@ -7566,6 +7931,7 @@ function addWorkbench(host,key,pool){
   // the list, says what and by how much, and clears everything in one click.
   (function(){
     var on=[];
+    if(ADD_WHO)on.push({t:(ADD_WHO==='mine'?'Mine':'Unclaimed'),c:function(){ADD_WHO='';}});
     if(ADD_FLAG)on.push({t:({open:'Open',verify:'Questions',done:'Done'})[ADD_FLAG]||ADD_FLAG,
                          c:function(){ADD_FLAG='';}});
     if(ADD_STATE)on.push({t:({untriaged:'No state yet',verify:'Flagged ?',nosheet:'No drawing',
@@ -7685,6 +8051,11 @@ function addWorkbench(host,key,pool){
   })();
   // 3. the rows. Grouped by state so "what can I hand over" is a block, not a scan.
   var rows=parted.filter(function(i){
+    // Same trap as the note below, and I walked straight into it: the Whose control was drawn on
+    // the workbench and applied only in the register card, so Mine returned all 44 rows. A filter
+    // has to be applied where its control is, or it is a switch wired to nothing.
+    if(ADD_WHO==='mine'&&!isMine(i))return false;
+    if(ADD_WHO==='free'&&String(i.delegate||'').trim())return false;
     // the page-level Show filter applies here too. It sat above every view and moved only
     // Contents, which is indistinguishable from being broken.
     if(ADD_FLAG==='verify'&&!i.verify)return false;
@@ -7986,6 +8357,46 @@ function pcnLandingLine(it){
 // carries sheet | view | no. A PCN simply reads it as "where this is clouded" and ignores the
 // sentence half; an addendum keeps reading it as a line to build. One field, two readings, no
 // migration.
+function openClaimPicker(it,anchor,holder){
+  var old=document.querySelector('.claim-pop');if(old)old.remove();
+  var me=(typeof syncWho==='function')?String(syncWho()||'').trim():'';
+  var pop=document.createElement('div');pop.className='claim-pop';
+  var h=document.createElement('div');h.className='claim-pop-h';
+  h.textContent=holder?('On it: '+holder):'Nobody is on this';
+  pop.appendChild(h);
+  var names=[];
+  if(me&&TEAM.indexOf(me)>-1)names.push(me);
+  TEAM.forEach(function(n){if(names.indexOf(n)===-1)names.push(n);});
+  // A name typed in before the team list existed is still a real person holding real work.
+  if(holder&&names.indexOf(holder)===-1)names.push(holder);
+  names.forEach(function(n){
+    var b=document.createElement('button');b.type='button';b.className='claim-opt';
+    b.textContent=(n===me?n+'  \u2014  you':n);
+    if(n===holder)b.classList.add('on');
+    b.addEventListener('click',function(ev){ev.stopPropagation();
+      pop.remove();
+      if(n===holder)return;
+      setAddMeta(it.id,'delegate',n,'With');});
+    pop.appendChild(b);});
+  if(holder){
+    var off=document.createElement('button');off.type='button';off.className='claim-opt claim-off';
+    off.textContent='Nobody \u2014 put it back in the pool';
+    off.addEventListener('click',function(ev){ev.stopPropagation();
+      pop.remove();setAddMeta(it.id,'delegate','','With');});
+    pop.appendChild(off);
+  }
+  var foot=document.createElement('div');foot.className='claim-pop-f';
+  foot.textContent='Queues like every other change \u2014 it reaches the vault at the next check-in.';
+  pop.appendChild(foot);
+  anchor.parentNode.insertBefore(pop,anchor.nextSibling);
+  // One open at a time, and a click anywhere else closes it. Registered after this click has
+  // finished bubbling, or it would close itself immediately.
+  setTimeout(function(){
+    function away(ev){if(pop.contains(ev.target))return;
+      pop.remove();document.removeEventListener('click',away,true);}
+    document.addEventListener('click',away,true);
+  },0);
+}
 function pcnDrawingsEditor(it){
   var wrap=document.createElement('div');wrap.className='sh-dw';
   var lab=document.createElement('div');lab.className='sh-re-l';lab.textContent='Drawings';
@@ -8289,13 +8700,14 @@ function sheetRow(it){
                   :'Pick who you are at the top first, then claim.';
     if(!me)claim.classList.add('sh-claim-off');
   }
+  // A toggle only ever writes YOUR name, which makes it a claim and nothing else. Shadi hands work
+  // out as often as anyone takes it, and both actions write the same field — so the control is a
+  // picker over the technical team, with "me" first when a name is set. Same op either way, so a
+  // claim and a hand-off are indistinguishable to everything downstream, which is correct: the
+  // field says who is on it, not how they got there.
   claim.addEventListener('click',function(e){
     e.stopPropagation();
-    var who=(typeof syncWho==='function')?syncWho():'';
-    if(!who){setStatus('Pick who you are at the top first \u2014 a claim has to have a name on it.');
-      var ws=document.getElementById('whoPick');if(ws)ws.focus();return;}
-    var next=(holder===who)?'':who;
-    setAddMeta(it.id,'delegate',next,'With');
+    openClaimPicker(it,claim,holder);
   });
   head.appendChild(claim);
   var pick=document.createElement('span');pick.className='sh-pick';
@@ -10381,7 +10793,7 @@ function boot(d){LAST_DATA=d;MILESTONES=d.milestones||[];STAKEHOLDERS=d.stakehol
   // no per-view exclusion to forget, and a future side-list is held back automatically.
   window.LANE_ITEMS=_all.filter(function(it){return !!it.lane;});
   BASE_ITEMS=_all.filter(function(it){return !it.lane;});
-  BASE_DETAILS=d.details||{};applyPendingOverlay();init();renderPickers();buildImpactChips();restoreUiState();syncConfigure(d);}
+  BASE_DETAILS=d.details||{};applyPendingOverlay();init();renderPickers();maybeOpenProjectPicker();buildImpactChips();restoreUiState();syncConfigure(d);}
 
 // ---- encrypted data (data.enc.json) — password gate ----
 var GATE_PASS_KEY='wt-gate-pass';
