@@ -614,7 +614,10 @@ select.pl-in{cursor:pointer}
   .sh-head{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;}
   .sh-no{font-weight:700;font-size:13.5px;color:var(--text);font-variant-numeric:tabular-nums;}
   .sh-title{font-size:13.5px;color:var(--text);flex:1 1 240px;}
-.my-work{margin:0 0 14px;border-left:2px solid var(--teal);padding:0 0 2px 12px}
+.wb-add{margin:10px 0 4px}
+  .sh-by{font-size:10.5px;color:var(--faint);margin-top:5px;padding-left:11px;font-style:italic}
+  .sh-by-them{color:var(--gold);font-style:normal}
+  .my-work{margin:0 0 14px;border-left:2px solid var(--teal);padding:0 0 2px 12px}
   .mw-head{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-bottom:7px}
   .mw-head b{font-size:13px}
   .mw-sum{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
@@ -2467,6 +2470,12 @@ function setProject(p){
   PROJECT=p||'';
   try{localStorage.setItem('wt-project',PROJECT);}catch(e){}
   applyPendingOverlay();init();
+  // init() rebuilds every view but has never known about the header, so the chip kept naming the
+  // project you had just left. A filter whose own control disagrees with what it is filtering is
+  // the one failure mode this whole design was supposed to avoid. Caught by walking the journey in
+  // a browser rather than by any test — jsdom does not care what a chip says.
+  renderPickers();
+  if(typeof buildMyWork==='function')buildMyWork();
   setStatus(PROJECT?('Showing '+PROJECT+' only.'):'Showing every project.');
 }
 var ITEM_DETAILS = {};
@@ -7860,6 +7869,20 @@ function addWorkbench(host,key,pool){
     pr.appendChild(b);});
   wb.appendChild(pr);
 
+  // + item, here. The adder lived on the register card only, so a change noticed while working
+  // through the sheet list — which is when they are actually noticed — meant switching views to
+  // find the same instrument again and adding it from there.
+  (function(){
+    var g=ADD_GROUPS[key];if(!g)return;
+    var bar=document.createElement('div');bar.className='wb-add';
+    var b=document.createElement('button');b.type='button';b.className='sh-inherit';
+    b.textContent='+ item';
+    b.title='Add a change to '+instLong(g.num)+' \u2014 pick something already on the board, or describe one that is not.';
+    b.addEventListener('click',function(e){e.stopPropagation();openAddendumAdder(bar,g);});
+    bar.appendChild(b);
+    wb.appendChild(bar);
+  })();
+
   // Your work, in one line, whenever a name is set. This is the smallest honest version of "every
   // person gets their own list": not a new page, just the answer to what a person opens the site to
   // ask. It counts STEPS, not rows, because a claimed sheet with nothing open on it is not work.
@@ -8935,11 +8958,27 @@ function sheetRow(it){
       'Draw: the change itself.\nBecause: the reason nobody would infer from the title.\nWatch: the trap.\nLeave: what belongs to the fabricator.\nBlocked: only if something has to land first.',
       'Internal, never issued. Written as Draw / Because / Watch / Leave / Blocked, it lays out as a grid; written as prose it stays prose.',
       'note','Note','No note \u2014 whoever picks this up is working from the title alone.',noteGrid));
+    // Who wrote this, and has it been folded. A teammate editing a description is ALREADY a
+    // proposal — the op sits in the queue stamped with their name and does not reach the vault
+    // until the check-in folds it. What was missing was any sign of that on the card: someone
+    // else's words rendered exactly like Shadi's own, blessed. This says so instead of building a
+    // review workflow nobody asked for.
+    function authorLine(field,label){
+      var by=it.byLast;if(!by)return null;
+      var me=(typeof syncWho==='function')?String(syncWho()||'').trim():'';
+      var d=document.createElement('div');d.className='sh-by';
+      d.textContent=(by===me?'you wrote this':(by+' wrote this'))+' \u00b7 not folded into the vault yet';
+      d.title='It is in the capture queue, shared with anyone else on the board, and becomes '
+        +'permanent at the next check-in. Until then it can be edited or undone by whoever wrote it.';
+      if(by!==me)d.classList.add('sh-by-them');
+      return d;
+    }
     var dw=readEdit('What goes out',it.desc,
       'e.g. The one-hour rated partition is relocated and the door repositioned. A box beam is added at the head and tied back to the building structure.',
       'What the PCN says this change is. Say what changed, not why \u2014 the why lives in the note.',
       'desc','Description','No description \u2014 the drawing would issue clouded and unexplained.',null);
     dw.classList.add('sh-re-out');
+    var al=authorLine();if(al)dw.appendChild(al);
     dw.appendChild(pcnLandingLine(it));
     ed.appendChild(dw);
   }
