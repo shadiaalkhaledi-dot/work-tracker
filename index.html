@@ -5380,6 +5380,15 @@ function instLong(num){var k=instKind(num)||'addendum',n=String(num==null?'':num
 function instShort(num){var k=instKind(num)||'addendum',n=String(num==null?'':num);
   return k==='pcn'?('PCN '+n.replace(/^pcn/i,'')):k==='si'?('SI '+n.replace(/^si/i,'')):('Add '+n);}
 function addKey(pkg,num){return (pkgNum(pkg)||pkg||'?')+'|'+addNum(num);}
+// Which KIND of instrument a register key is on. issueGate worked this out inline and every other
+// caller guessed; a PCN pane that guesses wrong renders addendum machinery on an instrument that
+// has none. One function, read the same way everywhere.
+function instKindForKey(key){
+  var g=ADD_GROUPS[key];
+  var num=(g&&g.num)||addNum(((typeof addPoolFor==='function'?addPoolFor(key):[])[0]||{}).addendum
+                             ||String(key||'').split('|')[1]||'');
+  return instKind(num)||'addendum';
+}
 // The short name a chip or a card uses. Milestones spell a package 'Package 5 (TP5) — Departures
 // Level' and items spell it 'Package 5 — Departures Level', so an addendum with no items yet was
 // labelled 'Pkg 5 (TP5)' while its sibling read 'Pkg 5'. One function, one answer.
@@ -5763,6 +5772,9 @@ function buildAddendumRegister(){
     pickRow.appendChild(b);});});
   hHead.appendChild(pickRow);
 
+  // The remembered view outlives the instrument it was chosen on. Landing on a PCN still holding
+  // ADD_MODE='inq' rendered the inquiry block under a tab row that no longer offers the tab.
+  if(ADD_MODE==='inq'&&instKindForKey(ADD_OPEN)!=='addendum')ADD_MODE='reg';
   var modeRow=document.createElement('div');modeRow.className='add-filter add-mode-row';
   var ml=document.createElement('span');ml.className='add-filter-lbl';ml.textContent='View';
   modeRow.appendChild(ml);
@@ -5775,10 +5787,20 @@ function buildAddendumRegister(){
    ['inq','Bid inquiries','Questions from BIDDERS after the documents went out. Each one is answered '
      +'here, and the answer can also become a drawing revision or a spec note on this addendum.'],
    ['wu','Write-up','\u00a73, \u00a74, the List of Attachments and \u00a75 Bid inquiries']
-  ].forEach(function(o){
+  ].filter(function(o){
+    // A bid inquiry is a BIDDER's question, asked after documents go out to tender. A PCN goes to
+    // one contractor as a change, so there are no bidders and no inquiries — not zero of them, none.
+    // Absent rather than empty, because an empty tab invites someone to fill it and anything typed
+    // there would be a question nobody asked. Same reasoning that keeps §5 out of the document.
+    if(o[0]!=='inq')return true;
+    return instKindForKey(ADD_OPEN)==='addendum';
+  }).forEach(function(o){
     var b=document.createElement('button');b.type='button';
     b.className='wb-seg'+(ADD_MODE===o[0]?' on':'');
     b.textContent=o[1];b.title=o[2];
+    if(o[0]==='wu'&&instKindForKey(ADD_OPEN)!=='addendum')
+      b.title='The drawings this PCN issues, and the description that goes out beside each one. '
+        +'No \u00a73/\u00a74 and no List of Attachments \u2014 the sheet IS the instrument.';
     if(o[0]==='threads'){var tn=addQuestionsFor(ADD_OPEN).length;if(tn)b.textContent+='  '+tn;}
     if(o[0]==='sheets'){var sn2=addPoolFor(ADD_OPEN).length;if(sn2)b.textContent+='  '+sn2;}
     if(o[0]==='inq'){
@@ -5879,7 +5901,7 @@ function buildAddendumRegister(){
       // Counted over EVERY row, finished ones included. A completed change still needs the cloud
       // and the revision on its sheet before it can issue — excluding it made this line say 44
       // while the header two inches above said 45, which is how a reader stops trusting both.
-      var uncl=pool.filter(function(i2){return !isClouded(i2);}).length;
+      var uncl=pool.filter(function(i2){return !cloudSettled(i2);}).length;
       lab.textContent=(instKind(g.num)==='addendum')
         ? (dn+' issue a drawing'+(un?' · '+un+' untriaged':'')+(vn?' · '+vn+' to verify':''))
         : (pool.length+' drawing'+(pool.length!==1?'s':'')
@@ -8087,7 +8109,7 @@ function pcnReadiness(pool){
     r.n++;
     if(String(i.desc||'').trim())r.desc++;
     if((placementsOf(i)||[]).some(function(p){return p&&p.sheet;}))r.drawn++;
-    if(isClouded(i))r.clouded++;
+    if(cloudSettled(i))r.clouded++;
     if(String(i.delegate||'').trim())r.claimed++;
     if(i.status==='completed'||i.pendingComplete)r.done++;
   });
@@ -8096,6 +8118,17 @@ function pcnReadiness(pool){
 // `clouded:: yes` is deliberately NOT the done tick. Done says the design is settled; clouded says
 // the sheet is issuable. On a PCN only the second one ships.
 function isClouded(it){return /^(yes|y|true|1)$/i.test(String((it&&it.clouded)||'').trim());}
+// A sheet the instrument ADDS cannot be clouded, because there is no previous version to cloud
+// against — it issues in its entirety. Shadi, 2026-08-27, on the whole A5.100 series: "A5.100 is
+// not issued in Addendum. They are issued in PCN." Counting a new drawing as "not clouded yet"
+// would put it on a blocker list it can never leave, and would quietly tell whoever opens it to
+// draw a revision triangle on a drawing that has no revisions.
+function isNewSheet(it){
+  var pls=(placementsOf(it)||[]).filter(function(p){return p&&p.sheet;});
+  return pls.length>0&&pls.every(function(p){return !!p.newsheet;});
+}
+// Clouded, or exempt from needing to be.
+function cloudSettled(it){return isClouded(it)||isNewSheet(it);}
 var SH_OPEN={};
 var SH_ROW_OPEN={};
 var WU_EXCLUDE={};
@@ -8472,7 +8505,8 @@ function addDrawingBoard(host,key,pool){
       t.title=sn+' is not in the project drawing register. Either it is a sheet this instrument '
         +'ADDS, or the register is out of date \u2014 both are worth knowing before it prints in a document.';}
     sh.appendChild(t);
-    var cl=list.filter(function(r){return isClouded(r.it);}).length;
+    var isNew=list.every(function(r){return isNewSheet(r.it);});
+    var cl=list.filter(function(r){return cloudSettled(r.it);}).length;
     var st=document.createElement('span');st.className='dwb-st';
     st.textContent=list.length+' change'+(list.length!==1?'s':'');
     sh.appendChild(st);
@@ -8480,10 +8514,15 @@ function addDrawingBoard(host,key,pool){
     cb.className='dwb-cl'+(cl===list.length?' all':cl?' some':' none');
     // "0 OF 1 CLOUDED" is a fraction where a word will do, and a sheet with one change on it is the
     // common case. Fractions appear only when there is actually a fraction to report.
-    cb.textContent=(list.length===1)?(cl?'clouded':'not clouded')
+    cb.textContent=isNew?'new sheet'
+      :(list.length===1)?(cl?'clouded':'not clouded')
       :(cl===list.length?'clouded':(cl+' of '+list.length+' clouded'));
-    cb.title='Clouded and revision bumped. Not the same fact as the work being done \u2014 a finished '
-      +'change on a sheet that carries no cloud cannot issue.';
+    cb.title=isNew
+      ?'A drawing this instrument ADDS. It issues in its entirety, so there is nothing to cloud and '
+       +'no revision to bump — and it is not counted against the not-clouded list.'
+      :'Clouded and revision bumped. Not the same fact as the work being done — a finished '
+       +'change on a sheet that carries no cloud cannot issue.';
+    if(isNew)cb.className='dwb-cl all';
     sh.appendChild(cb);
     // Who is holding this sheet — distinct names, because a sheet held by two people is the thing
     // you want to see before both of them open it.
@@ -8519,7 +8558,7 @@ function addDrawingBoard(host,key,pool){
       // Only when the sheet DISAGREES with itself. When every change on a drawing is in the same
       // state the header has already said so, and repeating it on each row is the same word twice
       // in one glance — which is how a reader learns to stop reading either of them.
-      if(!isClouded(it)&&cl>0){
+      if(!cloudSettled(it)&&cl>0){
         var nc=document.createElement('span');nc.className='dwb-need dwb-need-soft';nc.textContent='not clouded';
         row.appendChild(nc);}
       row.title='Open it in Sheet work';
@@ -9108,8 +9147,10 @@ function pcnLandingLine(it){
     +' · '+(sheets.length?('to be clouded on '+sheets.join(', ')):'no drawing named yet');
   if(!sheets.length)d.classList.add('sh-lands-gap');
   if(sheets.length){
-    var cs=document.createElement('b');cs.className=isClouded(it)?'sh-cl-yes':'sh-cl-no';
-    cs.textContent=isClouded(it)?'  ·  clouded ✓':'  ·  not clouded yet';
+    var newSh=isNewSheet(it);
+    var cs=document.createElement('b');cs.className=cloudSettled(it)?'sh-cl-yes':'sh-cl-no';
+    cs.textContent=newSh?'  ·  a new drawing — issues in full'
+      :isClouded(it)?'  ·  clouded ✓':'  ·  not clouded yet';
     cs.title=isClouded(it)?'The sheet carries the cloud and the bumped revision.'
       :'The drawing is named. Nobody has recorded that the cloud and revision are on the sheet, '
        +'so this row cannot issue yet even if the work is finished.';
@@ -9248,8 +9289,25 @@ function pcnDrawingsEditor(it){
   paint();
   return wrap;
 }
+// Sheet AND view, exactly as the Drawings picker captured them. The picker has offered the views
+// on a sheet since the card was built — 907 of them, each detail number unique on its own sheet —
+// and then everything downstream read placementSheets() and threw the view away. So a view chosen
+// on the row vanished between choosing it and reading what would issue, and a write-up built from
+// sheets alone cannot tell two changes on one drawing apart. It can now.
+function pcnTargetLabel(p){
+  var v=String((p&&p.view)||'').trim(),n=String((p&&p.no)||'').trim();
+  if(!v&&!n)return p.sheet;                       // whole sheet — a legitimate answer, not a gap
+  if(v&&n)return p.sheet+' · '+v+' ('+n+')';
+  return p.sheet+' · '+(v||n);
+}
+function pcnTargets(it){
+  var pls=(placementsOf(it)||[]).filter(function(p){return p&&p.sheet;});
+  if(pls.length)return pls.map(pcnTargetLabel);
+  // A detail reference with no sheet row behind it — 6/A5.94.17 — is still a real target on a PCN.
+  return (itemSheets(it).length?itemSheets(it):placementSheets(it)).slice();
+}
 function buildPcnPreview(it){
-  var has=pcnHasWords(it),sheets=itemSheets(it).length?itemSheets(it):placementSheets(it);
+  var has=pcnHasWords(it),sheets=pcnTargets(it);
   var pv=shBlock('It will issue as',has?'this drawing, clouded, with this description beside it'
                                        :'nothing yet — the description is what goes out');
   pv.classList.add('sh-preview');
@@ -11223,6 +11281,214 @@ function sheetTitleFor(no,pool,key){
 function attachesIn(lines){
   return lines.some(function(l){return /attached (?:and form|hereto and form)/i.test(l);});
 }
+// ── the PCN write-up ─────────────────────────────────────────────────────────────────────────
+// An addendum writes SENTENCES and derives its List of Attachments from whether each one carries
+// the attachment clause. A PCN does neither. It issues the DRAWING — clouded, revision bumped —
+// with a description of the work beside it, so:
+//
+//   · grouped by DRAWING, because a drawing is the unit that issues
+//   · the VIEW named under it, because two changes on one sheet are two lines, not one
+//   · the words are `desc::` VERBATIM. Nothing is generated, nothing is appended, and above all
+//     no attachment clause — there is no Addendum for anything to form part of
+//   · `note::` NEVER appears. It is what the person drawing it needs to know, and half of it is
+//     the reason for the change, which is exactly what you do not hand to whoever prices it
+//   · no §5. See the tab filter — a PCN has no bidders
+//
+// The drawing list at the top is NOT derived from a clause the way an addendum's is. Every sheet
+// named is issued, because that is what a PCN does. Naming it is the decision.
+function buildPcnDoc(key,opts){
+  opts=opts||{};
+  var pool=addPoolFor(key).filter(function(i){return !WU_EXCLUDE[i.id];});
+  var warn=[],groups={},order=[],held=[],nLines=0;
+  pool.forEach(function(it){
+    var pls=(placementsOf(it)||[]).filter(function(p){return p&&p.sheet;});
+    if(!pls.length){held.push(it);return;}
+    pls.forEach(function(pl){
+      var sn=pl.sheet;
+      if(!groups[sn]){groups[sn]=[];order.push(sn);}
+      groups[sn].push({it:it,pl:pl});});
+  });
+  order.sort(function(a,b){return sheetSortKey(a)<sheetSortKey(b)?-1:1;});
+
+  var g=pool[0]||{};
+  var num=addNum(g.addendum||String(key||'').split('|')[1]||'');
+  var pk=(g.pkg||'').replace(/Package /,'Pkg ').split('—')[0].trim();
+  var row=(typeof addendumDateFor==='function')?addendumDateFor(g.pkg,num):null;
+  var when=(row&&/^\d{4}-\d{2}-\d{2}/.test(row.date||''))?row.date:'';
+
+  var head=[instLong(num).toUpperCase()+'  —  Vol 1 – ARCHITECTURAL'+(pk?'   ('+pk+')':''),''];
+  if(when)head.push('Issues '+when,'');
+  head.push('Drawings issued with this '+(instKind(num)==='si'?'SI':'PCN')+':','');
+  if(order.length)order.forEach(function(sn){
+    var t=sheetTitleFor(sn,pool,key);
+    head.push(('       '+(sn+'                ').slice(0,16)+(t||'').toUpperCase()).replace(/\s+$/,''));
+    if(!t)warn.push(sn+' has no drawing name — the list above and every heading below print it, so '
+      +'both will be bare. Type it once in the Drawing column.');
+  });
+  else head.push('       (none — no change on this instrument names a drawing yet)');
+
+  var body=[];
+  order.forEach(function(sn,ix){
+    var mine=groups[sn],t=sheetTitleFor(sn,pool,key),lines=[],seen={};
+    mine.forEach(function(e){
+      var it=e.it,pl=e.pl;
+      var tgt=pcnTargetLabel(pl);
+      // The sheet is the heading. Repeating it on its own line under itself says nothing.
+      var where=(tgt===sn)?'':String(tgt).slice(sn.length+3);
+      var words=String(it.desc||'').trim();
+      if(!words){
+        lines.push((where?where+'; ':'')+'[NOTHING WRITTEN TO GO OUT — write the description]');
+        warn.push('"'+(it.title||'').slice(0,44)+'" is on '+sn+' with no description. The drawing '
+          +'would issue with nothing beside it saying what changed.');
+        return;}
+      var ln=(where?where+'; ':'')+words;
+      if(seen[ln]){warn.push(sn+' writes the same line twice — "'+ln.slice(0,52)
+        +'…" — resolve the duplicate');return;}
+      seen[ln]=1;lines.push(ln);nLines++;
+    });
+    if(ADD_NUMBERING==='plain'){
+      body.push((ix+1)+'.  DRAWING '+sn+(t?'  '+t.toUpperCase():''));
+      lines.forEach(function(l,jx){body.push('    '+(jx+1)+'.  '+l);});
+      body.push('');
+    }else{
+      body.push('       '+padNum(String(ix+1)+'.',8)+'DRAWING '+sn+(t?' - '+t.toUpperCase():''));
+      lines.forEach(function(l,jx){body.push('               '+padNum((ix+1)+'.'+(jx+1),9)+l);});
+    }
+  });
+
+  var out=head.concat(['','Description of work','']);
+  out=out.concat(body.length?body:['       (nothing to describe — no drawing named)']);
+  out.push('');
+  out.push('                        END OF '+instLong(num).toUpperCase()+' (VOL 1)');
+
+  // Everything the instrument cannot carry, counted rather than quietly dropped.
+  if(held.length)warn.push(n_(held.length,'change')+' name no drawing and are NOT in this document: '
+    +held.slice(0,6).map(function(i){return (i.title||'').slice(0,30);}).join(' · ')
+    +(held.length>6?' …':''));
+  // cloudSettled(), not isClouded(): a drawing this instrument ADDS issues in its entirety, so
+  // there is nothing to cloud and no revision to bump. Counting it here would put a new sheet on a
+  // blocker list it can never leave — the exact bug the site fixed on 2026-08-27. Guarded so this
+  // patch still applies to a build that predates it.
+  var _settled=(typeof cloudSettled==='function')?cloudSettled:isClouded;
+  var uncl=pool.filter(function(i){return !_settled(i);});
+  if(uncl.length)warn.push(n_(uncl.length,'change')+' on this instrument '+(uncl.length===1?'is':'are')
+    +' not recorded as clouded. A PCN issues the cloud and the bumped revision — until that is on '
+    +'the sheet the drawing cannot go out, however finished the design is.');
+  var vq=pool.filter(function(i){return i.verify;});
+  if(vq.length)warn.push(n_(vq.length,'change')+' '+(vq.length===1?'is':'are')+' still flagged ? — '
+    +'verify before issue.');
+
+  return {text:out.join('\n').replace(/\n{3,}/g,'\n\n'),warn:warn,pool:pool,held:held,
+          n:pool.length-held.length,nDwg:order.length,nLines:nLines,
+          clouded:pool.length-uncl.length,
+          noWords:pool.filter(function(i){return !String(i.desc||'').trim();}).length};
+}
+// What stays in the office. `note::` is the reason and the instruction — "the partition is open to
+// above, so the head has nothing to land on" — which is what stops the next person drawing
+// something unbuildable, and precisely what you do not send to whoever prices the change.
+function pcnNotesText(key){
+  var out=[];
+  addPoolFor(key).filter(function(i){return !WU_EXCLUDE[i.id];}).forEach(function(it){
+    var n=String(it.note||'').trim();if(!n)return;
+    var t=pcnTargets(it);
+    out.push((t.length?t.join('  ·  '):'no drawing named')+'\n    '+n+'\n');});
+  return out.join('\n');
+}
+function buildPcnWriteup(key,host){
+  var doc=buildPcnDoc(key,{});
+  var num=(ADD_GROUPS[key]||{}).num||addNum((doc.pool[0]||{}).addendum||'');
+  var box=document.createElement('div');box.className='wu-box';
+
+  var note=document.createElement('div');note.className='sh-stat';note.style.marginBottom='8px';
+  note.innerHTML='<b>'+doc.n+'</b> of <b>'+doc.pool.length+'</b> '
+    +(doc.pool.length===1?'change has':'changes have')+' a drawing to issue · '
+    +'<b>'+doc.nDwg+'</b> '+(doc.nDwg===1?'drawing':'drawings')+' · '
+    +'<b>'+doc.nLines+'</b> '+(doc.nLines===1?'line':'lines')+' · '
+    +'<b>'+doc.clouded+'</b> clouded'
+    +(doc.held.length?' · <b>'+doc.held.length+'</b> name no drawing':'');
+  box.appendChild(note);
+  doc.warn.forEach(function(w){
+    var d=document.createElement('div');d.className='wu-warn';d.textContent='⚠ '+w;box.appendChild(d);});
+
+  var opts=document.createElement('div');opts.className='wb-bar';
+  var ob=document.createElement('button');ob.type='button';ob.className='wb-chip'+(ADD_ORDER_NUMERIC?'':' on');
+  ob.textContent='House order';
+  ob.title='Sheets sort as text, the way the issued sets do — A42.4.19 files between A42.31.13 and A42.6.01. Click for numeric order instead.';
+  ob.addEventListener('click',function(){ADD_ORDER_NUMERIC=!ADD_ORDER_NUMERIC;
+    host.setAttribute('data-rerender','1');buildWriteup(key,host);});
+  opts.appendChild(ob);
+  var nb=document.createElement('button');nb.type='button';nb.className='wb-chip'+(ADD_NUMBERING==='plain'?' on':'');
+  nb.textContent=ADD_NUMBERING==='plain'?'1. / 1. numbering':'1.1 numbering';
+  nb.title='Same two house shapes the addendum write-up offers.';
+  nb.addEventListener('click',function(){ADD_NUMBERING=(ADD_NUMBERING==='plain'?'decimal':'plain');
+    host.setAttribute('data-rerender','1');buildWriteup(key,host);});
+  opts.appendChild(nb);
+  var qb=document.createElement('span');qb.className='sh-stat';
+  qb.textContent='No §5 — a PCN has no bidders';
+  qb.title='A bid inquiry is a bidder’s question after documents go out to tender. A PCN is a change '
+    +'issued to one contractor, so there is nothing to answer and no section to leave empty.';
+  opts.appendChild(qb);
+  box.appendChild(opts);
+
+  var candidates=addPoolFor(key).slice()
+    .sort(function(a,b){return sheetSortKey((placementSheets(a)[0]||'￿'))
+                              <sheetSortKey((placementSheets(b)[0]||'￿'))?-1:1;});
+  var picker=document.createElement('details');picker.className='wu-pick';picker.open=false;
+  var ps=document.createElement('summary');
+  ps.textContent='Choose which changes go in — '+doc.n+' of '+candidates.length+' can be written';
+  picker.appendChild(ps);
+  candidates.forEach(function(it){
+    var l=document.createElement('label');l.className='wu-pick-row';
+    var cb=document.createElement('input');cb.type='checkbox';cb.checked=!WU_EXCLUDE[it.id];
+    cb.addEventListener('change',function(){
+      WU_EXCLUDE[it.id]=!cb.checked;
+      host.setAttribute('data-rerender','1');buildWriteup(key,host);});
+    l.appendChild(cb);
+    var tg=pcnTargets(it);
+    var t=document.createElement('span');
+    t.textContent=(tg.length?tg.join(' / '):'no drawing')+'   '
+      +(it.title||'').replace(/^A\S+\s+—\s+/,'')
+      +(String(it.desc||'').trim()?'':'   [no description]')
+      +((typeof isNewSheet==='function'&&isNewSheet(it))?'   new sheet — issues in full'
+         :isClouded(it)?'   ☁ clouded':'')
+      +((it.pendingComplete||it.status==='completed')?'  ✓ done':'');
+    if(!tg.length)l.classList.add('wu-undecided');
+    l.appendChild(t);picker.appendChild(l);});
+  box.appendChild(picker);
+
+  var ta=document.createElement('textarea');ta.value=doc.text;ta.spellcheck=false;box.appendChild(ta);
+  var row=document.createElement('div');row.className='pedit-row';row.style.marginTop='8px';
+  var cp=document.createElement('button');cp.type='button';cp.textContent='Copy';
+  cp.addEventListener('click',function(){copyText(ta.value,instLong(num)+' write-up copied.');});
+  var dl=document.createElement('button');dl.type='button';dl.className='pcancel';dl.textContent='Download .md';
+  dl.addEventListener('click',function(){
+    var b=new Blob([ta.value],{type:'text/markdown'});var u=URL.createObjectURL(b);
+    var a=document.createElement('a');a.href=u;
+    a.download=String(key).replace(/[^A-Za-z0-9.-]+/g,'-')+'-pcn-writeup.md';a.click();
+    setTimeout(function(){URL.revokeObjectURL(u);},1000);});
+  var hint=document.createElement('span');hint.className='inline-capture-hint';
+  hint.textContent='Editable · the description is yours, verbatim — nothing is generated · no attachment clause, because the sheet IS the instrument';
+  row.appendChild(cp);row.appendChild(dl);row.appendChild(hint);box.appendChild(row);
+  host.appendChild(box);
+
+  var notes=pcnNotesText(key);
+  if(notes){
+    var nbx=document.createElement('div');nbx.className='inq-box';
+    var nh=document.createElement('div');nh.className='sh-group';
+    nh.innerHTML='Stays in the office <span class="n">what whoever draws it needs to know — never goes out with the PCN</span>';
+    nbx.appendChild(nh);
+    var nta=document.createElement('textarea');nta.value=notes;nta.spellcheck=false;
+    nta.className='wu-hand';nbx.appendChild(nta);
+    var nr=document.createElement('div');nr.className='pedit-row';nr.style.marginTop='8px';
+    var nc=document.createElement('button');nc.type='button';nc.textContent='Copy the notes';
+    nc.addEventListener('click',function(){copyText(nta.value,'Internal notes copied — for the team, not for the PCN.');});
+    nr.appendChild(nc);
+    var nh2=document.createElement('span');nh2.className='inline-capture-hint';
+    nh2.textContent='Carries the REASON for the change. The description never does — that is what gets priced.';
+    nr.appendChild(nh2);nbx.appendChild(nr);
+    host.appendChild(nbx);
+  }
+}
 function buildAddendumDoc(key,opts){
   opts=opts||{};
   var pool=addPoolFor(key).filter(function(i){return !WU_EXCLUDE[i.id];});
@@ -11380,7 +11646,7 @@ function issueGate(key){
       t:'with nothing written to go out',
       w:'The description is what accompanies the drawing. Nothing generates it — it is written.',
       go:function(){ADD_MODE='sheets';buildAddendumRegister();}});
-    var noCloud=pool.filter(function(i){return !isClouded(i);});
+    var noCloud=pool.filter(function(i){return !cloudSettled(i);});
     if(noCloud.length)blockers.push({n:noCloud.length,t:'not clouded yet',
       w:'The sheet has to carry the cloud and the bumped revision. Deliberately not the done tick: '
         +'done says the design is settled, this says the drawing is issuable.',
@@ -11521,6 +11787,10 @@ function buildWriteup(key,hostEl){
   var host=hostEl||document.getElementById('wuHost-'+key);if(!host)return;
   if(host.firstChild&&!host.getAttribute('data-rerender')){host.innerHTML='';return;}
   host.removeAttribute('data-rerender');host.innerHTML='';
+  // A PCN is not an addendum and its write-up is not this one. Everything below builds §3, §4, a
+  // derived List of Attachments and §5 Bid Inquiries — four things a PCN does not have. It was
+  // rendering all four on the PCN pane, headed ADDENDUM, with an attachment clause on every line.
+  if(instKindForKey(key)!=='addendum'){buildPcnWriteup(key,host);return;}
   // the gate now lives on the strip above, in every mode — rendering it here as well showed the
   // same block twice on the one screen that already had it
   var doc=buildAddendumDoc(key,{});
