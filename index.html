@@ -2180,6 +2180,26 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
 .dwb-row.pcnb-under{padding-left:30px;border-top:none;}
 .pcnb-vpick{display:inline-flex;margin-left:8px;}
 .pcnb-vpick select{max-width:330px;}
+.pcnb-clbtn{border:1px solid transparent;cursor:pointer;font-family:inherit;}
+.pcnb-clbtn:hover:not(:disabled){border-color:currentColor;}
+.pcnb-clbtn:disabled{cursor:default;opacity:.8;}
+.pcnb-done{margin-left:2px;}
+.pcnb-cl{font-size:11px;line-height:1;padding:2px 6px;border-radius:5px;flex:0 0 auto;
+  border:1px solid var(--border);background:none;color:var(--faint);cursor:pointer;}
+.pcnb-cl:hover:not(:disabled){border-color:var(--ok);color:var(--ok);}
+.pcnb-cl.on{color:var(--ok);border-color:rgba(43,125,85,.45);background:rgba(43,125,85,.10);}
+.pcnb-cl.new{color:var(--muted);cursor:default;}
+.pcnb-cl:disabled{cursor:default;}
+.pcnb-q{font-size:10px;font-weight:700;line-height:1;padding:2px 6px;border-radius:5px;
+  border:1px solid var(--border);background:none;color:var(--faint);cursor:pointer;flex:0 0 auto;}
+.pcnb-q:hover{border-color:var(--gold);color:var(--gold);}
+.pcnb-q.on{color:var(--gold);border-color:rgba(160,122,0,.55);background:rgba(160,122,0,.10);}
+.pcnb-x{font-size:10px;line-height:1;padding:2px 6px;border-radius:5px;border:1px solid transparent;
+  background:none;color:var(--faint);cursor:pointer;flex:0 0 auto;visibility:hidden;}
+.dwb-row:hover .pcnb-x{visibility:visible;}
+.pcnb-x:hover{color:var(--stop);border-color:rgba(191,44,34,.35);}
+.pcnb-typed{display:flex;gap:6px;margin-top:5px;}
+.pcnb-typed .pcnb-tno{max-width:58px;}
 .pcnb-add{margin:0 13px 11px;}
 .pcnb-new{display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap;margin-left:8px;}
 .pcnb-pick{max-width:290px;}
@@ -8190,7 +8210,46 @@ function pcnReadiness(pool){
 }
 // `clouded:: yes` is deliberately NOT the done tick. Done says the design is settled; clouded says
 // the sheet is issuable. On a PCN only the second one ships.
-function isClouded(it){return /^(yes|y|true|1)$/i.test(String((it&&it.clouded)||'').trim());}
+// ── clouding is per CHANGE, because a revision cloud is drawn around each revised area ──────
+// Shadi, 2026-09-09: "the items inside the sheets are clouded right?" — right, and for one day
+// they were not. `clouded::` is ONE field on the item, and the day the item became a SHEET that
+// one field started covering every change on the drawing: two changes on A5.93.02 could not be
+// clouded independently, and the "1 of 2" badge only appeared where a legacy split had left two
+// items on one sheet. The new model would have made that fraction impossible.
+//
+// So the flag lives on the placement, beside the words that describe the change. `itemCloudField`
+// is the pre-2026-09-09 value and answers for every line on an item that has never been touched
+// per-line; the first per-line toggle freezes it onto every line and clears it, so afterwards the
+// absence of the flag means false and nothing is ambiguous.
+function itemCloudField(it){return /^(yes|y|true|1)$/i.test(String((it&&it.clouded)||'').trim());}
+function lineClouded(it,pl){
+  if(pl&&pl.clouded===true)return true;
+  if(pl&&pl.clouded===false)return false;
+  return itemCloudField(it);
+}
+// The item is clouded when every drawing it lands on is. Kept because the gate, the readiness
+// counts and the Addenda board all ask the question of an ITEM — they now get a truer answer.
+function isClouded(it){
+  var pls=(placementsOf(it)||[]).filter(function(p){return p&&p.sheet;});
+  if(!pls.length)return itemCloudField(it);
+  return pls.every(function(p){return lineClouded(it,p);});
+}
+// Set one line, and retire the item-level field the first time anyone does. Freezing the old value
+// onto the untouched lines first is what stops a legacy `clouded:: yes` quietly re-clouding the
+// rest of the sheet the moment you clear one of them.
+function pcnSetLineCloud(it,pls,ix,on){
+  if(!pls[ix])return;
+  var was=itemCloudField(it);
+  pls.forEach(function(p,i){
+    if(i===ix)return;
+    if(p&&p.sheet&&p.clouded===undefined)p.clouded=was;});
+  pls[ix].clouded=!!on;
+  setAddMeta(it.id,'placements',JSON.stringify(pls),'Drawings',true);
+  if(was)setAddMeta(it.id,'clouded','','Clouded',true);
+  buildAddendumRegister();
+  setStatus((on?'Clouded — ':'Cloud cleared — ')+(pls[ix].sheet||'')
+    +(pls[ix].no?' /'+pls[ix].no:'')+'. Queued for check-in.');
+}
 // A sheet the instrument ADDS cannot be clouded, because there is no previous version to cloud
 // against — it issues in its entirety. Shadi, 2026-08-27, on the whole A5.100 series: "A5.100 is
 // not issued in Addendum. They are issued in PCN." Counting a new drawing as "not clouded yet"
@@ -8533,9 +8592,14 @@ function setAddMeta(id,field,value,label,quiet){
 function pcnSheetsOf(pool){
   var bySheet={},order=[],nosheet=[];
   (pool||[]).forEach(function(it){
-    var pls=(placementsOf(it)||[]).filter(function(x){return x&&x.sheet;});
+    var all=(placementsOf(it)||[]);
+    var pls=all.filter(function(x){return x&&x.sheet;});
     if(!pls.length){nosheet.push(it);return;}
-    pls.forEach(function(pl,ix){
+    // `ix` MUST index the unfiltered array, because that is what the editor writes back into. An
+    // item holding a sheetless placement before a sheeted one would otherwise hand the editor the
+    // wrong line, and every edit would land on a change you were not looking at.
+    pls.forEach(function(pl){
+      var ix=all.indexOf(pl);
       var sn=String(pl.sheet).toUpperCase();
       if(!bySheet[sn]){bySheet[sn]=[];order.push(sn);}
       bySheet[sn].push({it:it,pl:pl,ix:ix});});
@@ -8560,6 +8624,59 @@ function pcnSheetsOf(pool){
 // now. A heading appears exactly when there is more than one thing to tell apart.
 function pcnLineCount(it){
   return (placementsOf(it)||[]).filter(function(p){return p&&p.sheet;}).length;
+}
+// ── the card's actions ───────────────────────────────────────────────────────────────────────
+// These existed on the Sheet work row and went with it. A board you can only READ is a report, and
+// the point of putting the drawing first was to be able to work on the drawing.
+//
+// All three are SHEET-level, because the sheet is the unit now: clouding is a fact about the
+// drawing, not about one line on it, and one item per sheet means the done tick is too.
+function pcnSheetItems(list){
+  var seen={},out=[];
+  (list||[]).forEach(function(r){if(!seen[r.it.id]){seen[r.it.id]=1;out.push(r.it);}});
+  return out;
+}
+function pcnSetClouded(list,on){
+  var byItem={},n=0;
+  (list||[]).forEach(function(r){
+    if(isNewSheet(r.it))return;               // nothing to cloud on a drawing being added
+    if(!byItem[r.it.id])byItem[r.it.id]={it:r.it,
+      pls:(placementsOf(r.it)||[]).map(function(p){return {sheet:p.sheet||'',view:p.view||'',
+        no:p.no||'',room:p.room||'',text:p.text||'',override:p.override||'',
+        newsheet:p.newsheet||false,clouded:p.clouded};}),ixs:[]};
+    byItem[r.it.id].ixs.push(r.ix);});
+  Object.keys(byItem).forEach(function(id){
+    var e=byItem[id],was=itemCloudField(e.it);
+    e.pls.forEach(function(p,i){
+      if(!p||!p.sheet)return;
+      var mine=e.ixs.indexOf(i)>-1;
+      var want=mine?!!on:(p.clouded===undefined?was:p.clouded);
+      if(p.clouded!==want)n++;
+      p.clouded=want;});
+    setAddMeta(e.it.id,'placements',JSON.stringify(e.pls),'Drawings',true);
+    if(was)setAddMeta(e.it.id,'clouded','','Clouded',true);});
+  buildAddendumRegister();
+  setStatus(n?((on?'Clouded — ':'Cloud cleared — ')+n_(n,'change')+' on this drawing. Queued for check-in.')
+             :'Nothing to change — this drawing is already recorded that way.');
+}
+function pcnSetDone(list,on){
+  pcnSheetItems(list).forEach(function(it){
+    var payload={type:'complete',program:it.program||'',pkg:it.pkg||'',itemRef:'',
+                 text:(it.title||'').slice(0,200),ts:new Date().toISOString()};
+    if(on){logComplete(payload);}
+    else{removeQueued('complete','',(it.title||'').slice(0,200));}});
+  rebuildPendingList();buildAddendumRegister();
+}
+// Remove one LINE. If it was the only one the item keeps existing and falls into "no drawing
+// named" — deleting a change is not the same act as deleting the work, and this button is not
+// allowed to quietly do the second one.
+function pcnRemoveLine(it,pls,ix){
+  var pl=pls[ix]||{};
+  var words=String(pl.text||'').trim();
+  if(words&&!window.confirm('Remove this change from '+(pl.sheet||'the drawing')+'?\n\n“'
+      +words.slice(0,90)+'”\n\nThe item itself stays — only this line goes.'))return;
+  pls.splice(ix,1);
+  setAddMeta(it.id,'placements',JSON.stringify(pls),'Drawings');
 }
 function pcnViewKey(pl){return String((pl&&pl.no)||'')+'␟'+String((pl&&pl.view)||'');}
 function pcnViewGroups(list){
@@ -8611,7 +8728,7 @@ function pcnAddChange(key,sheetNo,seed){
   var own=pcnItemForSheet(key,no);
   if(own){
     var list=(placementsOf(own)||[]).map(function(p){return {sheet:p.sheet||'',view:p.view||'',
-      no:p.no||'',room:p.room||'',text:p.text||'',override:p.override||'',newsheet:p.newsheet||false};});
+      no:p.no||'',room:p.room||'',text:p.text||'',override:p.override||'',newsheet:p.newsheet||false,clouded:p.clouded};});
     list.push(line);
     setAddMeta(own.id,'placements',JSON.stringify(list),'Drawings',true);
     buildAddendumRegister();
@@ -8666,7 +8783,29 @@ function pcnChangeEditor(it,pl,list,save){
   vs.addEventListener('click',function(e){e.stopPropagation();});
   vs.addEventListener('change',function(e){e.stopPropagation();
     var b=String(vs.value||'').split('␟');pl.no=b[0]||'';pl.view=b[1]||'';save();});
-  cV.appendChild(vs);ed.appendChild(cV);
+  // The export is not the world: a view added in Revit since the last export, or a viewport on a
+  // drawing this PCN itself adds, is real. A closed list means the only way to record it is not to.
+  var ot=document.createElement('option');ot.value='__type__';
+  ot.textContent='— a view not in the export —';vs.appendChild(ot);
+  cV.appendChild(vs);
+  var typed=document.createElement('span');typed.className='pcnb-typed';
+  var tin=document.createElement('input');tin.type='text';tin.className='sh-in';
+  tin.placeholder='view name';tin.value=String(pl.view||'');
+  var nin=document.createElement('input');nin.type='text';nin.className='sh-in pcnb-tno';
+  nin.placeholder='no.';nin.value=String(pl.no||'');
+  typed.appendChild(tin);typed.appendChild(nin);
+  var known=on.some(function(x){return String(x[0]||'')===String(pl.view||'');});
+  typed.style.display=(pl.view&&!known)?'':'none';
+  if(pl.view&&!known)vs.value=cur;
+  [tin,nin].forEach(function(el){
+    el.addEventListener('click',function(e){e.stopPropagation();});
+    el.addEventListener('keydown',function(e){e.stopPropagation();});
+    el.addEventListener('blur',function(){
+      pl.view=tin.value.trim();pl.no=nin.value.trim();save();});});
+  vs.addEventListener('change',function(){
+    if(vs.value==='__type__'){typed.style.display='';tin.focus();}
+    else typed.style.display='none';});
+  cV.appendChild(typed);ed.appendChild(cV);
 
   // WHAT CHANGES. On the LINE, not the item — see buildPcnDoc. This is what goes out.
   var cD=cell('What changes','Goes out with the PCN, beside the drawing. This is what gets priced — '
@@ -8778,20 +8917,40 @@ function pcnSheetBoard(host,key,pool){
         +'the register is out of date — both are worth knowing before it prints in a document.';}
     sh.appendChild(t);
     var isNew=list.every(function(r){return isNewSheet(r.it);});
-    var cl=list.filter(function(r){return cloudSettled(r.it);}).length;
+    // Counted per CHANGE now, so "2 of 3 clouded" is a real fraction rather than an artefact of
+    // how many vault items happen to sit under one drawing.
+    var cl=list.filter(function(r){return isNewSheet(r.it)||lineClouded(r.it,r.pl);}).length;
     var st=document.createElement('span');st.className='dwb-st';
     st.textContent=n_(list.length,'change');sh.appendChild(st);
-    var cb=document.createElement('span');
-    cb.className='dwb-cl'+(isNew?' all':cl===list.length?' all':cl?' some':' none');
+    // CLOUDED — a button, not a badge. It is the last thing true before a PCN can issue and it was
+    // the one fact on this card you could read and not set.
+    var cb=document.createElement('button');cb.type='button';
+    cb.className='dwb-cl pcnb-clbtn'+(isNew?' all':cl===list.length?' all':cl?' some':' none');
     cb.textContent=isNew?'new sheet'
       :(list.length===1)?(cl?'clouded':'not clouded')
       :(cl===list.length?'clouded':(cl+' of '+list.length+' clouded'));
+    cb.setAttribute('aria-pressed',cl===list.length?'true':'false');
+    cb.disabled=!!isNew;
     cb.title=isNew
       ?'A drawing this PCN ADDS. It issues in its entirety, so there is nothing to cloud and no '
        +'revision to bump.'
-      :'Clouded and revision bumped. Not the same fact as the work being done — a finished '
-       +'change on a sheet that carries no cloud cannot issue.';
+      :((cl===list.length?'Clouded and revision bumped. Click to clear.'
+                         :'Click when the cloud and the bumped revision are on the sheet.')
+        +' Deliberately not the done tick: done says the design is settled, this says the drawing '
+        +'is issuable, and only the second one ships.');
+    if(!isNew)cb.addEventListener('click',function(e){e.stopPropagation();
+      pcnSetClouded(list,cl!==list.length);});
+    cb.title+=' Sets every change on this drawing at once; the mark on each line sets one.';
     sh.appendChild(cb);
+    // DONE — the work, not the document. One item per sheet, so it belongs on the sheet.
+    var dn=document.createElement('input');dn.type='checkbox';dn.className='sh-done pcnb-done';
+    dn.checked=list.every(function(r){return r.it.pendingComplete||r.it.status==='completed';});
+    dn.title='Mark the work on this drawing done. It stays on the PCN — clouding decides whether '
+      +'it can issue, this only says the design is settled.';
+    dn.setAttribute('aria-label','Work done on '+sn);
+    dn.addEventListener('click',function(e){e.stopPropagation();});
+    dn.addEventListener('change',function(e){e.stopPropagation();pcnSetDone(list,dn.checked);});
+    sh.appendChild(dn);
     var who={},whoL=[];
     list.forEach(function(r){var d2=String(r.it.delegate||'').trim();if(d2&&!who[d2]){who[d2]=1;whoL.push(d2);}});
     var w=document.createElement('span');w.className='dwb-who'+(whoL.length?'':' dwb-free');
@@ -8832,7 +8991,7 @@ function pcnSheetBoard(host,key,pool){
       gv.rows.forEach(function(r){
       var it=r.it,pl=r.pl;
       var pls=(placementsOf(it)||[]).map(function(p){return {sheet:p.sheet||'',view:p.view||'',
-        no:p.no||'',room:p.room||'',text:p.text||'',override:p.override||'',newsheet:p.newsheet||false};});
+        no:p.no||'',room:p.room||'',text:p.text||'',override:p.override||'',newsheet:p.newsheet||false,clouded:p.clouded};});
       var mine=pls[r.ix]||pl;
       var save=function(){setAddMeta(it.id,'placements',JSON.stringify(pls),'Drawings',true);};
       var row=document.createElement('div');row.className='dwb-row pcnb-row'+(bare?'':' pcnb-under');
@@ -8854,8 +9013,32 @@ function pcnSheetBoard(host,key,pool){
       else{wc.textContent='nothing written to go out';wc.className='dwb-need';
         wc.title='The description is what accompanies the drawing. Nothing generates it.';}
       row.appendChild(wc);
-      if(it.verify){var q=document.createElement('span');q.className='dwb-need dwb-need-soft';
-        q.textContent='?';q.title='Flagged to verify before issue.';row.appendChild(q);}
+      // THE CLOUD, on the change. One per revised area, which is what a revision cloud is.
+      var lc=lineClouded(it,pl),newSh=isNewSheet(it);
+      var cbx=document.createElement('button');cbx.type='button';
+      cbx.className='pcnb-cl'+(newSh?' new':lc?' on':'');
+      cbx.textContent=newSh?'▣':(lc?'☁':'○');
+      cbx.disabled=!!newSh;
+      cbx.setAttribute('aria-pressed',lc?'true':'false');
+      cbx.title=newSh?'A drawing this PCN adds — it issues in its entirety, so there is nothing to cloud.'
+        :lc?'This change is clouded on the drawing. Click to clear.'
+           :'Click when the cloud is on this change and the sheet revision is bumped.';
+      if(!newSh)cbx.addEventListener('click',function(e){e.stopPropagation();
+        pcnSetLineCloud(it,pls,r.ix,!lc);});
+      row.appendChild(cbx);
+      // ? — flag it for verifying. Read-only until now: the board could show you the flag and
+      // offered no way to raise or clear one.
+      var q=document.createElement('button');q.type='button';
+      q.className='pcnb-q'+(it.verify?' on':'');q.textContent='?';
+      q.title=it.verify?'Flagged to verify before issue. Click to clear.'
+                       :'Flag this to verify before issue.';
+      q.setAttribute('aria-pressed',it.verify?'true':'false');
+      q.addEventListener('click',function(e){e.stopPropagation();toggleVerify(it.id);});
+      row.appendChild(q);
+      var rm=document.createElement('button');rm.type='button';rm.className='pcnb-x';
+      rm.textContent='✕';rm.title='Remove this change from the drawing. The item stays.';
+      rm.addEventListener('click',function(e){e.stopPropagation();pcnRemoveLine(it,pls,r.ix);});
+      row.appendChild(rm);
       var edWrap=document.createElement('div');edWrap.className='pcnb-edwrap';
       edWrap.style.display=SH_ROW_OPEN[it.id]?'':'none';
       row.style.cursor='pointer';
@@ -8918,10 +9101,30 @@ function pcnSheetBoard(host,key,pool){
         sel.appendChild(o);});
       var ow=document.createElement('option');ow.value='␟';
       ow.textContent='— the entire sheet —';sel.appendChild(ow);
+      // The export is not the world. A view added in Revit since the last export, or a viewport on
+      // a drawing this PCN itself adds, is real and has to be nameable — a closed list here means
+      // the only way to record it is not to.
+      var ot=document.createElement('option');ot.value='__type__';
+      ot.textContent='— a view not in the export —';sel.appendChild(ot);
       f.appendChild(sel);
       sel.addEventListener('click',function(e2){e2.stopPropagation();});
+      var tin=document.createElement('input');tin.type='text';tin.className='sh-in';
+      tin.placeholder='view name';tin.style.display='none';tin.style.maxWidth='230px';
+      var nin=document.createElement('input');nin.type='text';nin.className='sh-in';
+      nin.placeholder='no.';nin.style.display='none';nin.style.maxWidth='58px';
+      var tgo=document.createElement('button');tgo.type='button';tgo.className='hist-more';
+      tgo.textContent='Add';tgo.style.display='none';
+      tin.addEventListener('keydown',function(e2){e2.stopPropagation();});
+      nin.addEventListener('keydown',function(e2){e2.stopPropagation();});
+      tgo.addEventListener('click',function(e2){e2.stopPropagation();
+        if(!tin.value.trim())return;
+        f.remove();SH_ROW_OPEN[it0.id]=true;
+        pcnAddChange(key,sn,{no:nin.value.trim(),view:tin.value.trim()});});
+      f.appendChild(tin);f.appendChild(nin);f.appendChild(tgo);
       sel.addEventListener('change',function(e2){e2.stopPropagation();
         if(!sel.value)return;
+        if(sel.value==='__type__'){
+          tin.style.display='';nin.style.display='';tgo.style.display='';tin.focus();return;}
         var b2=String(sel.value).split('␟');
         f.remove();SH_ROW_OPEN[it0.id]=true;
         pcnAddChange(key,sn,{no:b2[0]||'',view:b2[1]||''});});
@@ -11062,7 +11265,12 @@ function placementLiteral(pl){
   var bits=[pl.sheet||'',pl.view||'',pl.no||'',pl.room||'',
     (pl.override&&pl.override.trim())?('= '+pl.override.trim()):(pl.text||'')];
   var out='[placement:: '+bits.join(' | ').replace(/(\s*\|)+\s*$/,'');
-  if(pl.newsheet)out+=' | new';
+  // The sixth field is a FLAG LIST. It has always ignored values it did not know, so adding
+  // `clouded` beside `new` costs nothing and every line written before today still reads.
+  var flags=[];
+  if(pl.newsheet)flags.push('new');
+  if(pl.clouded===true)flags.push('clouded');
+  if(flags.length)out+=' | '+flags.join(', ');
   return out+']';
 }
 function savePlacements(it,list,quiet){
