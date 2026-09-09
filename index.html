@@ -2131,6 +2131,58 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
   .sh-blk,.sh-edit{padding-left:9px;}
   .nl{grid-template-columns:1fr;}
 }
+
+/* ── the PCN sheet board ──────────────────────────────────────────────────────────────────── */
+/* The card is a DRAWING and it has to read in one glance: number, name, how many changes, whether
+   it can issue, who holds it. Everything that is not that folds away. */
+.pcnb-sheet{margin-bottom:9px;}
+.pcnb-row{cursor:pointer;}
+.pcnb-row .dwb-what{max-width:none;flex:1 1 260px;}
+.pcnb-edwrap{padding:2px 13px 10px 13px;background:var(--border-soft);
+  border-top:1px solid var(--border);}
+.pcnb-ed{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start;padding-top:9px;}
+.pcnb-ed .sh-f{display:flex;flex-direction:column;gap:4px;min-width:0;}
+.pcnb-ed .sh-f label{font-size:10px;font-weight:700;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--muted);}
+.pcnb-ed .pcnb-v{flex:0 0 auto;max-width:340px;}
+.pcnb-ed .sh-f:has(.pcnb-d){flex:1 1 340px;}
+.pcnb-d{width:100%;min-height:46px;resize:vertical;font-family:inherit;line-height:1.45;}
+/* The note is the one thing on the card that never goes out, and on a 21-drawing board it was
+   twenty-one open text boxes. Folded by default; the summary says whether there is anything in
+   it, so folding never hides the fact that it is empty. */
+.pcnb-note{border-top:1px solid var(--border);padding:0;}
+.pcnb-note>summary{list-style:none;cursor:pointer;padding:6px 13px;font-size:11px;
+  color:var(--muted);display:flex;gap:8px;align-items:baseline;}
+.pcnb-note>summary::-webkit-details-marker{display:none;}
+.pcnb-note>summary:hover{background:var(--border-soft);}
+.pcnb-note>summary::before{content:'\25b8';font-size:9px;color:var(--faint);}
+.pcnb-note[open]>summary::before{content:'\25be';}
+.pcnb-note>summary b{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--muted);}
+.pcnb-note>summary .n{font-style:italic;color:var(--faint);flex:1 1 auto;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pcnb-n{display:block;width:calc(100% - 26px);margin:0 13px 10px;min-height:52px;resize:vertical;
+  font-family:inherit;line-height:1.45;}
+.pcnb-vh{display:flex;align-items:baseline;gap:8px;padding:7px 13px 3px;
+  border-top:1px solid var(--border);}
+.pcnb-vh:first-of-type{border-top:none;}
+.pcnb-vno{font-size:11px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums;
+  background:var(--border-soft);border-radius:4px;padding:1px 5px;}
+.pcnb-vt{font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--text);flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;}
+.pcnb-vt.pcnb-vwhole{color:var(--muted);font-style:italic;text-transform:none;letter-spacing:0;
+  font-size:11.5px;font-weight:600;}
+.pcnb-vc{font-size:10.5px;color:var(--faint);white-space:nowrap;font-variant-numeric:tabular-nums;}
+.pcnb-vadd{font-size:12px;line-height:1;padding:2px 7px;border:1px solid var(--border);
+  border-radius:5px;background:none;color:var(--muted);cursor:pointer;}
+.pcnb-vadd:hover{border-color:var(--gold);color:var(--gold);}
+.dwb-row.pcnb-under{padding-left:30px;border-top:none;}
+.pcnb-vpick{display:inline-flex;margin-left:8px;}
+.pcnb-vpick select{max-width:330px;}
+.pcnb-add{margin:0 13px 11px;}
+.pcnb-new{display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap;margin-left:8px;}
+.pcnb-pick{max-width:290px;}
 </style>
 </head>
 <body>
@@ -2179,8 +2231,8 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
       </div>
     </details>
     <div class="pending-list" id="pendingList"><span class="pending-empty">Nothing pending yet.</span></div>
-    <div style="font-size:11px;color:var(--faint);margin-top:6px;">This queue lives in <b>this browser on this machine</b> \u2014 captures made anywhere else won\u2019t appear here. Copy for check-in from the same browser you captured in.</div>
-    <div class="capture-row" style="justify-content:flex-end;gap:8px;margin-top:10px;"><button type="button" onclick="clearCaptures()" style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:5px 12px;font-size:12.5px;cursor:pointer;font-family:inherit;">Clear</button><button type="button" onclick="emailQueue()" style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:5px 12px;font-size:12.5px;cursor:pointer;font-family:inherit;" title="On your phone? Mail the queue to yourself \u2014 the queue only lives in this browser">Email queue</button><button type="button" onclick="exportCaptures()">Copy for check-in</button></div>
+    <div style="font-size:11px;color:var(--faint);margin-top:6px;">This queue lives in <b>this browser on this machine</b> — captures made anywhere else won’t appear here. Copy for check-in from the same browser you captured in.</div>
+    <div class="capture-row" style="justify-content:flex-end;gap:8px;margin-top:10px;"><button type="button" onclick="clearCaptures()" style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:5px 12px;font-size:12.5px;cursor:pointer;font-family:inherit;">Clear</button><button type="button" onclick="emailQueue()" style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:5px 12px;font-size:12.5px;cursor:pointer;font-family:inherit;" title="On your phone? Mail the queue to yourself — the queue only lives in this browser">Email queue</button><button type="button" onclick="exportCaptures()">Copy for check-in</button></div>
   </details>
 
   <details class="voice"><summary style="cursor:pointer;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--teal);">What we sorted out — session notes</summary><div id="voiceBox"></div></details>
@@ -2237,8 +2289,8 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
     <label class="control-toggle"><input type="checkbox" id="cardsExpToggle" onchange="toggleCardsExpanded()"> Expand cards</label>
     <label class="control-toggle"><input type="checkbox" id="urgencyToggle" checked onchange="toggleUrgencyColors()"> Urgency edges</label>
     <label class="control-toggle"><input type="checkbox" id="showCompletedToggle" onchange="toggleShowCompleted()"> Show completed</label>
-    <button class="btn-mycourt" id="morningBtn" onclick="toggleMorningPreset()" title="Filter the board to My day \u2014 the list you built, not a re-derived guess at it">My day</button>
-    <button class="fchip fi-high" id="needsYouChip" style="display:none" onclick="setNeedsYouFilter(false)" title="Filtered to what needs you \u2014 click to clear">needs you \u00d7</button>
+    <button class="btn-mycourt" id="morningBtn" onclick="toggleMorningPreset()" title="Filter the board to My day — the list you built, not a re-derived guess at it">My day</button>
+    <button class="fchip fi-high" id="needsYouChip" style="display:none" onclick="setNeedsYouFilter(false)" title="Filtered to what needs you — click to clear">needs you ×</button>
     <div class="searchbox">
       <input type="text" id="searchBox" placeholder="Find anything…  ( / )" aria-label="Find anything" oninput="onSearchInput()" autocomplete="off">
       <div class="palette" id="palette" style="display:none"></div>
@@ -5774,7 +5826,10 @@ function buildAddendumRegister(){
 
   // The remembered view outlives the instrument it was chosen on. Landing on a PCN still holding
   // ADD_MODE='inq' rendered the inquiry block under a tab row that no longer offers the tab.
-  if(ADD_MODE==='inq'&&instKindForKey(ADD_OPEN)!=='addendum')ADD_MODE='reg';
+  // The remembered view outlives the instrument it was chosen on, and on a PCN three of the six
+  // no longer exist. Land on anything retired and you get the sheet board, not an empty pane.
+  if(instKindForKey(ADD_OPEN)!=='addendum'
+     &&['drawings','threads','wu'].indexOf(ADD_MODE)===-1)ADD_MODE='drawings';
   var modeRow=document.createElement('div');modeRow.className='add-filter add-mode-row';
   var ml=document.createElement('span');ml.className='add-filter-lbl';ml.textContent='View';
   modeRow.appendChild(ml);
@@ -5792,12 +5847,28 @@ function buildAddendumRegister(){
     // one contractor as a change, so there are no bidders and no inquiries — not zero of them, none.
     // Absent rather than empty, because an empty tab invites someone to fill it and anything typed
     // there would be a question nobody asked. Same reasoning that keeps §5 out of the document.
-    if(o[0]!=='inq')return true;
-    return instKindForKey(ADD_OPEN)==='addendum';
+    if(instKindForKey(ADD_OPEN)==='addendum')return true;
+    // A PCN is sheet-shaped. Contents and Sheet work ask "which ITEMS are in the document", which
+    // is an addendum's question — on a PCN the drawing is the unit, so they are not narrower views
+    // of the same thing, they are the wrong question. Three tabs, and the first one is the work.
+    return o[0]==='drawings'||o[0]==='threads'||o[0]==='wu';
+  }).sort(function(a,b){
+    // On a PCN the drawings ARE the instrument, so that tab goes first — the array order below is
+    // the addendum's reading order and it put "Our questions" in front of the work.
+    if(instKindForKey(ADD_OPEN)==='addendum')return 0;
+    // `r[k]||9` would send drawings to the back: its rank is 0, and 0 is falsy.
+    var r={drawings:0,threads:1,wu:2},rk=function(k){return (k in r)?r[k]:9;};
+    return rk(a[0])-rk(b[0]);
   }).forEach(function(o){
     var b=document.createElement('button');b.type='button';
     b.className='wb-seg'+(ADD_MODE===o[0]?' on':'');
     b.textContent=o[1];b.title=o[2];
+    if(o[0]==='drawings'&&instKindForKey(ADD_OPEN)!=='addendum'){
+      b.textContent='Drawings';
+      b.title='Every drawing this PCN touches, and every change on it. This is the instrument — '
+        +'a PCN issues sheets, so the sheet is the row and a change is a line inside it.';
+      var _n=pcnSheetCount(ADD_OPEN);if(_n)b.textContent+='  '+_n;
+    }
     if(o[0]==='wu'&&instKindForKey(ADD_OPEN)!=='addendum')
       b.title='The drawings this PCN issues, and the description that goes out beside each one. '
         +'No \u00a73/\u00a74 and no List of Attachments \u2014 the sheet IS the instrument.';
@@ -5819,7 +5890,9 @@ function buildAddendumRegister(){
 
   if(ADD_MODE==='inq'){addInquiryBlock(c,ADD_OPEN);return;}
   if(ADD_MODE==='sheets'){addWorkbench(c,ADD_OPEN,addPoolFor(ADD_OPEN));return;}
-  if(ADD_MODE==='drawings'){addDrawingBoard(c,ADD_OPEN,addPoolFor(ADD_OPEN));return;}
+  if(ADD_MODE==='drawings'){
+    if(instKindForKey(ADD_OPEN)!=='addendum'){pcnSheetBoard(c,ADD_OPEN,addPoolFor(ADD_OPEN));return;}
+    addDrawingBoard(c,ADD_OPEN,addPoolFor(ADD_OPEN));return;}
   if(ADD_MODE==='threads'){addQuestionsPanel(c,ADD_OPEN,groups[ADD_OPEN]);return;}
   if(ADD_MODE==='wu'){
     var h=document.createElement('div');h.id='wuHost-'+ADD_OPEN;c.appendChild(h);
@@ -8217,6 +8290,9 @@ function laneItems(){
         program:p.program||'',pkg:p.pkg||'',addendum:p.addendum||'',sheet:p.sheet||'',
         sheets:p.sheet?String(p.sheet).split(/[,;]+/).map(function(x){return x.trim();}).filter(Boolean):[],
         part:p.part||'drawing',section:p.section||'',scope:p.scope||'AR',disc:p.disc||'AR',
+        // Without this a row added on the site had no `due`, so it fell into "No date" — and the
+        // moment any freeze was armed it was invisible. Added, then reported as gone. It was there.
+        due:p.due||'',desc:p.desc||undefined,note:p.note||undefined,origin:p.origin||undefined,
         produces:p.produces||undefined,verify:p.verify?'yes':undefined,
         lane:'pending',pendingLocal:true,by:p.by||''});
     }else if(p.type==='produces'&&p.itemRef){
@@ -8428,7 +8504,7 @@ function setAddMeta(id,field,value,label,quiet){
   queueLocally({type:'addmeta',program:it.program||'',pkg:it.pkg||'',itemRef:ref,
     field:field,value:value,
     text:(it.sheet?it.sheet+' — ':'')+(label||field)+': '
-      +(field==='placements'?((JSON.parse(value||'[]')||[]).length+' line(s)'):(value||'(cleared)'))});
+      +(field==='placements'?n_((JSON.parse(value||'[]')||[]).length,'line'):(value||'(cleared)'))});
   if(quiet){setStatus((label||field)+' recorded.');return;}
   buildAddendumRegister();
   setStatus((label||field)+' set — queued for check-in.');
@@ -8442,6 +8518,456 @@ function setAddMeta(id,field,value,label,quiet){
 // This is the same forty-five items, transposed — sheet as the row, changes as its children — so
 // the list matches the afternoon. Nothing here is a new fact; it is the existing placements read
 // along the other axis.
+// ── the PCN sheet board ──────────────────────────────────────────────────────────────────────
+// THE SHEET IS THE UNIT. Shadi, 2026-09-09: "I am adding a bunch of items on the same sheet and so
+// many things are changing, now I have multiple items for the same sheet."
+//
+// He was right and the page was wrong. A PCN issues DRAWINGS. Every item-shaped surface on this
+// instrument — Contents, Sheet work, both + buttons — asked "what item is this", so adding two
+// changes to A5.93.02 made two cards, and nothing on the page would ever put them back together.
+// Here a drawing is a card and a change is a LINE inside it, and the adder lives on the card, so
+// a second change on a sheet you already have cannot become a second card: there is no button
+// that would do it.
+//
+// The write-up already grouped by drawing. This makes the working surface agree with it.
+function pcnSheetsOf(pool){
+  var bySheet={},order=[],nosheet=[];
+  (pool||[]).forEach(function(it){
+    var pls=(placementsOf(it)||[]).filter(function(x){return x&&x.sheet;});
+    if(!pls.length){nosheet.push(it);return;}
+    pls.forEach(function(pl,ix){
+      var sn=String(pl.sheet).toUpperCase();
+      if(!bySheet[sn]){bySheet[sn]=[];order.push(sn);}
+      bySheet[sn].push({it:it,pl:pl,ix:ix});});
+  });
+  // A5.100.x after A5.94.x: the numeric runs compare as numbers, or .100 files before .94.
+  function sortKey(n){return String(n).split(/[.\s]/).map(function(x){
+    return /^\d+$/.test(x)?String(1e6+parseInt(x,10)):x;}).join('.');}
+  order.sort(function(a,b){var ka=sortKey(a),kb=sortKey(b);return ka<kb?-1:ka>kb?1:0;});
+  return {bySheet:bySheet,order:order,nosheet:nosheet};
+}
+// ── the view is a LEVEL, not a field on a row ────────────────────────────────────────────────
+// Shadi, 2026-09-09: "the view picker in the sheet should still be there and under the view the
+// items, or entire sheet and just a list of items."
+//
+// A drawing carries several viewports and a change belongs to ONE of them. Listing changes flat
+// under the sheet made you read the view column to work out which ones were about the same
+// drawing area — which is the job a heading does for free. So: sheet → view → changes.
+//
+// The exception is the one he named. When nothing on the sheet names a view there is only one
+// group, and a heading over the whole card that says "entire sheet" is a label for the absence of
+// a distinction. In that case the changes are simply listed, and the card stays as short as it is
+// now. A heading appears exactly when there is more than one thing to tell apart.
+function pcnLineCount(it){
+  return (placementsOf(it)||[]).filter(function(p){return p&&p.sheet;}).length;
+}
+function pcnViewKey(pl){return String((pl&&pl.no)||'')+'␟'+String((pl&&pl.view)||'');}
+function pcnViewGroups(list){
+  var by={},order=[];
+  (list||[]).forEach(function(r){
+    var k=pcnViewKey(r.pl);
+    if(!by[k]){by[k]={k:k,no:String(r.pl.no||''),view:String(r.pl.view||''),rows:[]};order.push(k);}
+    by[k].rows.push(r);});
+  order.sort(function(a,b){
+    var A=by[a],B=by[b];
+    // "entire sheet" is the widest statement on the drawing, so it reads last — after every
+    // detail it would otherwise be mistaken for.
+    var ea=!A.no&&!A.view,eb=!B.no&&!B.view;
+    if(ea!==eb)return ea?1:-1;
+    var na=parseInt(A.no,10),nb=parseInt(B.no,10);
+    var ha=!isNaN(na),hb=!isNaN(nb);
+    if(ha!==hb)return ha?-1:1;              // numbered details before named-only views
+    if(ha&&na!==nb)return na-nb;
+    return A.view<B.view?-1:A.view>B.view?1:0;});
+  return order.map(function(k){return by[k];});
+}
+// The document reads in the same order the card does, or the two disagree about one drawing.
+function pcnOrderByView(list){
+  var out=[];pcnViewGroups(list).forEach(function(g){g.rows.forEach(function(r){out.push(r);});});
+  return out;
+}
+function pcnSheetCount(key){
+  if(!key||instKindForKey(key)==='addendum')return 0;
+  try{return pcnSheetsOf(addPoolFor(key)).order.length;}catch(e){return 0;}
+}
+// The item that already owns this sheet on this instrument. This is the whole mechanism behind
+// "one item per sheet": the adder asks this first, and only makes a new row when the answer is no.
+function pcnItemForSheet(key,sheetNo){
+  var want=String(sheetNo||'').toUpperCase();if(!want)return null;
+  var hit=null;
+  addPoolFor(key).forEach(function(it){
+    if(hit)return;
+    if((placementsOf(it)||[]).some(function(p){
+      return p&&String(p.sheet||'').toUpperCase()===want;}))hit=it;});
+  return hit;
+}
+// Add a change. If the sheet already has a card the change is a LINE on it; if not, one card is
+// created carrying that line. Two paths, one button, and the caller never chooses between them.
+function pcnAddChange(key,sheetNo,seed){
+  var no=String(sheetNo||'').trim();if(!no)return false;
+  seed=seed||{};
+  var g=ADD_GROUPS[key]||{},pool=addPoolFor(key),g0=pool[0]||{};
+  var line={sheet:no,view:seed.view||'',no:seed.no||'',room:'',text:seed.text||'',override:''};
+  var own=pcnItemForSheet(key,no);
+  if(own){
+    var list=(placementsOf(own)||[]).map(function(p){return {sheet:p.sheet||'',view:p.view||'',
+      no:p.no||'',room:p.room||'',text:p.text||'',override:p.override||'',newsheet:p.newsheet||false};});
+    list.push(line);
+    setAddMeta(own.id,'placements',JSON.stringify(list),'Drawings',true);
+    buildAddendumRegister();
+    setStatus('Added to '+no+' — '+n_(list.length,'change')+' on that drawing now. '
+      +'Queued for check-in.');
+    return true;
+  }
+  var nm=(typeof sheetNameFor==='function'?sheetNameFor(key,no,g.pkg||g0.pkg):'')
+        ||knownSheet(g.pkg||g0.pkg,no)||'';
+  var title=no+' — '+(nm||String(seed.text||'').trim()||'(unnamed drawing)');
+  // The freeze you are LOOKING at is the freeze you are adding to. Without this a new row carried
+  // no date, landed in "No date", and vanished the moment a freeze filter was armed.
+  var due=(ADD_FREEZE&&ADD_FREEZE!=='_nodate')?ADD_FREEZE:'';
+  queueLocally({type:'sheet',program:g.program||g0.program||'Concourse B',pkg:g.pkg||g0.pkg||'',
+    addendum:rawAddendumFor(key),sheet:no,section:'',part:'drawing',
+    scope:ADD_DISC==='*'?'AR':ADD_DISC,disc:ADD_DISC==='*'?'AR':ADD_DISC,
+    produces:'',verify:'',due:due,origin:seed.origin||'',text:title});
+  queueLocally({type:'addmeta',program:g.program||g0.program||'Concourse B',pkg:g.pkg||g0.pkg||'',
+    itemRef:title.slice(0,160),field:'placements',value:JSON.stringify([line]),
+    text:no+' — Placements: '+n_(1,'line')});
+  buildAddendumRegister();
+  setStatus(no+' added'+(due?(' to '+due):'')+' — open it and write what changes. Queued for check-in.');
+  return true;
+}
+// One change. The sheet is already known, so this asks only what the sheet cannot answer.
+function pcnChangeEditor(it,pl,list,save){
+  var ed=document.createElement('div');ed.className='pcnb-ed';
+  var cell=function(lab,hint){
+    var c=document.createElement('span');c.className='sh-f';
+    var l=document.createElement('label');l.textContent=lab;if(hint)l.title=hint;
+    c.appendChild(l);return c;};
+
+  // WHICH VIEW. Not a sheet picker — you are inside the sheet. 907 views, each detail number
+  // unique on its own drawing, so name and number resolve to each other either way.
+  var cV=cell('View','Which viewport on '+pl.sheet+'. From the Revit export.');
+  var on=viewsOn(it.pkg,pl.sheet);
+  var vs=document.createElement('select');vs.className='sh-in pcnb-v';
+  var v0=document.createElement('option');v0.value='';
+  v0.textContent=on.length?'the whole sheet':'— no views exported for this drawing';
+  vs.appendChild(v0);
+  on.forEach(function(x){
+    var o=document.createElement('option');o.value=String(x[2]||'')+'␟'+String(x[0]||'');
+    o.textContent=(x[2]?x[2]+'  —  ':'')+x[0]
+      +(x[1]==='raw'?'   (no Title on Sheet — the Revit name)':'');
+    vs.appendChild(o);});
+  var cur=(pl.no||pl.view)?String(pl.no||'')+'␟'+String(pl.view||''):'';
+  if(cur&&!Array.prototype.some.call(vs.options,function(o){return o.value===cur;})){
+    var oy=document.createElement('option');oy.value=cur;
+    oy.textContent=(pl.no?pl.no+'  —  ':'')+(pl.view||'not on this drawing');
+    vs.appendChild(oy);}
+  vs.value=cur;
+  vs.addEventListener('click',function(e){e.stopPropagation();});
+  vs.addEventListener('change',function(e){e.stopPropagation();
+    var b=String(vs.value||'').split('␟');pl.no=b[0]||'';pl.view=b[1]||'';save();});
+  cV.appendChild(vs);ed.appendChild(cV);
+
+  // WHAT CHANGES. On the LINE, not the item — see buildPcnDoc. This is what goes out.
+  var cD=cell('What changes','Goes out with the PCN, beside the drawing. This is what gets priced — '
+    +'say what changed, not why.');
+  var d=document.createElement('textarea');d.className='sh-in pcnb-d';d.rows=2;
+  d.value=String(pl.text||'');
+  d.placeholder=(typeof pcnLineCount==='function'&&pcnLineCount(it)!==1)?'What changes on this view.'
+    :String(it.desc||'').trim()
+    ? 'blank uses the sheet description: “'+String(it.desc).trim().slice(0,60)+'…”'
+    : 'The corner guard at the Women’s WC is revised from CG1 to CG1b.';
+  d.addEventListener('click',function(e){e.stopPropagation();});
+  d.addEventListener('keydown',function(e){e.stopPropagation();});
+  d.addEventListener('blur',function(){pl.text=d.value.trim();save();});
+  cD.appendChild(d);ed.appendChild(cD);
+  return ed;
+}
+function pcnSheetBoard(host,key,pool){
+  var g=ADD_GROUPS[key]||{},pkg=g.pkg||(pool[0]&&pool[0].pkg)||'';
+  var wrap=document.createElement('div');wrap.className='wb dwb pcnb';
+  host.appendChild(wrap);
+
+  var rows=(pool||[]).filter(function(i){
+    if(!inFreeze(i))return false;
+    if(ADD_WHO==='mine'&&!isMine(i))return false;
+    if(ADD_WHO==='free'&&String(i.delegate||'').trim())return false;
+    if(ADD_FLAG==='open')return !(i.status==='completed'||i.pendingComplete);
+    if(ADD_FLAG==='done')return i.status==='completed'||i.pendingComplete;
+    if(ADD_FLAG==='verify')return !!i.verify;
+    return true;});
+  var S=pcnSheetsOf(rows),order=S.order,bySheet=S.bySheet,nosheet=S.nosheet;
+
+  var head=document.createElement('div');head.className='dwb-head';
+  var ht=document.createElement('b');ht.textContent=n_(order.length,'drawing');
+  head.appendChild(ht);
+  var total=0,totalCl=0,noWords=0;
+  order.forEach(function(sn){bySheet[sn].forEach(function(r){
+    total++;if(cloudSettled(r.it))totalCl++;
+    if(!String(r.pl.text||'').trim()&&!String(r.it.desc||'').trim())noWords++;});});
+  var hs=document.createElement('span');hs.className='dwb-sum';
+  hs.textContent=n_(total,'change')+' on them · '+totalCl+' clouded'
+    +(noWords?('  ·  '+noWords+' with nothing written'):'')
+    +(nosheet.length?('  ·  '+n_(nosheet.length,'change')+' with no drawing named'):'');
+  head.appendChild(hs);
+  var hn=document.createElement('span');hn.className='dwb-note';
+  hn.textContent='the drawing is the row — a change is a line inside it';
+  head.appendChild(hn);
+  wrap.appendChild(head);
+
+  // ADD A DRAWING. The one place a new card can be created, and it will not create a second one
+  // for a sheet that already has one — it opens that sheet instead and says so.
+  (function(){
+    var bar=document.createElement('div');bar.className='wb-add';
+    var b=document.createElement('button');b.type='button';b.className='sh-inherit';
+    b.textContent='+ drawing';
+    b.title='Start a drawing this PCN has not touched yet. A drawing already on the list gets the '
+      +'change added to it instead of a second card.';
+    b.addEventListener('click',function(e){e.stopPropagation();
+      if(bar.querySelector('.pcnb-new')){bar.querySelector('.pcnb-new').remove();return;}
+      var f=document.createElement('span');f.className='pcnb-new';
+      var reg=drawingsFor(pkg)||{};
+      var sel=document.createElement('select');sel.className='sh-in';
+      var o0=document.createElement('option');o0.value='';o0.textContent='pick a drawing…';
+      sel.appendChild(o0);
+      Object.keys(reg).sort().forEach(function(no){
+        var o=document.createElement('option');o.value=no;
+        o.textContent=no+(reg[no]?'  —  '+reg[no]:'');sel.appendChild(o);});
+      var oN=document.createElement('option');oN.value='__free__';
+      oN.textContent='— a drawing not on the register —';sel.appendChild(oN);
+      f.appendChild(sel);
+      var free=document.createElement('input');free.type='text';free.className='sh-in';
+      free.placeholder='A5.100.53';free.style.display='none';free.style.maxWidth='140px';
+      free.addEventListener('keydown',function(e2){e2.stopPropagation();});
+      f.appendChild(free);
+      sel.addEventListener('change',function(){
+        free.style.display=sel.value==='__free__'?'':'none';if(sel.value==='__free__')free.focus();});
+      var ok=document.createElement('button');ok.type='button';ok.className='hist-more';
+      ok.textContent='Add';
+      ok.addEventListener('click',function(e2){e2.stopPropagation();
+        var no=(sel.value==='__free__')?free.value.trim():sel.value;
+        if(!no)return;
+        var had=pcnItemForSheet(key,no);
+        f.remove();
+        if(had)SH_ROW_OPEN[had.id]=true;
+        pcnAddChange(key,no,{});});
+      f.appendChild(ok);
+      bar.appendChild(f);sel.focus();});
+    bar.appendChild(b);
+    wrap.appendChild(bar);
+  })();
+
+  if(!order.length&&!nosheet.length){
+    var non=document.createElement('div');non.className='dwb-none';
+    non.textContent=ADD_FREEZE?('Nothing dated to '+ADD_FREEZE+' names a drawing yet.')
+                   :'No drawing on this PCN yet — start one above.';
+    wrap.appendChild(non);return;
+  }
+
+  order.forEach(function(sn){
+    var list=bySheet[sn];
+    var it0=list[0].it;
+    var box=document.createElement('div');box.className='dwb-sheet pcnb-sheet';
+    var sh=document.createElement('div');sh.className='dwb-sh';
+    var no=document.createElement('code');no.className='dwb-no';no.textContent=sn;sh.appendChild(no);
+    var nm=knownSheet(pkg,sn);
+    var t=document.createElement('span');t.className='dwb-nm';
+    if(nm){t.textContent=nm;}
+    else{t.textContent='not on the drawing list';t.className+=' dwb-unknown';
+      t.title=sn+' is not in the project drawing register. Either it is a sheet this PCN ADDS, or '
+        +'the register is out of date — both are worth knowing before it prints in a document.';}
+    sh.appendChild(t);
+    var isNew=list.every(function(r){return isNewSheet(r.it);});
+    var cl=list.filter(function(r){return cloudSettled(r.it);}).length;
+    var st=document.createElement('span');st.className='dwb-st';
+    st.textContent=n_(list.length,'change');sh.appendChild(st);
+    var cb=document.createElement('span');
+    cb.className='dwb-cl'+(isNew?' all':cl===list.length?' all':cl?' some':' none');
+    cb.textContent=isNew?'new sheet'
+      :(list.length===1)?(cl?'clouded':'not clouded')
+      :(cl===list.length?'clouded':(cl+' of '+list.length+' clouded'));
+    cb.title=isNew
+      ?'A drawing this PCN ADDS. It issues in its entirety, so there is nothing to cloud and no '
+       +'revision to bump.'
+      :'Clouded and revision bumped. Not the same fact as the work being done — a finished '
+       +'change on a sheet that carries no cloud cannot issue.';
+    sh.appendChild(cb);
+    var who={},whoL=[];
+    list.forEach(function(r){var d2=String(r.it.delegate||'').trim();if(d2&&!who[d2]){who[d2]=1;whoL.push(d2);}});
+    var w=document.createElement('span');w.className='dwb-who'+(whoL.length?'':' dwb-free');
+    w.textContent=whoL.length?whoL.join(', '):'nobody';
+    w.title='Who is holding this drawing. Click to claim it or hand it over.';
+    w.style.cursor='pointer';
+    w.addEventListener('click',function(e){e.stopPropagation();
+      openClaimPicker(it0,w,whoL[0]||'');});
+    sh.appendChild(w);
+    box.appendChild(sh);
+
+    var groupsV=pcnViewGroups(list);
+    // One group and it is the whole sheet: no heading. There is nothing to tell apart, and a
+    // heading over a single undivided thing is a label saying "this is the thing".
+    var bare=(groupsV.length===1&&!groupsV[0].no&&!groupsV[0].view);
+    groupsV.forEach(function(gv){
+      if(!bare){
+        var vh=document.createElement('div');vh.className='pcnb-vh';
+        var isWhole=!gv.no&&!gv.view;
+        if(gv.no){var vn=document.createElement('code');vn.className='pcnb-vno';
+          vn.textContent=gv.no;vn.title='Detail '+gv.no+' on '+sn;vh.appendChild(vn);}
+        var vt=document.createElement('span');vt.className='pcnb-vt'+(isWhole?' pcnb-vwhole':'');
+        vt.textContent=isWhole?'Entire sheet':(gv.view||'view not named');
+        vt.title=isWhole
+          ?'Changes that are not about one viewport — they apply to the drawing as a whole.'
+          :'A viewport on '+sn+', from the Revit export.';
+        vh.appendChild(vt);
+        var vc=document.createElement('span');vc.className='pcnb-vc';
+        vc.textContent=n_(gv.rows.length,'change');vh.appendChild(vc);
+        var va=document.createElement('button');va.type='button';va.className='pcnb-vadd';
+        va.textContent='+';
+        va.title='Another change on '+(isWhole?'the sheet as a whole':('view '+(gv.view||gv.no)))+'.';
+        va.addEventListener('click',function(e){e.stopPropagation();
+          SH_ROW_OPEN[it0.id]=true;pcnAddChange(key,sn,{view:gv.view,no:gv.no});});
+        vh.appendChild(va);
+        box.appendChild(vh);
+      }
+      gv.rows.forEach(function(r){
+      var it=r.it,pl=r.pl;
+      var pls=(placementsOf(it)||[]).map(function(p){return {sheet:p.sheet||'',view:p.view||'',
+        no:p.no||'',room:p.room||'',text:p.text||'',override:p.override||'',newsheet:p.newsheet||false};});
+      var mine=pls[r.ix]||pl;
+      var save=function(){setAddMeta(it.id,'placements',JSON.stringify(pls),'Drawings',true);};
+      var row=document.createElement('div');row.className='dwb-row pcnb-row'+(bare?'':' pcnb-under');
+      if(it.status==='completed'||it.pendingComplete)row.classList.add('dwb-done');
+      // Under a view heading the detail number and the view name are already stated above; saying
+      // them again on every line is the same words twice in one glance.
+      if(bare){
+        var d=document.createElement('code');d.className='dwb-det';d.textContent='—';
+        d.title='The whole sheet — no single view named';row.appendChild(d);
+        var vw=document.createElement('span');vw.className='dwb-view dwb-unknown';
+        vw.textContent='(whole sheet)';row.appendChild(vw);
+      }
+      // The fallback stands in for ONE line. On a sheet with several, `desc::` is a single field
+      // describing the sheet, so every line without its own words would print the same sentence —
+      // which is how a change you just added arrives looking like it already says something.
+      var words=String(pl.text||'').trim()||(pcnLineCount(it)===1?String(it.desc||'').trim():'');
+      var wc=document.createElement('span');wc.className='dwb-what';
+      if(words){wc.textContent=words;}
+      else{wc.textContent='nothing written to go out';wc.className='dwb-need';
+        wc.title='The description is what accompanies the drawing. Nothing generates it.';}
+      row.appendChild(wc);
+      if(it.verify){var q=document.createElement('span');q.className='dwb-need dwb-need-soft';
+        q.textContent='?';q.title='Flagged to verify before issue.';row.appendChild(q);}
+      var edWrap=document.createElement('div');edWrap.className='pcnb-edwrap';
+      edWrap.style.display=SH_ROW_OPEN[it.id]?'':'none';
+      row.style.cursor='pointer';
+      row.title='Open this change';
+      row.addEventListener('click',function(){
+        var open=edWrap.style.display!=='none';
+        edWrap.style.display=open?'none':'';
+        if(!open&&!edWrap.firstChild)edWrap.appendChild(pcnChangeEditor(it,mine,pls,save));});
+      if(SH_ROW_OPEN[it.id])edWrap.appendChild(pcnChangeEditor(it,mine,pls,save));
+      box.appendChild(row);box.appendChild(edWrap);
+      });
+    });
+
+    // THE NOTE. One per drawing, because it is what whoever opens this sheet needs to know before
+    // they draw anything — and it never leaves the office.
+    var nb=document.createElement('details');nb.className='pcnb-note';
+    var ns=document.createElement('summary');
+    var nlb=document.createElement('b');nlb.textContent='Stays in the office';ns.appendChild(nlb);
+    var nsn=document.createElement('span');nsn.className='n';
+    var _n0=String(it0.note||'').trim();
+    nsn.textContent=_n0?_n0.replace(/\s+/g,' ').slice(0,120):'nothing written for whoever draws it';
+    ns.appendChild(nsn);
+    ns.title='What whoever draws this needs to know, and why. Never goes out with the PCN.';
+    ns.addEventListener('click',function(e){e.stopPropagation();});
+    nb.appendChild(ns);
+    var nt=document.createElement('textarea');nt.className='sh-in pcnb-n';nt.rows=2;
+    nt.value=String(it0.note||'');
+    nt.placeholder='Draw: …  Because: …  Watch: …';
+    nt.addEventListener('click',function(e){e.stopPropagation();});
+    nt.addEventListener('keydown',function(e){e.stopPropagation();});
+    nt.addEventListener('blur',function(){
+      if(String(nt.value).trim()!==String(it0.note||'').trim())
+        setAddMeta(it0.id,'note',nt.value.trim(),'Note');});
+    nb.appendChild(nt);
+    box.appendChild(nb);
+
+    // + CHANGE ON THIS SHEET. The reason a second card for one drawing cannot happen: the button
+    // that would have made one does not exist, and this one appends a line.
+    // THE VIEW PICKER, on the card. The per-view "+" adds to a view that already has changes;
+    // this is how a view that has none gets its first. 907 views in the export, each detail number
+    // unique on its own drawing — so the offer is exact, and "the whole sheet" is a real answer
+    // rather than the empty option at the top of the list.
+    var ab=document.createElement('button');ab.type='button';ab.className='sh-inherit pcnb-add';
+    ab.textContent='+ change on '+sn;
+    ab.title='Another change on this drawing. Pick which view it is on — it becomes a line here, '
+      +'never a second card.';
+    ab.addEventListener('click',function(e){e.stopPropagation();
+      var open=box.querySelector('.pcnb-vpick');
+      if(open){open.remove();return;}
+      var f=document.createElement('span');f.className='pcnb-vpick';
+      var on=viewsOn(pkg,sn);
+      var sel=document.createElement('select');sel.className='sh-in';
+      var o0=document.createElement('option');o0.value='';
+      o0.textContent=on.length?'which view?':'no views exported for '+sn;
+      sel.appendChild(o0);
+      on.forEach(function(x){
+        var o=document.createElement('option');o.value=String(x[2]||'')+'␟'+String(x[0]||'');
+        o.textContent=(x[2]?x[2]+'  —  ':'')+x[0]
+          +(x[1]==='raw'?'   (no Title on Sheet — the Revit name)':'');
+        sel.appendChild(o);});
+      var ow=document.createElement('option');ow.value='␟';
+      ow.textContent='— the entire sheet —';sel.appendChild(ow);
+      f.appendChild(sel);
+      sel.addEventListener('click',function(e2){e2.stopPropagation();});
+      sel.addEventListener('change',function(e2){e2.stopPropagation();
+        if(!sel.value)return;
+        var b2=String(sel.value).split('␟');
+        f.remove();SH_ROW_OPEN[it0.id]=true;
+        pcnAddChange(key,sn,{no:b2[0]||'',view:b2[1]||''});});
+      ab.parentNode.insertBefore(f,ab.nextSibling);sel.focus();});
+    box.appendChild(ab);
+    wrap.appendChild(box);
+  });
+
+  if(nosheet.length){
+    var box2=document.createElement('div');box2.className='dwb-sheet dwb-orphan';
+    var sh2=document.createElement('div');sh2.className='dwb-sh';
+    var n2=document.createElement('code');n2.className='dwb-no dwb-unknown';n2.textContent='—';
+    sh2.appendChild(n2);
+    var t2=document.createElement('span');t2.className='dwb-nm dwb-unknown';
+    t2.textContent='No drawing named yet';sh2.appendChild(t2);
+    var s2=document.createElement('span');s2.className='dwb-st';
+    s2.textContent=n_(nosheet.length,'change');sh2.appendChild(s2);
+    var h2=document.createElement('span');h2.className='dwb-who dwb-free';
+    h2.textContent='cannot issue until each names a drawing';sh2.appendChild(h2);
+    box2.appendChild(sh2);
+    nosheet.forEach(function(it){
+      var row=document.createElement('div');row.className='dwb-row';
+      var d3=document.createElement('code');d3.className='dwb-det dwb-unknown';d3.textContent='?';
+      row.appendChild(d3);
+      var ti=document.createElement('span');ti.className='dwb-t';ti.textContent=it.title||'';
+      row.appendChild(ti);
+      var pick=document.createElement('select');pick.className='sh-in pcnb-pick';
+      var p0=document.createElement('option');p0.value='';p0.textContent='put it on a drawing…';
+      pick.appendChild(p0);
+      var reg2=drawingsFor(it.pkg)||{};
+      Object.keys(reg2).sort().forEach(function(nn){
+        var o=document.createElement('option');o.value=nn;
+        o.textContent=nn+(reg2[nn]?'  —  '+reg2[nn]:'');pick.appendChild(o);});
+      pick.addEventListener('click',function(e){e.stopPropagation();});
+      pick.addEventListener('change',function(e){e.stopPropagation();
+        if(!pick.value)return;
+        var l2=(placementsOf(it)||[]).map(function(p){return {sheet:p.sheet||'',view:p.view||'',
+          no:p.no||'',room:p.room||'',text:p.text||'',override:p.override||''};})
+          .filter(function(p){return p.sheet;});
+        l2.push({sheet:pick.value,view:'',no:'',room:'',text:'',override:''});
+        setAddMeta(it.id,'placements',JSON.stringify(l2),'Drawings');});
+      row.appendChild(pick);
+      box2.appendChild(row);});
+    wrap.appendChild(box2);
+  }
+}
 function addDrawingBoard(host,key,pool){
   var g=ADD_GROUPS[key]||{},pkg=g.pkg||(pool[0]&&pool[0].pkg)||'';
   var wrap=document.createElement('div');wrap.className='wb dwb';
@@ -9002,7 +9528,7 @@ function openAddSheet(anchor,addNo,pkg,program){
     if(isDrawPart(prov)&&pls.length){
       queueLocally({type:'addmeta',program:prov.program,pkg:prov.pkg,
         itemRef:title.slice(0,160),field:'placements',value:JSON.stringify(pls),
-        text:(no?no+' \u2014 ':'')+'Placements: '+pls.length+' line(s)'});
+        text:(no?no+' \u2014 ':'')+'Placements: '+n_(pls.length,'line')});
     }
     f.remove();buildAddendumRegister();rebuildPendingList();
     setStatus('Added \u2014 copy for check-in to make it permanent.');
@@ -11329,13 +11855,19 @@ function buildPcnDoc(key,opts){
 
   var body=[];
   order.forEach(function(sn,ix){
-    var mine=groups[sn],t=sheetTitleFor(sn,pool,key),lines=[],seen={};
+    var mine=pcnOrderByView(groups[sn]),t=sheetTitleFor(sn,pool,key),lines=[],seen={};
     mine.forEach(function(e){
       var it=e.it,pl=e.pl;
       var tgt=pcnTargetLabel(pl);
       // The sheet is the heading. Repeating it on its own line under itself says nothing.
       var where=(tgt===sn)?'':String(tgt).slice(sn.length+3);
-      var words=String(it.desc||'').trim();
+      // ONE ITEM PER SHEET, CHANGES AS LINES — so the words have to live on the LINE. `desc::`
+      // is one field on the item; three lines reading it print the same sentence three times,
+      // which is exactly the duplicate warning this used to raise against itself. `pl.text` is
+      // already repeatable and already round-trips through `placement::`, so it carries the
+      // change's own description and `desc::` stays as the sheet-level fallback for every item
+      // written before this. One field, two readings, no migration — the PCN card's own rule.
+      var words=String(pl.text||'').trim()||(pcnLineCount(it)===1?String(it.desc||'').trim():'');
       if(!words){
         lines.push((where?where+'; ':'')+'[NOTHING WRITTEN TO GO OUT — write the description]');
         warn.push('"'+(it.title||'').slice(0,44)+'" is on '+sn+' with no description. The drawing '
