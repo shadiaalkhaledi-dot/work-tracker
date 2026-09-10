@@ -2246,6 +2246,29 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
 .pcnb-add{margin:0 13px 11px;}
 .pcnb-new{display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap;margin-left:8px;}
 .pcnb-pick{max-width:290px;}
+.pcnb-move{flex:0 0 auto;margin-left:6px;max-width:170px;font-size:10.5px;}
+.pcnb-who{margin:0 0 8px;}
+.pcnb-armed{font-size:12px;color:var(--muted);margin:0 0 10px;}
+.pcnb-armed b{color:var(--gold);}
+.pcnb-what{font-size:10px;font-weight:700;letter-spacing:.03em;color:var(--gold);flex:0 0 auto;
+  border:1px solid rgba(160,122,0,.35);border-radius:4px;padding:1px 6px;
+  background:rgba(160,122,0,.07);}
+.pcnb-delta{border:1px solid var(--border);border-radius:8px;padding:9px 12px;margin:0 0 12px;
+  background:rgba(160,122,0,.04);}
+.pcnb-dhead{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:5px;}
+.pcnb-dline{font-size:12px;line-height:1.6;color:var(--text);}
+.pcnb-dline b{color:var(--gold);font-variant-numeric:tabular-nums;}
+.pcnb-dnone{font-size:12px;font-style:italic;color:var(--faint);}
+.pcnb-ohead{display:flex;gap:8px;align-items:baseline;margin:9px 13px 3px;}
+.pcnb-ohead b{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--muted);}
+.pcnb-ohead.gap b{color:var(--stop);}
+.pcnb-ohead i{font-style:italic;font-size:11px;color:var(--faint);}
+.pcnb-odue{font-size:10.5px;color:var(--muted);font-variant-numeric:tabular-nums;flex:0 0 auto;
+  min-width:74px;}
+.pcnb-odue.none{color:var(--faint);font-style:italic;}
+.pcnb-osub{font-size:11px;color:var(--faint);flex:1 1 100%;margin:1px 0 0 74px;line-height:1.45;}
 </style>
 </head>
 <body>
@@ -8692,6 +8715,39 @@ function pcnReviewFindings(key){
   if(r.instrument&&addNum(r.instrument)!==addNum(String(key||'').split('|')[1]||''))return [];
   return r.findings||[];
 }
+// WHAT MOVED SINCE THE LAST PLOT. The checker keeps its own history now, so a run diffs against
+// the previous one by itself. This is the only thing on the page that no single set can tell you:
+// a cloud that came OFF between two plots is invisible to the register and to either PDF alone.
+function pcnDeltaBlock(wrap,r){
+  var d=(r&&r.delta)||null;if(!d)return;
+  var box=document.createElement('div');box.className='pcnb-delta';
+  var h=document.createElement('div');h.className='pcnb-dhead';
+  h.textContent='Since '+(d.against||'the previous plot')
+    +(d.when?('   \u00b7   read '+String(d.when).replace('T',' ')):'');
+  box.appendChild(h);
+  var any=false;
+  function line(lab,txt){
+    var p=document.createElement('div');p.className='pcnb-dline';
+    var b=document.createElement('b');b.textContent=lab;p.appendChild(b);
+    p.appendChild(document.createTextNode('   '+txt));box.appendChild(p);any=true;}
+  if((d.gained||[]).length)line(d.gained.length+' gained a cloud',
+    d.gained.map(function(g){return g.sheet+(g.what?' ('+g.what+')':'');}).join(', '));
+  if((d.lost||[]).length)line(d.lost.length+' lost every cloud',
+    d.lost.map(function(g){return g.sheet;}).join(', '));
+  if((d.more||[]).length)line(d.more.length+' changed count',
+    d.more.map(function(g){return g.sheet+' '+g.was+'\u2192'+g.now;}).join(', '));
+  if((d['new']||[]).length)line(d['new'].length+' new in this plot',d['new'].join(', '));
+  if((d.gone||[]).length)line(d.gone.length+' gone from this plot',d.gone.join(', '));
+  if(!any){var nn=document.createElement('div');nn.className='pcnb-dnone';
+    nn.textContent='Nothing moved between the two plots.';box.appendChild(nn);}
+  wrap.appendChild(box);
+}
+function pcnSetWhat(r,sn){
+  var ls=(r&&r.sheets)||[];
+  for(var i=0;i<ls.length;i++)
+    if(String(ls[i].sheet||'').toUpperCase()===sn)return String(ls[i].what||'');
+  return '';
+}
 function pcnReviewBlock(wrap,key){
   var r=pcnReviewData(),f=pcnReviewFindings(key);
   var head=document.createElement('div');head.className='dwb-head';
@@ -8707,6 +8763,7 @@ function pcnReviewBlock(wrap,key){
     var no=document.createElement('div');no.className='dwb-none';
     no.textContent='No findings in the payload. Run check_review_set.py --emit and regenerate.';
     wrap.appendChild(no);return;}
+  pcnDeltaBlock(wrap,r);
 
   var by={},order=[];
   f.forEach(function(x){var s=String(x.sheet||'?').toUpperCase();
@@ -8722,6 +8779,12 @@ function pcnReviewBlock(wrap,key){
     t.textContent=nm||'not on the drawing list';sh.appendChild(t);
     var st=document.createElement('span');st.className='dwb-st';
     st.textContent=n_(by[sn].length,'finding');sh.appendChild(st);
+    var swhat=pcnSetWhat(r,sn);
+    if(swhat){
+      var sw=document.createElement('span');sw.className='pcnb-what';sw.textContent=swhat;
+      sw.title='What the clouds on this drawing enclose, read out of the set. A keynote tag '
+        +'repeated fifteen times is one decision, not fifteen.';
+      sh.appendChild(sw);}
     var own=pcnItemForSheet(key,sn);
     var w=document.createElement('span');w.className='dwb-who'+(own?'':' dwb-free');
     w.textContent=own?'on this instrument':'not on this instrument';sh.appendChild(w);
@@ -8735,6 +8798,11 @@ function pcnReviewBlock(wrap,key){
       if(x.no||x.view){
         var v=document.createElement('span');v.className='dwb-view';
         v.textContent=(x.no?x.no+'  ':'')+(x.view||'');row.appendChild(v);}
+      if(x.what){
+        var wc=document.createElement('span');wc.className='pcnb-what';wc.textContent=x.what;
+        wc.title='The words this cloud encloses. Read straight out of the PDF \u2014 it is what '
+          +'the cloud is drawn around, not a guess at why.';
+        row.appendChild(wc);}
       var m=document.createElement('span');m.className='dwb-what';m.textContent=x.msg||'';
       row.appendChild(m);
       var act=x.action||'none';
@@ -8747,7 +8815,9 @@ function pcnReviewBlock(wrap,key){
                     cloud:'Record that this change carries its cloud on the sheet.',
                     uncloud:'Clear the cloud on this change — the set says it is not there.'})[act];
         btn.addEventListener('click',function(e){e.stopPropagation();
-          if(act==='add'){pcnAddChange(key,sn,{view:x.view||'',no:x.no||''});return;}
+          if(act==='add'){
+            var sno=String(x.no||'');if(sno==='?')sno='';
+            pcnAddChange(key,sn,{view:x.view||'',no:sno});return;}
           var it=pcnItemForSheet(key,sn);
           if(!it){setStatus(sn+' is not on this instrument yet — add it first.');return;}
           var pls=(placementsOf(it)||[]).map(function(p){return {sheet:p.sheet||'',view:p.view||'',
@@ -8756,7 +8826,7 @@ function pcnReviewBlock(wrap,key){
           var ix=-1;
           for(var i=0;i<pls.length;i++){
             if(String(pls[i].sheet||'').toUpperCase()!==sn)continue;
-            if(x.no&&String(pls[i].no||'')!==String(x.no))continue;
+            if(x.no&&x.no!=='?'&&String(pls[i].no||'')!==String(x.no))continue;
             ix=i;break;}
           if(ix<0){setStatus('No line on '+sn+(x.no?' /'+x.no:'')+' to change — add it first.');return;}
           pcnSetLineCloud(it,pls,ix,act==='cloud');});
@@ -9012,6 +9082,30 @@ function pcnChangeEditor(it,pl,list,save){
 }
 // The changes that name no drawing. Lifted out of the bottom of the board so it can render FIRST,
 // which is where the largest blocker on the instrument belongs.
+//
+// ⚠ WHY SO MANY. Thirty-eight of PCN 1's fifty-two changes name no drawing, and a flat list of
+// thirty-eight reads as thirty-eight failures. It is not one problem:
+//   · thirty-one are the GAP — a drawing change with no drawing, which is the real blocker;
+//   · four are WAITING on somebody, so they cannot be drawn yet and are not overdue work;
+//   · one is SPEC ONLY and will never have a drawing;
+//   · one is DONE;
+//   · one has never said whether it changes a drawing or a specification, and that is the
+//     cheapest thing on this page to fix.
+// The buckets are what turns the number into an hour's work.
+function pcnOrphanBucket(it){
+  if(it.pendingComplete||it.status==='completed')return 'done';
+  var pt=String(it.part||'');
+  if(pt==='spec')return 'spec';
+  if(it.waitingFor)return 'waiting';
+  if(pt==='drawing'||pt==='both')return 'gap';
+  return 'unknown';
+}
+var PCN_OBUCKETS=[
+  ['gap','Needs a drawing','it changes a drawing, and no drawing is named'],
+  ['unknown','Drawing or specification?','nobody has said which this changes'],
+  ['waiting','Waiting on somebody','blocked before it can be drawn'],
+  ['spec','Specification only','it will never carry a drawing'],
+  ['done','Done','']];
 function pcnOrphanBlock(wrap,key,nosheet){
   var box2=document.createElement('div');box2.className='dwb-sheet dwb-orphan pcnb-orphan';
   var sh2=document.createElement('div');sh2.className='dwb-sh';
@@ -9021,34 +9115,87 @@ function pcnOrphanBlock(wrap,key,nosheet){
   t2.textContent='No drawing named yet';sh2.appendChild(t2);
   var s2=document.createElement('span');s2.className='dwb-st';
   s2.textContent=n_(nosheet.length,'change');sh2.appendChild(s2);
-  var h2=document.createElement('span');h2.className='dwb-who dwb-free';
-  h2.textContent='a PCN issues drawings — these have none';sh2.appendChild(h2);
+  var groups={};
+  nosheet.forEach(function(it){var b=pcnOrphanBucket(it);(groups[b]=groups[b]||[]).push(it);});
+  var gapn=(groups.gap||[]).length;
+  var h2=document.createElement('span');h2.className='dwb-who'+(gapn?' dwb-free':'');
+  h2.textContent=gapn?(gapn+' of them are the gap'):'none of them is blocking a drawing';
+  sh2.appendChild(h2);
   box2.appendChild(sh2);
-  nosheet.forEach(function(it){
-    var row=document.createElement('div');row.className='dwb-row';
-    var d3=document.createElement('code');d3.className='dwb-det dwb-unknown';d3.textContent='?';
-    row.appendChild(d3);
-    var ti=document.createElement('span');ti.className='dwb-t';ti.textContent=it.title||'';
-    row.appendChild(ti);
-    var pick=document.createElement('select');pick.className='sh-in pcnb-pick';
-    var p0=document.createElement('option');p0.value='';p0.textContent='put it on a drawing…';
-    pick.appendChild(p0);
-    var reg2=drawingsFor(it.pkg)||{};
-    Object.keys(reg2).sort().forEach(function(nn){
+
+  // ONE datalist for the whole block. A 195-option <select> is a list you scroll, not a list you
+  // search, and the drawing you want is always in the middle of it.
+  var reg2=drawingsFor((nosheet[0]||{}).pkg)||{};
+  var dlid='pcnb-dl-'+String(key||'').replace(/[^A-Za-z0-9]/g,'');
+  if(!document.getElementById(dlid)){
+    var dl=document.createElement('datalist');dl.id=dlid;
+    Object.keys(reg2).sort(function(a,b){var ka=sheetOrderKey(a),kb=sheetOrderKey(b);
+      return ka<kb?-1:ka>kb?1:0;}).forEach(function(nn){
       var o=document.createElement('option');o.value=nn;
-      o.textContent=nn+(reg2[nn]?'  —  '+reg2[nn]:'');pick.appendChild(o);});
-    pick.addEventListener('click',function(e){e.stopPropagation();});
-    pick.addEventListener('change',function(e){e.stopPropagation();
-      if(!pick.value)return;
-      var l2=(placementsOf(it)||[]).map(function(p){return {sheet:p.sheet||'',view:p.view||'',
-        no:p.no||'',room:p.room||'',text:p.text||'',override:p.override||''};})
-        .filter(function(p){return p.sheet;});
-      l2.push({sheet:pick.value,view:'',no:'',room:'',text:'',override:''});
-      setAddMeta(it.id,'placements',JSON.stringify(l2),'Drawings');});
-    row.appendChild(pick);
-    box2.appendChild(row);});
+      o.label=reg2[nn]||'';dl.appendChild(o);});
+    box2.appendChild(dl);
+  }
+  PCN_OBUCKETS.forEach(function(g){
+    var list=groups[g[0]];if(!list||!list.length)return;
+    // Inside a bucket, the freeze you are closest to comes first. A change with no date is not
+    // urgent-unknown, it is undated, and it sits at the end where it can be given one.
+    list.sort(function(a,b){
+      var da=String(a.due||'￿'),db=String(b.due||'￿');
+      if(da!==db)return da<db?-1:1;
+      return String(a.title||'')<String(b.title||'')?-1:1;});
+    var hd=document.createElement('div');hd.className='pcnb-ohead'+(g[0]==='gap'?' gap':'');
+    var hb=document.createElement('b');hb.textContent=g[1]+'  ('+list.length+')';hd.appendChild(hb);
+    if(g[2]){var hi=document.createElement('i');hi.textContent=g[2];hd.appendChild(hi);}
+    box2.appendChild(hd);
+    list.forEach(function(it){
+      var row=document.createElement('div');row.className='dwb-row';
+      var du=document.createElement('span');
+      du.className='pcnb-odue'+(it.due?'':' none');
+      du.textContent=it.due?String(it.due).slice(5):'no date';
+      du.title=it.due?('Freeze '+it.due):'This change carries no date, so a freeze filter hides it.';
+      row.appendChild(du);
+      var ti=document.createElement('span');ti.className='dwb-t';ti.textContent=it.title||'';
+      row.appendChild(ti);
+      if(g[0]==='waiting'&&it.waitingFor){
+        var wf=document.createElement('span');wf.className='dwb-who dwb-free';
+        wf.textContent='waiting on '+it.waitingFor;row.appendChild(wf);}
+      if(g[0]==='gap'||g[0]==='unknown'){
+        var pick=document.createElement('input');pick.type='text';
+        pick.className='sh-in pcnb-pick';pick.setAttribute('list',dlid);
+        pick.placeholder='name the drawing…';
+        pick.addEventListener('click',function(e){e.stopPropagation();});
+        pick.addEventListener('keydown',function(e){e.stopPropagation();});
+        var apply=function(e){
+          if(e)e.stopPropagation();
+          var raw=String(pick.value||'').trim();if(!raw)return;
+          var m=raw.match(/A\d+(?:\.\d+)+[A-Za-z]?/i);
+          var sn=m?m[0].toUpperCase():raw.toUpperCase();
+          // Carry the flags forward. A rebuild that drops `newsheet` or `clouded` silently
+          // un-clouds work that was already recorded, and nothing on screen says so.
+          var l2=(placementsOf(it)||[]).map(function(p){return {sheet:p.sheet||'',view:p.view||'',
+            no:p.no||'',room:p.room||'',text:p.text||'',override:p.override||'',
+            newsheet:p.newsheet||false,clouded:p.clouded};})
+            .filter(function(p){return p.sheet;});
+          l2.push({sheet:sn,view:'',no:'',room:'',text:'',override:''});
+          setAddMeta(it.id,'placements',JSON.stringify(l2),'Drawings');
+          pick.value='';
+          setStatus(sn+((typeof knownSheet==='function'&&knownSheet(it.pkg,sn))?'':
+            ' — not on the drawing register, so check the number')
+            +' · “'+String(it.title||'').slice(0,40)+'” now names a drawing. Queued for check-in.');};
+        pick.addEventListener('change',apply);
+        pick.addEventListener('blur',apply);
+        row.appendChild(pick);}
+      box2.appendChild(row);
+      var ds=String(it.desc||'').trim();
+      if(ds){
+        var sub=document.createElement('div');sub.className='pcnb-osub';
+        sub.textContent=ds.length>150?ds.slice(0,150)+'…':ds;
+        box2.appendChild(sub);}
+    });
+  });
   wrap.appendChild(box2);
 }
+
 function pcnSheetBoard(host,key,pool){
   var g=ADD_GROUPS[key]||{},pkg=g.pkg||(pool[0]&&pool[0].pkg)||'';
   var wrap=document.createElement('div');wrap.className='wb dwb pcnb';
@@ -9080,6 +9227,49 @@ function pcnSheetBoard(host,key,pool){
   hn.textContent='the drawing is the row — a change is a line inside it';
   head.appendChild(hn);
   wrap.appendChild(head);
+
+  // WHOSE. Restored 2026-09-10. The board has been filtering on ADD_WHO all along and rendering no
+  // way to set or clear it: arm Mine on the Sheet work view of an addendum, come back here, and
+  // twenty-five drawings are missing with nothing on screen saying why. Counts on the buttons, so
+  // the pool is a number you can see without pressing it.
+  (function(){
+    var me=(typeof syncWho==='function')?String(syncWho()||'').trim():'';
+    var everyone=(pool||[]).filter(inFreeze);
+    var mineN=everyone.filter(isMine).length;
+    var freeN=everyone.filter(function(i){return !String(i.delegate||'').trim();}).length;
+    var wr=document.createElement('div');wr.className='wb-bar wb-filter pcnb-who';
+    var wl=document.createElement('span');wl.className='wb-lbl';wl.textContent='Whose';
+    wr.appendChild(wl);
+    [['','Everyone',everyone.length,'Every drawing on this instrument'],
+     ['mine',(me?('Mine \u2014 '+me.split(' ')[0]):'Mine'),mineN,
+      me?('What '+me+' holds, plus anything waiting on them')
+        :'Pick who you are at the top first \u2014 without a name there is no "mine"'],
+     ['free','Unclaimed',freeN,
+      'Nobody has put their name on these. This is the pool \u2014 the queue a person picks from.']
+    ].forEach(function(o){
+      var b=document.createElement('button');b.type='button';
+      b.className='wb-seg'+((ADD_WHO===o[0])?' on':'')+(!o[2]?' is-zero':'')
+        +(o[0]==='free'&&o[2]?' wb-seg-pool':'');
+      b.textContent=o[1]+'  '+o[2];b.title=o[3];
+      if(o[0]==='mine'&&!me)b.disabled=true;
+      b.addEventListener('click',function(){ADD_WHO=o[0];buildAddendumRegister();});
+      wr.appendChild(b);});
+    wrap.appendChild(wr);
+    // And say so when it is narrowing, with one click to stop. A filter that hides work has to
+    // announce itself on the page it is hiding work from.
+    if(ADD_WHO){
+      var nb=document.createElement('div');nb.className='pcnb-armed';
+      var nt=document.createElement('b');
+      nt.textContent=(ADD_WHO==='mine'?'Mine':'Unclaimed');nb.appendChild(nt);
+      nb.appendChild(document.createTextNode(
+        ' \u2014 showing '+order.length+' of '+pcnSheetCount(key)+' drawings.  '));
+      var cl=document.createElement('button');cl.type='button';cl.className='pcnb-covgo';
+      cl.textContent='show everyone';
+      cl.addEventListener('click',function(e){e.stopPropagation();
+        ADD_WHO='';buildAddendumRegister();});
+      nb.appendChild(cl);wrap.appendChild(nb);
+    }
+  })();
 
   // WHAT THE DOCUMENT ACTUALLY CARRIES. It was only ever visible inside the Write-up tab, which is
   // the one you open last — so the gap between what is on the instrument and what the document says
@@ -9120,9 +9310,10 @@ function pcnSheetBoard(host,key,pool){
     var bar=document.createElement('div');bar.className='pcnb-passes';
     [['','Everything',order.length+nosheet.length?null:null,
       'Every drawing on the instrument, in sheet order.'],
-     ['name','Name the drawing',nosheet.length,
-      'The changes that name no drawing yet. They are the largest thing standing between this '
-      +'instrument and a document, and they were at the BOTTOM of the board.'],
+     ['name','Name the drawing',nosheet.filter(function(it){
+        var bk=pcnOrphanBucket(it);return bk==='gap'||bk==='unknown';}).length,
+      'The changes that need a drawing named and have none. Waiting, spec-only and finished '
+      +'changes are in the lane too, but they are not this job \u2014 the count is the work.'],
      ['cloud','Clouding pass',ready.length,
       'Drawings where every change is written and nothing is left to decide — ready to open in '
       +'Revit and cloud. Clouding is a sheet-at-a-time act, so this is a sheet-at-a-time list.'],
@@ -9287,6 +9478,37 @@ function pcnSheetBoard(host,key,pool){
     w.addEventListener('click',function(e){e.stopPropagation();
       openClaimPicker(it0,w,whoL[0]||'');});
     sh.appendChild(w);
+    // WHICH INSTRUMENT THIS DRAWING RIDES. Restored 2026-09-10. It was on the retired sheet row
+    // and went out with it, which left the crossover — PCN 1 → Addendum 1, the move that matters
+    // most because it crosses from contract administration back to bid — reachable from nowhere on
+    // the board that replaced it. Shown only when the package has more than one instrument: a
+    // control with a single answer is a control you learn to ignore.
+    var dests=addendaForPkg(it0.pkg),here=addKey(it0.pkg,it0.addendum);
+    if(here&&dests.indexOf(here)===-1)dests=[here].concat(dests);
+    if(dests.length>1){
+      var mv=document.createElement('select');mv.className='sh-move pcnb-move';
+      mv.title='Which instrument this drawing rides. Changing it queues a retag for the next '
+        +'check-in; it does not touch the vault, and the state still decides what the document '
+        +'says \u2014 this only decides which document.';
+      mv.setAttribute('aria-label','Instrument for '+sn);
+      dests.forEach(function(k2){
+        var o=document.createElement('option');o.value=k2;
+        o.textContent=instLong(ADD_GROUPS[k2]?ADD_GROUPS[k2].num:k2.split('|')[1]);
+        if(here===k2)o.selected=true;
+        mv.appendChild(o);});
+      mv.addEventListener('click',function(e){e.stopPropagation();});
+      mv.addEventListener('change',function(e){e.stopPropagation();
+        var to=mv.value;if(to===here)return;
+        // Crossing KINDS is not the same edit as renumbering. An addendum item answers a bidder
+        // before the contract exists; a PCN item changes a contract that does. And on this board
+        // the card is a DRAWING with n changes under it — every one of them moves — so the
+        // question names the count rather than the title.
+        var many=(list.length>1)?(' All '+list.length+' changes on it move.'):'';
+        if(!window.confirm('Move '+sn+' from '+instLong(addNum(it0.addendum))+' to '
+             +instLong(to.split('|')[1])+'?'+many)){mv.value=here;return;}
+        moveToAddendum(it0.id,to);});
+      sh.appendChild(mv);
+    }
     box.appendChild(sh);
 
     var groupsV=pcnViewGroups(list);
