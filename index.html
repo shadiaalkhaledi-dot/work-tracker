@@ -2244,6 +2244,9 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
 .pcnb-typed{display:flex;gap:6px;margin-top:5px;}
 .pcnb-typed .pcnb-tno{max-width:58px;}
 .pcnb-add{margin:0 13px 11px;}
+.pcnb-adddw{margin-bottom:6px;}
+.pcnb-dwpick{display:flex;gap:6px;align-items:center;margin:0 13px 10px;flex-wrap:wrap;}
+.pcnb-dwpick .pcnb-pick{min-width:260px;}
 .pcnb-new{display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap;margin-left:8px;}
 .pcnb-pick{max-width:290px;}
 .pcnb-move{flex:0 0 auto;margin-left:6px;max-width:170px;font-size:10.5px;}
@@ -2268,7 +2271,18 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
   gap:8px;margin:6px 0 0;padding-left:74px;}
 .pcnb-oadmin .pcnb-x{margin-left:auto;}
 .pcnb-oadmin .pcnb-pick{max-width:260px;flex:1 1 auto;}
-@media (max-width:640px){.pcnb-oadmin{padding-left:0;flex-wrap:wrap;}}
+@media (max-width:640px){
+  .pcnb-oadmin{padding-left:0;flex-wrap:wrap;}
+  .pcnb-oadmin .pcnb-x{margin-left:0;}
+  /* The head's second line pushed the ✕ off the right edge at 390px: `margin-left:auto` needs
+     room the phone does not have, and the select is 170px of it. Wrap, and let the ✕ sit where
+     it lands rather than off the card. */
+  .pcnb-admin{flex-wrap:wrap;}
+  .pcnb-admin .pcnb-x{margin-left:0;}
+  .pcnb-admin .pcnb-move{max-width:100%;}
+  .pcnb-also,.pcnb-partmany{white-space:normal;}
+  .pcnb-findin{flex:1 1 100%;max-width:none;}
+}
 .pcnb-drop{max-width:330px;}
 .pcnb-drop .claim-opt{display:block;text-align:left;line-height:1.35;}
 .pcnb-drop .claim-opt small{display:block;font-size:10.5px;color:var(--faint);margin-top:2px;
@@ -2292,6 +2306,35 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
   min-width:74px;}
 .pcnb-odue.none{color:var(--faint);font-style:italic;}
 .pcnb-osub{font-size:11px;color:var(--faint);flex:1 1 100%;margin:1px 0 0 74px;line-height:1.45;}
+.pcnb-alert{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;font-size:12.5px;
+  line-height:1.5;color:var(--text);border:1px solid rgba(191,44,34,.35);border-radius:8px;
+  background:rgba(191,44,34,.05);padding:9px 12px;margin:0 0 10px;}
+.pcnb-alert>b{color:var(--stop);flex:0 0 auto;font-variant-numeric:tabular-nums;}
+.pcnb-alertn{flex:1 1 100%;font-size:11.5px;color:var(--muted);}
+.pcnb-datepop{max-width:340px;}
+.pcnb-datepop .claim-opt{display:block;text-align:left;line-height:1.35;}
+.pcnb-datepop .claim-opt small{display:block;font-size:10.5px;color:var(--faint);margin-top:2px;
+  white-space:normal;}
+.pcnb-odue[role=button]:hover{color:var(--gold);text-decoration:underline;
+  text-underline-offset:2px;}
+.pcnb-find{display:flex;gap:10px;align-items:center;margin:0 0 10px;flex-wrap:wrap;}
+.pcnb-findin{flex:1 1 320px;max-width:460px;}
+.pcnb-findn{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;}
+.pcnb-nmcell{display:inline-flex;align-items:center;gap:6px;min-width:0;flex:0 1 auto;}
+.pcnb-nm[role=button]:hover{text-decoration:underline;text-underline-offset:2px;}
+.pcnb-nmwant{color:var(--gold);font-style:italic;}
+.pcnb-newsw{font-size:9.5px;font-weight:700;letter-spacing:.05em;line-height:1;padding:3px 7px;
+  border-radius:5px;border:1px dashed var(--border);background:none;color:var(--faint);
+  cursor:pointer;flex:0 0 auto;}
+.pcnb-newsw:hover{border-color:var(--gold);color:var(--gold);}
+.pcnb-newsw.on{border-style:solid;border-color:rgba(122,90,140,.5);color:var(--mauve);
+  background:rgba(122,90,140,.09);}
+.pcnb-nmin{min-width:220px;max-width:340px;font-size:12px;}
+.pcnb-jump{font:inherit;font-size:inherit;font-weight:700;color:var(--mauve);background:none;
+  border:none;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:2px;}
+.pcnb-jump:hover{color:var(--gold);}
+.pcnb-flash{animation:pcnbflash 1.4s ease-out 1;}
+@keyframes pcnbflash{0%{background:rgba(160,122,0,.18);}100%{background:transparent;}}
 .pcnb-oedit{margin:0 0 4px 74px;padding:0 0 4px;}
 .pcnb-oedit>summary{list-style:none;cursor:pointer;display:flex;gap:8px;align-items:baseline;
   padding:2px 0;font-size:11px;}
@@ -8715,6 +8758,21 @@ function setAddMeta(id,field,value,label,quiet){
 // are doing right now, and coming back tomorrow to a board silently showing a fifth of itself is
 // how a filter becomes a bug report.
 var PCN_PASS='';
+// FIND. Matches the drawing NUMBER, the drawing's NAME from the register, and the words of the
+// changes on it — because "the corner guard one" is how you remember a drawing you cannot number.
+// Punctuation-insensitive on the number so `59305`, `5.93.05` and `A5.93.05` all land.
+var PCN_FIND='';
+function pcnFindNorm(x){return String(x||'').toUpperCase().replace(/[^A-Z0-9]/g,'');}
+function pcnFindHit(sn,name,rows){
+  var q=String(PCN_FIND||'').trim();if(!q)return true;
+  var nq=pcnFindNorm(q),uq=q.toUpperCase();
+  if(nq&&pcnFindNorm(sn).indexOf(nq)>-1)return true;
+  if(String(name||'').toUpperCase().indexOf(uq)>-1)return true;
+  return (rows||[]).some(function(r){
+    var it=r.it||r,pl=r.pl||{};
+    return (String(it.title||'')+' '+String(it.desc||'')+' '+String(pl.text||'')+' '
+           +String(pl.view||'')).toUpperCase().indexOf(uq)>-1;});
+}
 // Ready to cloud: every change on the drawing has words, none is flagged, and the sheet is not
 // already clouded. A drawing the instrument ADDS is never ready — there is nothing to cloud.
 function pcnSheetReady(list){
@@ -8792,6 +8850,7 @@ function pcnSetWhat(r,sn){
 }
 function pcnReviewBlock(wrap,key){
   var r=pcnReviewData(),f=pcnReviewFindings(key);
+  var pkg0=(ADD_GROUPS[key]||{}).pkg||(addPoolFor(key)[0]||{}).pkg||'';
   var head=document.createElement('div');head.className='dwb-head';
   var b1=document.createElement('b');b1.textContent=n_(f.length,'finding');head.appendChild(b1);
   var hs=document.createElement('span');hs.className='dwb-sum';
@@ -8810,8 +8869,13 @@ function pcnReviewBlock(wrap,key){
   var by={},order=[];
   f.forEach(function(x){var s=String(x.sheet||'?').toUpperCase();
     if(!by[s]){by[s]=[];order.push(s);}by[s].push(x);});
+  if(PCN_FIND){
+    order=order.filter(function(sn){
+      return pcnFindHit(sn,knownSheet(pkg0,sn),(by[sn]||[]).map(function(x){
+        return {it:{title:x.msg||'',desc:x.what||''},pl:{text:x.msg||'',view:x.view||''}};}));});
+  }
   order.sort(function(a,b){var ka=sheetOrderKey(a),kb=sheetOrderKey(b);return ka<kb?-1:ka>kb?1:0;});
-  var pkg=(ADD_GROUPS[key]||{}).pkg||(addPoolFor(key)[0]||{}).pkg||'';
+  var pkg=pkg0;
   order.forEach(function(sn){
     var box=document.createElement('div');box.className='dwb-sheet pcnb-sheet';
     var sh=document.createElement('div');sh.className='dwb-sh';
@@ -9003,6 +9067,154 @@ function pcnOrderByView(list){
   var out=[];pcnViewGroups(list).forEach(function(g){g.rows.forEach(function(r){out.push(r);});});
   return out;
 }
+// IS THIS DRAWING ONE THE INSTRUMENT ADDS? A per-DRAWING question, which is not the same as
+// `isNewSheet`'s per-ITEM one: that is true only when every placement on the change is new, and a
+// change landing on a new drawing AND an existing one is not new — while the new drawing's card
+// still has to say that it is.
+function pcnSheetIsNew(list){
+  if(!list||!list.length)return false;
+  return list.every(function(r){
+    return (r.pl&&r.pl.newsheet===true)||isNewSheet(r.it);});
+}
+// And the control that sets it. Absent until 2026-09-10, so a sheet Luke added in Revit could be
+// put on the PCN and never declared new — it would ask to be clouded, and issue with a revision
+// clause instead of an ADD clause.
+function pcnNewSheetToggle(list,sn,pkg,isNew){
+  var b=document.createElement('button');b.type='button';
+  b.className='pcnb-newsw'+(isNew?' on':'');
+  b.textContent=isNew?'NEW DRAWING':'new drawing?';
+  b.setAttribute('aria-pressed',isNew?'true':'false');
+  b.title=isNew
+    ? sn+' is a drawing this instrument ADDS: it issues in its entirety, so there is nothing to '
+      +'cloud and no revision to bump, and the write-up gives it the ADD clause. Click if that is '
+      +'wrong.'
+    : (knownSheet(pkg,sn)===null
+        ? sn+' is not in the project drawing register. If this instrument is ADDING it, say so — '
+          +'it stops the board asking you to cloud a drawing that has nothing to cloud against.'
+        : sn+' is in the register already, so it is an existing drawing being revised. Only click '
+          +'this if the register is wrong.');
+  b.addEventListener('click',function(e){
+    e.stopPropagation();
+    var want=!isNew;
+    if(want&&knownSheet(pkg,sn)!==null
+       &&!window.confirm(sn+' is already in the project drawing register.\n\nMark it as a drawing '
+         +'this instrument ADDS anyway?'))return;
+    // Per ITEM, and only the placements on THIS drawing — a change that also lands on an existing
+    // drawing must not have that one silently declared new too.
+    var byItem={};
+    list.forEach(function(r){
+      if(!byItem[r.it.id])byItem[r.it.id]={it:r.it,
+        pls:(placementsOf(r.it)||[]).map(function(p){return {sheet:p.sheet||'',view:p.view||'',
+          no:p.no||'',room:p.room||'',text:p.text||'',override:p.override||'',
+          newsheet:p.newsheet||false,clouded:p.clouded};})};});
+    var n=0;
+    Object.keys(byItem).forEach(function(id){
+      var e2=byItem[id],hit=false;
+      e2.pls.forEach(function(p){
+        if(String(p.sheet||'').toUpperCase()!==String(sn).toUpperCase())return;
+        if(!!p.newsheet!==want){p.newsheet=want;n++;}
+        hit=true;});
+      if(hit)setAddMeta(e2.it.id,'placements',JSON.stringify(e2.pls),'Drawings',true);});
+    buildAddendumRegister();
+    setStatus(n?(want?(sn+' is a drawing this PCN ADDS \u2014 it issues in its entirety, so there '
+        +'is nothing to cloud. Give it a name so it does not print as "(unnamed drawing)".')
+      :(sn+' is an existing drawing again \u2014 it needs its cloud and a bumped revision.'))
+      :'Nothing to change.');});
+  return b;
+}
+// THE DRAWING'S NAME, and the two very different reasons it might be missing.
+//
+// `sheetNameFor` already reads a typed name ahead of the project register, and `setSheetName`
+// already queues it — the check-in writes it into `Projects/Drawing List.md`. The PCN card asked
+// `knownSheet` instead, which is the register and nothing else, so **a drawing this PCN ADDS could
+// never be named**. It prints in the §4 heading and again in the List of Attachments, so an
+// unnamed new drawing issues as "A5.31.22 — (unnamed drawing)".
+//
+// And "not on the drawing list" was two situations in one sentence:
+//   · a drawing being ADDED — correct, expected, and it wants a name typed;
+//   · a number that does not exist — probably a typo, and it wants fixing.
+// One is a task and the other is an error. They read differently now.
+function pcnSheetNameCell(key,sn,pkg,isNew){
+  var wrap=document.createElement('span');wrap.className='pcnb-nmcell';
+  var t=document.createElement('span');
+  var paint=function(){
+    var nm=(typeof sheetNameFor==='function')?sheetNameFor(key,sn,pkg):'';
+    var fromReg=knownSheet(pkg,sn);
+    t.className='dwb-nm pcnb-nm';
+    if(nm){
+      t.textContent=nm;
+      t.title=(fromReg&&fromReg===nm)
+        ? 'From the project drawing register. Click to override it for this instrument.'
+        : 'Typed here for '+sn+'. It prints in the write-up heading and in the List of '
+          +'Attachments, and reaches Projects/Drawing List.md at the next check-in. Click to edit.';
+    }else if(isNew){
+      t.textContent='name this drawing';
+      t.className+=' pcnb-nmwant';
+      t.title=sn+' is a drawing this PCN ADDS, so the register cannot name it \u2014 you can. '
+        +'It prints in the \u00a74 heading and in the List of Attachments; without it the drawing '
+        +'issues as \u201c(unnamed drawing)\u201d.';
+    }else{
+      t.textContent='not on the drawing list';
+      t.className+=' dwb-unknown';
+      t.title=sn+' is not in the project drawing register and nothing has declared it new. Either '
+        +'the number is wrong, or the register is out of date. Click to name it anyway.';
+    }};
+  paint();
+  t.style.cursor='pointer';
+  t.setAttribute('role','button');
+  var edit=function(e){
+    if(e)e.stopPropagation();
+    if(wrap.querySelector('input'))return;
+    var inp=document.createElement('input');inp.type='text';inp.className='sh-in pcnb-nmin';
+    inp.value=(typeof sheetNameFor==='function')?(sheetNameFor(key,sn,pkg)||''):'';
+    inp.placeholder='as the title block has it';
+    inp.setAttribute('aria-label','Name for '+sn);
+    var done=function(commit){
+      if(!inp.parentNode)return;
+      var v=inp.value.trim();
+      inp.remove();t.style.display='';
+      if(!commit)return;
+      var was=(typeof sheetNameFor==='function')?(sheetNameFor(key,sn,pkg)||''):'';
+      if(v===was)return;
+      setSheetName(key,sn,v,pkg);
+      // No full rebuild: the name is one cell, and a rebuild here would close every card the
+      // person has open just to repaint six words.
+      paint();rebuildPendingList();
+      setStatus(v?(sn+' \u2014 \u201c'+v+'\u201d. It prints in the write-up and reaches the '
+        +'drawing register at check-in.'):(sn+'\u2019s name cleared.'));};
+    ['click'].forEach(function(ev){inp.addEventListener(ev,function(e2){e2.stopPropagation();});});
+    inp.addEventListener('keydown',function(e2){
+      e2.stopPropagation();
+      if(e2.key==='Enter'){e2.preventDefault();done(true);}
+      if(e2.key==='Escape'){e2.preventDefault();done(false);}});
+    inp.addEventListener('blur',function(){done(true);});
+    t.style.display='none';
+    wrap.appendChild(inp);inp.focus();inp.select();};
+  t.addEventListener('click',edit);
+  wrap.appendChild(t);
+  return wrap;
+}
+// Go to a drawing card and say which one you landed on. Scrolling silently to a card that looks
+// like every other card is a jump you have to verify by reading the number — so it flashes.
+function pcnJumpTo(sn){
+  var want=String(sn||'').toUpperCase();if(!want)return;
+  var find=function(){
+    var hit=null;
+    document.querySelectorAll('#addRegView .pcnb-sheet').forEach(function(c){
+      if(hit)return;
+      var n=c.querySelector('.dwb-no');
+      if(n&&String(n.textContent||'').toUpperCase()===want)hit=c;});
+    return hit;};
+  var card=find();
+  if(!card&&(PCN_FIND||PCN_PASS)){
+    // It is real but a filter is hiding it. Clearing them is the only honest way to land on it.
+    PCN_FIND='';PCN_PASS='';buildAddendumRegister();card=find();
+  }
+  if(!card){setStatus(want+' is not on this instrument.');return;}
+  if(card.scrollIntoView)card.scrollIntoView({block:'center'});
+  card.classList.add('pcnb-flash');
+  setTimeout(function(){card.classList.remove('pcnb-flash');},1400);
+}
 function pcnSheetCount(key){
   if(!key||instKindForKey(key)==='addendum')return 0;
   try{return pcnSheetsOf(addPoolFor(key)).order.length;}catch(e){return 0;}
@@ -9167,16 +9379,7 @@ function pcnOrphanBlock(wrap,key,nosheet){
 
   // ONE datalist for the whole block. A 195-option <select> is a list you scroll, not a list you
   // search, and the drawing you want is always in the middle of it.
-  var reg2=drawingsFor((nosheet[0]||{}).pkg)||{};
-  var dlid='pcnb-dl-'+String(key||'').replace(/[^A-Za-z0-9]/g,'');
-  if(!document.getElementById(dlid)){
-    var dl=document.createElement('datalist');dl.id=dlid;
-    Object.keys(reg2).sort(function(a,b){var ka=sheetOrderKey(a),kb=sheetOrderKey(b);
-      return ka<kb?-1:ka>kb?1:0;}).forEach(function(nn){
-      var o=document.createElement('option');o.value=nn;
-      o.label=reg2[nn]||'';dl.appendChild(o);});
-    box2.appendChild(dl);
-  }
+  var dlid=pcnDrawingDatalist(box2,key,(nosheet[0]||{}).pkg);
   PCN_OBUCKETS.forEach(function(g){
     var list=groups[g[0]];if(!list||!list.length)return;
     // Inside a bucket, the freeze you are closest to comes first. A change with no date is not
@@ -9194,7 +9397,14 @@ function pcnOrphanBlock(wrap,key,nosheet){
       var du=document.createElement('span');
       du.className='pcnb-odue'+(it.due?'':' none');
       du.textContent=it.due?String(it.due).slice(5):'no date';
-      du.title=it.due?('Freeze '+it.due):'This change carries no date, so a freeze filter hides it.';
+      if(it.due){
+        du.title='Freeze '+it.due+'. Click to move it to another one.';
+      }else{
+        du.title='This change carries no date, so every freeze filter hides it. Click to give it one.';
+      }
+      du.style.cursor='pointer';
+      du.setAttribute('role','button');
+      du.addEventListener('click',function(e){e.stopPropagation();pcnDatePicker(it,du);});
       row.appendChild(du);
       var ti=document.createElement('span');ti.className='dwb-t';ti.textContent=it.title||'';
       row.appendChild(ti);
@@ -9220,29 +9430,22 @@ function pcnOrphanBlock(wrap,key,nosheet){
       {
         var pick=document.createElement('input');pick.type='text';
         pick.className='sh-in pcnb-pick';pick.setAttribute('list',dlid);
+        // A LIST, not one. Naming the first drawing takes the row out of this lane, so a change
+        // that lands on three had exactly one turn at saying so — and then no way back except the
+        // vault. Commas are the whole fix.
         pick.placeholder=(g[0]==='spec')?'a drawing too?…'
-          :(g[0]==='done')?'name the drawing…'
           :(g[0]==='waiting')?'name it while you wait…'
-          :'name the drawing…';
+          :'name the drawing… or several, commas';
+        pick.title='One drawing, or several separated by commas — A5.91.05, A5.91.06, A5.91.07. '
+          +'A change really can land on more than one, and this is the only turn you get before '
+          +'the row moves out of this lane.';
         pick.addEventListener('click',function(e){e.stopPropagation();});
         pick.addEventListener('keydown',function(e){e.stopPropagation();});
         var apply=function(e){
           if(e)e.stopPropagation();
           var raw=String(pick.value||'').trim();if(!raw)return;
-          var m=raw.match(/A\d+(?:\.\d+)+[A-Za-z]?/i);
-          var sn=m?m[0].toUpperCase():raw.toUpperCase();
-          // Carry the flags forward. A rebuild that drops `newsheet` or `clouded` silently
-          // un-clouds work that was already recorded, and nothing on screen says so.
-          var l2=(placementsOf(it)||[]).map(function(p){return {sheet:p.sheet||'',view:p.view||'',
-            no:p.no||'',room:p.room||'',text:p.text||'',override:p.override||'',
-            newsheet:p.newsheet||false,clouded:p.clouded};})
-            .filter(function(p){return p.sheet;});
-          l2.push({sheet:sn,view:'',no:'',room:'',text:'',override:''});
-          setAddMeta(it.id,'placements',JSON.stringify(l2),'Drawings');
           pick.value='';
-          setStatus(sn+((typeof knownSheet==='function'&&knownSheet(it.pkg,sn))?'':
-            ' — not on the drawing register, so check the number')
-            +' · “'+String(it.title||'').slice(0,40)+'” now names a drawing. Queued for check-in.');};
+          pcnAddDrawingToChange(it,raw);};
         pick.addEventListener('change',apply);
         pick.addEventListener('blur',apply);
         oadm.appendChild(pick);}
@@ -9255,6 +9458,90 @@ function pcnOrphanBlock(wrap,key,nosheet){
   wrap.appendChild(box2);
 }
 
+// THE DRAWING LIST, once per board. Both the lane picker and the card's "+ another drawing" want
+// the same 195 numbers with their names; a <datalist> is shared by id, so it is built once and
+// never per row.
+function pcnDrawingDatalist(host,key,pkg){
+  var id='pcnb-dl-'+String(key||'').replace(/[^A-Za-z0-9]/g,'');
+  if(document.getElementById(id))return id;
+  var reg=drawingsFor(pkg)||{};
+  var dl=document.createElement('datalist');dl.id=id;
+  Object.keys(reg).sort(function(a,b){var ka=sheetOrderKey(a),kb=sheetOrderKey(b);
+    return ka<kb?-1:ka>kb?1:0;}).forEach(function(nn){
+    var o=document.createElement('option');o.value=nn;o.label=reg[nn]||'';dl.appendChild(o);});
+  host.appendChild(dl);
+  return id;
+}
+// ADD A DRAWING TO A CHANGE THAT ALREADY HAS ONE. Not `pcnAddChange` — that asks "what else is on
+// this drawing"; this asks "where ELSE does this change land", which is the other axis and had no
+// control at all. Existing placements are carried forward whole: a rebuild that drops `newsheet`
+// or `clouded` silently un-clouds recorded work.
+function pcnAddDrawingToChange(it,raw){
+  var out=[],bad=[];
+  String(raw||'').split(/[,;]+/).forEach(function(tok){
+    tok=String(tok||'').trim();if(!tok)return;
+    var m=tok.match(/A\d+(?:\.\d+)+[A-Za-z]?/i);
+    var sn=m?m[0].toUpperCase():tok.toUpperCase();
+    if(out.indexOf(sn)===-1)out.push(sn);});
+  if(!out.length)return 0;
+  var pls=(placementsOf(it)||[]).map(function(p){return {sheet:p.sheet||'',view:p.view||'',
+    no:p.no||'',room:p.room||'',text:p.text||'',override:p.override||'',
+    newsheet:p.newsheet||false,clouded:p.clouded};}).filter(function(p){return p.sheet;});
+  var have={};pls.forEach(function(p){have[String(p.sheet).toUpperCase()]=1;});
+  var added=[];
+  out.forEach(function(sn){
+    if(have[sn])return;
+    if(typeof knownSheet==='function'&&!knownSheet(it.pkg,sn))bad.push(sn);
+    pls.push({sheet:sn,view:'',no:'',room:'',text:'',override:''});added.push(sn);});
+  if(!added.length){setStatus('Already on '+out.join(', ')+' — nothing to add.');return 0;}
+  setAddMeta(it.id,'placements',JSON.stringify(pls),'Drawings');
+  setStatus('\u201c'+String(it.title||'').slice(0,40)+'\u201d now lands on '+added.join(', ')
+    +(bad.length?('  \u00b7  '+bad.join(', ')+' '+(bad.length>1?'are':'is')
+      +' not on the drawing register, so check the number'+(bad.length>1?'s':'')):'')
+    +'. Queued for check-in.');
+  return added.length;
+}
+// WHICH FREEZE THIS CHANGE BELONGS TO. Four changes on PCN 1 carry no date at all, which means
+// every freeze filter hides them — they are the rows most likely to be forgotten and the lane was
+// the one place that showed them while offering no way to fix it. The offer is the same list the
+// freeze strip uses, so the two can never disagree about what a freeze is.
+function pcnDatePicker(it,anchor){
+  var old=document.querySelector('.claim-pop');if(old)old.remove();
+  var pop=document.createElement('div');pop.className='claim-pop pcnb-datepop';
+  var h=document.createElement('div');h.className='claim-pop-h';
+  h.textContent=it.due?('Dated '+it.due):'No date';pop.appendChild(h);
+  var keys=Object.keys(FREEZES).sort();
+  ['2026-09-18','2026-09-25'].forEach(function(k){if(keys.indexOf(k)===-1)keys.push(k);});
+  keys.forEach(function(k){
+    var fi=freezeInfo(k);
+    var b=document.createElement('button');b.type='button';b.className='claim-opt';
+    b.appendChild(document.createTextNode(fi.t));
+    var sm=document.createElement('small');sm.textContent=fi.hint||'';b.appendChild(sm);
+    if(String(it.due||'')===k)b.classList.add('on');
+    b.addEventListener('click',function(ev){ev.stopPropagation();pop.remove();
+      if(String(it.due||'')===k)return;
+      setAddMeta(it.id,'due',k,'Freeze');});
+    pop.appendChild(b);});
+  if(it.due){
+    var off=document.createElement('button');off.type='button';off.className='claim-opt claim-off';
+    off.appendChild(document.createTextNode('No date'));
+    var sm2=document.createElement('small');
+    sm2.textContent='Nothing will hold it, and every freeze filter will hide it.';
+    off.appendChild(sm2);
+    off.addEventListener('click',function(ev){ev.stopPropagation();pop.remove();
+      setAddMeta(it.id,'due','','Freeze');});
+    pop.appendChild(off);
+  }
+  var foot=document.createElement('div');foot.className='claim-pop-f';
+  foot.textContent='A freeze is when the design stops moving \u2014 PCN 1 still issues in one '
+    +'piece on 2026-09-25.';
+  pop.appendChild(foot);
+  anchor.parentNode.insertBefore(pop,anchor.nextSibling);
+  setTimeout(function(){
+    function away(ev){if(pop.contains(ev.target))return;
+      pop.remove();document.removeEventListener('click',away,true);}
+    document.addEventListener('click',away,true);},0);
+}
 // WHAT GOES OUT, for a change that has no drawing card to carry it. Collapsed to one line of the
 // existing text so the lane still reads as a list; open it and it is the same two fields the card
 // gives, plus the specification section, which only ever applies here.
@@ -9438,6 +9725,13 @@ function pcnSheetBoard(host,key,pool){
     if(ADD_FLAG==='verify')return !!i.verify;
     return true;});
   var S=pcnSheetsOf(rows),order=S.order,bySheet=S.bySheet,nosheet=S.nosheet;
+  // FIND narrows AFTER the grouping, so the counts above it still describe the instrument and the
+  // strip can say "8 of 26" rather than pretending the other eighteen do not exist.
+  if(PCN_FIND){
+    order=order.filter(function(sn){
+      return pcnFindHit(sn,knownSheet(pkg,sn),bySheet[sn]);});
+    nosheet=nosheet.filter(function(it){return pcnFindHit('','',[{it:it,pl:{}}]);});
+  }
 
   var head=document.createElement('div');head.className='dwb-head';
   var ht=document.createElement('b');ht.textContent=n_(order.length,'drawing');
@@ -9525,6 +9819,93 @@ function pcnSheetBoard(host,key,pool){
     wu.addEventListener('click',function(e){e.stopPropagation();ADD_MODE='wu';buildAddendumRegister();});
     cv.appendChild(wu);
     wrap.appendChild(cv);
+  })();
+
+  // WHAT THE SET SAYS AND THE REGISTER DOES NOT. A drawing that is clouded in the issued set and
+  // rides no instrument is somebody drawing a change that nothing is carrying to issue — the one
+  // fact on this page that nobody can find by looking at the register, because the register is
+  // exactly what it is missing from. It was four clicks deep behind a pass.
+  (function(){
+    var r=pcnReviewData(),f=pcnReviewFindings(key);
+    if(!f.length)return;
+    var un={},unL=[];
+    f.forEach(function(x){
+      if(x.kind!=='unmanaged')return;
+      var sn=String(x.sheet||'').toUpperCase();
+      if(sn&&!un[sn]){un[sn]=1;unL.push(sn);}});
+    if(!unL.length)return;
+    unL.sort(function(a,b){var ka=sheetOrderKey(a),kb=sheetOrderKey(b);return ka<kb?-1:ka>kb?1:0;});
+    var al=document.createElement('div');al.className='pcnb-alert';
+    var b1=document.createElement('b');b1.textContent=n_(unL.length,'drawing');
+    al.appendChild(b1);
+    al.appendChild(document.createTextNode(
+      ' in '+((r&&r.set)||'the last set')+' '+(unL.length===1?'is':'are')
+      +' clouded and on no instrument \u2014 work being drawn that nothing is carrying to issue.'));
+    var names=document.createElement('span');names.className='pcnb-alertn';
+    unL.slice(0,6).forEach(function(sn,ix){
+      if(ix)names.appendChild(document.createTextNode(', '));
+      var lk=document.createElement('button');lk.type='button';lk.className='pcnb-jump';
+      lk.textContent=sn;
+      lk.title='Open the finding for '+sn+' in “From the set”, where one click puts it on this PCN.';
+      lk.addEventListener('click',function(e){e.stopPropagation();
+        PCN_FIND=sn;PCN_PASS='set';buildAddendumRegister();});
+      names.appendChild(lk);});
+    if(unL.length>6)names.appendChild(document.createTextNode(
+      ' and '+(unL.length-6)+' more'));
+    al.appendChild(names);
+    var go=document.createElement('button');go.type='button';go.className='pcnb-covgo';
+    go.textContent='see all '+unL.length;
+    go.addEventListener('click',function(e){e.stopPropagation();
+      PCN_FIND='';PCN_PASS='set';buildAddendumRegister();});
+    al.appendChild(go);
+    wrap.appendChild(al);
+  })();
+
+  // FIND, above the passes: a pass narrows the list to a KIND of work, this narrows it to a
+  // drawing. They compose — find within the clouding pass and you get exactly the drawing you
+  // meant to cloud.
+  (function(){
+    var fr=document.createElement('div');fr.className='pcnb-find';
+    var fi=document.createElement('input');fi.type='search';fi.className='sh-in pcnb-findin';
+    fi.placeholder='find a drawing \u2014 number, name, or what changes on it';
+    fi.value=PCN_FIND;
+    fi.setAttribute('aria-label','Find a drawing on this instrument');
+    fi.addEventListener('click',function(e){e.stopPropagation();});
+    fi.addEventListener('keydown',function(e){
+      e.stopPropagation();
+      if(e.key==='Escape'){fi.value='';PCN_FIND='';buildAddendumRegister();}});
+    var run=function(){
+      var v=fi.value;
+      if(v===PCN_FIND)return;
+      PCN_FIND=v;buildAddendumRegister();
+      // Re-render replaces the input, so put the caret back where the typing was.
+      var again=document.querySelector('.pcnb-findin');
+      if(again){again.focus();try{again.setSelectionRange(v.length,v.length);}catch(x){}}};
+    fi.addEventListener('input',run);
+    fr.appendChild(fi);
+    // `/` from anywhere on the board. Guarded on the event target so it never eats a slash being
+    // typed into a description — which is the difference between a shortcut and a bug.
+    if(!wrap._pcnSlash){
+      wrap._pcnSlash=true;
+      document.addEventListener('keydown',function(ev){
+        if(ev.key!=='/'||ev.metaKey||ev.ctrlKey||ev.altKey)return;
+        var t=ev.target||{},tag=String(t.tagName||'').toUpperCase();
+        if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||t.isContentEditable)return;
+        var box=document.querySelector('.pcnb-findin');
+        if(!box)return;
+        ev.preventDefault();box.focus();box.select();});
+    }
+    if(PCN_FIND){
+      var fc=document.createElement('span');fc.className='pcnb-findn';
+      fc.textContent=order.length+' of '+pcnSheetCount(key)+' drawings';
+      fr.appendChild(fc);
+      var fx=document.createElement('button');fx.type='button';fx.className='pcnb-covgo';
+      fx.textContent='clear';
+      fx.addEventListener('click',function(e){e.stopPropagation();
+        PCN_FIND='';buildAddendumRegister();});
+      fr.appendChild(fx);
+    }
+    wrap.appendChild(fr);
   })();
 
   // THE PASSES. Naming drawings and clouding them are batch acts — you do thirty of one, then
@@ -9618,9 +9999,29 @@ function pcnSheetBoard(host,key,pool){
     return;}
 
   if(!order.length&&!nosheet.length){
+    // ⚠ SAY WHY IT IS EMPTY. With find or a pass armed this read "No drawing on this PCN yet",
+    // which is not just unhelpful — it is false, and it is the message most likely to be read by
+    // someone who has just typed a number slightly wrong.
     var non=document.createElement('div');non.className='dwb-none';
-    non.textContent=ADD_FREEZE?('Nothing dated to '+ADD_FREEZE+' names a drawing yet.')
-                   :'No drawing on this PCN yet — start one above.';
+    var total=pcnSheetCount(key);
+    if(PCN_FIND){
+      non.appendChild(document.createTextNode(
+        'Nothing on this PCN matches \u201c'+PCN_FIND+'\u201d'
+        +(total?(' \u2014 '+n_(total,'drawing')+' here altogether. '):'. ')));
+      var cf=document.createElement('button');cf.type='button';cf.className='pcnb-covgo';
+      cf.textContent='clear the search';
+      cf.addEventListener('click',function(e){e.stopPropagation();
+        PCN_FIND='';buildAddendumRegister();});
+      non.appendChild(cf);
+    }else if(ADD_FREEZE){
+      non.textContent='Nothing dated to '+ADD_FREEZE+' names a drawing yet'
+        +(total?(' \u2014 '+n_(total,'drawing')+' on this PCN altogether.'):'.');
+    }else if(ADD_WHO){
+      non.textContent=(ADD_WHO==='mine'?'Nothing here has your name on it':'Every drawing here is claimed')
+        +(total?(' \u2014 '+n_(total,'drawing')+' on this PCN altogether.'):'.');
+    }else{
+      non.textContent='No drawing on this PCN yet \u2014 start one above.';
+    }
     wrap.appendChild(non);return;
   }
 
@@ -9637,14 +10038,9 @@ function pcnSheetBoard(host,key,pool){
     var box=document.createElement('div');box.className='dwb-sheet pcnb-sheet';
     var sh=document.createElement('div');sh.className='dwb-sh';
     var no=document.createElement('code');no.className='dwb-no';no.textContent=sn;sh.appendChild(no);
-    var nm=knownSheet(pkg,sn);
-    var t=document.createElement('span');t.className='dwb-nm';
-    if(nm){t.textContent=nm;}
-    else{t.textContent='not on the drawing list';t.className+=' dwb-unknown';
-      t.title=sn+' is not in the project drawing register. Either it is a sheet this PCN ADDS, or '
-        +'the register is out of date — both are worth knowing before it prints in a document.';}
-    sh.appendChild(t);
-    var isNew=list.every(function(r){return isNewSheet(r.it);});
+    var isNew=pcnSheetIsNew(list);
+    sh.appendChild(pcnSheetNameCell(key,sn,pkg,isNew));
+    sh.appendChild(pcnNewSheetToggle(list,sn,pkg,isNew));
     // Counted per CHANGE now, so "2 of 3 clouded" is a real fraction rather than an artefact of
     // how many vault items happen to sit under one drawing.
     var cl=list.filter(function(r){return isNewSheet(r.it)||lineClouded(r.it,r.pl);}).length;
@@ -9697,7 +10093,14 @@ function pcnSheetBoard(host,key,pool){
     // flag with no reason is a red mark nobody can act on.
     if(otherSn.length){
       var al=document.createElement('span');al.className='pcnb-also';
-      al.textContent='also on '+otherSn.join(', ');
+      al.appendChild(document.createTextNode('also on '));
+      otherSn.forEach(function(o2,ix2){
+        if(ix2)al.appendChild(document.createTextNode(', '));
+        var lk=document.createElement('button');lk.type='button';lk.className='pcnb-jump';
+        lk.textContent=o2;
+        lk.title='Go to '+o2+' \u2014 the same change, on that drawing.';
+        lk.addEventListener('click',function(e){e.stopPropagation();pcnJumpTo(o2);});
+        al.appendChild(lk);});
       al.title='This is ONE change landing on '+(otherSn.length+1)+' drawings. Clouding is per '
         +'drawing, but the done tick and the section switch are the change\u2019s own \u2014 '
         +'setting them here sets them everywhere it lands.';
@@ -9968,10 +10371,39 @@ function pcnSheetBoard(host,key,pool){
     // this is how a view that has none gets its first. 907 views in the export, each detail number
     // unique on its own drawing — so the offer is exact, and "the whole sheet" is a real answer
     // rather than the empty option at the top of the list.
+    // WHERE ELSE THIS CHANGE LANDS. Only on a card that carries ONE item — on a legacy card with
+    // several there is no single "this change" to extend.
+    if(itsL.length===1){
+      var db=document.createElement('button');db.type='button';
+      db.className='sh-inherit pcnb-add pcnb-adddw';
+      db.textContent='+ another drawing for this change';
+      db.title='The SAME change, landing on another drawing as well \u2014 not another change on '
+        +sn+'. It appears under that drawing too, and clouding stays per drawing.';
+      db.addEventListener('click',function(e){e.stopPropagation();
+        var open=box.querySelector('.pcnb-dwpick');
+        if(open){open.remove();return;}
+        var f=document.createElement('span');f.className='pcnb-vpick pcnb-dwpick';
+        var inp=document.createElement('input');inp.type='text';inp.className='sh-in pcnb-pick';
+        inp.setAttribute('list',pcnDrawingDatalist(wrap,key,pkg));
+        inp.placeholder='which other drawing? (or several, comma-separated)';
+        ['click','keydown'].forEach(function(ev){
+          inp.addEventListener(ev,function(e2){e2.stopPropagation();});});
+        var go=document.createElement('button');go.type='button';go.className='sh-inherit';
+        go.textContent='add';
+        var run=function(e2){if(e2)e2.stopPropagation();
+          var v=inp.value.trim();if(!v){f.remove();return;}
+          inp.value='';pcnAddDrawingToChange(it0,v);};
+        go.addEventListener('click',run);
+        inp.addEventListener('change',run);
+        f.appendChild(inp);f.appendChild(go);
+        db.parentNode.insertBefore(f,db.nextSibling);inp.focus();});
+      box.appendChild(db);
+    }
     var ab=document.createElement('button');ab.type='button';ab.className='sh-inherit pcnb-add';
     ab.textContent='+ change on '+sn;
-    ab.title='Another change on this drawing. Pick which view it is on — it becomes a line here, '
-      +'never a second card.';
+    ab.title='Another change on THIS drawing — a different edit on the same sheet. Pick which '
+      +'view it is on; it becomes a line here, never a second card. (To put the SAME change on '
+      +'another drawing, use “+ another drawing for this change”.)';
     ab.addEventListener('click',function(e){e.stopPropagation();
       var open=box.querySelector('.pcnb-vpick');
       if(open){open.remove();return;}
