@@ -2184,6 +2184,34 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
 .pcnb-clbtn:hover:not(:disabled){border-color:currentColor;}
 .pcnb-clbtn:disabled{cursor:default;opacity:.8;}
 .pcnb-done{margin-left:2px;}
+.pcnb-cov{font-size:12px;color:var(--muted);margin:0 0 8px;display:flex;gap:10px;
+  align-items:baseline;flex-wrap:wrap;}
+.pcnb-cov b{color:var(--text);font-variant-numeric:tabular-nums;}
+.pcnb-covgo{background:none;border:none;padding:0;font:inherit;color:var(--gold);cursor:pointer;
+  text-decoration:underline;text-underline-offset:2px;}
+.pcnb-passes{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px;}
+.pcnb-passn{margin-left:6px;font-variant-numeric:tabular-nums;opacity:.8;}
+.pcnb-passflag{color:var(--stop);}
+.pcnb-orphan{border-color:rgba(160,122,0,.45);}
+.pcnb-rd{display:inline-flex;gap:2px;flex:0 0 auto;}
+.pcnb-pip{font-style:normal;font-size:9px;font-weight:700;line-height:1;width:15px;height:15px;
+  display:inline-flex;align-items:center;justify-content:center;border-radius:4px;
+  border:1px solid var(--border);color:var(--faint);background:none;}
+.pcnb-pip.on{color:var(--ok);border-color:rgba(43,125,85,.45);background:rgba(43,125,85,.10);}
+.pcnb-og{font-size:9.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--faint);
+  border:1px solid var(--border);border-radius:4px;padding:1px 5px;flex:0 0 auto;}
+.pcnb-og.og-thread{color:var(--gold);border-color:rgba(160,122,0,.3);}
+.pcnb-og.og-correction{color:var(--muted);}
+.pcnb-flag{font-size:12px;line-height:1;padding:2px 7px;border-radius:5px;flex:0 0 auto;
+  border:1px solid var(--border);background:none;color:var(--faint);cursor:pointer;}
+.pcnb-flag:hover{border-color:var(--stop);color:var(--stop);}
+.pcnb-flag.on{color:var(--stop);border-color:rgba(191,44,34,.45);background:rgba(191,44,34,.10);}
+.pcnb-fsum{color:var(--stop)!important;font-style:normal!important;font-weight:600;}
+.pcnb-fl{display:block;margin:8px 13px 3px;font-size:10px;font-weight:700;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--stop);}
+.pcnb-f{display:block;width:calc(100% - 26px);margin:0 13px 10px;min-height:44px;resize:vertical;
+  font-family:inherit;line-height:1.45;}
+.pcnb-f.on{border-color:rgba(191,44,34,.45);}
 .pcnb-cl{font-size:11px;line-height:1;padding:2px 6px;border-radius:5px;flex:0 0 auto;
   border:1px solid var(--border);background:none;color:var(--faint);cursor:pointer;}
 .pcnb-cl:hover:not(:disabled){border-color:var(--ok);color:var(--ok);}
@@ -8221,6 +8249,19 @@ function pcnReadiness(pool){
 // is the pre-2026-09-09 value and answers for every line on an item that has never been touched
 // per-line; the first per-line toggle freezes it onto every line and clears it, so afterwards the
 // absence of the flag means false and nothing is ambiguous.
+// ── `flag::` — NOT the `?` ───────────────────────────────────────────────────────────────────
+// Shadi, 2026-09-10: "add notes section with a flag not ?".
+//
+// `?` asks a QUESTION: is this fact right, confirm it before I write it. A flag states a
+// DISCREPANCY: the drawing and the intent disagree and someone has to fix one of them. The three
+// found in the 2026-09-10 PCN review are all the second kind — a sheet with no cloud and an empty
+// revision block, a new sheet clouded anyway, swing doors still drawn where drawers were agreed.
+// None of those is a question. Answering them changes nothing; drawing them does.
+//
+// So it carries TEXT, always. A flag with no reason is a red mark nobody can act on, which is why
+// the button opens the note rather than toggling silently.
+function itemFlag(it){return String((it&&it.flag)||'').trim();}
+function isFlagged(it){return !!itemFlag(it);}
 function itemCloudField(it){return /^(yes|y|true|1)$/i.test(String((it&&it.clouded)||'').trim());}
 function lineClouded(it,pl){
   if(pl&&pl.clouded===true)return true;
@@ -8589,6 +8630,35 @@ function setAddMeta(id,field,value,label,quiet){
 // that would do it.
 //
 // The write-up already grouped by drawing. This makes the working surface agree with it.
+// '' everything · name · cloud · gap · flag. Not persisted on purpose: a pass is something you
+// are doing right now, and coming back tomorrow to a board silently showing a fifth of itself is
+// how a filter becomes a bug report.
+var PCN_PASS='';
+// Ready to cloud: every change on the drawing has words, none is flagged, and the sheet is not
+// already clouded. A drawing the instrument ADDS is never ready — there is nothing to cloud.
+function pcnSheetReady(list){
+  if(!list||!list.length)return false;
+  if(list.every(function(r){return isNewSheet(r.it);}))return false;
+  if(list.every(function(r){return lineClouded(r.it,r.pl);}))return false;
+  return list.every(function(r){
+    if(isFlagged(r.it))return false;
+    return !!(String(r.pl.text||'').trim()||(pcnLineCount(r.it)===1&&String(r.it.desc||'').trim()));});
+}
+// Written · clouded · done, in that order, every time.
+function pcnReadyStrip(list){
+  var w=list.every(function(r){
+        return !!(String(r.pl.text||'').trim()||(pcnLineCount(r.it)===1&&String(r.it.desc||'').trim()));}),
+      c=list.every(function(r){return lineClouded(r.it,r.pl)||isNewSheet(r.it);}),
+      dn=list.every(function(r){return r.it.pendingComplete||r.it.status==='completed';});
+  var s=document.createElement('span');s.className='pcnb-rd';
+  [['W',w,'written — every change has words to go out'],
+   ['C',c,'clouded — every change carries its cloud'],
+   ['D',dn,'done — the work on this drawing is finished']].forEach(function(o){
+    var p=document.createElement('i');p.className='pcnb-pip'+(o[1]?' on':'');
+    p.textContent=o[0];p.title=o[2]+(o[1]?'' :' — not yet');s.appendChild(p);});
+  s.title='Written · Clouded · Done. Filled means yes.';
+  return s;
+}
 function pcnSheetsOf(pool){
   var bySheet={},order=[],nosheet=[];
   (pool||[]).forEach(function(it){
@@ -8822,6 +8892,45 @@ function pcnChangeEditor(it,pl,list,save){
   cD.appendChild(d);ed.appendChild(cD);
   return ed;
 }
+// The changes that name no drawing. Lifted out of the bottom of the board so it can render FIRST,
+// which is where the largest blocker on the instrument belongs.
+function pcnOrphanBlock(wrap,key,nosheet){
+  var box2=document.createElement('div');box2.className='dwb-sheet dwb-orphan pcnb-orphan';
+  var sh2=document.createElement('div');sh2.className='dwb-sh';
+  var n2=document.createElement('code');n2.className='dwb-no dwb-unknown';n2.textContent='—';
+  sh2.appendChild(n2);
+  var t2=document.createElement('span');t2.className='dwb-nm dwb-unknown';
+  t2.textContent='No drawing named yet';sh2.appendChild(t2);
+  var s2=document.createElement('span');s2.className='dwb-st';
+  s2.textContent=n_(nosheet.length,'change');sh2.appendChild(s2);
+  var h2=document.createElement('span');h2.className='dwb-who dwb-free';
+  h2.textContent='a PCN issues drawings — these have none';sh2.appendChild(h2);
+  box2.appendChild(sh2);
+  nosheet.forEach(function(it){
+    var row=document.createElement('div');row.className='dwb-row';
+    var d3=document.createElement('code');d3.className='dwb-det dwb-unknown';d3.textContent='?';
+    row.appendChild(d3);
+    var ti=document.createElement('span');ti.className='dwb-t';ti.textContent=it.title||'';
+    row.appendChild(ti);
+    var pick=document.createElement('select');pick.className='sh-in pcnb-pick';
+    var p0=document.createElement('option');p0.value='';p0.textContent='put it on a drawing…';
+    pick.appendChild(p0);
+    var reg2=drawingsFor(it.pkg)||{};
+    Object.keys(reg2).sort().forEach(function(nn){
+      var o=document.createElement('option');o.value=nn;
+      o.textContent=nn+(reg2[nn]?'  —  '+reg2[nn]:'');pick.appendChild(o);});
+    pick.addEventListener('click',function(e){e.stopPropagation();});
+    pick.addEventListener('change',function(e){e.stopPropagation();
+      if(!pick.value)return;
+      var l2=(placementsOf(it)||[]).map(function(p){return {sheet:p.sheet||'',view:p.view||'',
+        no:p.no||'',room:p.room||'',text:p.text||'',override:p.override||''};})
+        .filter(function(p){return p.sheet;});
+      l2.push({sheet:pick.value,view:'',no:'',room:'',text:'',override:''});
+      setAddMeta(it.id,'placements',JSON.stringify(l2),'Drawings');});
+    row.appendChild(pick);
+    box2.appendChild(row);});
+  wrap.appendChild(box2);
+}
 function pcnSheetBoard(host,key,pool){
   var g=ADD_GROUPS[key]||{},pkg=g.pkg||(pool[0]&&pool[0].pkg)||'';
   var wrap=document.createElement('div');wrap.className='wb dwb pcnb';
@@ -8853,6 +8962,68 @@ function pcnSheetBoard(host,key,pool){
   hn.textContent='the drawing is the row — a change is a line inside it';
   head.appendChild(hn);
   wrap.appendChild(head);
+
+  // WHAT THE DOCUMENT ACTUALLY CARRIES. It was only ever visible inside the Write-up tab, which is
+  // the one you open last — so the gap between what is on the instrument and what the document says
+  // was invisible until the day it mattered. It belongs here, where the work is.
+  (function(){
+    var carried=0,total=0;
+    order.forEach(function(sn){bySheet[sn].forEach(function(r){
+      total++;
+      if(String(r.pl.text||'').trim()||(pcnLineCount(r.it)===1&&String(r.it.desc||'').trim()))carried++;});});
+    total+=nosheet.length;
+    var cv=document.createElement('div');cv.className='pcnb-cov';
+    var b1=document.createElement('b');b1.textContent=carried+' of '+total;cv.appendChild(b1);
+    cv.appendChild(document.createTextNode(' changes are written into the document'));
+    if(carried<total){
+      var g=document.createElement('button');g.type='button';g.className='pcnb-covgo';
+      g.textContent='see the '+(total-carried)+' it leaves out';
+      g.title='A change with no drawing, or a drawing with nothing written beside it, cannot be in '
+        +'the write-up. This is the gap between the instrument and the document.';
+      g.addEventListener('click',function(e){e.stopPropagation();
+        PCN_PASS=(PCN_PASS==='gap')?'':'gap';buildAddendumRegister();});
+      cv.appendChild(g);
+    }
+    var wu=document.createElement('button');wu.type='button';wu.className='pcnb-covgo';
+    wu.textContent='open the write-up';
+    wu.addEventListener('click',function(e){e.stopPropagation();ADD_MODE='wu';buildAddendumRegister();});
+    cv.appendChild(wu);
+    wrap.appendChild(cv);
+  })();
+
+  // THE PASSES. Naming drawings and clouding them are batch acts — you do thirty of one, then
+  // twenty-five of the other — and the board was organised for neither. Each pass shows only the
+  // sheets that act is owed on, and nothing else.
+  (function(){
+    var ready=order.filter(function(sn){return pcnSheetReady(bySheet[sn]);});
+    var flagged=order.filter(function(sn){return bySheet[sn].some(function(r){return isFlagged(r.it);});});
+    var gaps=order.filter(function(sn){return bySheet[sn].some(function(r){
+      return !(String(r.pl.text||'').trim()||(pcnLineCount(r.it)===1&&String(r.it.desc||'').trim()));});});
+    var bar=document.createElement('div');bar.className='pcnb-passes';
+    [['','Everything',order.length+nosheet.length?null:null,
+      'Every drawing on the instrument, in sheet order.'],
+     ['name','Name the drawing',nosheet.length,
+      'The changes that name no drawing yet. They are the largest thing standing between this '
+      +'instrument and a document, and they were at the BOTTOM of the board.'],
+     ['cloud','Clouding pass',ready.length,
+      'Drawings where every change is written and nothing is left to decide — ready to open in '
+      +'Revit and cloud. Clouding is a sheet-at-a-time act, so this is a sheet-at-a-time list.'],
+     ['gap','Not in the document',gaps.length,
+      'Drawings carrying a change with nothing written beside it. The sheet would issue with '
+      +'nothing saying what changed.'],
+     ['flag','Flagged',flagged.length,
+      'Drawings where what is drawn and what was decided disagree.']
+    ].forEach(function(o){
+      if(o[0]&&!o[2])return;                    // a pass with nothing owed is not a pass
+      var b=document.createElement('button');b.type='button';
+      b.className='wb-seg'+(PCN_PASS===o[0]?' on':'')+(o[0]==='flag'&&o[2]?' pcnb-passflag':'');
+      b.textContent=o[1];b.title=o[3];
+      if(o[2]){var n=document.createElement('span');n.className='pcnb-passn';n.textContent=o[2];b.appendChild(n);}
+      b.addEventListener('click',function(e){e.stopPropagation();
+        PCN_PASS=o[0];buildAddendumRegister();});
+      bar.appendChild(b);});
+    wrap.appendChild(bar);
+  })();
 
   // ADD A DRAWING. The one place a new card can be created, and it will not create a second one
   // for a sheet that already has one — it opens that sheet instead and says so.
@@ -8896,6 +9067,15 @@ function pcnSheetBoard(host,key,pool){
     wrap.appendChild(bar);
   })();
 
+  // NAME THE DRAWING, FIRST. Thirty of fifty changes name none — the largest single blocker on
+  // the instrument — and it sat below twenty-five cards you had to scroll past. The board was
+  // organised for the work that was furthest along.
+  if(nosheet.length&&(PCN_PASS===''||PCN_PASS==='name'))pcnOrphanBlock(wrap,key,nosheet);
+  if(PCN_PASS==='name'){
+    if(!nosheet.length){var dn2=document.createElement('div');dn2.className='dwb-none';
+      dn2.textContent='Every change on this instrument names a drawing.';wrap.appendChild(dn2);}
+    return;}
+
   if(!order.length&&!nosheet.length){
     var non=document.createElement('div');non.className='dwb-none';
     non.textContent=ADD_FREEZE?('Nothing dated to '+ADD_FREEZE+' names a drawing yet.')
@@ -8903,7 +9083,14 @@ function pcnSheetBoard(host,key,pool){
     wrap.appendChild(non);return;
   }
 
-  order.forEach(function(sn){
+  order.filter(function(sn){
+    var list=bySheet[sn];
+    if(PCN_PASS==='cloud')return pcnSheetReady(list);
+    if(PCN_PASS==='flag')return list.some(function(r){return isFlagged(r.it);});
+    if(PCN_PASS==='gap')return list.some(function(r){
+      return !(String(r.pl.text||'').trim()||(pcnLineCount(r.it)===1&&String(r.it.desc||'').trim()));});
+    return true;
+  }).forEach(function(sn){
     var list=bySheet[sn];
     var it0=list[0].it;
     var box=document.createElement('div');box.className='dwb-sheet pcnb-sheet';
@@ -8951,6 +9138,24 @@ function pcnSheetBoard(host,key,pool){
     dn.addEventListener('click',function(e){e.stopPropagation();});
     dn.addEventListener('change',function(e){e.stopPropagation();pcnSetDone(list,dn.checked);});
     sh.appendChild(dn);
+    // ⚑ — something on this drawing is wrong. Opens the reason rather than toggling, because a
+    // flag with no reason is a red mark nobody can act on.
+    var flagged=list.some(function(r){return isFlagged(r.it);});
+    var fb=document.createElement('button');fb.type='button';
+    fb.className='pcnb-flag'+(flagged?' on':'');fb.textContent='⚑';
+    fb.setAttribute('aria-pressed',flagged?'true':'false');
+    fb.title=flagged?('Flagged: '+itemFlag(it0).slice(0,90)+' — click to read or clear it.')
+      :'Flag a discrepancy on this drawing. Not the same as ? — a ? is a question to answer, a '
+       +'flag is something drawn that disagrees with what was decided.';
+    fb.addEventListener('click',function(e){e.stopPropagation();
+      var det=box.querySelector('.pcnb-note');
+      if(det){det.open=true;var ta=det.querySelector('.pcnb-f');if(ta){ta.focus();
+        try{ta.setSelectionRange(ta.value.length,ta.value.length);}catch(x){}}}});
+    sh.appendChild(fb);
+    // WRITTEN · CLOUDED · DONE, always in that order and always in the same place. Three facts
+    // that lived in three different corners of the card, so reading twenty-five drawings meant
+    // twenty-five separate scans instead of one.
+    sh.appendChild(pcnReadyStrip(list));
     var who={},whoL=[];
     list.forEach(function(r){var d2=String(r.it.delegate||'').trim();if(d2&&!who[d2]){who[d2]=1;whoL.push(d2);}});
     var w=document.createElement('span');w.className='dwb-who'+(whoL.length?'':' dwb-free');
@@ -9035,6 +9240,19 @@ function pcnSheetBoard(host,key,pool){
       q.setAttribute('aria-pressed',it.verify?'true':'false');
       q.addEventListener('click',function(e){e.stopPropagation();toggleVerify(it.id);});
       row.appendChild(q);
+      // Recorded on 45 of 46 items since August and displayed nowhere. Where a change came from
+      // predicts whether it is still moving: a correction is settled, a thread may not be.
+      var og=String(it.origin||'').trim();
+      if(og&&{schedule:1,noticed:1,rfi:1,thread:1,correction:1}[og]){
+        var ob=document.createElement('span');ob.className='pcnb-og og-'+og;
+        ob.textContent=({schedule:'schedule',noticed:'noticed',rfi:'RFI',thread:'thread',
+                         correction:'correction'})[og];
+        ob.title=({schedule:'From Faisal\u2019s production schedule.',
+                   noticed:'Something you noticed.',
+                   rfi:'An RFI answer being issued through the PCN.',
+                   thread:'A board thread resolved through the PCN \u2014 may still be moving.',
+                   correction:'A correction to something already issued.'})[og];
+        row.appendChild(ob);}
       var rm=document.createElement('button');rm.type='button';rm.className='pcnb-x';
       rm.textContent='✕';rm.title='Remove this change from the drawing. The item stays.';
       rm.addEventListener('click',function(e){e.stopPropagation();pcnRemoveLine(it,pls,r.ix);});
@@ -9058,8 +9276,11 @@ function pcnSheetBoard(host,key,pool){
     var ns=document.createElement('summary');
     var nlb=document.createElement('b');nlb.textContent='Stays in the office';ns.appendChild(nlb);
     var nsn=document.createElement('span');nsn.className='n';
-    var _n0=String(it0.note||'').trim();
-    nsn.textContent=_n0?_n0.replace(/\s+/g,' ').slice(0,120):'nothing written for whoever draws it';
+    var _n0=String(it0.note||'').trim(),_f0=itemFlag(it0);
+    // The flag wins the summary line. A drawing that disagrees with the decision is the one thing
+    // on this card you must not have to open something to find out about.
+    if(_f0){nsn.className='n pcnb-fsum';nsn.textContent='⚑ '+_f0.replace(/\s+/g,' ').slice(0,110);}
+    else nsn.textContent=_n0?_n0.replace(/\s+/g,' ').slice(0,120):'nothing written for whoever draws it';
     ns.appendChild(nsn);
     ns.title='What whoever draws this needs to know, and why. Never goes out with the PCN.';
     ns.addEventListener('click',function(e){e.stopPropagation();});
@@ -9073,6 +9294,20 @@ function pcnSheetBoard(host,key,pool){
       if(String(nt.value).trim()!==String(it0.note||'').trim())
         setAddMeta(it0.id,'note',nt.value.trim(),'Note');});
     nb.appendChild(nt);
+    var fl=document.createElement('label');fl.className='pcnb-fl';
+    fl.textContent='⚑ Needs attention';
+    fl.title='What is drawn disagrees with what was decided, or the sheet is not issuable yet. '
+      +'Never goes out with the PCN.';
+    nb.appendChild(fl);
+    var ft=document.createElement('textarea');ft.className='sh-in pcnb-f'+(itemFlag(it0)?' on':'');
+    ft.rows=2;ft.value=itemFlag(it0);
+    ft.placeholder='Swing doors still drawn — drawers were agreed. Empty this to clear the flag.';
+    ft.addEventListener('click',function(e){e.stopPropagation();});
+    ft.addEventListener('keydown',function(e){e.stopPropagation();});
+    ft.addEventListener('blur',function(){
+      if(String(ft.value).trim()!==itemFlag(it0))
+        setAddMeta(it0.id,'flag',ft.value.trim(),'Flag');});
+    nb.appendChild(ft);
     box.appendChild(nb);
 
     // + CHANGE ON THIS SHEET. The reason a second card for one drawing cannot happen: the button
@@ -9133,7 +9368,7 @@ function pcnSheetBoard(host,key,pool){
     wrap.appendChild(box);
   });
 
-  if(nosheet.length){
+  if(false){  // moved to the top — pcnOrphanBlock
     var box2=document.createElement('div');box2.className='dwb-sheet dwb-orphan';
     var sh2=document.createElement('div');sh2.className='dwb-sh';
     var n2=document.createElement('code');n2.className='dwb-no dwb-unknown';n2.textContent='—';
@@ -12129,9 +12364,10 @@ function buildPcnDoc(key,opts){
 function pcnNotesText(key){
   var out=[];
   addPoolFor(key).filter(function(i){return !WU_EXCLUDE[i.id];}).forEach(function(it){
-    var n=String(it.note||'').trim();if(!n)return;
+    var n=String(it.note||'').trim(),f=itemFlag(it);if(!n&&!f)return;
     var t=pcnTargets(it);
-    out.push((t.length?t.join('  ·  '):'no drawing named')+'\n    '+n+'\n');});
+    out.push((t.length?t.join('  ·  '):'no drawing named')
+      +(n?'\n    '+n:'')+(f?'\n    FLAG: '+f:'')+'\n');});
   return out.join('\n');
 }
 function buildPcnWriteup(key,host){
@@ -12140,8 +12376,10 @@ function buildPcnWriteup(key,host){
   var box=document.createElement('div');box.className='wu-box';
 
   var note=document.createElement('div');note.className='sh-stat';note.style.marginBottom='8px';
+  // "changes" means a LINE everywhere on the board and an ITEM here — two counts under one word
+  // on two screens of the same instrument. This one says item, because that is what it counts.
   note.innerHTML='<b>'+doc.n+'</b> of <b>'+doc.pool.length+'</b> '
-    +(doc.pool.length===1?'change has':'changes have')+' a drawing to issue · '
+    +(doc.pool.length===1?'item has':'items have')+' a drawing to issue · '
     +'<b>'+doc.nDwg+'</b> '+(doc.nDwg===1?'drawing':'drawings')+' · '
     +'<b>'+doc.nLines+'</b> '+(doc.nLines===1?'line':'lines')+' · '
     +'<b>'+doc.clouded+'</b> clouded'
@@ -12386,6 +12624,12 @@ function issueGate(key){
       t:'with nothing written to go out',
       w:'The description is what accompanies the drawing. Nothing generates it — it is written.',
       go:function(){ADD_MODE='sheets';buildAddendumRegister();}});
+    var flagged=pool.filter(isFlagged);
+    if(flagged.length)blockers.push({n:flagged.length,
+      t:'flagged \u2014 drawn and decided disagree',
+      w:'Each one names what is wrong. A flag is not a question: answering it changes nothing, '
+        +'redrawing it does.',
+      go:function(){ADD_MODE='drawings';buildAddendumRegister();}});
     var noCloud=pool.filter(function(i){return !cloudSettled(i);});
     if(noCloud.length)blockers.push({n:noCloud.length,t:'not clouded yet',
       w:'The sheet has to carry the cloud and the bumped revision. Deliberately not the done tick: '
