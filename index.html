@@ -2184,6 +2184,15 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
 .pcnb-clbtn:hover:not(:disabled){border-color:currentColor;}
 .pcnb-clbtn:disabled{cursor:default;opacity:.8;}
 .pcnb-done{margin-left:2px;}
+.pcnb-frow{align-items:baseline;}
+.pcnb-fk{font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  flex:0 0 auto;min-width:92px;color:var(--muted);}
+.pcnb-fk.fk-unmanaged{color:var(--gold);}
+.pcnb-fk.fk-cloudMissing,.pcnb-fk.fk-cloudExtra{color:var(--stop);}
+.pcnb-fdo{font-size:11px;line-height:1;padding:3px 9px;border-radius:5px;flex:0 0 auto;
+  border:1px solid var(--border);background:none;color:var(--gold);cursor:pointer;}
+.pcnb-fdo:hover{border-color:var(--gold);background:rgba(160,122,0,.08);}
+.pcnb-ffoot{font-size:11px;font-style:italic;color:var(--faint);margin:10px 2px 0;}
 .pcnb-cov{font-size:12px;color:var(--muted);margin:0 0 8px;display:flex;gap:10px;
   align-items:baseline;flex-wrap:wrap;}
 .pcnb-cov b{color:var(--text);font-variant-numeric:tabular-nums;}
@@ -2202,6 +2211,12 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
   border:1px solid var(--border);border-radius:4px;padding:1px 5px;flex:0 0 auto;}
 .pcnb-og.og-thread{color:var(--gold);border-color:rgba(160,122,0,.3);}
 .pcnb-og.og-correction{color:var(--muted);}
+.pcnb-nread{padding:2px 13px 8px;}
+.pcnb-nread dl.nl{margin:0 0 6px;}
+.pcnb-nplain{font-size:12px;line-height:1.5;color:var(--muted);margin-bottom:6px;}
+.pcnb-nempty{font-size:12px;font-style:italic;color:var(--faint);margin-bottom:5px;}
+.pcnb-nedit{background:none;border:none;padding:0;font:inherit;font-size:11px;color:var(--gold);
+  cursor:pointer;text-decoration:underline;text-underline-offset:2px;}
 .pcnb-flag{font-size:12px;line-height:1;padding:2px 7px;border-radius:5px;flex:0 0 auto;
   border:1px solid var(--border);background:none;color:var(--faint);cursor:pointer;}
 .pcnb-flag:hover{border-color:var(--stop);color:var(--stop);}
@@ -5895,6 +5910,7 @@ function buildAddendumRegister(){
     // one contractor as a change, so there are no bidders and no inquiries — not zero of them, none.
     // Absent rather than empty, because an empty tab invites someone to fill it and anything typed
     // there would be a question nobody asked. Same reasoning that keeps §5 out of the document.
+    if(o[0]==='set'&&!pcnReviewFindings(ADD_OPEN).length)return false;
     if(instKindForKey(ADD_OPEN)==='addendum')return true;
     // A PCN is sheet-shaped. Contents and Sheet work ask "which ITEMS are in the document", which
     // is an addendum's question — on a PCN the drawing is the unit, so they are not narrower views
@@ -5905,7 +5921,7 @@ function buildAddendumRegister(){
     // the addendum's reading order and it put "Our questions" in front of the work.
     if(instKindForKey(ADD_OPEN)==='addendum')return 0;
     // `r[k]||9` would send drawings to the back: its rank is 0, and 0 is falsy.
-    var r={drawings:0,threads:1,wu:2},rk=function(k){return (k in r)?r[k]:9;};
+    var r={drawings:0,set:1,threads:2,wu:3},rk=function(k){return (k in r)?r[k]:9;};
     return rk(a[0])-rk(b[0]);
   }).forEach(function(o){
     var b=document.createElement('button');b.type='button';
@@ -8659,6 +8675,100 @@ function pcnReadyStrip(list){
   s.title='Written · Clouded · Done. Filled means yes.';
   return s;
 }
+// ── what the last set said ───────────────────────────────────────────────────────────────────
+// `check_review_set.py --emit` writes its findings into the payload. They arrive here as ROWS WITH
+// BUTTONS rather than as a report: reading a list of forty and retyping it into the register is
+// the step that does not survive a busy Friday, and a check nobody acts on is a check nobody runs.
+//
+// Every button queues an ordinary op. Nothing here writes to the vault directly, nothing here is
+// automatic, and a finding is only ever a claim about a PDF — you are the one who decides.
+function pcnReviewData(){
+  var r=(window.LAST_DATA&&LAST_DATA.review)||null;
+  return (r&&r.findings&&r.findings.length)?r:null;
+}
+function pcnReviewFindings(key){
+  var r=pcnReviewData();
+  if(!r)return [];
+  if(r.instrument&&addNum(r.instrument)!==addNum(String(key||'').split('|')[1]||''))return [];
+  return r.findings||[];
+}
+function pcnReviewBlock(wrap,key){
+  var r=pcnReviewData(),f=pcnReviewFindings(key);
+  var head=document.createElement('div');head.className='dwb-head';
+  var b1=document.createElement('b');b1.textContent=n_(f.length,'finding');head.appendChild(b1);
+  var hs=document.createElement('span');hs.className='dwb-sum';
+  hs.textContent='from '+((r&&r.set)||'the last set')+((r&&r.generated)?'  ·  read '+r.generated:'');
+  head.appendChild(hs);
+  var hn=document.createElement('span');hn.className='dwb-note';
+  hn.textContent='the drawings say one thing and the register says another — each row is a button';
+  head.appendChild(hn);
+  wrap.appendChild(head);
+  if(!f.length){
+    var no=document.createElement('div');no.className='dwb-none';
+    no.textContent='No findings in the payload. Run check_review_set.py --emit and regenerate.';
+    wrap.appendChild(no);return;}
+
+  var by={},order=[];
+  f.forEach(function(x){var s=String(x.sheet||'?').toUpperCase();
+    if(!by[s]){by[s]=[];order.push(s);}by[s].push(x);});
+  order.sort(function(a,b){var ka=sheetOrderKey(a),kb=sheetOrderKey(b);return ka<kb?-1:ka>kb?1:0;});
+  var pkg=(ADD_GROUPS[key]||{}).pkg||(addPoolFor(key)[0]||{}).pkg||'';
+  order.forEach(function(sn){
+    var box=document.createElement('div');box.className='dwb-sheet pcnb-sheet';
+    var sh=document.createElement('div');sh.className='dwb-sh';
+    var no=document.createElement('code');no.className='dwb-no';no.textContent=sn;sh.appendChild(no);
+    var nm=knownSheet(pkg,sn);
+    var t=document.createElement('span');t.className='dwb-nm'+(nm?'':' dwb-unknown');
+    t.textContent=nm||'not on the drawing list';sh.appendChild(t);
+    var st=document.createElement('span');st.className='dwb-st';
+    st.textContent=n_(by[sn].length,'finding');sh.appendChild(st);
+    var own=pcnItemForSheet(key,sn);
+    var w=document.createElement('span');w.className='dwb-who'+(own?'':' dwb-free');
+    w.textContent=own?'on this instrument':'not on this instrument';sh.appendChild(w);
+    box.appendChild(sh);
+    by[sn].forEach(function(x){
+      var row=document.createElement('div');row.className='dwb-row pcnb-frow';
+      var k=document.createElement('span');k.className='pcnb-fk fk-'+(x.kind||'');
+      k.textContent=({unmanaged:'unmanaged',cloudMissing:'cloud missing',
+                      cloudExtra:'cloud gone',norev:'no revision'})[x.kind]||x.kind||'—';
+      row.appendChild(k);
+      if(x.no||x.view){
+        var v=document.createElement('span');v.className='dwb-view';
+        v.textContent=(x.no?x.no+'  ':'')+(x.view||'');row.appendChild(v);}
+      var m=document.createElement('span');m.className='dwb-what';m.textContent=x.msg||'';
+      row.appendChild(m);
+      var act=x.action||'none';
+      if(act!=='none'){
+        var btn=document.createElement('button');btn.type='button';btn.className='pcnb-fdo';
+        btn.textContent=({add:'add to this PCN',cloud:'record clouded',
+                          uncloud:'clear the cloud'})[act]||act;
+        btn.title=({add:'Creates the drawing on this instrument, or adds a line to it if it is '
+                        +'already here. Queued like every other change.',
+                    cloud:'Record that this change carries its cloud on the sheet.',
+                    uncloud:'Clear the cloud on this change — the set says it is not there.'})[act];
+        btn.addEventListener('click',function(e){e.stopPropagation();
+          if(act==='add'){pcnAddChange(key,sn,{view:x.view||'',no:x.no||''});return;}
+          var it=pcnItemForSheet(key,sn);
+          if(!it){setStatus(sn+' is not on this instrument yet — add it first.');return;}
+          var pls=(placementsOf(it)||[]).map(function(p){return {sheet:p.sheet||'',view:p.view||'',
+            no:p.no||'',room:p.room||'',text:p.text||'',override:p.override||'',
+            newsheet:p.newsheet||false,clouded:p.clouded};});
+          var ix=-1;
+          for(var i=0;i<pls.length;i++){
+            if(String(pls[i].sheet||'').toUpperCase()!==sn)continue;
+            if(x.no&&String(pls[i].no||'')!==String(x.no))continue;
+            ix=i;break;}
+          if(ix<0){setStatus('No line on '+sn+(x.no?' /'+x.no:'')+' to change — add it first.');return;}
+          pcnSetLineCloud(it,pls,ix,act==='cloud');});
+        row.appendChild(btn);
+      }
+      box.appendChild(row);});
+    wrap.appendChild(box);});
+  var foot=document.createElement('div');foot.className='pcnb-ffoot';
+  foot.textContent='Every finding is a claim about a PDF, not a fact about the work. Nothing here '
+    +'changes the vault until the next check-in.';
+  wrap.appendChild(foot);
+}
 function pcnSheetsOf(pool){
   var bySheet={},order=[],nosheet=[];
   (pool||[]).forEach(function(it){
@@ -8674,10 +8784,8 @@ function pcnSheetsOf(pool){
       if(!bySheet[sn]){bySheet[sn]=[];order.push(sn);}
       bySheet[sn].push({it:it,pl:pl,ix:ix});});
   });
-  // A5.100.x after A5.94.x: the numeric runs compare as numbers, or .100 files before .94.
-  function sortKey(n){return String(n).split(/[.\s]/).map(function(x){
-    return /^\d+$/.test(x)?String(1e6+parseInt(x,10)):x;}).join('.');}
-  order.sort(function(a,b){var ka=sortKey(a),kb=sortKey(b);return ka<kb?-1:ka>kb?1:0;});
+  order.sort(function(a,b){var ka=sheetOrderKey(a),kb=sheetOrderKey(b);
+    return ka<kb?-1:ka>kb?1:0;});
   return {bySheet:bySheet,order:order,nosheet:nosheet};
 }
 // ── the view is a LEVEL, not a field on a row ────────────────────────────────────────────────
@@ -8747,6 +8855,16 @@ function pcnRemoveLine(it,pls,ix){
       +words.slice(0,90)+'”\n\nThe item itself stays — only this line goes.'))return;
   pls.splice(ix,1);
   setAddMeta(it.id,'placements',JSON.stringify(pls),'Drawings');
+}
+// SHEET ORDER, once, for the board and the document both.
+// A5.100 comes AFTER A5.9x. Padding each numeric run to a fixed width is what makes 100 sort after
+// 94 instead of in front of it — plain text order reads "1" before "9" and files the whole A5.100
+// series at the top. `sheetSortKey` still exists and is still right for the ADDENDA, where the
+// house convention is text order over 1- and 2-digit series; this is the 3-digit series it never
+// had to describe.
+function sheetOrderKey(n){
+  return String(n||'').split(/[.\s]/).map(function(x){
+    return /^\d+$/.test(x) ? String(1e6+parseInt(x,10)) : x;}).join('.');
 }
 function pcnViewKey(pl){return String((pl&&pl.no)||'')+'␟'+String((pl&&pl.view)||'');}
 function pcnViewGroups(list){
@@ -9012,7 +9130,10 @@ function pcnSheetBoard(host,key,pool){
       'Drawings carrying a change with nothing written beside it. The sheet would issue with '
       +'nothing saying what changed.'],
      ['flag','Flagged',flagged.length,
-      'Drawings where what is drawn and what was decided disagree.']
+      'Drawings where what is drawn and what was decided disagree.'],
+     ['set','From the set',pcnReviewFindings(key).length,
+      'What the last issued or review set says, against what this register says. Each row is a '
+      +'button — the checker stops being a report you retype.']
     ].forEach(function(o){
       if(o[0]&&!o[2])return;                    // a pass with nothing owed is not a pass
       var b=document.createElement('button');b.type='button';
@@ -9070,6 +9191,7 @@ function pcnSheetBoard(host,key,pool){
   // NAME THE DRAWING, FIRST. Thirty of fifty changes name none — the largest single blocker on
   // the instrument — and it sat below twenty-five cards you had to scroll past. The board was
   // organised for the work that was furthest along.
+  if(PCN_PASS==='set'){pcnReviewBlock(wrap,key);return;}
   if(nosheet.length&&(PCN_PASS===''||PCN_PASS==='name'))pcnOrphanBlock(wrap,key,nosheet);
   if(PCN_PASS==='name'){
     if(!nosheet.length){var dn2=document.createElement('div');dn2.className='dwb-none';
@@ -9285,15 +9407,43 @@ function pcnSheetBoard(host,key,pool){
     ns.title='What whoever draws this needs to know, and why. Never goes out with the PCN.';
     ns.addEventListener('click',function(e){e.stopPropagation();});
     nb.appendChild(ns);
-    var nt=document.createElement('textarea');nt.className='sh-in pcnb-n';nt.rows=2;
+    // READ first, edit on request. The note is four answers to four questions and it was one
+    // grey paragraph you had to parse with your eyes every time. Written as prose in the vault,
+    // read as a list here — no migration, and the export stays exactly what it was.
+    var nread=document.createElement('div');nread.className='pcnb-nread';
+    var nt=document.createElement('textarea');nt.className='sh-in pcnb-n';nt.rows=4;
     nt.value=String(it0.note||'');
-    nt.placeholder='Draw: …  Because: …  Watch: …';
+    nt.placeholder='Draw: …  Because: …  Watch: …  Leave: …';
+    nt.style.display='none';
+    function paintNote(){
+      nread.innerHTML='';
+      // `noteGrid` has existed since 2026-08-27 and lays exactly this out — Draw / Because /
+      // Watch / Leave / Blocked as a <dl>, with the paragraph fallback for a note written before
+      // the convention. The PCN card simply never called it. Third time on this project the
+      // missing piece has been a consumer rather than a control.
+      var raw=String(it0.note||'').trim();
+      var grid=raw?noteGrid(raw):null;
+      if(grid)nread.appendChild(grid);
+      else{
+        var e0=document.createElement('div');e0.className='pcnb-nempty';
+        e0.textContent=raw||'Nothing written for whoever draws it.';
+        if(raw)e0.className='pcnb-nplain';
+        nread.appendChild(e0);}
+      var ed=document.createElement('button');ed.type='button';ed.className='pcnb-nedit';
+      ed.textContent=raw?'edit':'write it';
+      ed.addEventListener('click',function(e){e.stopPropagation();
+        nread.style.display='none';nt.style.display='';nt.focus();});
+      nread.appendChild(ed);
+    }
+    paintNote();
     nt.addEventListener('click',function(e){e.stopPropagation();});
     nt.addEventListener('keydown',function(e){e.stopPropagation();});
     nt.addEventListener('blur',function(){
-      if(String(nt.value).trim()!==String(it0.note||'').trim())
-        setAddMeta(it0.id,'note',nt.value.trim(),'Note');});
-    nb.appendChild(nt);
+      var v=nt.value.trim();
+      nt.style.display='none';nread.style.display='';
+      if(v!==String(it0.note||'').trim()){setAddMeta(it0.id,'note',v,'Note');return;}
+      it0.note=v;paintNote();});
+    nb.appendChild(nread);nb.appendChild(nt);
     var fl=document.createElement('label');fl.className='pcnb-fl';
     fl.textContent='⚑ Needs attention';
     fl.title='What is drawn disagrees with what was decided, or the sheet is not issuable yet. '
@@ -12250,6 +12400,120 @@ function sheetTitleFor(no,pool,key){
 function attachesIn(lines){
   return lines.some(function(l){return /attached (?:and form|hereto and form)/i.test(l);});
 }
+// ── .docx, written here, with nothing fetched ────────────────────────────────────────────────
+// A .docx is a ZIP of XML. The site is a single self-contained file behind a password gate and
+// pulls in no scripts at all, so bringing a library in for this would trade the one property that
+// makes it safe. A ZIP entry may be STORED — uncompressed — so the whole writer is a CRC32 table,
+// four small XML parts and a central directory. No dependency, no CDN, no add-in at the far end.
+var WT_CRC=(function(){var t=[],c,n,k;for(n=0;n<256;n++){c=n;
+  for(k=0;k<8;k++)c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);t[n]=c>>>0;}return t;})();
+function wtCrc32(u8){var c=0xFFFFFFFF;for(var i=0;i<u8.length;i++)c=WT_CRC[(c^u8[i])&0xFF]^(c>>>8);
+  return (c^0xFFFFFFFF)>>>0;}
+function wtU8(s){return new TextEncoder().encode(s);}
+function wtZip(files){
+  // files: [{name, data:Uint8Array}]
+  var chunks=[],central=[],off=0;
+  function n16(v){return [v&255,(v>>>8)&255];}
+  function n32(v){return [v&255,(v>>>8)&255,(v>>>16)&255,(v>>>24)&255];}
+  files.forEach(function(f){
+    var nm=wtU8(f.name),crc=wtCrc32(f.data),sz=f.data.length;
+    var lh=[].concat([0x50,0x4b,0x03,0x04],n16(20),n16(0),n16(0),n16(0),n16(0),
+                     n32(crc),n32(sz),n32(sz),n16(nm.length),n16(0));
+    chunks.push(new Uint8Array(lh),nm,f.data);
+    central.push({nm:nm,crc:crc,sz:sz,off:off});
+    off+=lh.length+nm.length+sz;});
+  var cstart=off,cd=[];
+  central.forEach(function(c){
+    var h=[].concat([0x50,0x4b,0x01,0x02],n16(20),n16(20),n16(0),n16(0),n16(0),n16(0),
+                    n32(c.crc),n32(c.sz),n32(c.sz),n16(c.nm.length),n16(0),n16(0),n16(0),n16(0),
+                    n32(0),n32(c.off));
+    cd.push(new Uint8Array(h),c.nm);
+    off+=h.length+c.nm.length;});
+  var eo=new Uint8Array([].concat([0x50,0x4b,0x05,0x06],n16(0),n16(0),
+      n16(files.length),n16(files.length),n32(off-cstart),n32(cstart),n16(0)));
+  var all=chunks.concat(cd,[eo]),total=0;
+  all.forEach(function(a){total+=a.length;});
+  var outB=new Uint8Array(total),p=0;
+  all.forEach(function(a){outB.set(a,p);p+=a.length;});
+  return outB;
+}
+function wtXml(s){return String(s==null?'':s)
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function wtP(text,style,bold){
+  return '<w:p><w:pPr>'+(style?'<w:pStyle w:val="'+style+'"/>':'')+'</w:pPr>'
+    +'<w:r>'+(bold?'<w:rPr><w:b/></w:rPr>':'')+'<w:t xml:space="preserve">'+wtXml(text)+'</w:t></w:r></w:p>';
+}
+// Editing the textarea is allowed and expected, so a .docx taken after an edit has to be the text
+// on screen — plain paragraphs, honestly flat — rather than the structure it no longer matches.
+function wtBlocksFromText(txt){
+  return String(txt||'').split('\n').map(function(l){return {k:'p',t:l};});
+}
+function wtDocxSave(filename,blocks,title){
+  var body='';
+  (blocks||[]).forEach(function(b){
+    if(b.k==='h1')      body+=wtP(b.t,'Heading1');
+    else if(b.k==='sub')body+=wtP(b.t,'Subtitle');
+    else if(b.k==='h2') body+=wtP(b.t,'Heading2');
+    else if(b.k==='h3') body+=wtP((b.n?b.n+'  ':'')+b.t,'Heading3');
+    else if(b.k==='li') body+=wtP((b.n?b.n+'   ':'')+b.t,'Body');
+    else if(b.k==='row')body+='<w:p><w:pPr><w:pStyle w:val="Body"/><w:tabs>'
+        +'<w:tab w:val="left" w:pos="2200"/></w:tabs></w:pPr><w:r><w:t xml:space="preserve">'
+        +wtXml(b.a)+'</w:t></w:r><w:r><w:tab/><w:t xml:space="preserve">'+wtXml(b.b)
+        +'</w:t></w:r></w:p>';
+    else if(b.k==='end')body+=wtP(b.t,'Body',true);
+    else                body+=wtP(b.t||'','Body');
+  });
+  var doc='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+   +'<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+   +'<w:body>'+body+'<w:sectPr><w:pgSz w:w="12240" w:h="15840"/>'
+   +'<w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134"/></w:sectPr></w:body></w:document>';
+  var styles='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+   +'<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+   +'<w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/>'
+   +'<w:sz w:val="19"/></w:rPr></w:rPrDefault></w:docDefaults>'
+   +'<w:style w:type="paragraph" w:styleId="Body"><w:name w:val="Body"/>'
+   +'<w:pPr><w:spacing w:after="60"/></w:pPr></w:style>'
+   // Not bold. A 15pt bold title on a 10pt document shouts, and the size alone already says
+   // "this is the title" — weight on top of scale is the same information twice.
+   +'<w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/>'
+   +'<w:pPr><w:spacing w:before="0" w:after="80"/></w:pPr>'
+   +'<w:rPr><w:sz w:val="32"/><w:color w:val="1A1A1A"/></w:rPr></w:style>'
+   +'<w:style w:type="paragraph" w:styleId="Subtitle"><w:name w:val="Subtitle"/>'
+   +'<w:pPr><w:spacing w:after="260"/></w:pPr><w:rPr><w:color w:val="595959"/></w:rPr></w:style>'
+   // Caps AND bold AND a size bump was three signals for one heading level.
+   +'<w:style w:type="paragraph" w:styleId="Heading2"><w:name w:val="heading 2"/>'
+   +'<w:pPr><w:spacing w:before="320" w:after="140"/></w:pPr>'
+   +'<w:rPr><w:caps/><w:sz w:val="19"/><w:color w:val="595959"/></w:rPr></w:style>'
+   +'<w:style w:type="paragraph" w:styleId="Heading3"><w:name w:val="heading 3"/>'
+   +'<w:pPr><w:spacing w:before="220" w:after="50"/></w:pPr>'
+   +'<w:rPr><w:b/><w:sz w:val="20"/></w:rPr></w:style></w:styles>';
+  var ct='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+   +'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+   +'<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+   +'<Default Extension="xml" ContentType="application/xml"/>'
+   +'<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>'
+   +'<Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>'
+   +'</Types>';
+  var rels='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+   +'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+   +'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>'
+   +'</Relationships>';
+  var drels='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+   +'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+   +'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>'
+   +'</Relationships>';
+  var zip=wtZip([
+    {name:'[Content_Types].xml',   data:wtU8(ct)},
+    {name:'_rels/.rels',           data:wtU8(rels)},
+    {name:'word/document.xml',     data:wtU8(doc)},
+    {name:'word/styles.xml',       data:wtU8(styles)},
+    {name:'word/_rels/document.xml.rels', data:wtU8(drels)}]);
+  var blob=new Blob([zip],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+  var u=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=u;a.download=filename;a.click();
+  setTimeout(function(){URL.revokeObjectURL(u);},1500);
+  if(typeof setStatus==='function')setStatus(filename+' downloaded.');
+}
 // ── the PCN write-up ─────────────────────────────────────────────────────────────────────────
 // An addendum writes SENTENCES and derives its List of Attachments from whether each one carries
 // the attachment clause. A PCN does neither. It issues the DRAWING — clouded, revision bumped —
@@ -12277,7 +12541,14 @@ function buildPcnDoc(key,opts){
       if(!groups[sn]){groups[sn]=[];order.push(sn);}
       groups[sn].push({it:it,pl:pl});});
   });
-  order.sort(function(a,b){return sheetSortKey(a)<sheetSortKey(b)?-1:1;});
+  // A5.100 AFTER A5.9x. `sheetSortKey` is HOUSE order — plain text — and it is right for the
+  // addenda, where the evidence is 1- and 2-digit series and A42.4.19 really does file between
+  // A42.31.13 and A42.6.01. Package 5 runs a 3-digit series that no issued addendum covers, and
+  // text order puts A5.100.01 in front of A5.31.10. Shadi, 2026-09-10: "A5.100 is after A5.9".
+  // The board already ordered this way; the document disagreeing with the card about one drawing
+  // is exactly the disagreement the sheet-first rebuild existed to remove.
+  order.sort(function(a,b){var ka=sheetOrderKey(a),kb=sheetOrderKey(b);
+    return ka<kb?-1:ka>kb?1:0;});
 
   var g=pool[0]||{};
   var num=addNum(g.addendum||String(key||'').split('|')[1]||'');
@@ -12285,16 +12556,25 @@ function buildPcnDoc(key,opts){
   var row=(typeof addendumDateFor==='function')?addendumDateFor(g.pkg,num):null;
   var when=(row&&/^\d{4}-\d{2}-\d{2}/.test(row.date||''))?row.date:'';
 
+  var kindW=(instKind(num)==='si'?'SI':'PCN');
+  // The .docx is built from BLOCKS, not from the monospaced text. Re-parsing indentation back into
+  // headings is guesswork that breaks the first time a title contains two spaces; emitting the
+  // structure alongside costs one array and can never disagree with the text.
+  var blocks=[{k:'h1',t:instLong(num).toUpperCase()},
+              {k:'sub',t:'Vol 1 – ARCHITECTURAL'+(pk?'   ('+pk+')':'')+(when?'   ·   Issues '+when:'')}];
   var head=[instLong(num).toUpperCase()+'  —  Vol 1 – ARCHITECTURAL'+(pk?'   ('+pk+')':''),''];
   if(when)head.push('Issues '+when,'');
-  head.push('Drawings issued with this '+(instKind(num)==='si'?'SI':'PCN')+':','');
+  head.push('Drawings issued with this '+kindW+':','');
+  blocks.push({k:'h2',t:'Drawings issued with this '+kindW});
   if(order.length)order.forEach(function(sn){
     var t=sheetTitleFor(sn,pool,key);
     head.push(('       '+(sn+'                ').slice(0,16)+(t||'').toUpperCase()).replace(/\s+$/,''));
+    blocks.push({k:'row',a:sn,b:(t||'').toUpperCase()});
     if(!t)warn.push(sn+' has no drawing name — the list above and every heading below print it, so '
       +'both will be bare. Type it once in the Drawing column.');
   });
-  else head.push('       (none — no change on this instrument names a drawing yet)');
+  else {head.push('       (none — no change on this instrument names a drawing yet)');
+        blocks.push({k:'p',t:'(none — no change on this instrument names a drawing yet)'});}
 
   var body=[];
   order.forEach(function(sn,ix){
@@ -12329,12 +12609,16 @@ function buildPcnDoc(key,opts){
       body.push('       '+padNum(String(ix+1)+'.',8)+'DRAWING '+sn+(t?' - '+t.toUpperCase():''));
       lines.forEach(function(l,jx){body.push('               '+padNum((ix+1)+'.'+(jx+1),9)+l);});
     }
+    blocks.push({k:'h3',n:String(ix+1)+'.',t:'DRAWING '+sn+(t?' - '+t.toUpperCase():'')});
+    lines.forEach(function(l,jx){blocks.push({k:'li',n:(ix+1)+'.'+(jx+1),t:l});});
   });
 
+  blocks.push({k:'h2',t:'Description of work'});
   var out=head.concat(['','Description of work','']);
   out=out.concat(body.length?body:['       (nothing to describe — no drawing named)']);
   out.push('');
   out.push('                        END OF '+instLong(num).toUpperCase()+' (VOL 1)');
+  blocks.push({k:'end',t:'END OF '+instLong(num).toUpperCase()+' (VOL 1)'});
 
   // Everything the instrument cannot carry, counted rather than quietly dropped.
   if(held.length)warn.push(n_(held.length,'change')+' name no drawing and are NOT in this document: '
@@ -12353,7 +12637,8 @@ function buildPcnDoc(key,opts){
   if(vq.length)warn.push(n_(vq.length,'change')+' '+(vq.length===1?'is':'are')+' still flagged ? — '
     +'verify before issue.');
 
-  return {text:out.join('\n').replace(/\n{3,}/g,'\n\n'),warn:warn,pool:pool,held:held,
+  return {text:out.join('\n').replace(/\n{3,}/g,'\n\n'),blocks:blocks,
+          name:instLong(num),warn:warn,pool:pool,held:held,
           n:pool.length-held.length,nDwg:order.length,nLines:nLines,
           clouded:pool.length-uncl.length,
           noWords:pool.filter(function(i){return !String(i.desc||'').trim();}).length};
@@ -12444,9 +12729,21 @@ function buildPcnWriteup(key,host){
     var a=document.createElement('a');a.href=u;
     a.download=String(key).replace(/[^A-Za-z0-9.-]+/g,'-')+'-pcn-writeup.md';a.click();
     setTimeout(function(){URL.revokeObjectURL(u);},1000);});
+  // WORD. The edited textarea wins over the generated blocks when you have touched it — otherwise
+  // the button would quietly hand out a document that is not the one on screen.
+  var dw=document.createElement('button');dw.type='button';dw.className='pcancel';
+  dw.textContent='Download .docx';
+  dw.title='A real Word file — built here, no add-in and nothing fetched. Edits you made above are '
+    +'carried across as plain paragraphs; untouched, it comes out with headings and a drawing table.';
+  dw.addEventListener('click',function(){
+    var edited=(ta.value!==doc.text);
+    wtDocxSave((String(key).replace(/[^A-Za-z0-9.-]+/g,'-')+'-'+
+                String(doc.name||'writeup').replace(/[^A-Za-z0-9.-]+/g,'-')+'.docx'),
+               edited?wtBlocksFromText(ta.value):doc.blocks, doc.name||'Write-up');});
   var hint=document.createElement('span');hint.className='inline-capture-hint';
   hint.textContent='Editable · the description is yours, verbatim — nothing is generated · no attachment clause, because the sheet IS the instrument';
-  row.appendChild(cp);row.appendChild(dl);row.appendChild(hint);box.appendChild(row);
+  row.appendChild(cp);row.appendChild(dl);row.appendChild(dw);row.appendChild(hint);
+  box.appendChild(row);
   host.appendChild(box);
 
   var notes=pcnNotesText(key);
@@ -12858,9 +13155,17 @@ function buildWriteup(key,hostEl){
     a.download=String(key).replace(/[^A-Za-z0-9.-]+/g,'-')+'-addendum-writeup.md';a.click();
     setTimeout(function(){URL.revokeObjectURL(u);},1000);
   });
+  var adw=document.createElement('button');adw.type='button';adw.className='pcancel';
+  adw.textContent='Download .docx';
+  adw.title='A real Word file — built here, nothing fetched. §3, §4 and the List of '
+    +'Attachments as paragraphs, exactly as the text above reads.';
+  adw.addEventListener('click',function(){
+    wtDocxSave(String(key).replace(/[^A-Za-z0-9.-]+/g,'-')+'-addendum-writeup.docx',
+               wtBlocksFromText(ta.value),'Addendum');});
   var hint=document.createElement('span');hint.className='inline-capture-hint';
   hint.textContent='Editable · numbering computed at render · attachments derived from the clause, never typed';
-  row.appendChild(cp);row.appendChild(dl);row.appendChild(hint);box.appendChild(row);
+  row.appendChild(cp);row.appendChild(dl);row.appendChild(adw);row.appendChild(hint);
+  box.appendChild(row);
   host.appendChild(box);
   var hand=specHandoverText(key);
   if(hand){
