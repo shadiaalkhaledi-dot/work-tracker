@@ -2256,8 +2256,19 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
 .pcnb-part{margin:0;}
 .pcnb-part button.inferred{border-style:dashed;color:var(--faint);}
 .pcnb-partmany{font-size:10.5px;font-style:italic;color:var(--faint);flex:0 0 auto;margin-left:6px;}
-.pcnb-x{flex:0 0 auto;margin-left:4px;visibility:hidden;}
-.dwb-sh:hover .pcnb-x,.dwb-row:hover .pcnb-x,.pcnb-x:focus{visibility:visible;}
+.pcnb-also{font-size:10px;font-weight:600;letter-spacing:.02em;color:var(--mauve);flex:0 0 auto;
+  border:1px solid rgba(122,90,140,.35);border-radius:4px;padding:1px 6px;
+  background:rgba(122,90,140,.07);}
+.pcnb-x{flex:0 0 auto;margin-left:4px;font-size:11px;line-height:1;padding:3px 8px;
+  border:1px solid var(--border);border-radius:5px;background:none;color:var(--muted);
+  cursor:pointer;visibility:visible;}
+.pcnb-x:hover,.pcnb-x:focus{border-color:var(--stop);color:var(--stop);
+  background:rgba(191,44,34,.06);}
+.pcnb-oadmin{flex:1 0 100%;box-sizing:border-box;display:flex;align-items:center;
+  gap:8px;margin:6px 0 0;padding-left:74px;}
+.pcnb-oadmin .pcnb-x{margin-left:auto;}
+.pcnb-oadmin .pcnb-pick{max-width:260px;flex:1 1 auto;}
+@media (max-width:640px){.pcnb-oadmin{padding-left:0;flex-wrap:wrap;}}
 .pcnb-drop{max-width:330px;}
 .pcnb-drop .claim-opt{display:block;text-align:left;line-height:1.35;}
 .pcnb-drop .claim-opt small{display:block;font-size:10.5px;color:var(--faint);margin-top:2px;
@@ -2281,6 +2292,25 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
   min-width:74px;}
 .pcnb-odue.none{color:var(--faint);font-style:italic;}
 .pcnb-osub{font-size:11px;color:var(--faint);flex:1 1 100%;margin:1px 0 0 74px;line-height:1.45;}
+.pcnb-oedit{margin:0 0 4px 74px;padding:0 0 4px;}
+.pcnb-oedit>summary{list-style:none;cursor:pointer;display:flex;gap:8px;align-items:baseline;
+  padding:2px 0;font-size:11px;}
+.pcnb-oedit>summary::-webkit-details-marker{display:none;}
+.pcnb-oedit>summary::before{content:'\25b8';font-size:9px;color:var(--faint);}
+.pcnb-oedit[open]>summary::before{content:'\25be';}
+.pcnb-oedit>summary b{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--muted);flex:0 0 auto;}
+.pcnb-oedit>summary .n{color:var(--faint);flex:1 1 auto;min-width:0;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap;}
+.pcnb-oedit>summary .n.pcnb-oempty{font-style:italic;background:none;border:0;padding:0;}
+.pcnb-obody{padding:4px 0 2px;}
+.pcnb-ol{display:block;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--muted);margin:6px 0 3px;}
+.pcnb-od{display:block;width:100%;max-width:640px;font-family:inherit;line-height:1.45;
+  resize:vertical;}
+.pcnb-osec{max-width:180px;display:block;}
+.pcnb-obody .pcnb-nedit{display:block;margin-top:10px;}
+@media (max-width:640px){.pcnb-oedit{margin-left:0;}}
 </style>
 </head>
 <body>
@@ -9171,19 +9201,29 @@ function pcnOrphanBlock(wrap,key,nosheet){
       if(g[0]==='waiting'&&it.waitingFor){
         var wf=document.createElement('span');wf.className='dwb-who dwb-free';
         wf.textContent='waiting on '+it.waitingFor;row.appendChild(wf);}
+      // LINE 2 OF THE ROW, always, in every bucket: which section, which drawing, or off the PCN.
+      // These were flex items on the title's own line, competing with a 290px input, so on a row
+      // whose title runs three lines they landed somewhere different every time — or off the end.
+      var oadm=document.createElement('div');oadm.className='pcnb-oadmin';
       // The bucket asks "drawing or specification?" — so the answer belongs on the row, not two
       // views away. Every bucket gets it: a spec-only change can be reclassified too.
-      row.appendChild(pcnPartSwitch(it));
+      oadm.appendChild(pcnPartSwitch(it));
       var ox=document.createElement('button');ox.type='button';ox.className='sh-x pcnb-x';
       ox.textContent='\u2715';
       ox.title='Take this change off the PCN, or drop it for good.';
       ox.setAttribute('aria-label','Remove '+String(it.title||'').slice(0,60));
       ox.addEventListener('click',function(e){e.stopPropagation();pcnDropPicker(it,ox,key);});
-      row.appendChild(ox);
-      if(g[0]==='gap'||g[0]==='unknown'){
+      // EVERY BUCKET GETS THE PICKER. It was gated on gap/unknown, and Shadi hit that immediately:
+      // a change waiting on Melnik still lands on a drawing, and naming it is exactly what you do
+      // WHILE you wait. A bucket says why a change is not moving; it must not decide which verbs
+      // you are allowed. Only the placeholder changes, so the five situations still read apart.
+      {
         var pick=document.createElement('input');pick.type='text';
         pick.className='sh-in pcnb-pick';pick.setAttribute('list',dlid);
-        pick.placeholder='name the drawing…';
+        pick.placeholder=(g[0]==='spec')?'a drawing too?…'
+          :(g[0]==='done')?'name the drawing…'
+          :(g[0]==='waiting')?'name it while you wait…'
+          :'name the drawing…';
         pick.addEventListener('click',function(e){e.stopPropagation();});
         pick.addEventListener('keydown',function(e){e.stopPropagation();});
         var apply=function(e){
@@ -9205,18 +9245,75 @@ function pcnOrphanBlock(wrap,key,nosheet){
             +' · “'+String(it.title||'').slice(0,40)+'” now names a drawing. Queued for check-in.');};
         pick.addEventListener('change',apply);
         pick.addEventListener('blur',apply);
-        row.appendChild(pick);}
+        oadm.appendChild(pick);}
+      oadm.appendChild(ox);
+      row.appendChild(oadm);
       box2.appendChild(row);
-      var ds=String(it.desc||'').trim();
-      if(ds){
-        var sub=document.createElement('div');sub.className='pcnb-osub';
-        sub.textContent=ds.length>150?ds.slice(0,150)+'…':ds;
-        box2.appendChild(sub);}
+      box2.appendChild(pcnLaneEditor(it));
     });
   });
   wrap.appendChild(box2);
 }
 
+// WHAT GOES OUT, for a change that has no drawing card to carry it. Collapsed to one line of the
+// existing text so the lane still reads as a list; open it and it is the same two fields the card
+// gives, plus the specification section, which only ever applies here.
+function pcnLaneEditor(it){
+  var d=document.createElement('details');d.className='pcnb-oedit';
+  var sm=document.createElement('summary');
+  var lb=document.createElement('b');lb.textContent='What goes out';sm.appendChild(lb);
+  var pv=document.createElement('span');pv.className='n';
+  var ds=String(it.desc||'').trim();
+  pv.textContent=ds?(ds.length>140?ds.slice(0,140)+'\u2026':ds):'nothing written yet';
+  if(!ds)pv.className='n pcnb-oempty';
+  sm.appendChild(pv);
+  sm.title='The sentence that prints in the write-up beside this change. On a drawing it lives on '
+    +'the card; a change with no drawing had nowhere to put it at all.';
+  sm.addEventListener('click',function(e){e.stopPropagation();});
+  d.appendChild(sm);
+  var body=document.createElement('div');body.className='pcnb-obody';
+
+  var l1=document.createElement('label');l1.className='pcnb-ol';
+  l1.textContent='What goes out';body.appendChild(l1);
+  var ta=document.createElement('textarea');ta.className='sh-in pcnb-od';ta.rows=2;
+  ta.value=String(it.desc||'');
+  ta.placeholder='The change, in the words that go to the contractor.';
+  ['click','keydown'].forEach(function(ev){
+    ta.addEventListener(ev,function(e){e.stopPropagation();});});
+  ta.addEventListener('blur',function(){
+    if(ta.value.trim()!==String(it.desc||'').trim())
+      setAddMeta(it.id,'desc',ta.value.trim(),'What goes out');});
+  body.appendChild(ta);
+
+  // THE SPEC SECTION. A specification change is identified by the section it names — the parser
+  // will not call anything `spec` without one, and the write-up files §3 by section number. This
+  // is the only place on the PCN board that can supply it, because a spec change never gets a
+  // drawing card.
+  var pt=String(it.part||'')||((typeof itemPart==='function')?itemPart(it):'');
+  if(pt==='spec'||pt==='both'){
+    var l2=document.createElement('label');l2.className='pcnb-ol';
+    l2.textContent='Specification section';body.appendChild(l2);
+    var si=document.createElement('input');si.type='text';si.className='sh-in pcnb-osec';
+    si.value=String(it.section||'');
+    si.placeholder='08 71 00';
+    si.title='The section this change lands in. Without it the change is a spec change that names '
+      +'no specification, and \u00a73 has nowhere to file it.';
+    ['click','keydown'].forEach(function(ev){
+      si.addEventListener(ev,function(e){e.stopPropagation();});});
+    si.addEventListener('blur',function(){
+      if(si.value.trim()!==String(it.section||'').trim())
+        setAddMeta(it.id,'section',si.value.trim(),'Specification section');});
+    body.appendChild(si);
+  }
+
+  var more=document.createElement('button');more.type='button';more.className='pcnb-nedit';
+  more.textContent='open the whole item \u2014 note, steps, history';
+  more.addEventListener('click',function(e){e.stopPropagation();
+    if(typeof openDrawer==='function')openDrawer(it.id);});
+  body.appendChild(more);
+  d.appendChild(body);
+  return d;
+}
 // DRAWING · SPEC · BOTH. `part::` decides which section of the write-up a change lands in, and
 // the orphan lane already BUCKETS on it — "Drawing or specification? (1)" — while nothing on the
 // board could answer the question it was asking. The parser only infers it: a change that names a
@@ -9251,7 +9348,9 @@ function pcnPartSwitch(it){
 // the addendum is not the same act as dropping it because nobody wants it any more: the first
 // leaves work to re-home, the second closes it. Both queue; neither touches the vault until the
 // check-in, and the reason is what tells the check-in which one happened.
-function pcnDropPicker(it,anchor,key){
+// `ctx` — {sheet, others} — is how the picker knows it is standing on ONE of several drawings a
+// change lands on. Without it the only act on offer is the widest one.
+function pcnDropPicker(it,anchor,key,ctx){
   var old=document.querySelector('.claim-pop');if(old)old.remove();
   var pop=document.createElement('div');pop.className='claim-pop pcnb-drop';
   var inst=instLong(addNum(it.addendum));
@@ -9264,6 +9363,24 @@ function pcnDropPicker(it,anchor,key){
     b.addEventListener('click',function(ev){ev.stopPropagation();pop.remove();fn();});
     pop.appendChild(b);return b;}
 
+  // NARROWEST FIRST. When the change also lands on other drawings, "not on this one" is almost
+  // always what ✕ means — and it is the only act here that is not destructive.
+  var others=(ctx&&ctx.others&&ctx.others.length)?ctx.others:null;
+  if(others&&ctx.sheet){
+    opt('Take it off '+ctx.sheet+' only',
+        'The change stays on '+others.join(' and ')+'. Only this drawing\u2019s line goes.',
+      function(){
+        var pls=(placementsOf(it)||[]).map(function(p){return {sheet:p.sheet||'',view:p.view||'',
+          no:p.no||'',room:p.room||'',text:p.text||'',override:p.override||'',
+          newsheet:p.newsheet||false,clouded:p.clouded};});
+        var keep=pls.filter(function(p){
+          return String(p.sheet||'').toUpperCase()!==String(ctx.sheet).toUpperCase();});
+        if(keep.length===pls.length){setStatus('Nothing on '+ctx.sheet+' to remove.');return;}
+        setAddMeta(it.id,'placements',JSON.stringify(keep),'Drawings');
+        setStatus('Off '+ctx.sheet+' \u2014 the change still rides '+others.join(' and ')
+          +'. Queued for check-in.');});
+  }
+
   if(it.pendingLocal&&it.srcOp){
     // Added here and never folded — there is nothing to drop it FROM. Void the op that created it
     // so it goes everywhere, rather than leaving a permanent tombstone against an item the vault
@@ -9272,8 +9389,9 @@ function pcnDropPicker(it,anchor,key){
       voidOp({id:it.srcOp});buildAddendumRegister();rebuildPendingList();
       setStatus('Deleted \u2014 it was never folded, so it is simply gone.');});
   }else{
-    opt('Take it off '+inst,
-        'The change is still real \u2014 it just does not ride this instrument. It moves to '
+    opt('Take it off '+inst+(others?' entirely':''),
+        (others?('All '+(others.length+1)+' drawings go. '):'')
+        +'The change is still real \u2014 it just does not ride this instrument. It moves to '
         +'\u201cOn no instrument\u201d, where you can put it on another one.',
       function(){
         var p={type:'unaddendum',program:it.program||'',pkg:it.pkg||'',
@@ -9282,7 +9400,8 @@ function pcnDropPicker(it,anchor,key){
         queueLocally(p);renderPendingRow(p);buildAddendumRegister();
         setStatus('Off '+inst+' \u2014 it now rides no instrument. Out of the vault at check-in.');});
     opt('No longer needed',
-        'The change itself is dropped, not just moved. Recorded as a decision so it does not come '
+        (others?('All '+(others.length+1)+' drawings go. '):'')
+        +'The change itself is dropped, not just moved. Recorded as a decision so it does not come '
         +'back on the next instrument.',
       function(){
         if(!window.confirm('Drop \u201c'+String(it.title||'').slice(0,60)+'\u201d for good?\n\n'
@@ -9533,6 +9652,18 @@ function pcnSheetBoard(host,key,pool){
     st.textContent=n_(list.length,'change');sh.appendChild(st);
     // CLOUDED — a button, not a badge. It is the last thing true before a PCN can issue and it was
     // the one fact on this card you could read and not set.
+    // WHICH OTHER DRAWINGS THIS CHANGE LANDS ON. One item across three Core Elevations looked
+    // like three unrelated cards, and every card-level verb on it reaches all three. Computed
+    // HERE, above the first control that mentions it — the done tick's own tooltip reads it, and
+    // building it further down threw on every render.
+    var itsHere={},itsL=[];
+    list.forEach(function(r){if(!itsHere[r.it.id]){itsHere[r.it.id]=1;itsL.push(r.it);}});
+    var otherSn=[];
+    if(itsL.length===1)(placementsOf(it0)||[]).forEach(function(p){
+      var s2=String((p&&p.sheet)||'').toUpperCase();
+      if(s2&&s2!==sn&&otherSn.indexOf(s2)===-1)otherSn.push(s2);});
+    otherSn.sort(function(a,b){var ka=sheetOrderKey(a),kb=sheetOrderKey(b);
+      return ka<kb?-1:ka>kb?1:0;});
     var cb=document.createElement('button');cb.type='button';
     cb.className='dwb-cl pcnb-clbtn'+(isNew?' all':cl===list.length?' all':cl?' some':' none');
     cb.textContent=isNew?'new sheet'
@@ -9555,13 +9686,22 @@ function pcnSheetBoard(host,key,pool){
     var dn=document.createElement('input');dn.type='checkbox';dn.className='sh-done pcnb-done';
     dn.checked=list.every(function(r){return r.it.pendingComplete||r.it.status==='completed';});
     dn.title='Mark the work on this drawing done. It stays on the PCN — clouding decides whether '
-      +'it can issue, this only says the design is settled.';
+      +'it can issue, this only says the design is settled.'
+      +(otherSn.length?('  \u2014 this change also lands on '+otherSn.join(', ')
+        +', and done is the CHANGE\u2019s state, so it marks all of them.'):'');
     dn.setAttribute('aria-label','Work done on '+sn);
     dn.addEventListener('click',function(e){e.stopPropagation();});
     dn.addEventListener('change',function(e){e.stopPropagation();pcnSetDone(list,dn.checked);});
     sh.appendChild(dn);
     // ⚑ — something on this drawing is wrong. Opens the reason rather than toggling, because a
     // flag with no reason is a red mark nobody can act on.
+    if(otherSn.length){
+      var al=document.createElement('span');al.className='pcnb-also';
+      al.textContent='also on '+otherSn.join(', ');
+      al.title='This is ONE change landing on '+(otherSn.length+1)+' drawings. Clouding is per '
+        +'drawing, but the done tick and the section switch are the change\u2019s own \u2014 '
+        +'setting them here sets them everywhere it lands.';
+      sh.appendChild(al);}
     var flagged=list.some(function(r){return isFlagged(r.it);});
     var fb=document.createElement('button');fb.type='button';
     fb.className='pcnb-flag'+(flagged?' on':'');fb.textContent='⚑';
@@ -9590,8 +9730,6 @@ function pcnSheetBoard(host,key,pool){
     // A card holding several items cannot answer "is THIS one spec or drawing" with one switch,
     // and two legacy drawings still do. Say so rather than showing a control that sets the wrong
     // row — the answer there is to merge them, which is a check-in job.
-    var itsHere={},itsL=[];
-    list.forEach(function(r){if(!itsHere[r.it.id]){itsHere[r.it.id]=1;itsL.push(r.it);}});
     // Line 2 of the head, always: which section, which instrument, or off the PCN. Appended to
     // `adm` rather than to `sh` so it cannot reflow into line 1 behind a short drawing name.
     var adm=document.createElement('div');adm.className='pcnb-admin';
@@ -9643,8 +9781,12 @@ function pcnSheetBoard(host,key,pool){
       ? ('Take a change off this drawing. It carries '+itsL.length+' \u2014 open the one you mean.')
       : 'Take this drawing off the PCN, or drop the change for good.';
     xb.setAttribute('aria-label','Remove '+sn+' from this PCN');
+    xb.title=otherSn.length
+      ? ('This change also lands on '+otherSn.join(', ')+'. Take it off '+sn+' alone, off the PCN '
+         +'entirely, or drop it for good.')
+      : xb.title;
     xb.addEventListener('click',function(e){e.stopPropagation();
-      pcnDropPicker(it0,xb,key);});
+      pcnDropPicker(it0,xb,key,{sheet:sn,others:otherSn});});
     adm.appendChild(xb);
     sh.appendChild(adm);
     box.appendChild(sh);
