@@ -2250,6 +2250,18 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
 .pcnb-who{margin:0 0 8px;}
 .pcnb-armed{font-size:12px;color:var(--muted);margin:0 0 10px;}
 .pcnb-armed b{color:var(--gold);}
+.pcnb-admin{flex:1 0 100%;display:flex;align-items:center;gap:6px;margin-top:6px;
+  padding-top:6px;border-top:1px dashed var(--border-soft);}
+.pcnb-admin .pcnb-x{margin-left:auto;}
+.pcnb-part{margin:0;}
+.pcnb-part button.inferred{border-style:dashed;color:var(--faint);}
+.pcnb-partmany{font-size:10.5px;font-style:italic;color:var(--faint);flex:0 0 auto;margin-left:6px;}
+.pcnb-x{flex:0 0 auto;margin-left:4px;visibility:hidden;}
+.dwb-sh:hover .pcnb-x,.dwb-row:hover .pcnb-x,.pcnb-x:focus{visibility:visible;}
+.pcnb-drop{max-width:330px;}
+.pcnb-drop .claim-opt{display:block;text-align:left;line-height:1.35;}
+.pcnb-drop .claim-opt small{display:block;font-size:10.5px;color:var(--faint);margin-top:2px;
+  white-space:normal;}
 .pcnb-what{font-size:10px;font-weight:700;letter-spacing:.03em;color:var(--gold);flex:0 0 auto;
   border:1px solid rgba(160,122,0,.35);border-radius:4px;padding:1px 6px;
   background:rgba(160,122,0,.07);}
@@ -9159,6 +9171,15 @@ function pcnOrphanBlock(wrap,key,nosheet){
       if(g[0]==='waiting'&&it.waitingFor){
         var wf=document.createElement('span');wf.className='dwb-who dwb-free';
         wf.textContent='waiting on '+it.waitingFor;row.appendChild(wf);}
+      // The bucket asks "drawing or specification?" — so the answer belongs on the row, not two
+      // views away. Every bucket gets it: a spec-only change can be reclassified too.
+      row.appendChild(pcnPartSwitch(it));
+      var ox=document.createElement('button');ox.type='button';ox.className='sh-x pcnb-x';
+      ox.textContent='\u2715';
+      ox.title='Take this change off the PCN, or drop it for good.';
+      ox.setAttribute('aria-label','Remove '+String(it.title||'').slice(0,60));
+      ox.addEventListener('click',function(e){e.stopPropagation();pcnDropPicker(it,ox,key);});
+      row.appendChild(ox);
       if(g[0]==='gap'||g[0]==='unknown'){
         var pick=document.createElement('input');pick.type='text';
         pick.className='sh-in pcnb-pick';pick.setAttribute('list',dlid);
@@ -9196,6 +9217,94 @@ function pcnOrphanBlock(wrap,key,nosheet){
   wrap.appendChild(box2);
 }
 
+// DRAWING · SPEC · BOTH. `part::` decides which section of the write-up a change lands in, and
+// the orphan lane already BUCKETS on it — "Drawing or specification? (1)" — while nothing on the
+// board could answer the question it was asking. The parser only infers it: a change that names a
+// spec section is spec, one that names a drawing is drawing, and anything else is left blank and
+// stays blank. This is the switch that fills it in.
+function pcnPartSwitch(it){
+  var part=(typeof itemPart==='function')?itemPart(it):(it.part||'');
+  var pw=document.createElement('span');pw.className='sh-part pcnb-part';
+  [['drawing','Drawing','4','\u00a74 Drawings \u2014 the change is on a sheet, written out in full '
+    +'beside the drawing it lands on'],
+   ['spec','Spec','3','\u00a73 Specifications \u2014 you leave the note; the spec writer writes the '
+    +'final words. It carries no drawing.'],
+   ['both','Both','','One change needing a spec note AND a drawing revision. It appears in both.']
+  ].forEach(function(o){
+    var b=document.createElement('button');b.type='button';b.title=o[3];
+    b.className='p-'+o[0];
+    b.appendChild(document.createTextNode(o[1]));
+    if(o[2]){var sp=document.createElement('sup');sp.textContent='\u00a7'+o[2];b.appendChild(sp);}
+    if(String(it.part||'')===o[0])b.classList.add('on');
+    else if(!String(it.part||'').trim()&&part===o[0])b.classList.add('inferred');
+    b.addEventListener('click',function(e){e.stopPropagation();
+      if(String(it.part||'')===o[0])return;
+      setAddMeta(it.id,'part',o[0],'Goes into');});
+    pw.appendChild(b);});
+  pw.title=String(it.part||'').trim()
+    ? 'Which section of the write-up this change goes into.'
+    : 'Nothing has SAID which this is \u2014 the outline is what the parser guessed from the shape '
+      +'of the item. Click to settle it.';
+  return pw;
+}
+// ✕ — and the question it has to ask first. Dropping a change off this PCN because it belongs on
+// the addendum is not the same act as dropping it because nobody wants it any more: the first
+// leaves work to re-home, the second closes it. Both queue; neither touches the vault until the
+// check-in, and the reason is what tells the check-in which one happened.
+function pcnDropPicker(it,anchor,key){
+  var old=document.querySelector('.claim-pop');if(old)old.remove();
+  var pop=document.createElement('div');pop.className='claim-pop pcnb-drop';
+  var inst=instLong(addNum(it.addendum));
+  var h=document.createElement('div');h.className='claim-pop-h';
+  h.textContent=String(it.title||'').slice(0,70);pop.appendChild(h);
+  function opt(label,hint,fn){
+    var b=document.createElement('button');b.type='button';b.className='claim-opt';
+    b.appendChild(document.createTextNode(label));
+    var sm=document.createElement('small');sm.textContent=hint;b.appendChild(sm);
+    b.addEventListener('click',function(ev){ev.stopPropagation();pop.remove();fn();});
+    pop.appendChild(b);return b;}
+
+  if(it.pendingLocal&&it.srcOp){
+    // Added here and never folded — there is nothing to drop it FROM. Void the op that created it
+    // so it goes everywhere, rather than leaving a permanent tombstone against an item the vault
+    // has never heard of.
+    opt('Delete it','It was added here and never folded, so it goes for good.',function(){
+      voidOp({id:it.srcOp});buildAddendumRegister();rebuildPendingList();
+      setStatus('Deleted \u2014 it was never folded, so it is simply gone.');});
+  }else{
+    opt('Take it off '+inst,
+        'The change is still real \u2014 it just does not ride this instrument. It moves to '
+        +'\u201cOn no instrument\u201d, where you can put it on another one.',
+      function(){
+        var p={type:'unaddendum',program:it.program||'',pkg:it.pkg||'',
+               itemRef:String(it.title||'').slice(0,160),
+               text:'Remove from '+inst,ts:new Date().toISOString()};
+        queueLocally(p);renderPendingRow(p);buildAddendumRegister();
+        setStatus('Off '+inst+' \u2014 it now rides no instrument. Out of the vault at check-in.');});
+    opt('No longer needed',
+        'The change itself is dropped, not just moved. Recorded as a decision so it does not come '
+        +'back on the next instrument.',
+      function(){
+        if(!window.confirm('Drop \u201c'+String(it.title||'').slice(0,60)+'\u201d for good?\n\n'
+            +'It comes off '+inst+' and is recorded as no longer needed. Nothing is written to the '
+            +'vault until the check-in.'))return;
+        var p={type:'unaddendum',reason:'dropped',program:it.program||'',pkg:it.pkg||'',
+               itemRef:String(it.title||'').slice(0,160),
+               text:'NO LONGER NEEDED \u2014 drop from '+inst+' and close the change',
+               ts:new Date().toISOString()};
+        queueLocally(p);renderPendingRow(p);buildAddendumRegister();
+        setStatus('Dropped as no longer needed \u2014 off the board now, struck at check-in.');});
+  }
+  var foot=document.createElement('div');foot.className='claim-pop-f';
+  foot.textContent='Queues like every other change \u2014 nothing reaches the vault until the '
+    +'next check-in.';
+  pop.appendChild(foot);
+  anchor.parentNode.insertBefore(pop,anchor.nextSibling);
+  setTimeout(function(){
+    function away(ev){if(pop.contains(ev.target))return;
+      pop.remove();document.removeEventListener('click',away,true);}
+    document.addEventListener('click',away,true);},0);
+}
 function pcnSheetBoard(host,key,pool){
   var g=ADD_GROUPS[key]||{},pkg=g.pkg||(pool[0]&&pool[0].pkg)||'';
   var wrap=document.createElement('div');wrap.className='wb dwb pcnb';
@@ -9478,6 +9587,22 @@ function pcnSheetBoard(host,key,pool){
     w.addEventListener('click',function(e){e.stopPropagation();
       openClaimPicker(it0,w,whoL[0]||'');});
     sh.appendChild(w);
+    // A card holding several items cannot answer "is THIS one spec or drawing" with one switch,
+    // and two legacy drawings still do. Say so rather than showing a control that sets the wrong
+    // row — the answer there is to merge them, which is a check-in job.
+    var itsHere={},itsL=[];
+    list.forEach(function(r){if(!itsHere[r.it.id]){itsHere[r.it.id]=1;itsL.push(r.it);}});
+    // Line 2 of the head, always: which section, which instrument, or off the PCN. Appended to
+    // `adm` rather than to `sh` so it cannot reflow into line 1 behind a short drawing name.
+    var adm=document.createElement('div');adm.className='pcnb-admin';
+    if(itsL.length===1)adm.appendChild(pcnPartSwitch(it0));
+    else{
+      var pm=document.createElement('span');pm.className='pcnb-partmany';
+      pm.textContent=itsL.length+' items on this drawing';
+      pm.title='This drawing carries '+itsL.length+' separate changes as separate items, so there '
+        +'is no single answer to spec-or-drawing. Merge them at a check-in \u2014 a title is an '
+        +'ID, so it needs your hand on it.';
+      adm.appendChild(pm);}
     // WHICH INSTRUMENT THIS DRAWING RIDES. Restored 2026-09-10. It was on the retired sheet row
     // and went out with it, which left the crossover — PCN 1 → Addendum 1, the move that matters
     // most because it crosses from contract administration back to bid — reachable from nowhere on
@@ -9507,8 +9632,21 @@ function pcnSheetBoard(host,key,pool){
         if(!window.confirm('Move '+sn+' from '+instLong(addNum(it0.addendum))+' to '
              +instLong(to.split('|')[1])+'?'+many)){mv.value=here;return;}
         moveToAddendum(it0.id,to);});
-      sh.appendChild(mv);
+      adm.appendChild(mv);
     }
+    // ✕ — restored 2026-09-10. The card could remove a LINE and never the change itself, so a
+    // drawing that should not be on this PCN at all could only be taken off from a view that no
+    // longer exists.
+    var xb=document.createElement('button');xb.type='button';xb.className='sh-x pcnb-x';
+    xb.textContent='\u2715';
+    xb.title=(itsL.length>1)
+      ? ('Take a change off this drawing. It carries '+itsL.length+' \u2014 open the one you mean.')
+      : 'Take this drawing off the PCN, or drop the change for good.';
+    xb.setAttribute('aria-label','Remove '+sn+' from this PCN');
+    xb.addEventListener('click',function(e){e.stopPropagation();
+      pcnDropPicker(it0,xb,key);});
+    adm.appendChild(xb);
+    sh.appendChild(adm);
     box.appendChild(sh);
 
     var groupsV=pcnViewGroups(list);
