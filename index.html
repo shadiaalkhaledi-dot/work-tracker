@@ -4718,6 +4718,7 @@ function localQueueKey(){return'wt-capture-queue';}
 // op rather than inside it, so the op log stays small and a browser that never opens that row
 // never downloads the picture.
 function queueLocally(payload,body){
+  stampOpTarget(payload);
   if(!payload.id)payload.id=opId();
   if(!payload.by)payload.by=syncWho()||'';
   if(!payload.ts)payload.ts=new Date().toISOString();
@@ -5223,7 +5224,8 @@ function buildExportText(){
     // lost the moment the queue was cleared. The export now carries the vault syntax itself.
     if(p.type==='addmeta'&&p.field==='placements'){
       var pls=[];try{pls=JSON.parse(p.value||'[]')||[];}catch(e){}
-      return '- [Addendum \u00a74] '+(loc?loc+': ':'')+(p.itemRef||'')+'\n'
+      return '- [Addendum \u00a74] '+(loc?loc+': ':'')+(p.itemRef||'')
+        +(p.itemInst?'  [on: '+p.itemInst+']':'')+'\n'
         +pls.map(function(pl){return '    '+placementLiteral(pl);}).join('\n')
         +(pls.length?'':'    (all placements removed)');
     }
@@ -8535,13 +8537,14 @@ function laneItems(){
   // Scanned live, not from an index: a title op RENAMES a row mid-loop, and later ops key on the
   // new name. An index built up front would answer for the name the row no longer has.
   var byTitle=function(t){
+    if(CUR_OP&&CUR_OP.itemId){for(var j=0;j<all.length;j++)if(all[j].id===CUR_OP.itemId)return all[j];}
     var k=String(t||'').slice(0,60),first=null;
     for(var i=0;i<all.length;i++){
       if((all[i].title||'').slice(0,60)!==k)continue;
       if(String(all[i].title||'')===String(t||''))return all[i];   // exact beats prefix
       if(!first)first=all[i];}
     return first||alias[k]||null;};
-  (readQueue()||[]).forEach(function(p,ix){
+  (readQueue()||[]).forEach(function(p,ix){CUR_OP=p;
     if(p.type==='sheet'){
       // captured on the site and not yet folded — it is real work the moment you type it
       all.push({id:'pending-sheet-'+(p.id||ix),srcOp:p.id||'',title:p.text||'(untitled)',status:'open',
@@ -8578,6 +8581,7 @@ function laneItems(){
       var d=byTitle(p.itemRef);if(d)d._dropped=true;
     }
   });
+  CUR_OP=null;
   var live=all.filter(function(i){return !i._dropped;});
   // Marked LAST, once every queued op has been applied — a row that only exists because someone
   // captured it a minute ago collides just as badly as one from the vault.
@@ -8676,7 +8680,25 @@ function addHiddenCount(key){
 }
 
 // ---- edits ------------------------------------------------------------------------------------
-function findLane(id){var l=laneItems();for(var i=0;i<l.length;i++)if(l[i].id===id)return l[i];return null;}
+function findLane(id){var l=laneItems();for(var i=0;i<l.length;i++)if(l[i].id===id){setOpSubject(l[i]);return l[i];}return null;}
+/*title-clash-fix-20260923*/
+// WHICH ROW AN OP IS FOR. Ops name a row by title, and a PCN row's title is its drawing — so a
+// drawing on two instruments is two rows under one name, and every edit on the second landed on
+// the first. The row the current event looked up is remembered until the event is over, and an op
+// queued for a row with that same title carries its id. Cleared on the next tick: a subject that
+// outlived its click would stamp somebody else's op.
+var OP_SUBJECT=null,OP_SUBJECT_T=0;
+function setOpSubject(it){OP_SUBJECT=it||null;
+  if(!OP_SUBJECT_T){OP_SUBJECT_T=setTimeout(function(){OP_SUBJECT=null;OP_SUBJECT_T=0;},0);}}
+function stampOpTarget(p){
+  if(!p||p.itemId||!OP_SUBJECT||!OP_SUBJECT.id)return;
+  if(p.type==='sheet'||p.type==='_void')return;
+  var ref=String(p.itemRef||(p.type==='complete'?p.text:'')||'').slice(0,60);
+  if(!ref||String(OP_SUBJECT.title||'').slice(0,60)!==ref)return;
+  p.itemId=OP_SUBJECT.id;
+  if(OP_SUBJECT.addendum&&!p.itemInst)p.itemInst=OP_SUBJECT.addendum;
+}
+var CUR_OP=null;
 // The item as the VAULT has it, before any queued op is laid over the top. Needed to answer the
 // only question that matters when you edit: is this different from what Claude already knows?
 function baseLaneItem(id){
@@ -8689,7 +8711,18 @@ function baseLaneItem(id){
 // it voids whatever this field queued before, and if you land back on the vault's own value the
 // op disappears entirely — there is nothing to fold.
 function supersede(match){
-  (readQueue()||[]).forEach(function(o){if(match(o))voidOp(o);});
+  var me=OP_SUBJECT&&OP_SUBJECT.id,lane=null;
+  (readQueue()||[]).forEach(function(o){
+    if(!match(o))return;
+    if(me&&o.itemId&&o.itemId!==me)return;      // stamped for the other row with this title
+    // An op from before rows were stamped is applied to the FIRST row with its title. If that is
+    // not this row, it is the twin's edit and not ours to void.
+    if(me&&!o.itemId&&o.itemRef){
+      lane=lane||laneItems();var k=String(o.itemRef).slice(0,60),f=null;
+      for(var i=0;i<lane.length;i++){var t=String(lane[i].title||'');if(t.slice(0,60)!==k)continue;
+        if(t===String(o.itemRef)){f=lane[i];break;}if(!f)f=lane[i];}
+      if(f&&f.id!==me)return;}
+    voidOp(o);});
 }
 function sameValue(a,b){return String(a==null?'':a).trim()===String(b==null?'':b).trim();}
 function setProduces(id,val){
@@ -9052,7 +9085,7 @@ function pcnSetClouded(list,on){
              :'Nothing to change — this drawing is already recorded that way.');
 }
 function pcnSetDone(list,on){
-  pcnSheetItems(list).forEach(function(it){
+  pcnSheetItems(list).forEach(function(it){setOpSubject(it);
     var payload={type:'complete',program:it.program||'',pkg:it.pkg||'',itemRef:'',
                  text:(it.title||'').slice(0,200),ts:new Date().toISOString()};
     if(on){logComplete(payload);}
