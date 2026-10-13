@@ -2255,6 +2255,9 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
 .pcnb-x:hover{color:var(--stop);border-color:rgba(191,44,34,.35);}
 .pcnb-typed{display:flex;gap:6px;margin-top:5px;}
 .pcnb-vwhy{font-size:11px;color:var(--muted);flex:0 0 auto;}
+.pcnb-vmore{margin-top:5px;align-self:flex-start;background:none;border:1px dashed var(--border);
+  color:var(--muted);font-size:11px;border-radius:5px;padding:2px 7px;cursor:pointer;}
+.pcnb-vmore:hover{border-color:var(--gold);color:var(--gold);}
 .dwb-view.pcnb-ask{color:var(--gold);font-style:normal;border-bottom:1px dashed
   var(--gold);cursor:pointer;}
 .dwb-view.pcnb-vwhole{color:var(--muted);font-style:italic;}
@@ -3419,12 +3422,14 @@ function renderItem(itemData){
   doneCb.addEventListener('change',function(){
     if(doneCb.checked){
       el.classList.add('done-pending');setBadgeComplete(el);
-      var payload={type:'complete',program:itemData.program||'',pkg:itemData.pkg||'',itemRef:'',text:itemData.title.slice(0,200),ts:new Date().toISOString()};
+      var payload={type:'complete',program:itemData.program||'',pkg:itemData.pkg||'',
+        itemRef:itemData.title.slice(0,200),sheet:opSheetOf(itemData),
+        text:itemData.title.slice(0,200),ts:new Date().toISOString()};
       logComplete(payload);renderPendingRow(payload);
       toast('Marked done: '+itemData.title.slice(0,50),'undo',function(){doneCb.checked=false;doneCb.dispatchEvent(new Event('change'));});
     }else{
       el.classList.remove('done-pending');restoreBadge(el);
-      removeQueued('complete','',itemData.title.slice(0,200));rebuildPendingList();
+      removeQueued('complete',itemData.title.slice(0,200),itemData.title.slice(0,200));rebuildPendingList();
     }
     recalcCounts();buildFocusPanel();buildTodayFocus();buildMyWork();buildMyDay();
   });
@@ -4718,7 +4723,6 @@ function localQueueKey(){return'wt-capture-queue';}
 // op rather than inside it, so the op log stays small and a browser that never opens that row
 // never downloads the picture.
 function queueLocally(payload,body){
-  stampOpTarget(payload);
   if(!payload.id)payload.id=opId();
   if(!payload.by)payload.by=syncWho()||'';
   if(!payload.ts)payload.ts=new Date().toISOString();
@@ -4819,12 +4823,31 @@ function renderPendingRowEdit(row,payload){
   row.appendChild(r1);row.appendChild(r2);row.appendChild(r3);
 }
 function loadPending(){if(!API_URL||API_URL.indexOf('PASTE_')===0){renderLocalQueue();return;}fetch(API_URL+'?action=pending').then(function(r){return r.json();}).then(function(rows){if(!rows||!rows.length)return;var list=document.getElementById('pendingList');list.innerHTML='';rows.forEach(function(row){renderPendingRow(row);});}).catch(function(){});}
+
+// THE DRAWING NUMBER IS THE IDENTITY. A title is prose and gets re-spelled — by the register, by
+// a rename, by whoever types it. The number is what the register, the set, the consultants and
+// the vault all key on, so every op that can name one does. Added 2026-09-11, after a completion
+// keyed only to a title stopped pointing at anything when the drawing was named.
+function opSheetOf(it){
+  try{
+    var pls=(typeof placementsOf==='function')?(placementsOf(it)||[]):[];
+    for(var i=0;i<pls.length;i++){if(pls[i]&&pls[i].sheet)return String(pls[i].sheet);}
+    if(it&&it.sheet)return String(it.sheet);
+    var m=String((it&&it.title)||'').match(/^\s*(A\d+\.\d+\.\d+[A-Za-z]?)\b/);
+    return m?m[1]:'';
+  }catch(e){return '';}
+}
 function removeQueued(type,itemRef,text){
   // (complete payloads carry the title in .text with an empty itemRef)
   // Undoing someone else's op is legitimate — two people working one addendum will correct
   // each other — so this voids by id wherever the op lives, local or remote.
   var all=readQueue(),hit=null;
-  for(var i=all.length-1;i>=0;i--){if(all[i].type===type&&all[i].itemRef===itemRef&&(!text||all[i].text===text)){hit=all[i];break;}}
+  // Ops queued before 2026-09-11 carry itemRef:'' on a complete, so an exact match on itemRef
+  // would leave them un-undoable. Text is the fallback, and for a complete it is the same string.
+  for(var i=all.length-1;i>=0;i--){var o=all[i];
+    if(o.type!==type)continue;
+    var refOk=(o.itemRef===itemRef)||(!o.itemRef&&text&&o.text===text);
+    if(refOk&&(!text||o.text===text)){hit=o;break;}}
   if(!hit)return;
   voidOp(hit);
 }
@@ -5224,8 +5247,7 @@ function buildExportText(){
     // lost the moment the queue was cleared. The export now carries the vault syntax itself.
     if(p.type==='addmeta'&&p.field==='placements'){
       var pls=[];try{pls=JSON.parse(p.value||'[]')||[];}catch(e){}
-      return '- [Addendum \u00a74] '+(loc?loc+': ':'')+(p.itemRef||'')
-        +(p.itemInst?'  [on: '+p.itemInst+']':'')+'\n'
+      return '- [Addendum \u00a74] '+(loc?loc+': ':'')+(p.itemRef||'')+'\n'
         +pls.map(function(pl){return '    '+placementLiteral(pl);}).join('\n')
         +(pls.length?'':'    (all placements removed)');
     }
@@ -8537,14 +8559,13 @@ function laneItems(){
   // Scanned live, not from an index: a title op RENAMES a row mid-loop, and later ops key on the
   // new name. An index built up front would answer for the name the row no longer has.
   var byTitle=function(t){
-    if(CUR_OP&&CUR_OP.itemId){for(var j=0;j<all.length;j++)if(all[j].id===CUR_OP.itemId)return all[j];}
     var k=String(t||'').slice(0,60),first=null;
     for(var i=0;i<all.length;i++){
       if((all[i].title||'').slice(0,60)!==k)continue;
       if(String(all[i].title||'')===String(t||''))return all[i];   // exact beats prefix
       if(!first)first=all[i];}
     return first||alias[k]||null;};
-  (readQueue()||[]).forEach(function(p,ix){CUR_OP=p;
+  (readQueue()||[]).forEach(function(p,ix){
     if(p.type==='sheet'){
       // captured on the site and not yet folded — it is real work the moment you type it
       all.push({id:'pending-sheet-'+(p.id||ix),srcOp:p.id||'',title:p.text||'(untitled)',status:'open',
@@ -8581,7 +8602,6 @@ function laneItems(){
       var d=byTitle(p.itemRef);if(d)d._dropped=true;
     }
   });
-  CUR_OP=null;
   var live=all.filter(function(i){return !i._dropped;});
   // Marked LAST, once every queued op has been applied — a row that only exists because someone
   // captured it a minute ago collides just as badly as one from the vault.
@@ -8680,25 +8700,7 @@ function addHiddenCount(key){
 }
 
 // ---- edits ------------------------------------------------------------------------------------
-function findLane(id){var l=laneItems();for(var i=0;i<l.length;i++)if(l[i].id===id){setOpSubject(l[i]);return l[i];}return null;}
-/*title-clash-fix-20260923*/
-// WHICH ROW AN OP IS FOR. Ops name a row by title, and a PCN row's title is its drawing — so a
-// drawing on two instruments is two rows under one name, and every edit on the second landed on
-// the first. The row the current event looked up is remembered until the event is over, and an op
-// queued for a row with that same title carries its id. Cleared on the next tick: a subject that
-// outlived its click would stamp somebody else's op.
-var OP_SUBJECT=null,OP_SUBJECT_T=0;
-function setOpSubject(it){OP_SUBJECT=it||null;
-  if(!OP_SUBJECT_T){OP_SUBJECT_T=setTimeout(function(){OP_SUBJECT=null;OP_SUBJECT_T=0;},0);}}
-function stampOpTarget(p){
-  if(!p||p.itemId||!OP_SUBJECT||!OP_SUBJECT.id)return;
-  if(p.type==='sheet'||p.type==='_void')return;
-  var ref=String(p.itemRef||(p.type==='complete'?p.text:'')||'').slice(0,60);
-  if(!ref||String(OP_SUBJECT.title||'').slice(0,60)!==ref)return;
-  p.itemId=OP_SUBJECT.id;
-  if(OP_SUBJECT.addendum&&!p.itemInst)p.itemInst=OP_SUBJECT.addendum;
-}
-var CUR_OP=null;
+function findLane(id){var l=laneItems();for(var i=0;i<l.length;i++)if(l[i].id===id)return l[i];return null;}
 // The item as the VAULT has it, before any queued op is laid over the top. Needed to answer the
 // only question that matters when you edit: is this different from what Claude already knows?
 function baseLaneItem(id){
@@ -8710,26 +8712,18 @@ function baseLaneItem(id){
 // had to reconcile a history nobody wanted. A field has one value: the one it has now. So setting
 // it voids whatever this field queued before, and if you land back on the vault's own value the
 // op disappears entirely — there is nothing to fold.
+// Two spellings of one title are one title. Used by every op that replaces a previous one.
+function normRef(s){return String(s==null?'':s).toLowerCase().replace(/[^a-z0-9]+/g,'');}
 function supersede(match){
-  var me=OP_SUBJECT&&OP_SUBJECT.id,lane=null;
-  (readQueue()||[]).forEach(function(o){
-    if(!match(o))return;
-    if(me&&o.itemId&&o.itemId!==me)return;      // stamped for the other row with this title
-    // An op from before rows were stamped is applied to the FIRST row with its title. If that is
-    // not this row, it is the twin's edit and not ours to void.
-    if(me&&!o.itemId&&o.itemRef){
-      lane=lane||laneItems();var k=String(o.itemRef).slice(0,60),f=null;
-      for(var i=0;i<lane.length;i++){var t=String(lane[i].title||'');if(t.slice(0,60)!==k)continue;
-        if(t===String(o.itemRef)){f=lane[i];break;}if(!f)f=lane[i];}
-      if(f&&f.id!==me)return;}
-    voidOp(o);});
+  (readQueue()||[]).forEach(function(o){if(match(o))voidOp(o);});
 }
 function sameValue(a,b){return String(a==null?'':a).trim()===String(b==null?'':b).trim();}
 function setProduces(id,val){
   var it=findLane(id);if(!it)return;
   var ref=(it.title||'').slice(0,160);
   var base=baseLaneItem(id)||{};
-  supersede(function(o){return o.type==='produces'&&o.itemRef===ref&&/produces:/.test(o.text||'');});
+  supersede(function(o){return o.type==='produces'&&normRef(o.itemRef)===normRef(ref)
+    &&/produces:/.test(o.text||'');});
   if(sameValue(val,base.produces)){
     keepPlace(buildAddendumRegister);
     setStatus('Back to what the vault says — nothing left queued for this one.');return;}
@@ -8777,8 +8771,13 @@ function setAddMeta(id,field,value,label,quiet){
       buildAddendumRegister();return;}
   }
   var ref=(it.title||'').slice(0,160),base=baseLaneItem(id)||{};
-  // one field, one op — the newest wins and the rest stop existing
-  supersede(function(o){return o.type==='addmeta'&&o.itemRef===ref&&o.field===field;});
+  // one field, one op — the newest wins and the rest stop existing.
+  // Compare titles NORMALISED. A drawing's name reaches this string from the register in one
+  // browser and from the vault in another — "Cover Sheet" against "Cover sheet" — and an ===
+  // match left both ops alive, so whoever rendered last won and the other person's edit looked
+  // like it had been refused. Punctuation and case are not identity here.
+  var refN=normRef(ref);
+  supersede(function(o){return o.type==='addmeta'&&o.field===field&&normRef(o.itemRef)===refN;});
   var was=(field==='sheets')?itemSheets(base).join(', ')
         :(field==='placements')?'' :(base[field]||'');
   if(field!=='placements'&&sameValue(value,was)){
@@ -8793,6 +8792,7 @@ function setAddMeta(id,field,value,label,quiet){
     }catch(e){}
   }
   queueLocally({type:'addmeta',program:it.program||'',pkg:it.pkg||'',itemRef:ref,
+    sheet:opSheetOf(it),
     field:field,value:value,
     text:(it.sheet?it.sheet+' — ':'')+(label||field)+': '
       +(field==='placements'?n_((JSON.parse(value||'[]')||[]).length,'line'):(value||'(cleared)'))});
@@ -8997,9 +8997,7 @@ function pcnReviewBlock(wrap,key){
             pcnAddChange(key,sn,{view:x.view||'',no:sno});return;}
           var it=pcnItemForSheet(key,sn);
           if(!it){setStatus(sn+' is not on this instrument yet — add it first.');return;}
-          var pls=(placementsOf(it)||[]).map(function(p){return {sheet:p.sheet||'',view:p.view||'',
-            no:p.no||'',room:p.room||'',text:p.text||'',override:p.override||'',whole:p.whole||false,
-            newsheet:p.newsheet||false,clouded:p.clouded};});
+          var pls=livePlacements(it);
           var ix=-1;
           for(var i=0;i<pls.length;i++){
             if(String(pls[i].sheet||'').toUpperCase()!==sn)continue;
@@ -9085,11 +9083,12 @@ function pcnSetClouded(list,on){
              :'Nothing to change — this drawing is already recorded that way.');
 }
 function pcnSetDone(list,on){
-  pcnSheetItems(list).forEach(function(it){setOpSubject(it);
-    var payload={type:'complete',program:it.program||'',pkg:it.pkg||'',itemRef:'',
+  pcnSheetItems(list).forEach(function(it){
+    var payload={type:'complete',program:it.program||'',pkg:it.pkg||'',
+                 itemRef:(it.title||'').slice(0,200),sheet:opSheetOf(it),
                  text:(it.title||'').slice(0,200),ts:new Date().toISOString()};
     if(on){logComplete(payload);}
-    else{removeQueued('complete','',(it.title||'').slice(0,200));}});
+    else{removeQueued('complete',(it.title||'').slice(0,200),(it.title||'').slice(0,200));}});
   rebuildPendingList();buildAddendumRegister();
 }
 // Remove one LINE. If it was the only one the item keeps existing and falls into "no drawing
@@ -9472,7 +9471,26 @@ function pcnChangeEditor(it,pl,list,save){
   vs.addEventListener('change',function(){
     if(vs.value==='__type__'){typed.style.display='';tin.focus();}
     else typed.style.display='none';});
-  cV.appendChild(typed);ed.appendChild(cV);
+  cV.appendChild(typed);
+  // "and also on view N of this same drawing". Each view is still its own line — clouding is per
+  // place — but the words are written once and copied, which is the part that was missing.
+  var more=document.createElement('button');more.type='button';more.className='pcnb-vmore';
+  more.textContent='+ another view on '+pl.sheet;
+  more.title='The same change, on another viewport of '+pl.sheet+'. It becomes its own line — a '
+    +'cloud goes round each place separately — carrying these words, so you only write them once.';
+  more.addEventListener('click',function(e){e.stopPropagation();
+    var live=((typeof findLane==='function')&&findLane(it.id))||it;
+    var cur=livePlacements(live);
+    // Twin this line: same drawing, same words, no view yet — the board will ask for it.
+    cur.push({sheet:pl.sheet||'',view:'',no:'',room:pl.room||'',text:pl.text||'',
+              override:'',whole:false,newsheet:pl.newsheet||false,clouded:false});
+    SH_ROW_OPEN[it.id]=true;
+    setAddMeta(it.id,'placements',JSON.stringify(cur),'Drawings',true);
+    keepPlace(buildAddendumRegister);
+    setStatus('Another line on '+pl.sheet+' — say which view it is on. '
+      +'The words came across; the cloud is its own.');});
+  cV.appendChild(more);
+  ed.appendChild(cV);
 
   // WHAT CHANGES. On the LINE, not the item — see buildPcnDoc. This is what goes out.
   var cD=cell('What changes','Goes out with the PCN, beside the drawing. This is what gets priced — '
@@ -9657,9 +9675,7 @@ function pcnAddDrawingToChange(it,raw){
     var sn=m?m[0].toUpperCase():tok.toUpperCase();
     if(out.indexOf(sn)===-1)out.push(sn);});
   if(!out.length)return 0;
-  var pls=(placementsOf(it)||[]).map(function(p){return {sheet:p.sheet||'',view:p.view||'',
-    no:p.no||'',room:p.room||'',text:p.text||'',override:p.override||'',whole:p.whole||false,
-    newsheet:p.newsheet||false,clouded:p.clouded};}).filter(function(p){return p.sheet;});
+  var pls=livePlacements(it).filter(function(p){return p.sheet;});
   var have={};pls.forEach(function(p){have[String(p.sheet).toUpperCase()]=1;});
   var added=[];
   out.forEach(function(sn){
@@ -9830,9 +9846,7 @@ function pcnDropPicker(it,anchor,key,ctx){
     opt('Take it off '+ctx.sheet+' only',
         'The change stays on '+others.join(' and ')+'. Only this drawing\u2019s line goes.',
       function(){
-        var pls=(placementsOf(it)||[]).map(function(p){return {sheet:p.sheet||'',view:p.view||'',
-          no:p.no||'',room:p.room||'',text:p.text||'',override:p.override||'',whole:p.whole||false,
-          newsheet:p.newsheet||false,clouded:p.clouded};});
+        var pls=livePlacements(it);
         var keep=pls.filter(function(p){
           return String(p.sheet||'').toUpperCase()!==String(ctx.sheet).toUpperCase();});
         if(keep.length===pls.length){setStatus('Nothing on '+ctx.sheet+' to remove.');return;}
@@ -10388,7 +10402,18 @@ function pcnSheetBoard(host,key,pool){
       var pls=(placementsOf(it)||[]).map(function(p){return {sheet:p.sheet||'',view:p.view||'',
         no:p.no||'',room:p.room||'',text:p.text||'',override:p.override||'',whole:p.whole||false,newsheet:p.newsheet||false,clouded:p.clouded};});
       var mine=pls[r.ix]||pl;
-      var save=function(){setAddMeta(it.id,'placements',JSON.stringify(pls),'Drawings',true);};
+      var save=function(){
+        // Live at save time, not at paint time — and LIVE means looked up again, not re-read off
+        // `it`, which is the object this card was painted from and carries the same stale list.
+        var cur=livePlacements(it);
+        if(r.ix>=0&&r.ix<cur.length)cur[r.ix]=mine; else cur.push(mine);
+        pls=cur;                      // keep the closure honest for anything else reading it
+        setAddMeta(it.id,'placements',JSON.stringify(cur),'Drawings',true);
+        // A quiet save skips the repaint, which is what let the stale copies live. Repaint on the
+        // next tick so the answered row moves to its view group and the other rows re-read.
+        if(window.PCN_SAVE_T)clearTimeout(window.PCN_SAVE_T);
+        window.PCN_SAVE_T=setTimeout(function(){keepPlace(buildAddendumRegister);},450);
+      };
       var row=document.createElement('div');row.className='dwb-row pcnb-row'+(bare?'':' pcnb-under');
       if(it.status==='completed'||it.pendingComplete)row.classList.add('dwb-done');
       // A LIST, and marked as one. These are the changes going out on this drawing — three of them
@@ -11864,7 +11889,8 @@ function sheetRow(it){
   cb.checked=!!(it.pendingComplete||it.status==='completed');
   cb.addEventListener('change',function(e){
     e.stopPropagation();
-    var payload={type:'complete',program:it.program||'',pkg:it.pkg||'',itemRef:'',
+    var payload={type:'complete',program:it.program||'',pkg:it.pkg||'',
+                 itemRef:(it.title||'').slice(0,200),sheet:opSheetOf(it),
                  text:(it.title||'').slice(0,200),ts:new Date().toISOString()};
     if(cb.checked){
       logComplete(payload);renderPendingRow(payload);
@@ -11872,7 +11898,7 @@ function sheetRow(it){
         +(inDocument(it)?' — still in the addendum':''),'undo',function(){
         cb.checked=false;cb.dispatchEvent(new Event('change'));});
     }else{
-      removeQueued('complete','',(it.title||'').slice(0,200));rebuildPendingList();
+      removeQueued('complete',(it.title||'').slice(0,200),(it.title||'').slice(0,200));rebuildPendingList();
     }
     buildAddendumRegister();
   });
@@ -12772,6 +12798,16 @@ function derivePlacements(it){
     });
   });
   return out;
+}
+// LIVE placements, for anything that WRITES. Reading off the painted object is correct when you
+// are drawing a row and wrong when you are saving one: the item has to be looked up again so the
+// copy includes every op queued since the card was drawn.
+function livePlacements(it){
+  var live=((typeof findLane==='function')&&it&&it.id&&findLane(it.id))||it;
+  return (placementsOf(live)||[]).map(function(p){
+    return {sheet:p.sheet||'',view:p.view||'',no:p.no||'',room:p.room||'',text:p.text||'',
+            override:p.override||'',whole:p.whole||false,newsheet:p.newsheet||false,
+            clouded:p.clouded};});
 }
 function placementsOf(it){
   if(it.placements){
