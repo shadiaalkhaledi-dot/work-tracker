@@ -1238,6 +1238,9 @@ select.pl-in{cursor:pointer}
   .ca-det td{background:var(--sink);font-size:11.5px;color:var(--muted);padding:8px 14px 10px;}
   .ca-det b{color:var(--text);font-weight:650;}
   .ca-empty{color:var(--muted);font-size:12.5px;padding:14px 4px;}
+  .ca-vault{margin-top:18px;}
+  .ca-vault>summary{cursor:pointer;font-size:12px;font-weight:650;color:var(--muted);padding:6px 0;}
+  .ca-vault[open]>summary{margin-bottom:6px;}
   .rfi-reg{width:100%;border-collapse:collapse;font-size:12.5px;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
   .rfi-reg th{text-align:left;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:9px 10px;border-bottom:1px solid var(--border);}
   .rfi-reg td{padding:8px 10px;border-bottom:1px solid var(--border-soft);}
@@ -2596,19 +2599,20 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
   <div id="packageView" style="display:none"></div>
   <div id="registersView" style="display:none">
     <div class="regtabs" id="regTabs">
-      <span class="regtab-grp" title="Bid phase — the issued record: addenda and their bid inquiries">BID</span>
+      <span class="regtab-grp" title="Bid phase — the issued record: addenda, bid inquiries and the PCNs / SIs issued at bid">BID</span>
       <button type="button" data-reg="add" class="active" onclick="setRegTab('add')">Addenda</button>
-      <span class="regtab-sep"></span><span class="regtab-grp" title="Construction administration — what a package issues and tracks once it is in contract">CA</span>
-      <button type="button" data-reg="pcn" onclick="setRegTab('pcn')" title="PCN and SI — what a package issues once it is in contract administration">PCN / SI</button>
-      <button type="button" data-reg="ca" onclick="setRegTab('ca')" title="The CA tracker: Onware RFIs and submittals, meeting notes and Planner meeting items, with its flags">CA tracker</button>
-      <button type="button" data-reg="rfi" onclick="setRegTab('rfi')">RFIs</button>
+      <button type="button" data-reg="pcn" onclick="setRegTab('pcn')" title="PCN and SI. On YYC Concourse B these were issued during bid, so they sit with the bid record">PCN / SI</button>
+      <span class="regtab-sep"></span><span class="regtab-grp" title="Construction administration — from the CA tracker: Onware, the meeting notes and the Planner">CA</span>
+      <button type="button" data-reg="rfi" onclick="setRegTab('rfi')" title="RFIs from the CA tracker (Onware + meeting notes), and meeting items">RFIs</button>
+      <button type="button" data-reg="sub" onclick="setRegTab('sub')" title="Submittals from the CA tracker: review stage, days in review, YYC comments">Submittals</button>
       <span class="regtab-sep"></span>
       <button type="button" data-reg="pkg" onclick="setRegTab('pkg')">Packages</button>
       
     </div>
     <div id="regPaneAdd"><div id="addRegView"></div><div id="sheetsView" style="display:none"></div></div>
-    <div id="regPaneCa" style="display:none"><div class="sec-lead">CA tracker — what needs us, from Onware, the meetings and the Planner</div><div id="caRegView"></div></div>
-    <div id="regPaneRfi" style="display:none"><div class="sec-lead">RFIs — aging first, because old RFIs become claims</div><div id="rfiRegView"></div></div>
+    <div id="regPaneSub" style="display:none"><div class="sec-lead">Submittals — from the CA tracker</div><div id="caSubView"></div></div>
+    <div id="regPaneRfi" style="display:none"><div class="sec-lead">RFIs — from the CA tracker (Onware + meeting notes)</div><div id="caRfiView"></div>
+      <details class="ca-vault"><summary>RFIs tracked as work items in the vault — aging first</summary><div id="rfiRegView"></div></details></div>
     <div id="regPanePkg" style="display:none"><div class="sec-lead">Packages — where each one stands</div><div id="overviewView"></div></div>
   </div>
   <div id="historyView" style="display:none">
@@ -2962,7 +2966,7 @@ var VIEW_HEADINGS = {
   topics:'Threads — one story per topic, across packages',
   court:'People — who holds what, and what you owe them',
   package:'One package — its dates, questions, work and history',
-  registers:'Registers — BID: addenda · CA: PCN / SI, CA tracker, RFIs',
+  registers:'Registers — BID: addenda, PCN / SI · CA: RFIs, submittals',
   history:'What happened so far',
   guide:'How the tracker thinks — the journey of an item'
 };
@@ -4223,8 +4227,9 @@ function setRegTab(k){
   // addendum carries, the sheet list says what fills it — so it now opens inside the Addenda card.
   if(k==='sheets'){regTab=k='add';buildAddendumRegister();}
   if(k==='add'||k==='pcn'){REG_KIND=(k==='pcn')?'pcn':'addendum';buildAddendumRegister();}
-  if(k==='ca')buildCaRegister();
-  var panes={add:'regPaneAdd',pcn:'regPaneAdd',ca:'regPaneCa',rfi:'regPaneRfi',pkg:'regPanePkg'};
+  if(k==='rfi')buildCaRegister('rfi');
+  if(k==='sub')buildCaRegister('sub');
+  var panes={add:'regPaneAdd',pcn:'regPaneAdd',rfi:'regPaneRfi',sub:'regPaneSub',pkg:'regPanePkg'};
   Object.keys(panes).forEach(function(kk){
     var el=document.getElementById(panes[kk]);if(el)el.style.display=(panes[kk]===panes[k])?'':'none';
   });
@@ -6611,9 +6616,13 @@ function buildRfiRegister(){
 // tracker Excel (Onware + Kirk's meeting notes + the Planner task on Meeting Items) and the
 // generator ships it as data.ca. Flag, Our court and the tone are the values the workbook already
 // computed, so this page and the Excel can never disagree — edit the Excel, not this.
-var CA_F={kind:'all',lens:'action'};
+// Two scopes share one renderer: the RFIs tab (RFIs, plus the PCL meeting items that have no RFI)
+// and the Submittals tab. Each keeps its own lens and kind.
+var CA_SCOPES={
+  rfi:{host:'caRfiView',kinds:[['RFI','RFIs'],['Meeting','Meeting items']]},
+  sub:{host:'caSubView',kinds:[['Submittal','Submittals']]}};
+var CA_F={rfi:{kind:'RFI',lens:'action'},sub:{kind:'Submittal',lens:'action'}};
 var CA_TONE_ORDER={crit:0,ready:1,late:2,watch:3,ok:4,bg:5,done:6};
-var CA_KINDS=[['all','All'],['RFI','RFIs'],['Submittal','Submittals'],['Meeting','Meeting items']];
 var CA_LENSES=[
   ['action','Needs action','Critical, ready to issue, or in our court — open, not background'],
   ['crit','Critical','Picked Critical, or 15+ days'],
@@ -6645,68 +6654,75 @@ function caWhere(r){
   if(r.kind==='RFI')return (r.court&&r.court!=='—'?r.court:'')||r.onware||'';
   return r.planner?('Planner: '+r.planner):'';
 }
-function buildCaRegister(){
-  var c=document.getElementById('caRegView');if(!c)return;c.innerHTML='';
+function buildCaRegister(scope){
+  scope=CA_SCOPES[scope]?scope:'rfi';
+  var S=CA_SCOPES[scope],F=CA_F[scope];
+  var c=document.getElementById(S.host);if(!c)return;c.innerHTML='';
   var d=caData();
   if(!d||!(d.rows||[]).length){
     c.innerHTML='<p class="ca-empty">No CA register yet. At check-in: <code>python ca_import.py "YYC Concourse-B_Tracker_CA.xlsx"</code>, then publish.</p>';
     return;
   }
-  var rows=d.rows;
+  var kindsHere=S.kinds.map(function(k){return k[0];});
+  var rows=d.rows.filter(function(r){return kindsHere.indexOf(r.kind)>-1;});
+  if(kindsHere.indexOf(F.kind)<0)F.kind=kindsHere[0];
   var meta=document.createElement('div');meta.className='ca-meta';
   var age=d.imported?Math.floor((Date.now()-new Date(d.imported+'T00:00:00').getTime())/86400000):null;
-  meta.innerHTML='From the CA tracker · Onware is the source of truth · imported '+
+  meta.innerHTML='Onware is the source of truth · imported '+
     (d.imported?'<span class="'+(age!==null&&age>7?'stale':'')+'">'+escapeHtml(d.imported)+
       (age!==null?(age===0?' (today)':' ('+age+'d ago)'):'')+'</span>':'—')+
-    ' · edit notes and Status in the Excel, not here';
+    ' · edit notes and Status in the CA tracker Excel, not here';
   c.appendChild(meta);
-  var byKind=rows.filter(function(r){return CA_F.kind==='all'||r.kind===CA_F.kind;});
-  // lens chips — each wears its Key colour and counts what it would show
+  if(S.kinds.length>1){
+    var kb=document.createElement('div');kb.className='ca-bar ca-kinds';
+    S.kinds.forEach(function(K){
+      var b=document.createElement('button');b.type='button';b.setAttribute('data-k',K[0]);
+      var n=rows.filter(function(r){return r.kind===K[0]&&caInLens(r,F.lens);}).length;
+      b.innerHTML=escapeHtml(K[1])+'<span class="n">'+n+'</span>';
+      if(F.kind===K[0])b.classList.add('on');
+      b.addEventListener('click',function(){F.kind=K[0];buildCaRegister(scope);});
+      kb.appendChild(b);
+    });
+    c.appendChild(kb);
+  }
+  var byKind=rows.filter(function(r){return r.kind===F.kind;});
   var bar=document.createElement('div');bar.className='ca-bar ca-lenses';
   CA_LENSES.forEach(function(L){
+    if(L[0]==='ours'&&F.kind==='Meeting')return;
     var b=document.createElement('button');b.type='button';b.setAttribute('data-l',L[0]);
     if(L[2])b.title=L[2];
     var n=byKind.filter(function(r){return caInLens(r,L[0]);}).length;
     var sw={crit:'sw-crit',ready:'sw-ready',late:'sw-late',bg:'sw-bg',ours:'sw-ours'}[L[0]];
     b.innerHTML=(sw?'<span class="sw '+sw+'"></span>':'')+escapeHtml(L[1])+'<span class="n">'+n+'</span>';
-    if(CA_F.lens===L[0])b.classList.add('on');
-    b.addEventListener('click',function(){CA_F.lens=L[0];buildCaRegister();});
+    if(F.lens===L[0])b.classList.add('on');
+    b.addEventListener('click',function(){F.lens=L[0];buildCaRegister(scope);});
     bar.appendChild(b);
   });
   c.appendChild(bar);
-  var kb=document.createElement('div');kb.className='ca-bar ca-kinds';
-  CA_KINDS.forEach(function(K){
-    var b=document.createElement('button');b.type='button';b.setAttribute('data-k',K[0]);
-    var n=rows.filter(function(r){return (K[0]==='all'||r.kind===K[0])&&caInLens(r,CA_F.lens);}).length;
-    b.innerHTML=escapeHtml(K[1])+'<span class="n">'+n+'</span>';
-    if(CA_F.kind===K[0])b.classList.add('on');
-    b.addEventListener('click',function(){CA_F.kind=K[0];buildCaRegister();});
-    kb.appendChild(b);
-  });
-  c.appendChild(kb);
-  var shown=byKind.filter(function(r){return caInLens(r,CA_F.lens);});
+  var shown=byKind.filter(function(r){return caInLens(r,F.lens);});
   shown.sort(function(a,b){
     var ta=CA_TONE_ORDER[a.tone]!=null?CA_TONE_ORDER[a.tone]:4,tb=CA_TONE_ORDER[b.tone]!=null?CA_TONE_ORDER[b.tone]:4;
     if(ta!==tb)return ta-tb;
     return (parseInt(b.days,10)||0)-(parseInt(a.days,10)||0);
   });
   if(!shown.length){var e=document.createElement('p');e.className='ca-empty';e.textContent='Nothing here right now.';c.appendChild(e);return;}
-  var showKind=CA_F.kind==='all';
+  var whereHead=F.kind==='Submittal'?'Review stage':F.kind==='RFI'?'Ball in court':'Planner';
+  var daysHead=F.kind==='Submittal'?'Days in review':F.kind==='RFI'?'Days open':'';
   var tbl=document.createElement('table');tbl.className='ca-reg';
-  tbl.innerHTML='<thead><tr>'+(showKind?'<th>Kind</th>':'')+'<th>No.</th><th>PCL</th><th>Title</th><th>Flag</th>'+
-    '<th>Where it is</th><th>Days</th><th>Ours</th><th>Latest note</th></tr></thead>';
+  tbl.innerHTML='<thead><tr><th>No.</th><th>PCL</th><th>Title</th><th>Flag</th>'+
+    '<th>'+whereHead+'</th>'+(daysHead?'<th>'+daysHead+'</th>':'')+(F.kind!=='Meeting'?'<th>Ours</th>':'')+'<th>Latest note</th></tr></thead>';
+  var ncol=6+(daysHead?1:0)+(F.kind!=='Meeting'?1:0);
   var tb=document.createElement('tbody');
   shown.forEach(function(r){
     var tr=document.createElement('tr');tr.className='ca-row ca-t-'+(r.tone||'ok');
     tr.setAttribute('data-ca',r.kind+'|'+r.no);
-    tr.innerHTML=(showKind?'<td class="ca-kind">'+escapeHtml(r.kind==='Meeting'?'Meeting':r.kind)+'</td>':'')+
-      '<td class="ca-no">'+escapeHtml(r.no||'')+'</td>'+
+    tr.innerHTML='<td class="ca-no">'+escapeHtml(r.no||'')+'</td>'+
       '<td>'+escapeHtml(r.pcl||'')+'</td>'+
       '<td class="ca-title">'+escapeHtml((r.title||'').slice(0,80))+'</td>'+
       '<td class="ca-flag">'+escapeHtml(r.flag||r.status||'')+'</td>'+
       '<td>'+escapeHtml(caWhere(r).slice(0,60))+'</td>'+
-      '<td>'+escapeHtml(r.days||'')+'</td>'+
-      '<td>'+(caIsOurs(r)?'<span class="ca-ours" title="'+escapeHtml(r.ours)+'">'+escapeHtml(r.ours==='AR'?'AR':r.ours.replace(/^AR – /,'AR · '))+'</span>':'')+'</td>'+
+      (daysHead?'<td>'+escapeHtml(r.days||'')+'</td>':'')+
+      (F.kind!=='Meeting'?'<td>'+(caIsOurs(r)?'<span class="ca-ours" title="'+escapeHtml(r.ours)+'">'+escapeHtml(r.ours==='AR'?'AR':r.ours.replace(/^AR – /,'AR · '))+'</span>':'')+'</td>':'')+
       '<td class="ca-note">'+escapeHtml((r.note||'').slice(0,120))+'</td>';
     tr.addEventListener('click',function(){
       var nx=tr.nextSibling;
@@ -6722,7 +6738,7 @@ function buildCaRegister(){
       if(r.yyc)bits.push('<b>YYC comments</b> '+escapeHtml(r.yyc));
       if(r.planner)bits.push('<b>Planner</b> '+escapeHtml(r.planner));
       if(r.ours)bits.push('<b>Our court</b> '+escapeHtml(r.ours));
-      det.innerHTML='<td colspan="'+(showKind?9:8)+'">'+bits.join(' · ')+
+      det.innerHTML='<td colspan="'+ncol+'">'+bits.join(' · ')+
         (r.note?'<div style="margin-top:5px"><b>Latest note</b> '+escapeHtml(r.note)+'</div>':'')+'</td>';
       tr.parentNode.insertBefore(det,tr.nextSibling);
     });
