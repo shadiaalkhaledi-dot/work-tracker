@@ -1206,35 +1206,53 @@ select.pl-in{cursor:pointer}
     margin:0 2px 0 8px;text-transform:uppercase;}
   .regtab-grp:first-child{margin-left:0;}
   .regtab-sep{align-self:stretch;width:1px;background:var(--border);margin:2px 6px;}
-  .ca-meta{font-size:11.5px;color:var(--muted);margin:-2px 0 10px;}
+  .ca-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;font-size:11.5px;color:var(--muted);margin:-2px 0 12px;}
+  .ca-meta .ro{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);
+    border:1px solid var(--border);border-radius:6px;padding:1px 7px;}
   .ca-meta .stale{color:#b45309;font-weight:700;}
-  .ca-bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 8px;}
-  .ca-bar button{font:inherit;font-size:11.5px;padding:3px 10px;cursor:pointer;background:var(--raise);
+  .ca-meta .ca-seg{margin-left:auto;display:inline-flex;gap:4px;}
+  .ca-bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+  .ca-bar button{font:inherit;font-size:11.5px;padding:3px 11px;cursor:pointer;background:var(--raise);
     border:1px solid var(--border);color:var(--muted);border-radius:10px;transition:all .14s ease;}
-  .ca-bar button:hover{color:var(--text);border-color:var(--faint);}
-  .ca-bar button.on{background:var(--sel);border-color:var(--sel);color:var(--sel-fg);box-shadow:var(--shadow-2);}
-  .ca-bar button .n{font-weight:800;margin-left:4px;}
-  .ca-bar .ca-gap{width:12px;}
-  .ca-bar button[data-l="crit"] .sw,.ca-bar button[data-l="ready"] .sw,.ca-bar button[data-l="late"] .sw,
-  .ca-bar button[data-l="bg"] .sw,.ca-bar button[data-l="ours"] .sw{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px;}
+  .ca-bar button.on{background:var(--sel);border-color:var(--sel);color:var(--sel-fg);}
+  .ca-bar button .n{font-weight:800;margin-left:5px;}
+  .ca-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px;margin:0 0 14px;}
+  .ca-tiles button{font:inherit;text-align:left;cursor:pointer;background:var(--raise);border:1px solid var(--border);
+    border-top:3px solid var(--border);border-radius:12px;padding:9px 12px 10px;color:var(--muted);
+    box-shadow:var(--shadow-1);transition:all .14s ease;}
+  .ca-tiles button:hover{border-color:var(--faint);color:var(--text);}
+  .ca-tiles button .n{display:block;font-size:22px;font-weight:750;line-height:1.1;color:var(--text);margin:0;}
+  .ca-tiles button .l{display:block;font-size:11px;font-weight:650;margin-top:2px;}
+  .ca-tiles button.on{border-color:var(--sel);box-shadow:var(--shadow-2);color:var(--text);}
+  .ca-tiles button.zero .n{color:var(--faint);}
+  .ca-tiles button[data-l="action"]{border-top-color:#f59e0b;}
+  .ca-tiles button[data-l="crit"]{border-top-color:#d9667a;}
+  .ca-tiles button[data-l="ready"]{border-top-color:#6aa84f;}
+  .ca-tiles button[data-l="ours"]{border-top-color:#f59e0b;}
+  .ca-tiles button[data-l="late"]{border-top-color:#e0965f;}
+  .ca-tiles button[data-l="bg"]{border-top-color:#c9bfdf;}
+  .ca-list-h{display:flex;align-items:baseline;gap:8px;margin:2px 0 6px;font-size:12.5px;font-weight:650;color:var(--text);}
+  .ca-list-h .ca-more{margin-left:auto;}
+  .ca-list-h .sub{font-size:11px;font-weight:500;color:var(--muted);}
   .ca-reg{width:100%;border-collapse:collapse;font-size:12.5px;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
-  .ca-reg th{text-align:left;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:9px 10px;border-bottom:1px solid var(--border);}
-  .ca-reg td{padding:7px 10px;border-bottom:1px solid var(--border-soft);vertical-align:top;color:var(--text);}
+  .ca-reg th{white-space:nowrap;text-align:left;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:9px 10px;border-bottom:1px solid var(--border);}
+  .ca-reg td{padding:8px 10px;border-bottom:1px solid var(--border-soft);vertical-align:top;color:var(--text);}
   .ca-row{cursor:pointer;border-left:3px solid transparent;}
-  .ca-row:hover td{filter:brightness(.98);}
+  .ca-row:hover td{background:var(--border-soft);}
   .ca-row .ca-no{font-weight:700;white-space:nowrap;}
   .ca-row .ca-title{font-weight:600;}
-  .ca-row .ca-flag{font-weight:700;white-space:nowrap;}
-  .ca-row .ca-note{color:var(--muted);font-size:11.5px;max-width:340px;}
-  .ca-row .ca-kind{font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--faint);}
-  .ca-t-crit td{background:#fbe3e6;} .ca-t-crit{border-left-color:#d9667a;}
-  .ca-t-ready td{background:#e4f1dd;} .ca-t-ready{border-left-color:#6aa84f;}
-  .ca-t-late td{background:#fbeadf;} .ca-t-late{border-left-color:#e0965f;}
-  .ca-t-watch td{background:#e2ebf7;} .ca-t-watch{border-left-color:#7f9cc4;}
-  .ca-t-bg td{background:#f6f4fa;} .ca-t-bg{border-left-color:#c9bfdf;}
-  .ca-t-done td{color:var(--faint);} .ca-t-done .ca-title,.ca-t-done .ca-flag{color:var(--faint);}
+  .ca-row .ca-title small{display:block;font-weight:500;color:var(--faint);font-size:10.5px;margin-top:1px;}
+  .ca-row .ca-days{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--muted);}
+  .ca-row .ca-where{color:var(--muted);font-size:12px;}
+  .ca-pill{display:inline-block;font-size:11px;font-weight:700;border-radius:8px;padding:2px 8px;white-space:nowrap;background:var(--border-soft);color:var(--muted);}
+  .ca-t-crit{border-left-color:#d9667a;} .ca-t-crit .ca-pill{background:#fbe3e6;color:#9f2a3d;}
+  .ca-t-ready{border-left-color:#6aa84f;} .ca-t-ready .ca-pill{background:#e4f1dd;color:#3d6b2a;}
+  .ca-t-late{border-left-color:#e0965f;} .ca-t-late .ca-pill{background:#fbeadf;color:#9a4f19;}
+  .ca-t-watch{border-left-color:#7f9cc4;} .ca-t-watch .ca-pill{background:#e2ebf7;color:#3b5a85;}
+  .ca-t-bg{border-left-color:#c9bfdf;} .ca-t-bg .ca-pill{background:#f3f0f9;color:#6b5a8e;}
+  .ca-t-done td{color:var(--faint);} .ca-t-done .ca-title{color:var(--faint);}
   .sw-crit{background:#d9667a;} .sw-ready{background:#6aa84f;} .sw-late{background:#e0965f;} .sw-bg{background:#c9bfdf;} .sw-ours{background:#f59e0b;}
-  .ca-ours{font-size:10px;font-weight:800;color:#b45309;background:rgba(245,158,11,.14);border-radius:6px;padding:1px 6px;white-space:nowrap;}
+  .ca-ours{font-size:10px;font-weight:800;color:#b45309;background:rgba(245,158,11,.14);border-radius:6px;padding:1px 6px;white-space:nowrap;margin-left:6px;}
   .ca-det td{background:var(--sink);font-size:11.5px;color:var(--muted);padding:8px 14px 10px;}
   .ca-det b{color:var(--text);font-weight:650;}
   .ca-empty{color:var(--muted);font-size:12.5px;padding:14px 4px;}
@@ -2600,18 +2618,18 @@ footer{border-top:1px solid var(--border-soft);margin-top:34px;padding-top:16px;
   <div id="registersView" style="display:none">
     <div class="regtabs" id="regTabs">
       <span class="regtab-grp" title="Bid phase — the issued record: addenda, bid inquiries and the PCNs / SIs issued at bid">BID</span>
-      <button type="button" data-reg="add" class="active" onclick="setRegTab('add')">Addenda</button>
+      <button type="button" data-reg="add" onclick="setRegTab('add')">Addenda</button>
       <button type="button" data-reg="pcn" onclick="setRegTab('pcn')" title="PCN and SI. On YYC Concourse B these were issued during bid, so they sit with the bid record">PCN / SI</button>
       <span class="regtab-sep"></span><span class="regtab-grp" title="Construction administration — from the CA tracker: Onware, the meeting notes and the Planner">CA</span>
-      <button type="button" data-reg="rfi" onclick="setRegTab('rfi')" title="RFIs from the CA tracker (Onware + meeting notes), and meeting items">RFIs</button>
+      <button type="button" data-reg="rfi" class="active" onclick="setRegTab('rfi')" title="RFIs from the CA tracker (Onware + meeting notes), and meeting items">RFIs</button>
       <button type="button" data-reg="sub" onclick="setRegTab('sub')" title="Submittals from the CA tracker: review stage, days in review, YYC comments">Submittals</button>
       <span class="regtab-sep"></span>
       <button type="button" data-reg="pkg" onclick="setRegTab('pkg')">Packages</button>
       
     </div>
-    <div id="regPaneAdd"><div id="addRegView"></div><div id="sheetsView" style="display:none"></div></div>
+    <div id="regPaneAdd" style="display:none"><div id="addRegView"></div><div id="sheetsView" style="display:none"></div></div>
     <div id="regPaneSub" style="display:none"><div class="sec-lead">Submittals — from the CA tracker</div><div id="caSubView"></div></div>
-    <div id="regPaneRfi" style="display:none"><div class="sec-lead">RFIs — from the CA tracker (Onware + meeting notes)</div><div id="caRfiView"></div>
+    <div id="regPaneRfi"><div class="sec-lead">RFIs — from the CA tracker (Onware + meeting notes)</div><div id="caRfiView"></div>
       <details class="ca-vault"><summary>RFIs tracked as work items in the vault — aging first</summary><div id="rfiRegView"></div></details></div>
     <div id="regPanePkg" style="display:none"><div class="sec-lead">Packages — where each one stands</div><div id="overviewView"></div></div>
   </div>
@@ -4024,7 +4042,7 @@ function setHistTab(k){
     if(host){host.innerHTML='';buildDecisionRecord(host);}
   }
 }
-var regTab='add';
+var regTab='rfi';   // opens on the CA tracker's RFIs — the register used day to day
 // Addenda and PCN/SI are two lists at the same level rather than one list with a filter buried in
 // it, because through a bid->CA crossover both are live and you need to see one without the other
 // in the way. They share this pane and this renderer; only the kind changes, and ADD_OPEN's
@@ -6654,6 +6672,17 @@ function caWhere(r){
   if(r.kind==='RFI')return (r.court&&r.court!=='—'?r.court:'')||r.onware||'';
   return r.planner?('Planner: '+r.planner):'';
 }
+// Read-only dashboard over the CA tracker. Tiles are the counts and the filter at once; the list
+// under them is what the selected tile holds. Nothing here edits anything — the Excel is the record.
+// A picked status outranks the day-count wording, so the pill says what the row colour says.
+function caPillText(r){
+  var f=r.flag||r.status||'\u2014';
+  if(r.tone==='crit'&&!/^critical/i.test(f))return 'Critical \u00b7 '+f;
+  if(r.tone==='ready'&&!/^ready/i.test(f))return 'Ready to issue \u00b7 '+f;
+  return f;
+}
+var CA_TILE_LABEL={action:'Needs action',crit:'Critical',ready:'Ready to issue',ours:'Our court',
+  late:'Flag in meeting',bg:'Background',open:'All open',closed:'Closed'};
 function buildCaRegister(scope){
   scope=CA_SCOPES[scope]?scope:'rfi';
   var S=CA_SCOPES[scope],F=CA_F[scope];
@@ -6664,66 +6693,82 @@ function buildCaRegister(scope){
     return;
   }
   var kindsHere=S.kinds.map(function(k){return k[0];});
-  var rows=d.rows.filter(function(r){return kindsHere.indexOf(r.kind)>-1;});
   if(kindsHere.indexOf(F.kind)<0)F.kind=kindsHere[0];
+  var rows=d.rows.filter(function(r){return kindsHere.indexOf(r.kind)>-1;});
+  var byKind=rows.filter(function(r){return r.kind===F.kind;});
+  // header: snapshot date, read-only, and the RFIs / Meeting items switch
   var meta=document.createElement('div');meta.className='ca-meta';
   var age=d.imported?Math.floor((Date.now()-new Date(d.imported+'T00:00:00').getTime())/86400000):null;
-  meta.innerHTML='Onware is the source of truth · imported '+
+  meta.innerHTML='<span class="ro">Read-only</span><span>Snapshot of the CA tracker · '+
     (d.imported?'<span class="'+(age!==null&&age>7?'stale':'')+'">'+escapeHtml(d.imported)+
-      (age!==null?(age===0?' (today)':' ('+age+'d ago)'):'')+'</span>':'—')+
-    ' · edit notes and Status in the CA tracker Excel, not here';
-  c.appendChild(meta);
+      (age!==null?(age===0?' (today)':' · '+age+'d old'):'')+'</span>':'—')+
+    '</span><span>Change things in the Excel; they show here at the next publish.</span>';
   if(S.kinds.length>1){
-    var kb=document.createElement('div');kb.className='ca-bar ca-kinds';
+    var seg=document.createElement('span');seg.className='ca-seg ca-bar ca-kinds';
     S.kinds.forEach(function(K){
       var b=document.createElement('button');b.type='button';b.setAttribute('data-k',K[0]);
-      var n=rows.filter(function(r){return r.kind===K[0]&&caInLens(r,F.lens);}).length;
+      var n=rows.filter(function(r){return r.kind===K[0]&&caIsOpen(r);}).length;
       b.innerHTML=escapeHtml(K[1])+'<span class="n">'+n+'</span>';
       if(F.kind===K[0])b.classList.add('on');
       b.addEventListener('click',function(){F.kind=K[0];buildCaRegister(scope);});
-      kb.appendChild(b);
+      seg.appendChild(b);
     });
-    c.appendChild(kb);
+    meta.appendChild(seg);
   }
-  var byKind=rows.filter(function(r){return r.kind===F.kind;});
-  var bar=document.createElement('div');bar.className='ca-bar ca-lenses';
+  c.appendChild(meta);
+  // tiles
+  var tiles=document.createElement('div');tiles.className='ca-tiles ca-lenses';
   CA_LENSES.forEach(function(L){
     if(L[0]==='ours'&&F.kind==='Meeting')return;
+    if(L[0]==='open'||L[0]==='closed')return;      // these two live beside the list, not as tiles
+    var n=byKind.filter(function(r){return caInLens(r,L[0]);}).length;
     var b=document.createElement('button');b.type='button';b.setAttribute('data-l',L[0]);
     if(L[2])b.title=L[2];
-    var n=byKind.filter(function(r){return caInLens(r,L[0]);}).length;
-    var sw={crit:'sw-crit',ready:'sw-ready',late:'sw-late',bg:'sw-bg',ours:'sw-ours'}[L[0]];
-    b.innerHTML=(sw?'<span class="sw '+sw+'"></span>':'')+escapeHtml(L[1])+'<span class="n">'+n+'</span>';
+    b.innerHTML='<span class="n">'+n+'</span><span class="l">'+escapeHtml(L[1])+'</span>';
+    if(!n)b.classList.add('zero');
     if(F.lens===L[0])b.classList.add('on');
     b.addEventListener('click',function(){F.lens=L[0];buildCaRegister(scope);});
-    bar.appendChild(b);
+    tiles.appendChild(b);
   });
-  c.appendChild(bar);
+  c.appendChild(tiles);
   var shown=byKind.filter(function(r){return caInLens(r,F.lens);});
   shown.sort(function(a,b){
     var ta=CA_TONE_ORDER[a.tone]!=null?CA_TONE_ORDER[a.tone]:4,tb=CA_TONE_ORDER[b.tone]!=null?CA_TONE_ORDER[b.tone]:4;
     if(ta!==tb)return ta-tb;
     return (parseInt(b.days,10)||0)-(parseInt(a.days,10)||0);
   });
+  var kindWord={RFI:'RFIs',Submittal:'submittals',Meeting:'meeting items'}[F.kind];
+  var lh=document.createElement('div');lh.className='ca-list-h';
+  lh.innerHTML=escapeHtml(CA_TILE_LABEL[F.lens]||'')+' <span class="sub">'+shown.length+' '+kindWord+' · click a row for detail</span>';
+  var more=document.createElement('span');more.className='ca-bar ca-more';
+  [['open','All open'],['closed','Closed']].forEach(function(M){
+    var b=document.createElement('button');b.type='button';b.setAttribute('data-l',M[0]);
+    b.innerHTML=escapeHtml(M[1])+'<span class="n">'+byKind.filter(function(r){return caInLens(r,M[0]);}).length+'</span>';
+    if(F.lens===M[0])b.classList.add('on');
+    b.addEventListener('click',function(){F.lens=(F.lens===M[0]?'action':M[0]);buildCaRegister(scope);});
+    more.appendChild(b);
+  });
+  lh.appendChild(more);
+  c.appendChild(lh);
   if(!shown.length){var e=document.createElement('p');e.className='ca-empty';e.textContent='Nothing here right now.';c.appendChild(e);return;}
-  var whereHead=F.kind==='Submittal'?'Review stage':F.kind==='RFI'?'Ball in court':'Planner';
-  var daysHead=F.kind==='Submittal'?'Days in review':F.kind==='RFI'?'Days open':'';
+  var whereHead=F.kind==='Submittal'?'Review stage':F.kind==='RFI'?'Ball in court':'Planner task';
+  var daysHead=F.kind==='Submittal'?'In review':F.kind==='RFI'?'Open':'';
   var tbl=document.createElement('table');tbl.className='ca-reg';
-  tbl.innerHTML='<thead><tr><th>No.</th><th>PCL</th><th>Title</th><th>Flag</th>'+
-    '<th>'+whereHead+'</th>'+(daysHead?'<th>'+daysHead+'</th>':'')+(F.kind!=='Meeting'?'<th>Ours</th>':'')+'<th>Latest note</th></tr></thead>';
-  var ncol=6+(daysHead?1:0)+(F.kind!=='Meeting'?1:0);
+  tbl.innerHTML='<thead><tr><th>No.</th><th>Title</th><th>Flag</th><th>'+whereHead+'</th>'+
+    (daysHead?'<th style="text-align:right">'+daysHead+'</th>':'')+'</tr></thead>';
+  var ncol=4+(daysHead?1:0);
   var tb=document.createElement('tbody');
   shown.forEach(function(r){
     var tr=document.createElement('tr');tr.className='ca-row ca-t-'+(r.tone||'ok');
     tr.setAttribute('data-ca',r.kind+'|'+r.no);
+    var where=r.kind==='Meeting'?(r.planner||''):caWhere(r);
     tr.innerHTML='<td class="ca-no">'+escapeHtml(r.no||'')+'</td>'+
-      '<td>'+escapeHtml(r.pcl||'')+'</td>'+
-      '<td class="ca-title">'+escapeHtml((r.title||'').slice(0,80))+'</td>'+
-      '<td class="ca-flag">'+escapeHtml(r.flag||r.status||'')+'</td>'+
-      '<td>'+escapeHtml(caWhere(r).slice(0,60))+'</td>'+
-      (daysHead?'<td>'+escapeHtml(r.days||'')+'</td>':'')+
-      (F.kind!=='Meeting'?'<td>'+(caIsOurs(r)?'<span class="ca-ours" title="'+escapeHtml(r.ours)+'">'+escapeHtml(r.ours==='AR'?'AR':r.ours.replace(/^AR – /,'AR · '))+'</span>':'')+'</td>':'')+
-      '<td class="ca-note">'+escapeHtml((r.note||'').slice(0,120))+'</td>';
+      '<td class="ca-title">'+escapeHtml((r.title||'').slice(0,90))+
+        (caIsOurs(r)?'<span class="ca-ours" title="'+escapeHtml(r.ours)+'">'+escapeHtml(r.ours==='AR'?'AR':r.ours.replace(/^AR – /,'AR · '))+'</span>':'')+
+        (r.pcl?'<small>'+escapeHtml(r.pcl)+'</small>':'')+'</td>'+
+      '<td><span class="ca-pill">'+escapeHtml(caPillText(r))+'</span></td>'+
+      '<td class="ca-where">'+escapeHtml(where.slice(0,60))+'</td>'+
+      (daysHead?'<td class="ca-days">'+(r.days?escapeHtml(r.days)+'d':'')+'</td>':'');
     tr.addEventListener('click',function(){
       var nx=tr.nextSibling;
       if(nx&&nx.classList&&nx.classList.contains('ca-det')){nx.remove();return;}
